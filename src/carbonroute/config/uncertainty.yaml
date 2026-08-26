@@ -8,6 +8,11 @@
 # lognormal distribution assigned to each factor in the Monte Carlo, so they
 # move the reversal probability directly. Treat them as an assumption under
 # test, not as data. See docs/uncertainty.md.
+#
+# A factor table row may carry its own `gsd` column. When it does, that value
+# wins over the class default below, because it came from the source instead of
+# from this file. The classes here are the fallback for rows whose source
+# published no uncertainty at all.
 # ---------------------------------------------------------------------------
 schema_version: "0.1"
 

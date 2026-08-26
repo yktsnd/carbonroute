@@ -32,6 +32,8 @@ Recommended (optional) columns:
 | --- | --- |
 | `license` | The license the source value is distributed under (e.g. `CC-BY-4.0`, `CC0-1.0`, or a plain-text note like "public domain, US EPA"). See below — this is what makes mixing sources auditable. |
 | `notes` | Anything a reader needs to interpret the row: what process the value represents, known caveats, why you chose it over an alternative. |
+| `inchikey` | The InChIKey for the substance, from a structure database. It joins on structure rather than on a registry number, so it survives the CAS ambiguity that plagues names like "hexane". A row that carries one is indexed under it as well as under `identifier`, so a ledger written against structures still finds it. |
+| `gsd` | A geometric standard deviation **published by the source for this very row**. When present it overrides the class default from `config/uncertainty.yaml` in the Monte Carlo, which is the right precedence: the class defaults are uncalibrated placeholders, and a dispersion that arrived with the data is the one number here that is not a guess. Must be >= 1.0, where 1.0 means "treat as exact". **Leave it empty unless the source published something you can convert** — an empty cell means "the source was silent, fall back to the class", and inventing a value here is the same sin as inventing the factor. If the source gives a relative standard deviation (coefficient of variation `cv`), convert with `gsd = exp(sqrt(log(1 + cv**2)))` and say so in `notes`. |
 
 Any other column is preserved by CSV readers in general but is not read by
 `carbonroute`; the loader only requires the columns above to exist and does

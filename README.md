@@ -131,6 +131,7 @@ live. There is no other configuration surface for them.
 ```
 carbonroute validate route.yaml
 carbonroute resolve  route.yaml [--show-missing]
+carbonroute coverage route.yaml --a <route> --b <route>
 carbonroute compare  route.yaml --a <route> --b <route> -o report.md
 carbonroute lock     route.yaml -o route.lock.json
 ```
@@ -139,6 +140,12 @@ carbonroute lock     route.yaml -o route.lock.json
   lookup, no computation.
 - **`resolve`** looks every material up in the factor table(s) and reports
   what matched and what did not. It does not compute any emissions.
+- **`coverage`** reports how much of the A-versus-B delta set the loaded
+  factor tables can actually resolve, by count and by mass, broken down by
+  role. Mass coverage is not impact coverage — a catalyst charged at a
+  fraction of a percent by mass can dominate a footprint — so the two numbers
+  are meant to be read together. Exits 3 when anything in the delta set is
+  unresolved.
 - **`compare`** runs the full comparison — diff, Monte Carlo ranking,
   reversal thresholds — and writes the report.
 - **`lock`** pins the factor table version(s), the resolved value and
