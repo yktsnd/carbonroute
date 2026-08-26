@@ -96,3 +96,27 @@ same output, and argue about the assumptions rather than about whether the
 arithmetic can be trusted. That is the trade this tool is built around: it
 gives up the appearance of a precise absolute footprint in exchange for a
 comparison whose basis can actually be audited.
+
+## Measured: how far public data actually reaches
+
+The specification listed, as an open question, what fraction of a real delta
+set a factor table limited to solvents and common reagents could cover. The
+letermovir benchmark answers it for one real case, and the answer is small.
+
+Of the 43 materials whose charged mass differs between the two published routes,
+openly licensed factors resolve **2 — 8.9% of the differing mass**. Catalysts,
+which that same study showed can dominate a step's footprint at a fraction of a
+percent by mass, resolve at zero.
+
+This is not a defect in the ingestion scripts. It is what the openly licensed
+LCI landscape contains for fine chemicals. Most of the numbers a process
+chemist would need sit inside commercial databases that cannot be redistributed,
+which is the constraint this project accepted at the outset and continues to
+accept.
+
+The consequence for a user is concrete: expect `carbonroute compare` to return
+`indeterminate` on a real pharmaceutical route until you supply factors of your
+own. `carbonroute coverage` tells you how far you are from a usable comparison
+before you spend time on one, and the break-even calculation in the report tells
+you how much the gap would have to be worth to matter. Those are the honest
+deliverables at this level of data availability; a ranking would not be.

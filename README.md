@@ -126,7 +126,7 @@ Points worth knowing:
 The complete route ledger is the only place assumptions are allowed to
 live. There is no other configuration surface for them.
 
-## The four commands
+## The five commands
 
 ```
 carbonroute validate route.yaml
@@ -272,6 +272,40 @@ run end to end. Every value in it is an obviously-fake round number, every
 row's `source` column starts with `ILLUSTRATIVE`, and any report built from
 it says so prominently. Do not cite it, and do not use it for anything but
 exercising the commands above.
+
+## Benchmarks
+
+Two test sets, both with their acceptance conditions written before the
+assertions (`benchmarks/README.md`).
+
+**B1, the analytic case**, is small enough to check by hand. It pins the
+functional-unit conversion, solvent make-up, the exact cancellation of
+materials common to both routes, and bit-for-bit reproducibility from a seed.
+
+**B2, the letermovir comparison**, is real. The ledger comes from the
+supplementary workbook of an open-access study
+([doi:10.1021/jacs.5c14470](https://doi.org/10.1021/jacs.5c14470)) that
+compared a published Merck route against a de novo route and reported 382
+against 369 kgCO2e/kg — a 3% gap. Those figures were computed with ecoinvent,
+so this project cannot reproduce them and does not try; the masses travel, the
+factors do not.
+
+What B2 measures instead is what happens when the data runs out, which is the
+normal case. Openly licensed factors resolve **2 of the 43 materials that
+differ between the routes, 8.9% of the differing mass**. That is the measured
+answer to the question the specification left open, and it is not a flattering
+one.
+
+The benchmark earned its place immediately. Before it existed the tool treated
+an unresolved material as absent rather than unknown, and on that 9% it
+reported `P > 0.9999` — for the ranking opposite the published one. Two things
+came out of the failure: a coverage floor below which no ranking is reported at
+all, and a break-even calculation that asks what the missing materials would
+have to average for the ranking to flip. Here the answer is about 0.19
+kgCO2e/kg against 30 kg/FU of unresolved mass, which is below every organic
+solvent in this project's own table. So the tool argues for the published
+ranking without ever asserting it, and hands you the condition instead of a
+guess.
 
 ## Further reading
 

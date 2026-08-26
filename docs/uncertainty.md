@@ -127,3 +127,39 @@ None of these has a target date attached in the specification. Anyone
 relying on `carbonroute`'s probability output for a real decision should
 treat the list above as open questions about that output's reliability,
 not as a routine disclaimer.
+
+## What the Monte Carlo does not cover
+
+The sampling above describes the dispersion of the factors that were *found*.
+It says nothing about the materials that were not. Treating an unresolved
+material as absent is the same as assigning it a factor of zero, which is
+exactly the silent default the specification forbids (section 13).
+
+Two mechanisms keep that gap visible.
+
+**A coverage floor.** `assumptions.min_delta_coverage` is the share of the
+differing mass that must resolve before any ranking is reported. Below it the
+verdict is `indeterminate` and the report says why, no matter how narrow the
+interval over the resolved part looks. A tight interval over a tenth of the
+problem is not a tight answer. The 0.8 default has no empirical basis; like the
+indeterminate band it is a declared convention, and it lives in the ledger so
+that a reader can disagree with it in writing.
+
+**A break-even factor.** `compute.unresolved_flip_factor` refuses to guess what
+the missing materials are worth and instead computes what they would have to
+average for the ranking to reverse:
+
+```
+breakeven = -(resolved delta GWP) / (signed unresolved delta mass)
+```
+
+A small break-even means the ranking rests on the missing data. A large one, or
+none at all — which happens when the unresolved mass leans the same way the
+resolved part already does — means it survives most of what the gap could hold.
+Either way the reader gets a number that follows from the data rather than an
+assumption smuggled in as a zero. It assumes a single average across the
+unresolved set, so a sufficiently lopsided individual material can still
+reverse things; the report says so.
+
+On the letermovir benchmark this is the difference between a confident wrong
+answer and a useful refusal. See `benchmarks/README.md`.
