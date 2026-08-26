@@ -145,10 +145,12 @@ carbonroute lock     route.yaml -o route.lock.json
   provenance for every material, and the RNG seed and iteration count, so
   that someone else can reproduce the exact numbers later.
 
-All four accept `--factors PATH` (repeatable; defaults to every CSV under
-`data/factors/`) and `--uncertainty PATH` (defaults to the bundled
-`config/uncertainty.yaml`). `compare` additionally takes `--iterations`,
-`--seed`, and `--no-thresholds`. A `--fetch` flag exists on `resolve` and
+`resolve`, `compare` and `lock` accept `--factors PATH` (repeatable;
+defaults to every CSV under `data/factors/`). `compare` and `lock` accept
+`--uncertainty PATH` (defaults to the bundled `config/uncertainty.yaml`);
+`resolve` does not, because it never touches the uncertainty model.
+`compare` additionally takes `--iterations`, `--seed` and `--no-thresholds`.
+`validate` takes no options: it reads the ledger and nothing else. A `--fetch` flag exists on `resolve` and
 `compare` for a future network-backed factor lookup; in v0 it exits with an
 error, because **network access is off by default and there is no code path
 in this tool that opens a socket.** The only side effect any command has is

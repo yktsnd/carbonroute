@@ -154,8 +154,13 @@ class FactorTable:
         return Resolution(key=key, name=name, factor=None, matched_by=None)
 
     def fingerprint(self) -> str:
-        """Order-independent hash of every table that fed this object."""
-        joined = "\n".join(f"{p}:{d}" for p, d in sorted(self.sources.items()))
+        """Order-independent hash of the *contents* of every table loaded.
+
+        Deliberately independent of file paths: the same tables read from a
+        different checkout, or via absolute rather than relative paths, must
+        fingerprint identically, or a lock file stops being portable.
+        """
+        joined = "\n".join(sorted(self.sources.values()))
         return hashlib.sha256(joined.encode("utf-8")).hexdigest()
 
 
