@@ -1,0 +1,51 @@
+# Illustrative two-route ledger. The masses are invented; this file exists to
+# show the shape of a ledger and to exercise the pipeline, not to describe a
+# real synthesis.
+schema_version: "0.1"
+
+assumptions:
+  functional_unit: {mass_kg: 1.0, basis: product}
+  boundary: cradle-to-gate
+  grid_factor:
+    id: JP-2024
+    value_kgCO2e_per_kWh: 0.43
+    source: "Analyst-declared placeholder; replace with the grid factor you can cite."
+    uncertainty_class: assumption
+  gwp_method: {name: IPCC-AR6, horizon_years: 100, feedbacks: false}
+  solvent_recovery_default: 0.0
+  waste_treatment: excluded
+  monte_carlo: {iterations: 10000, seed: 20240101}
+  indeterminate_band: {low: 0.4, high: 0.6}
+
+routes:
+  legacy:
+    label: "Published route"
+    steps:
+      - id: 1
+        yield: 0.82
+        inputs:
+          - {name: toluene, cas: "108-88-3", mass_kg: 12.0, role: solvent}
+          - {name: "substrate A", cas: null, mass_kg: 1.0, role: reactant}
+          - {name: palladium, cas: "7440-06-4", mass_kg: 0.004, role: catalyst}
+        electricity_kWh: 30.0
+      - id: 2
+        yield: 0.75
+        inputs:
+          - {name: 2-MeTHF, cas: "96-47-9", mass_kg: 8.0, role: solvent}
+          - {name: acetic acid, cas: "64-19-7", mass_kg: 0.5, role: reagent}
+        electricity_kWh: 12.0
+  denovo:
+    label: "New route"
+    steps:
+      - id: 1
+        yield: 0.90
+        inputs:
+          - {name: methanol, cas: "67-56-1", mass_kg: 9.0, role: solvent}
+          - {name: "substrate A", cas: null, mass_kg: 1.0, role: reactant}
+          - {name: water, cas: "7732-18-5", mass_kg: 5.0, role: auxiliary}
+        electricity_kWh: 40.0
+      - id: 2
+        yield: 0.88
+        inputs:
+          - {name: 2-MeTHF, cas: "96-47-9", mass_kg: 3.0, role: solvent}
+        electricity_kWh: 18.0

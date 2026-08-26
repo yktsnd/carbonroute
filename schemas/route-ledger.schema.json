@@ -1,0 +1,323 @@
+{
+  "$defs": {
+    "Assumptions": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary": {
+          "const": "cradle-to-gate",
+          "default": "cradle-to-gate",
+          "title": "Boundary",
+          "type": "string"
+        },
+        "functional_unit": {
+          "$ref": "#/$defs/FunctionalUnit"
+        },
+        "grid_factor": {
+          "$ref": "#/$defs/GridFactor"
+        },
+        "gwp_method": {
+          "$ref": "#/$defs/GWPMethod"
+        },
+        "indeterminate_band": {
+          "$ref": "#/$defs/IndeterminateBand"
+        },
+        "monte_carlo": {
+          "$ref": "#/$defs/MonteCarloSettings"
+        },
+        "solvent_recovery": {
+          "additionalProperties": {
+            "exclusiveMaximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "title": "Solvent Recovery",
+          "type": "object"
+        },
+        "solvent_recovery_default": {
+          "default": 0.0,
+          "exclusiveMaximum": 1.0,
+          "minimum": 0.0,
+          "title": "Solvent Recovery Default",
+          "type": "number"
+        },
+        "waste_treatment": {
+          "const": "excluded",
+          "default": "excluded",
+          "title": "Waste Treatment",
+          "type": "string"
+        }
+      },
+      "required": [
+        "grid_factor",
+        "gwp_method"
+      ],
+      "title": "Assumptions",
+      "type": "object"
+    },
+    "FunctionalUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "const": "product",
+          "default": "product",
+          "title": "Basis",
+          "type": "string"
+        },
+        "mass_kg": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Mass Kg",
+          "type": "number"
+        }
+      },
+      "title": "FunctionalUnit",
+      "type": "object"
+    },
+    "GWPMethod": {
+      "additionalProperties": false,
+      "properties": {
+        "feedbacks": {
+          "default": false,
+          "title": "Feedbacks",
+          "type": "boolean"
+        },
+        "horizon_years": {
+          "default": 100,
+          "exclusiveMinimum": 0,
+          "title": "Horizon Years",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "GWPMethod",
+      "type": "object"
+    },
+    "GridFactor": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "uncertainty_class": {
+          "default": "assumption",
+          "title": "Uncertainty Class",
+          "type": "string"
+        },
+        "value_kgCO2e_per_kWh": {
+          "minimum": 0,
+          "title": "Value Kgco2E Per Kwh",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "value_kgCO2e_per_kWh",
+        "source"
+      ],
+      "title": "GridFactor",
+      "type": "object"
+    },
+    "IndeterminateBand": {
+      "additionalProperties": false,
+      "description": "Range of P(GWP_A < GWP_B) in which no ranking is reported.\n\nThe 0.4-0.6 default has no empirical basis; it is a convention this tool\nadopts so that near-ties are never dressed up as conclusions.",
+      "properties": {
+        "high": {
+          "default": 0.6,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "High",
+          "type": "number"
+        },
+        "low": {
+          "default": 0.4,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Low",
+          "type": "number"
+        }
+      },
+      "title": "IndeterminateBand",
+      "type": "object"
+    },
+    "MaterialInput": {
+      "additionalProperties": false,
+      "properties": {
+        "cas": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cas"
+        },
+        "mass_kg": {
+          "minimum": 0,
+          "title": "Mass Kg",
+          "type": "number"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "recovery": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recovery"
+        },
+        "role": {
+          "enum": [
+            "solvent",
+            "reactant",
+            "reagent",
+            "catalyst",
+            "auxiliary"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "mass_kg",
+        "role"
+      ],
+      "title": "MaterialInput",
+      "type": "object"
+    },
+    "MonteCarloSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "iterations": {
+          "default": 10000,
+          "minimum": 100,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "seed": {
+          "default": 20240101,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "title": "MonteCarloSettings",
+      "type": "object"
+    },
+    "Route": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/Step"
+          },
+          "minItems": 1,
+          "title": "Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "label",
+        "steps"
+      ],
+      "title": "Route",
+      "type": "object"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "electricity_kWh": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Electricity Kwh",
+          "type": "number"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Id"
+        },
+        "inputs": {
+          "items": {
+            "$ref": "#/$defs/MaterialInput"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "yield": {
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "title": "Yield",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "yield"
+      ],
+      "title": "Step",
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/yktsnd/carbonroute/schemas/route-ledger.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "$ref": "#/$defs/Assumptions"
+    },
+    "routes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Route"
+      },
+      "minProperties": 1,
+      "title": "Routes",
+      "type": "object"
+    },
+    "schema_version": {
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "assumptions",
+    "routes"
+  ],
+  "title": "carbonroute route ledger",
+  "type": "object"
+}

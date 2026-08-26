@@ -1,0 +1,7 @@
+identifier,name,gwp_kgCO2e_per_kg,source,database_version,region,retrieved_date,uncertainty_class,license,notes
+108-88-3,toluene,3.0,ILLUSTRATIVE placeholder - not a real LCA source,n/a,GLO,2026-01-01,background_db,CC0-1.0,Round number chosen for testing. Do not cite.
+96-47-9,2-MeTHF,6.0,ILLUSTRATIVE placeholder - not a real LCA source,n/a,GLO,2026-01-01,background_db,CC0-1.0,Round number chosen for testing. Do not cite.
+67-56-1,methanol,1.0,ILLUSTRATIVE placeholder - not a real LCA source,n/a,GLO,2026-01-01,background_db,CC0-1.0,Round number chosen for testing. Do not cite.
+7732-18-5,water,0.0,ILLUSTRATIVE placeholder - not a real LCA source,n/a,GLO,2026-01-01,background_db,CC0-1.0,Round number chosen for testing. Do not cite.
+64-19-7,acetic acid,2.0,ILLUSTRATIVE placeholder - not a real LCA source,n/a,GLO,2026-01-01,background_db,CC0-1.0,Round number chosen for testing. Do not cite.
+7440-06-4,palladium,4000.0,ILLUSTRATIVE placeholder - not a real LCA source,n/a,GLO,2026-01-01,analogue_substitute,CC0-1.0,Round number chosen for testing. Do not cite.

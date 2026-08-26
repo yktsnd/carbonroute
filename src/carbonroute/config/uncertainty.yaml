@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# PROVISIONAL, UNVERIFIED VALUES.
+#
+# Every geometric standard deviation below is a placeholder chosen by analogy
+# with the ecoinvent pedigree matrix (Weidema & Wesnaes 1996; ecoinvent data
+# quality guideline). None of them has been calibrated against measured
+# dispersion for the material classes this tool sees. They set the width of the
+# lognormal distribution assigned to each factor in the Monte Carlo, so they
+# move the reversal probability directly. Treat them as an assumption under
+# test, not as data. See docs/uncertainty.md.
+# ---------------------------------------------------------------------------
+schema_version: "0.1"
+
+# Geometric standard deviation (GSD, dimensionless) per provenance class.
+# A GSD of 1.0 means "treated as exact"; 1.5 means the 95% interval spans
+# roughly a factor of 2.2 either side of the median.
+classes:
+  primary:               {gsd: 1.10, description: "Measured on the actual process, by the actual operator."}
+  supplier:              {gsd: 1.25, description: "Supplied by the material's producer, not independently checked."}
+  background_db:         {gsd: 1.50, description: "Generic cradle-to-gate value from a background LCI database."}
+  literature:            {gsd: 1.60, description: "Published study, process and vintage only partly matching."}
+  structural_estimate:   {gsd: 2.00, description: "Predicted from molecular structure by a model (e.g. FineChem-class)."}
+  analogue_substitute:   {gsd: 2.50, description: "Borrowed from a different but chemically similar material."}
+  assumption:            {gsd: 1.30, description: "A number the analyst declared, such as a grid factor."}
+  unknown:               {gsd: 2.50, description: "Provenance not stated in the factor table."}
+
+# Applied when a row's uncertainty_class is not listed above.
+fallback_class: unknown

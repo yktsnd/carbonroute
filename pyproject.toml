@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "carbonroute"
+version = "0.1.0"
+description = "Comparative cradle-to-gate GHG screening for synthetic routes: ranks routes and reports reversal probability, not absolute values."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+dependencies = [
+    "pydantic>=2.6",
+    "numpy>=1.26",
+    "PyYAML>=6.0",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+chem = ["rdkit>=2023.9"]
+
+[project.scripts]
+carbonroute = "carbonroute.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+carbonroute = ["config/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "benchmarks"]
