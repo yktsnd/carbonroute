@@ -154,14 +154,32 @@ def _conclusion(comparison: "Comparison", thresholds: "list[Threshold] | None") 
     a, b = comparison.a, comparison.b
     lines = ["## Conclusion", ""]
 
+    from .compute import unresolved_flip_factor
+
+    flip = unresolved_flip_factor(comparison.diff, comparison.assumptions)
+
     if stats.verdict == "indeterminate":
         band = comparison.assumptions.indeterminate_band
-        lines.append(
-            f"**The comparison is undecided.** P(GWP({a.label}) < GWP({b.label})) = "
-            f"{_fmt(stats.p_a_lower, 3)}, inside the configured indeterminate band "
-            f"[{band.low}, {band.high}]. No ranking is reported."
-        )
+        if stats.indeterminate_reason:
+            lines.append(
+                f"**The comparison is undecided**, because {stats.indeterminate_reason}. "
+                f"No ranking is reported."
+            )
+            lines.append("")
+            lines.append(
+                f"The Monte Carlo over the resolved part alone gives "
+                f"P(GWP({a.label}) < GWP({b.label})) {_fmt_probability(stats.p_a_lower, stats.iterations)}. That number "
+                f"describes {stats.coverage_mass_fraction * 100:.1f}% of the differing mass and "
+                f"says nothing about the rest, which is why it is not the conclusion."
+            )
+        else:
+            lines.append(
+                f"**The comparison is undecided.** P(GWP({a.label}) < GWP({b.label})) "
+                f"{_fmt_probability(stats.p_a_lower, stats.iterations)}, inside the configured indeterminate band "
+                f"[{band.low}, {band.high}]. No ranking is reported."
+            )
         lines.append("")
+        lines.extend(_flip_lines(flip))
         lines.append("What would settle it:")
         lines.append("")
         unresolved_rows = sorted(
@@ -211,6 +229,28 @@ def _conclusion(comparison: "Comparison", thresholds: "list[Threshold] | None") 
             f"({len(stats.excluded_keys)} unresolved delta material(s) excluded from the "
             "Monte Carlo — see the warning above.)"
         )
+    lines.append("")
+    lines.extend(_flip_lines(flip))
+    return lines
+
+
+def _flip_lines(flip) -> list[str]:
+    """How much the unresolved part of the delta would have to carry to reverse things."""
+    if flip.unresolved_delta_mass_kg == 0.0 and flip.breakeven_kgCO2e_per_kg is None:
+        return []
+    lines = ["### What the missing data would have to be", ""]
+    lines.append(
+        f"Resolved part of the difference: {_fmt(flip.resolved_delta_kgCO2e)} kgCO2e/FU. "
+        f"Unresolved differing mass: {_fmt(flip.unresolved_delta_mass_kg)} kg/FU (signed)."
+    )
+    lines.append("")
+    lines.append(flip.note)
+    lines.append("")
+    lines.append(
+        "_No factor was assumed for the unresolved materials. This states the "
+        "break-even value they would need to average, which is a question the data "
+        "can answer, rather than filling the gap with a number it cannot._"
+    )
     lines.append("")
     return lines
 

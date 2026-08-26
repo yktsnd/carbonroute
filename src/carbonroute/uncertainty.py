@@ -68,6 +68,10 @@ class ComparisonStats:
     iterations: int
     seed: int
     excluded_keys: list[str]  # delta materials left out (unresolved)
+    #: Share of the absolute delta mass that resolved to a factor.
+    coverage_mass_fraction: float = 1.0
+    #: Why no ranking is given, when the verdict is "indeterminate".
+    indeterminate_reason: str = ""
 
 
 def compare_monte_carlo(

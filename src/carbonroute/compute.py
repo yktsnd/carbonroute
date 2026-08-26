@@ -221,11 +221,30 @@ def run_comparison(
     use_seed = seed if seed is not None else mc.seed
 
     stats = compare_monte_carlo(diff, assumptions, model, use_iterations, use_seed)
+
+    # A tight interval over the resolved fraction is not a tight interval over
+    # the comparison. When most of the differing mass never reached a factor,
+    # the Monte Carlo is measuring the dispersion of a subset and saying nothing
+    # about the rest, so the ranking is withheld rather than reported with a
+    # confidence the data does not support. This is what the benchmark in
+    # benchmarks/letermovir exists to catch.
+    cov = coverage(diff)
+    verdict = stats.verdict
+    reason = ""
+    if cov.mass_fraction < assumptions.min_delta_coverage:
+        verdict = "indeterminate"
+        reason = (
+            f"only {cov.mass_fraction * 100:.1f}% of the differing mass "
+            f"({cov.resolved_count} of {cov.delta_material_count} materials) resolved to a "
+            f"factor, below the declared minimum of "
+            f"{assumptions.min_delta_coverage * 100:.0f}%"
+        )
+
     # median_a/median_b are the deterministic resolved totals, not MC outputs;
     # compare_monte_carlo only sees the diff, so fill them in here.
     stats = ComparisonStats(
         p_a_lower=stats.p_a_lower,
-        verdict=stats.verdict,
+        verdict=verdict,
         delta_median=stats.delta_median,
         delta_p05=stats.delta_p05,
         delta_p95=stats.delta_p95,
@@ -234,6 +253,8 @@ def run_comparison(
         iterations=stats.iterations,
         seed=stats.seed,
         excluded_keys=stats.excluded_keys,
+        coverage_mass_fraction=cov.mass_fraction,
+        indeterminate_reason=reason,
     )
 
     illustrative_keys = sorted(
@@ -326,4 +347,68 @@ def coverage(diff: DiffResult) -> Coverage:
         resolved_mass_kg=resolved_mass,
         unresolved=unresolved,
         by_role={role: (vals[0], vals[1]) for role, vals in sorted(by_role.items())},
+    )
+
+
+def resolved_delta_gwp(diff: DiffResult, assumptions: Assumptions) -> float:
+    """The part of GWP_A - GWP_B that the factor tables can actually account for."""
+    total = sum(
+        row.delta_mass_kg * row.factor.gwp_kgCO2e_per_kg
+        for row in diff.rows
+        if row.resolved and row.factor is not None
+    )
+    total += diff.delta_electricity_kWh * assumptions.grid_factor.value_kgCO2e_per_kWh
+    return total
+
+
+@dataclass(frozen=True)
+class FlipFactor:
+    """What the unresolved part of a delta set would have to be to reverse the ranking.
+
+    No factor is invented here. The question asked is the inverse one: given the
+    signed mass that could not be resolved, what single average kgCO2e/kg would
+    it need to carry for the two routes to tie? A small answer means the ranking
+    rests on the missing data; a large one means it survives most of what the
+    gap could plausibly hold. Either way the reader gets a number instead of a
+    silent assumption that the gap is zero.
+    """
+
+    resolved_delta_kgCO2e: float
+    unresolved_delta_mass_kg: float          # signed, a - b
+    breakeven_kgCO2e_per_kg: float | None    # None when no positive value flips it
+    note: str
+
+
+def unresolved_flip_factor(diff: DiffResult, assumptions: Assumptions) -> FlipFactor:
+    resolved = resolved_delta_gwp(diff, assumptions)
+    signed_mass = sum(row.delta_mass_kg for row in diff.rows if not row.resolved)
+
+    if not diff.delta_unresolved:
+        return FlipFactor(resolved, 0.0, None, "Every material in the delta set resolved.")
+    if signed_mass == 0.0:
+        return FlipFactor(
+            resolved,
+            0.0,
+            None,
+            "The unresolved masses cancel in the difference, so a uniform factor over "
+            "them cannot change the ranking. A non-uniform one still could.",
+        )
+
+    breakeven = -resolved / signed_mass
+    if breakeven <= 0.0:
+        return FlipFactor(
+            resolved,
+            signed_mass,
+            None,
+            "No positive average factor over the unresolved mass reverses the ranking, "
+            "because that mass leans the same way the resolved part already does. "
+            "Individual materials could still differ enough to reverse it.",
+        )
+    return FlipFactor(
+        resolved,
+        signed_mass,
+        breakeven,
+        f"The ranking reverses if the {abs(signed_mass):.4g} kg/FU of unresolved "
+        f"material averages more than {breakeven:.4g} kgCO2e/kg. Compare that against "
+        "the factors you do have before treating the ranking as settled.",
     )

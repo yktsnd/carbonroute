@@ -21,6 +21,13 @@
         "indeterminate_band": {
           "$ref": "#/$defs/IndeterminateBand"
         },
+        "min_delta_coverage": {
+          "default": 0.8,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Min Delta Coverage",
+          "type": "number"
+        },
         "monte_carlo": {
           "$ref": "#/$defs/MonteCarloSettings"
         },

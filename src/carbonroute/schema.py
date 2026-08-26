@@ -104,6 +104,14 @@ class Assumptions(StrictModel):
     waste_treatment: Literal["excluded"] = "excluded"
     monte_carlo: MonteCarloSettings = Field(default_factory=MonteCarloSettings)
     indeterminate_band: IndeterminateBand = Field(default_factory=IndeterminateBand)
+    #: Share of the differing mass that must resolve to a factor before a
+    #: ranking is reported at all. Below it the answer is "indeterminate", no
+    #: matter how tight the Monte Carlo on the resolved part looks: a confident
+    #: interval over a tenth of the problem is not a confident answer. The 0.8
+    #: default has no more empirical basis than the indeterminate band does;
+    #: it is a declared convention, and it is declared here so it can be argued
+    #: with.
+    min_delta_coverage: Annotated[float, Field(ge=0.0, le=1.0)] = 0.8
 
 
 class MaterialInput(StrictModel):
