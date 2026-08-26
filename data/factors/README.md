@@ -21,10 +21,16 @@ per row precisely so that mixing stays auditable.
 - **No ecoinvent-derived rows.** ecoinvent is licensed commercially and cannot
   be redistributed. Use `--factors` to point at a table you generated locally
   from your own licence.
-- **No values without a citable source.** This directory ships empty of numbers
-  rather than shipping numbers nobody can check. `examples/factors_illustrative.csv`
-  contains obviously-fake values, marked `ILLUSTRATIVE` in the `source` column,
-  so the pipeline can be exercised; every report that consumes such a row states
+- **No values without a citable source.** Every row here was fetched from an
+  openly licensed source by a script in `scripts/`, and carries the record it
+  came from, its licence and its retrieval date. Re-run the script to
+  regenerate the table and check it against the source yourself.
+  `examples/factors_illustrative.csv` is separate: it contains obviously-fake
+  values, marked `ILLUSTRATIVE` in the `source` column, so the pipeline can be
+  exercised without real data; every report that consumes such a row states
   that its conclusion is not usable.
+- **No values recalled rather than retrieved.** Not from a model, not from
+  memory, not from a search-result summary of a paper. If it was not fetched,
+  it is not here.
 
 See `docs/data.md` for how to build a real table.

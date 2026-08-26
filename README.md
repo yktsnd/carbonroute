@@ -165,9 +165,10 @@ writing the file named by `-o`; without `-o`, output goes to stdout.
 
 ### Worked example
 
-`data/factors/` ships with no numbers (see
-["What this tool does not do"](#what-this-tool-does-not-do)), so the example
-below points explicitly at the placeholder table shipped in `examples/`.
+`data/factors/` now ships a small table of real, citable factors (see
+["What is in `data/factors/`"](#what-is-in-datafactors)), but it covers only
+a handful of substances, so the example below points explicitly at the
+placeholder table in `examples/` to keep every material resolvable.
 `examples/route.yaml` defines two illustrative routes, `legacy` and
 `denovo`, to the same (invented) product.
 
@@ -241,15 +242,30 @@ comparison meant to help decide which route deserves a full assessment, not
 a substitute for one. Every report says so explicitly, as required by spec
 section 9.
 
-## Why `data/factors/` is empty
+## What is in `data/factors/`
 
-`data/factors/` ships with no emission factors at v0. Nothing that is both
-redistributable and independently citable was assembled in time for this
-release — see [`docs/data.md`](docs/data.md) for the format and how to
-build your own table. This is a deliberate consequence of the
-"public data only, nothing invented" rule (spec section 2, section 13):
-shipping placeholder numbers as if they were real factors would be worse
-than shipping none.
+`data/factors/` ships real emission factors, every one of them fetched from
+an openly licensed source by a script in `scripts/` that you can re-run to
+regenerate the table. Each row names the dataset and the record it came
+from, the licence it is distributed under, the date it was retrieved, and —
+where the source published one — its own uncertainty.
+
+**The coverage is small.** Openly licensed, independently citable,
+per-kilogram cradle-to-gate factors for fine-chemical solvents and reagents
+are genuinely scarce; most of what the field uses day to day sits in
+commercial databases this project may not redistribute. Expect a real
+comparison to leave materials unresolved. That is what `carbonroute
+coverage` is for: it tells you how much of your delta set the tables reach,
+by count and by mass, so the gap is a number in front of you rather than a
+silent omission. Adding a source means writing another ingestion script —
+see [`docs/data.md`](docs/data.md) and
+[`docs/sources-investigated.md`](docs/sources-investigated.md), which
+records the sources that were checked and why each was or was not used.
+
+Nothing here is estimated, interpolated, or recalled from memory. That is a
+consequence of the "public data only, nothing invented" rule (spec sections
+2 and 13): a table of plausible-looking numbers nobody can check would
+defeat the entire purpose of the tool.
 
 `examples/factors_illustrative.csv` exists purely so the pipeline can be
 run end to end. Every value in it is an obviously-fake round number, every
