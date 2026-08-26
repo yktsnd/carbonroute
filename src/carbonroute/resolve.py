@@ -19,7 +19,7 @@ REQUIRED_COLUMNS = (
     "retrieved_date",
     "uncertainty_class",
 )
-OPTIONAL_COLUMNS = ("license", "notes")
+OPTIONAL_COLUMNS = ("license", "notes", "inchikey", "gsd")
 
 #: Sources beginning with this marker carry no real LCA provenance. They exist
 #: so the pipeline can be exercised end to end; every report that touches one
@@ -44,6 +44,11 @@ class Factor:
     uncertainty_class: str
     license: str = ""
     notes: str = ""
+    inchikey: str = ""
+    #: Geometric standard deviation published by the source for this very row.
+    #: ``None`` means the source was silent, and the provenance class default
+    #: applies instead. It never means "no uncertainty".
+    gsd: float | None = None
     table: str = ""
 
     @property
@@ -66,6 +71,25 @@ class Resolution:
         return self.factor is not None
 
 
+def _parse_gsd(raw: str | None, where: str) -> float | None:
+    """Parse the optional per-row geometric standard deviation.
+
+    An empty cell is not a zero: it says the source published no uncertainty
+    for this row, and the provenance class default takes over.
+    """
+    if raw is None or not raw.strip():
+        return None
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise FactorTableError(f"{where}: gsd is not a number: {raw!r}") from exc
+    if value < 1.0:
+        raise FactorTableError(
+            f"{where}: gsd must be >= 1.0 (1.0 means the value is treated as exact), got {value}"
+        )
+    return value
+
+
 def _identifier_key(identifier: str) -> str:
     ident = identifier.strip()
     if not ident:
@@ -83,6 +107,7 @@ class FactorTable:
 
     by_key: dict[str, Factor] = field(default_factory=dict)
     by_name: dict[str, Factor] = field(default_factory=dict)
+    by_inchikey: dict[str, Factor] = field(default_factory=dict)
     #: path -> sha256 of the file, recorded in reports and lock files.
     sources: dict[str, str] = field(default_factory=dict)
 
@@ -120,6 +145,9 @@ class FactorTable:
             except FactorTableError as exc:
                 raise FactorTableError(f"{p}:{lineno}: {exc}") from exc
 
+            gsd = _parse_gsd(row.get("gsd"), f"{p}:{lineno}")
+            inchikey = (row.get("inchikey") or "").strip().upper()
+
             factor = Factor(
                 key=key,
                 identifier=row["identifier"].strip(),
@@ -132,6 +160,8 @@ class FactorTable:
                 uncertainty_class=(row.get("uncertainty_class") or "").strip() or "unknown",
                 license=(row.get("license") or "").strip(),
                 notes=(row.get("notes") or "").strip(),
+                inchikey=inchikey,
+                gsd=gsd,
                 table=str(p),
             )
             if key in self.by_key and self.by_key[key].gwp_kgCO2e_per_kg != gwp:
@@ -141,6 +171,11 @@ class FactorTable:
                 )
             self.by_key[key] = factor
             self.by_name.setdefault(normalize_name(factor.name), factor)
+            if inchikey:
+                # An InChIKey is structural, so it also stands as a primary key:
+                # a ledger written against structures still joins to this row.
+                self.by_key.setdefault(f"inchikey:{inchikey}", factor)
+                self.by_inchikey.setdefault(inchikey, factor)
 
         self.sources[str(p)] = digest
 

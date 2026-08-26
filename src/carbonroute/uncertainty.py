@@ -28,6 +28,19 @@ class UncertaintyModel:
         return self.classes.get(uncertainty_class, self.classes[self.fallback_class])
 
 
+def effective_gsd(factor, model: "UncertaintyModel") -> float:
+    """The dispersion to use for one factor row.
+
+    A geometric standard deviation the source itself published beats the class
+    default every time: the class defaults in ``config/uncertainty.yaml`` are
+    uncalibrated placeholders, and a number that came with the data is the one
+    thing here that is not a guess.
+    """
+    if factor.gsd is not None:
+        return factor.gsd
+    return model.gsd(factor.uncertainty_class)
+
+
 def load_uncertainty(path: str | Path | None = None) -> UncertaintyModel:
     """Load the GSD-per-provenance-class table (spec section 7.5)."""
     p = Path(path) if path is not None else _DEFAULT_CONFIG
@@ -79,7 +92,7 @@ def compare_monte_carlo(
         if not row.resolved or row.factor is None:
             excluded.append(row.key)
             continue
-        gsd = model.gsd(row.factor.uncertainty_class)
+        gsd = effective_gsd(row.factor, model)
         if gsd == 1.0:
             g = np.full(iterations, row.factor.gwp_kgCO2e_per_kg)
         else:

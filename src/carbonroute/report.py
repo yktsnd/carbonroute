@@ -519,3 +519,47 @@ def _tool_version() -> str:
 def dump_lock_json(lock: dict) -> str:
     """Deterministic JSON rendering for the ``lock`` command (spec section 8)."""
     return json.dumps(lock, sort_keys=True, indent=2) + "\n"
+
+
+def render_coverage(cov, a_name: str, b_name: str, table: "FactorTable") -> str:
+    """Render the coverage of a delta set (spec section 14's last open item)."""
+    lines = [
+        f"# Factor coverage of the delta set: `{a_name}` vs `{b_name}`",
+        "",
+        f"Factor tables loaded: {len(table.sources)}; "
+        f"fingerprint `{table.fingerprint()}`",
+        "",
+        f"- Materials whose adjusted mass differs between the routes: **{cov.delta_material_count}**",
+        f"- Resolved to a factor: **{cov.resolved_count}** "
+        f"({cov.count_fraction * 100:.1f}% by count)",
+        f"- Share of the absolute delta mass that is resolved: "
+        f"**{cov.mass_fraction * 100:.1f}%** "
+        f"({_fmt(cov.resolved_mass_kg)} of {_fmt(cov.delta_mass_kg)} kg/FU)",
+        "",
+        "> Mass coverage is not impact coverage. A catalyst charged at a fraction of a",
+        "> percent by mass can dominate a route's footprint, and no mass-based measure",
+        "> will show it. Read the per-role table below before treating a high",
+        "> percentage as reassurance.",
+        "",
+        "| role | resolved kg/FU | delta kg/FU | resolved share |",
+        "|---|---|---|---|",
+    ]
+    for role, (resolved, total) in cov.by_role.items():
+        share = f"{resolved / total * 100:.1f}%" if total else "n/a"
+        lines.append(f"| {role} | {_fmt(resolved)} | {_fmt(total)} | {share} |")
+    lines.append("")
+
+    if cov.unresolved:
+        lines.append("## Unresolved materials in the delta set")
+        lines.append("")
+        lines.append("Largest first. Each of these is a gap in the comparison, not a zero.")
+        lines.append("")
+        lines.append("| material | role | delta mass kg/FU | key |")
+        lines.append("|---|---|---|---|")
+        for key, name, role, mass in cov.unresolved:
+            lines.append(f"| {name} | {role} | {_fmt(mass)} | `{key}` |")
+        lines.append("")
+    else:
+        lines.append("Every material in the delta set resolved to a factor.")
+        lines.append("")
+    return "\n".join(lines)

@@ -25,7 +25,7 @@ import click
 
 from .ledger import LedgerError, adjust_all, load_ledger
 from .resolve import FactorTable, FactorTableError, default_factor_paths, resolve_materials
-from .report import build_lock, dump_lock_json, render_resolution_table
+from .report import render_coverage, build_lock, dump_lock_json, render_resolution_table
 
 _FETCH_ERROR = (
     "--fetch is not implemented: v0 ships no network fetchers and opens no "
@@ -118,6 +118,37 @@ def resolve(ledger_path: str, factor_paths: tuple[str, ...], show_missing: bool,
 
     click.echo(render_resolution_table(routes, table, show_missing), nl=False)
     if any_missing:
+        sys.exit(3)
+
+
+@main.command()
+@click.argument("ledger_path", type=click.Path(exists=True, dir_okay=False))
+@click.option("--a", "a_name", required=True, help="Name of the first route in the ledger.")
+@click.option("--b", "b_name", required=True, help="Name of the second route in the ledger.")
+@_FACTORS_OPTION
+@click.option("-o", "--output", "output_path", type=click.Path(dir_okay=False), default=None)
+def coverage(
+    ledger_path: str, a_name: str, b_name: str,
+    factor_paths: tuple[str, ...], output_path: str | None,
+) -> None:
+    """Report how much of the A-vs-B delta set the loaded factor tables cover."""
+    ledger = _load_ledger_or_exit(ledger_path)
+    table = _load_factors_or_exit(factor_paths)
+    adjusted = adjust_all(ledger)
+    for name in (a_name, b_name):
+        if name not in adjusted:
+            _fail(f"route {name!r} is not in {ledger_path}; "
+                  f"available: {', '.join(sorted(adjusted))}")
+
+    from .compute import coverage as compute_coverage, diff_routes
+
+    resolutions = {}
+    for name in (a_name, b_name):
+        resolutions.update(resolve_materials(adjusted[name].materials, table))
+    diff = diff_routes(adjusted[a_name], adjusted[b_name], resolutions)
+    cov = compute_coverage(diff)
+    _write_output(render_coverage(cov, a_name, b_name, table), output_path)
+    if cov.unresolved:
         sys.exit(3)
 
 

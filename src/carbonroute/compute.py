@@ -255,3 +255,75 @@ def run_comparison(
         illustrative_keys=illustrative_keys,
         resolutions=resolutions,
     )
+
+
+@dataclass(frozen=True)
+class Coverage:
+    """How much of a comparison the available factor tables can actually reach.
+
+    This measures the last open question in the specification (section 14):
+    what fraction of a real delta set does a table limited to solvents and
+    common reagents cover? The answer is reported in two units because they
+    disagree, and the disagreement is the point.
+    """
+
+    delta_material_count: int
+    resolved_count: int
+    delta_mass_kg: float
+    resolved_mass_kg: float
+    unresolved: list[tuple[str, str, Role, float]]
+    by_role: dict[Role, tuple[float, float]]
+
+    @property
+    def unresolved_count(self) -> int:
+        return self.delta_material_count - self.resolved_count
+
+    @property
+    def count_fraction(self) -> float:
+        if not self.delta_material_count:
+            return 1.0
+        return self.resolved_count / self.delta_material_count
+
+    @property
+    def mass_fraction(self) -> float:
+        if self.delta_mass_kg == 0.0:
+            return 1.0
+        return self.resolved_mass_kg / self.delta_mass_kg
+
+
+def coverage(diff: DiffResult) -> Coverage:
+    """Coverage of the delta set by the loaded factor tables.
+
+    Mass coverage is a proxy for impact coverage, and a poor one. The study
+    this project benchmarks against found that a catalyst charged at 1 mol %
+    dominated a step's footprint, which no mass-based measure could see. A
+    high mass coverage with a catalyst missing is not good coverage; the
+    per-role breakdown is there so that case stays visible.
+    """
+    total_mass = 0.0
+    resolved_mass = 0.0
+    resolved_count = 0
+    unresolved: list[tuple[str, str, Role, float]] = []
+    by_role: dict[Role, list[float]] = {}
+
+    for row in diff.rows:
+        magnitude = abs(row.delta_mass_kg)
+        total_mass += magnitude
+        slot = by_role.setdefault(row.role, [0.0, 0.0])
+        slot[1] += magnitude
+        if row.resolved:
+            resolved_count += 1
+            resolved_mass += magnitude
+            slot[0] += magnitude
+        else:
+            unresolved.append((row.key, row.name, row.role, magnitude))
+
+    unresolved.sort(key=lambda item: -item[3])
+    return Coverage(
+        delta_material_count=len(diff.rows),
+        resolved_count=resolved_count,
+        delta_mass_kg=total_mass,
+        resolved_mass_kg=resolved_mass,
+        unresolved=unresolved,
+        by_role={role: (vals[0], vals[1]) for role, vals in sorted(by_role.items())},
+    )
