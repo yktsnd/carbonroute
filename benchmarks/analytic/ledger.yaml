@@ -1,0 +1,65 @@
+# Analytic benchmark B1 (see ../README.md).
+#
+# Every number here is chosen so the correct answer can be worked out by hand.
+# The two routes are built to share three things exactly after conversion to
+# the functional unit -- one resolved material, one unresolved material, and
+# the electricity demand -- so that the diff must reduce to two solvent lines
+# plus one unresolved novel material.
+#
+#   factor_k = 1 / prod(yield_j for j >= k)
+#
+#   route a: factor_1 = 1/(0.5*0.8) = 2.5   factor_2 = 1/0.8 = 1.25
+#   route b: factor_1 = 1/(0.8*1.0) = 1.25  factor_2 = 1/1.0 = 1.0
+#
+#   benzene   a: 2.0*2.5 = 5.00   b: 4.00*1.25 = 5.00   -> cancels
+#   acetone   a: 1.0*1.25 = 1.25  b: 1.25*1.00 = 1.25   -> cancels, unresolved
+#   toluene   a: 4.0*2.5 = 10.00  b: absent
+#   2-MeTHF   a: absent           b: 2.00*1.25 = 2.50
+#   novel Z   a: 0.4*1.25 = 0.50  b: absent             -> unresolved in the delta
+#   kWh       a: 8*2.5 + 4*1.25 = 25.0   b: 20*1.25 = 25.0  -> cancels
+schema_version: "0.1"
+
+assumptions:
+  functional_unit: {mass_kg: 1.0, basis: product}
+  boundary: cradle-to-gate
+  grid_factor:
+    id: TEST-FIXED
+    value_kgCO2e_per_kWh: 0.5
+    source: "Fixture value for the analytic benchmark; not a real grid factor."
+    uncertainty_class: assumption
+  gwp_method: {name: IPCC-AR6, horizon_years: 100, feedbacks: false}
+  solvent_recovery_default: 0.0
+  waste_treatment: excluded
+  monte_carlo: {iterations: 20000, seed: 12345}
+  indeterminate_band: {low: 0.4, high: 0.6}
+
+routes:
+  a:
+    label: "Route A"
+    steps:
+      - id: 1
+        yield: 0.5
+        inputs:
+          - {name: benzene, cas: "71-43-2", mass_kg: 2.0, role: reactant}
+          - {name: toluene, cas: "108-88-3", mass_kg: 4.0, role: solvent}
+        electricity_kWh: 8.0
+      - id: 2
+        yield: 0.8
+        inputs:
+          - {name: acetone, cas: "67-64-1", mass_kg: 1.0, role: reagent}
+          - {name: "novel ligand Z", cas: null, mass_kg: 0.4, role: reagent}
+        electricity_kWh: 4.0
+  b:
+    label: "Route B"
+    steps:
+      - id: 1
+        yield: 0.8
+        inputs:
+          - {name: benzene, cas: "71-43-2", mass_kg: 4.0, role: reactant}
+          - {name: 2-MeTHF, cas: "96-47-9", mass_kg: 2.0, role: solvent}
+        electricity_kWh: 20.0
+      - id: 2
+        yield: 1.0
+        inputs:
+          - {name: acetone, cas: "67-64-1", mass_kg: 1.25, role: reagent}
+        electricity_kWh: 0.0

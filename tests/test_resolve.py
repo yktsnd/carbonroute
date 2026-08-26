@@ -1,0 +1,92 @@
+"""Factor tables refuse rows nobody can check (spec sections 6.2, 13)."""
+
+import pytest
+
+from carbonroute.resolve import FactorTable, FactorTableError, resolve_materials
+from carbonroute.ledger import adjust_all
+
+HEADER = (
+    "identifier,name,gwp_kgCO2e_per_kg,source,database_version,region,"
+    "retrieved_date,uncertainty_class,license,notes\n"
+)
+
+
+def _table(tmp_path, rows, name="f.csv"):
+    p = tmp_path / name
+    p.write_text(HEADER + rows, encoding="utf-8")
+    return p
+
+
+def test_row_without_a_source_is_rejected(tmp_path):
+    p = _table(tmp_path, "108-88-3,toluene,3.0,,v1,GLO,2026-01-01,background_db,CC0,\n")
+    with pytest.raises(FactorTableError, match="source"):
+        FactorTable.load([p])
+
+
+def test_missing_column_is_rejected(tmp_path):
+    p = tmp_path / "f.csv"
+    p.write_text("identifier,name,gwp_kgCO2e_per_kg\n108-88-3,toluene,3.0\n", encoding="utf-8")
+    with pytest.raises(FactorTableError, match="missing required column"):
+        FactorTable.load([p])
+
+
+def test_non_numeric_and_negative_values_are_rejected(tmp_path):
+    bad = _table(tmp_path, "108-88-3,toluene,n/a,src,v1,GLO,2026-01-01,background_db,CC0,\n")
+    with pytest.raises(FactorTableError):
+        FactorTable.load([bad])
+    negative = _table(
+        tmp_path, "108-88-3,toluene,-1.0,src,v1,GLO,2026-01-01,background_db,CC0,\n", "g.csv"
+    )
+    with pytest.raises(FactorTableError, match="negative"):
+        FactorTable.load([negative])
+
+
+def test_conflicting_duplicate_values_are_rejected(tmp_path):
+    a = _table(tmp_path, "108-88-3,toluene,3.0,src,v1,GLO,2026-01-01,background_db,CC0,\n", "a.csv")
+    b = _table(tmp_path, "108-88-3,toluene,4.0,src,v1,GLO,2026-01-01,background_db,CC0,\n", "b.csv")
+    with pytest.raises(FactorTableError, match="conflicting"):
+        FactorTable.load([a, b])
+
+
+def test_inchikey_and_cas_keys_are_distinguished(tmp_path):
+    rows = (
+        "108-88-3,toluene,3.0,src,v1,GLO,2026-01-01,background_db,CC0,\n"
+        "YXFVVABEGXRONW-UHFFFAOYSA-N,toluene (InChIKey row),3.0,src,v1,GLO,"
+        "2026-01-01,background_db,CC0,\n"
+    )
+    table = FactorTable.load([_table(tmp_path, rows)])
+    assert "cas:108-88-3" in table.by_key
+    assert "inchikey:YXFVVABEGXRONW-UHFFFAOYSA-N" in table.by_key
+
+
+def test_name_fallback_is_reported_as_the_weaker_match(analytic_table):
+    hit = analytic_table.lookup("name:toluene", "Toluene")
+    assert hit.resolved and hit.matched_by == "name"
+    exact = analytic_table.lookup("cas:108-88-3", "toluene")
+    assert exact.matched_by == "cas"
+
+
+def test_unknown_material_stays_unresolved(analytic_table):
+    miss = analytic_table.lookup("name:novel ligand z", "novel ligand Z")
+    assert not miss.resolved
+    assert miss.factor is None
+
+
+def test_fingerprint_changes_with_content(tmp_path):
+    a = _table(tmp_path, "108-88-3,toluene,3.0,src,v1,GLO,2026-01-01,background_db,CC0,\n", "a.csv")
+    first = FactorTable.load([a]).fingerprint()
+    assert first == FactorTable.load([a]).fingerprint()
+    a.write_text(HEADER + "108-88-3,toluene,3.5,src,v1,GLO,2026-01-01,background_db,CC0,\n",
+                 encoding="utf-8")
+    assert FactorTable.load([a]).fingerprint() != first
+
+
+def test_illustrative_rows_are_flagged(analytic_table):
+    assert all(f.is_illustrative for f in analytic_table.by_key.values())
+
+
+def test_resolve_materials_covers_every_input(analytic_ledger, analytic_table):
+    adjusted = adjust_all(analytic_ledger)["a"]
+    res = resolve_materials(adjusted.materials, analytic_table)
+    assert set(res) == {m.key for m in adjusted.materials}
+    assert not res["name:novel ligand z"].resolved

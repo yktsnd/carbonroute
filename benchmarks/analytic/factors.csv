@@ -1,0 +1,4 @@
+identifier,name,gwp_kgCO2e_per_kg,source,database_version,region,retrieved_date,uncertainty_class,license,notes
+71-43-2,benzene,7.0,ILLUSTRATIVE fixture for the analytic benchmark,n/a,GLO,2026-01-01,primary,CC0-1.0,Hand-chosen so the arithmetic closes exactly. Not an LCA value.
+108-88-3,toluene,1.0,ILLUSTRATIVE fixture for the analytic benchmark,n/a,GLO,2026-01-01,background_db,CC0-1.0,Hand-chosen so the arithmetic closes exactly. Not an LCA value.
+96-47-9,2-MeTHF,5.0,ILLUSTRATIVE fixture for the analytic benchmark,n/a,GLO,2026-01-01,background_db,CC0-1.0,Hand-chosen so the arithmetic closes exactly. Not an LCA value.
