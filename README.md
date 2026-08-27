@@ -333,6 +333,23 @@ lean flipped to agree with the paper, and the break-even rose to 3.59. The
 verdict stayed `indeterminate` throughout: the first refusal avoided publishing
 a wrong answer, and the break-even tracked the truth before the coverage did.
 
+## "Surely this data exists?"
+
+It does, and it is not free. Everything missing here is in ecoinvent, sold on an
+annual commercial subscription, which is what most people doing this work buy.
+The study this project benchmarks against used ecoinvent 3.10; this repository
+can carry its masses but not its factors.
+
+Worth knowing before assuming a licence fixes it: those authors report that on
+their first pass only about 20% of the chemicals in their synthesis were in
+ecoinvent at all. This project resolves 23.3% of the materials in the same
+comparison with no licence. Different quantities, so read it as an order of
+magnitude — but the fraction of a real route that any database covers is small,
+and the interesting work starts after the lookup fails.
+
+[`docs/what-others-do.md`](docs/what-others-do.md) covers what the industry
+tools do, and how to point this one at a licensed table if you have one.
+
 ## Further reading
 
 - [`docs/data.md`](docs/data.md) — the factor-table format and how to build
