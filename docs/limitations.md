@@ -104,7 +104,8 @@ set a factor table limited to solvents and common reagents could cover. The
 letermovir benchmark answers it for one real case, and the answer is small.
 
 Of the 43 materials whose charged mass differs between the two published routes,
-openly licensed factors resolve **2 — 8.9% of the differing mass**. Catalysts,
+openly licensed factors resolve **4 — 41.4% of the differing mass**, after four
+open sources were mined; the first two got 8.9%. Catalysts,
 which that same study showed can dominate a step's footprint at a fraction of a
 percent by mass, resolve at zero.
 

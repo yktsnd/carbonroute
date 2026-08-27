@@ -257,12 +257,18 @@ regenerate the table. Each row names the dataset and the record it came
 from, the licence it is distributed under, the date it was retrieved, and —
 where the source published one — its own uncertainty.
 
-At the time of writing that means **nine substances** from two sources: ADEME's
-Base Carbone (Licence Ouverte) and the US LCI Database (US government work).
-They are hexane, methanol, carbon monoxide, ethylene oxide and five bulk acids
-and bases. Both tables carry hydrochloric acid, and they disagree about it by a
-factor of 1.42 — the report says so rather than hiding it, because how far
-openly available data spreads for one material is worth knowing.
+At the time of writing that means **eighteen substances** from four sources:
+ADEME's Base Carbone (Licence Ouverte), the US LCI Database (US government
+work), ProBas/GEMIS (German environment agency, free for all users and uses),
+and figures published directly by producers and industry associations —
+PlasticsEurope eco-profiles and a Nobian EPD. Between them: water, methanol,
+ethanol, isopropanol, toluene, benzene, hexane, dichloromethane, acetic acid,
+ammonia, hydrogen, carbon monoxide, ethylene oxide and five bulk acids, bases
+and salts.
+
+Four of those substances carry two independent public values, and the pairs
+disagree by 1.13x to 1.42x. Reports print both. How far openly available data
+spreads for the same material is one of the things worth knowing here.
 
 **The coverage is small.** Openly licensed, independently citable,
 per-kilogram cradle-to-gate factors for fine-chemical solvents and reagents
@@ -306,20 +312,24 @@ factors do not.
 
 What B2 measures instead is what happens when the data runs out, which is the
 normal case. Openly licensed factors resolve **2 of the 43 materials that
-differ between the routes, 8.9% of the differing mass**. That is the measured
-answer to the question the specification left open, and it is not a flattering
-one.
+differ between the routes, 41.4% of the differing mass** — up from 8.9% when
+the tables held nine substances. That is the measured answer to the question the
+specification left open, and it is still not a flattering one.
 
 The benchmark earned its place immediately. Before it existed the tool treated
-an unresolved material as absent rather than unknown, and on that 9% it
+an unresolved material as absent rather than unknown, and on 9% of the mass it
 reported `P > 0.9999` — for the ranking opposite the published one. Two things
 came out of the failure: a coverage floor below which no ranking is reported at
 all, and a break-even calculation that asks what the missing materials would
-have to average for the ranking to flip. Here the answer is about 0.19
-kgCO2e/kg against 30 kg/FU of unresolved mass, which is below every organic
-solvent in this project's own table. So the tool argues for the published
-ranking without ever asserting it, and hands you the condition instead of a
-guess.
+have to average for the ranking to flip.
+
+Watching those two numbers move as data arrived is the clearest argument for
+the design. At 9% coverage the resolved part leaned against the paper and the
+break-even was 0.19 kgCO2e/kg — below every organic solvent in the table, so
+the lean was worth nothing. Adding water and toluene took coverage to 41%, the
+lean flipped to agree with the paper, and the break-even rose to 3.59. The
+verdict stayed `indeterminate` throughout: the first refusal avoided publishing
+a wrong answer, and the break-even tracked the truth before the coverage did.
 
 ## Further reading
 
