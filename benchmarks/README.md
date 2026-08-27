@@ -76,16 +76,29 @@ These were fixed before the assertions were written, and they deliberately do
 
 ### What the benchmark found
 
-With the seven substances in `data/factors/`, **2 of 43 differing materials
-resolve — 8.9% of the differing mass.** The tool withholds the ranking.
+The numbers move as `data/factors/` grows; the current run is recorded in
+`benchmarks/letermovir/RESULTS.json`, regenerated deliberately by
+`scripts/record_letermovir_result.py`. The tests assert against that record and
+against invariants, so an improvement in coverage shows up as a diff to review
+rather than a failing assertion.
 
-The break-even calculation is the useful part: the resolved 9% leans towards
-Merck by about 5.8 kgCO2e/FU, and roughly 30 kg/FU of differing mass is
-unresolved, so the ranking reverses if that mass averages more than about
-**0.19 kgCO2e/kg**. Every organic solvent in the project's own table sits above
-that. The tool therefore argues for the published ranking without ever asserting
-it — which is exactly the output the specification asks for: not a number, but a
-ranking, a confidence, and the condition that would change it.
+Two runs are worth keeping side by side, because the progression is the
+argument for the design:
+
+| | 9 substances (ADEME + USLCI) | 18 substances (+ ProBas/GEMIS, published PCFs) |
+| --- | --- | --- |
+| Delta materials resolved | 2 of 43 | 4 of 43 |
+| Share of differing mass | 8.9% | 41.4% |
+| Which way the resolved part leans | **Merck lower — against the paper** | **de novo lower — with the paper** |
+| Break-even for the unresolved mass | 0.19 kgCO2e/kg | 3.59 kgCO2e/kg |
+| Verdict | indeterminate | indeterminate |
+
+At 8.9% the resolved fraction pointed the wrong way and the break-even was
+0.19 kgCO2e/kg — below every organic solvent in the project's own table, so
+the lean was worth nothing. Adding water and toluene, the two largest differing
+materials, flipped it. The tool refused to rank in both cases, which is the
+behaviour under test: the first refusal avoided publishing a wrong answer, and
+the break-even statistic tracked the truth before the coverage did.
 
 ### What this benchmark caught
 

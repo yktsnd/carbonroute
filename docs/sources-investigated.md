@@ -86,3 +86,153 @@ DMF, DMSO, heptane, or nitrogen gas. This is the honest state of open,
 redistributable, cradle-to-gate solvent GWP data as of this investigation
 (2026-08-26/27) — see `data/factors/uslci.SOURCES.md` and the table above
 for what was actually checked before concluding that.
+
+---
+
+# 2026-08-27 — ILCD / soda4LCA and national open-database round (probas_gemis)
+
+Scope: ILCD / soda4LCA / EPD-style LCA nodes and national open databases,
+specifically hunting for process solvents and bulk reagents (per the
+project's priority list). Result actually ingested:
+`data/factors/probas_gemis.csv` / `.SOURCES.md`, via
+`scripts/ingest_probas_gemis.py` — **7 rows**: water (distilled), toluene,
+isopropanol, acetic acid, ethanol, ammonia, hydrogen. First solvents/
+reagents this project has actually landed from a live LCA-database source
+(prior rounds landed 0 solvents from ADEME Base Carbone + USLCI combined).
+
+**The find**: ProBas (`https://data.probas.umweltbundesamt.de`), the
+German Umweltbundesamt's soda4LCA node. The brief's `probas.umweltbundesamt.de`
+SPA (blocked, no API, per the prior round's note) has been superseded by
+this new host, which *is* a working soda4LCA REST API
+(`/resource/processes?format=json&search=true&name=...`). Most of its
+content is republished ecoinvent (`dataSources: [{"name": "ecoinvent 3.8
+cut-off"}]`, confirmed live on every such row, plus the node's own
+`Probas2_Aufstockung2` data stock self-describing as an ecoinvent-import
+test stock) and is excluded outright. What is left is UBA's own **GEMIS**
+content (Öko-Institut, since 1987) — independent literature-sourced
+(Ullmann's Encyclopedia, BUWAL, ECN, Römpp, ESU/PSI/BEW), licensed
+"Free of charge for all users and uses" per-process, with a node-level
+usage-terms PDF requiring attribution and prohibiting alteration — the
+licence class this project accepts. Full detail, including the complete
+"searched and found nothing" list for the 15 priority substances GEMIS
+does not model (THF, 2-MeTHF, DCM, ethyl acetate, isopropyl acetate,
+acetone, acetonitrile, DMF, DMSO, n-heptane, n-pentane, MTBE,
+triethylamine, sodium bicarbonate, potassium phosphate, sodium
+phosphates), is in `data/factors/probas_gemis.SOURCES.md`.
+
+**Everything else probed this round, all negative/excluded** (full
+detail and exact URLs in `probas_gemis.SOURCES.md`):
+
+| Source | Result |
+|---|---|
+| Ökobaudat (`oekobaudat.de/OEKOBAU.DAT/...` — note: dot, not the brief's `/OEKOBAUDAT/`, which infinite-redirect-loops) | Working API, essentially empty for this project's chemical list (construction-materials focus); its two substance-shaped hits ("Drinking water", "Ammonia (R717)") are both explicitly Sphera/GaBi-sourced ("GaBi Database Edition 2021" / "Sphera Managed LCA Content Databases") — excluded |
+| JRC Life Cycle Data Network (`lcdn.jrc.ec.europa.eu`) | Node directory is an empty JS shell with no discoverable API (confirmed again this round) |
+| ELCD (`eplca.jrc.ec.europa.eu/ELCD3/`) | HTTP 404 — confirmed dead |
+| EPD Norway (`epdnorway.lca-data.com`, a live soda4LCA node found via GLAD/ECO-Platform search, as a stand-in for "enumerate JRC LCDN member nodes") | Working API; only one substance-list hit ("Bioethanol", CAS 64-17-5 given in its own text), sourced from "ecoinvent database (all versions)" — excluded. Confirms EPD/construction nodes carry finished products, not bulk chemicals, and mostly sit on ecoinvent anyway |
+| ECO Platform data portal (`data.eco-platform.org`) / French INIES (`base-inies.fr`) | Both serve an Angular SPA at the paths tried, no working classic soda4LCA REST endpoint found; not pursued further given the EPD Norway result already shows what this class of node contains |
+| AusLCI | Requires proof of an ecoinvent licence just to download — excluded on the access gate itself, no live fetch needed |
+| ADEME — datasets beyond Base Carbone (AGRIBALYSE, "Transition(s) 2050" scenario tables e.g. `hydrogene-g9`, ~20 search terms enumerated) | AGRIBALYSE is food/agricultural-ingredient LCI, out of scope; the hydrogen scenario table has **no stated unit** anywhere in its schema and mixes historical with 2050-projection values — skipped, no verifiable per-kg conversion exists. No dataset resolves under the ids `base-empreinte` / `base-empreinter` / `empreinte-base-carbone` (all HTTP 404) |
+
+## Running count across all rounds
+
+Substances now covered by *some* live-fetched, non-commercial, per-kg
+cradle-to-gate row somewhere in `data/factors/` (see each file's own
+`.SOURCES.md` for exact provenance and any cross-table conflicts the
+loader records): the ~9 from `ademe_base_carbone.csv`/`uslci.csv` (prior
+rounds) plus this round's 7 (water, toluene, isopropanol, acetic acid,
+ethanol, ammonia, hydrogen — ammonia and hydrogen may now disagree with
+`ademe_base_carbone.csv`'s route-specific values if that file carries
+them; check `FactorTable.load(...).conflicts` for the current state).
+
+**Still entirely missing from every table, after this round**: THF,
+2-methyltetrahydrofuran, dichloromethane, ethyl acetate, isopropyl
+acetate, acetone, acetonitrile, DMF, DMSO, n-heptane, n-pentane, MTBE,
+triethylamine, sodium bicarbonate, potassium phosphate, sodium
+phosphates. That is 15 of the 23 priority substances — the laboratory/
+process-solvent and buffer-salt half of the list specifically — for which
+no open, non-commercial, per-kg cradle-to-gate LCA-database record was
+found in either this round or any prior one. Every open LCA-style
+database reachable this round (Ökobaudat, ProBas, JRC LCDN, ELCD, EPD
+Norway, ECO Platform/INIES, AusLCI, ADEME) was built for construction
+materials, national energy/materials-flow accounting, or bulk
+petrochemical feedstocks — none model pharma-grade process solvents. A
+different source class (safety-data-sheet-adjacent industry LCA reports,
+solvent-selection-guide primary datasets, or a chemical-industry-specific
+open database not yet identified) would be needed to close that gap.
+
+## 2026-08-27 — publisher-issued PCFs, EPDs, and association eco-profiles
+
+Scope: a different lane from every round above — not open LCA databases,
+but values producers and standards bodies publish directly (Product Carbon
+Footprints, Environmental Product Declarations, industry-association
+eco-profiles), for process solvents and bulk chemicals. Full citations and
+every rejected candidate are in `data/factors/published_pcf.SOURCES.md`
+(generated alongside `data/factors/published_pcf.csv` by
+`scripts/ingest_published_pcf.py`); this section is a short pointer plus
+the headline result, per the project's running log convention.
+
+**Bottom line: this lane worked, and is worth another pass.** Unlike the
+open-LCA-database lanes above (which hit a wall on solvents specifically),
+publisher/association documents yielded 5 verified, cradle-to-gate,
+per-kg values in a single session, including one solvent that no other
+table in this repo currently carries:
+
+| CAS | Substance | kgCO2e/kg | Class | Publisher |
+|---|---|---|---|---|
+| 71-43-2 | Benzene | 1.86 | literature | PlasticsEurope & CEFIC/APPE (BTX Eco-profile, 2013) |
+| 75-09-2 | Dichloromethane | 0.48 | supplier | Nobian (EPD International, EPD-IES-0022304:001, 2025) |
+| 108-88-3 | Toluene | 1.22 | literature | PlasticsEurope & CEFIC/APPE (BTX Eco-profile, 2013) |
+| 1333-74-0 | Hydrogen | 7.5 | literature | PlasticsEurope ("H2 reformer" Eco-profile, 2005) |
+| 7664-41-7 | Ammonia | 2.4 | literature | PlasticsEurope ("Ammonia" Eco-profile, 2005) |
+
+Toluene, hydrogen, and ammonia now disagree with `probas_gemis.csv`'s
+values for the same CAS numbers (ratios ~1.13–1.39×); `FactorTable.load()`
+records all three as `Conflict`s rather than refusing to load — checked
+live this round (`FactorTable.load(default_factor_paths())` loads all four
+CSVs currently in `data/factors/` cleanly, 36 rows, 4 conflicts total,
+including one pre-existing HCl conflict between ADEME and USLCI). Benzene
+and dichloromethane loaded with no conflict.
+
+**What made this lane work where open-database lanes didn't**: PlasticsEurope
+publishes real per-substance eco-profiles for petrochemical building blocks
+(BTX aromatics, ammonia, hydrogen, phenol/acetone, hydrocarbon-solvent
+blends) built from primary member-company data — but `plasticseurope.org`
+itself 403s every direct fetch, and even the Wayback Machine mirror of that
+specific domain is currently behind an `archive.org` bot-challenge page on
+this network (both matches the previous round's dead end). The unblocked
+path was `legacy.plasticseurope.org` — an older Concrete5-era version of
+the same site, HTTP 200, hosting the same interactive eco-profile flowchart
+with working `/download_file/<id>/0` links straight to the report PDFs.
+Worth remembering for any future round that hits the same `plasticseurope.org`
+403: try `legacy.plasticseurope.org` before giving up on PlasticsEurope
+entirely.
+
+**What this lane explicitly rejected, on the source's own say-so**: the
+PlasticsEurope/CEFIC Phenol and Acetone EPD (Sept 2016) states inline that
+its own LCI is "not based on primary industry data but solely on literature
+data" from the GaBi 2015 database — both candidate numbers (Acetone 1.64,
+Phenol 1.79 kgCO2e/kg) were read and then discarded for exactly the reason
+this project's rules name. See the SOURCES.md file for this and seven other
+rejected candidates (IMPCA's methanol guidance tool, HSPA's blended-UVCB
+solvent eco-profiles, Fertilizers Europe's energy-only ammonia data, BASF's
+relative-only rPCF disclosure, the TfS guideline itself, and more), each
+with the specific reason it didn't clear this project's bar.
+
+**Still missing after this round, specifically from the priority list**:
+water, THF, 2-MeTHF, ethyl acetate, isopropyl acetate, acetone (a real
+number was *found* but rejected — see above), acetonitrile, DMF, DMSO,
+isopropanol (an association/producer figure specifically; note ProBas may
+already carry this from an earlier round), n-heptane, n-pentane, MTBE,
+triethylamine, acetic acid, methanol, phenol (same as acetone — found,
+rejected). None of the pharma/lab-solvent-specific chemicals (THF, 2-MeTHF,
+DCM's siblings like ethyl/isopropyl acetate, acetonitrile, DMF, DMSO) turned
+up a producer PCF or EPD anywhere searched this round; BASF is the most
+likely publisher of several of these (it explicitly sells THF, NMP, DMF-
+adjacent intermediates and has an ISO-14067 PCF programme covering "all
+45,000 sales products") but distributes individual values through a
+customer-only portal (`myPMportal.basf.com`), not a public document — this
+remains the single biggest identified gap-with-a-known-shape: if BASF (or
+any producer) ever publishes even one representative example PCF value in
+a public sustainability report or product datasheet rather than gating it
+behind a login, that would be immediately usable and is worth checking for
+specifically in any follow-up round.
