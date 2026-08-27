@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .ledger import AdjustedRoute, adjust_route
-from .resolve import Factor, FactorTable, Resolution, resolve_materials
+from .resolve import Conflict, Factor, FactorTable, Resolution, resolve_materials
 from .schema import Assumptions, Ledger, Role
 from .uncertainty import ComparisonStats, UncertaintyModel, compare_monte_carlo
 
@@ -187,6 +187,7 @@ class Comparison:
     factor_fingerprint: str
     factor_sources: dict[str, str]  # path -> sha256
     illustrative_keys: list[str]  # resolved via an ILLUSTRATIVE row
+    factor_conflicts: list[Conflict]  # substances the loaded tables disagree about
     resolutions: dict[str, Resolution]
 
 
@@ -274,6 +275,7 @@ def run_comparison(
         factor_fingerprint=table.fingerprint(),
         factor_sources=dict(table.sources),
         illustrative_keys=illustrative_keys,
+        factor_conflicts=list(table.conflicts),
         resolutions=resolutions,
     )
 

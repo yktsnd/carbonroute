@@ -41,11 +41,38 @@ def test_non_numeric_and_negative_values_are_rejected(tmp_path):
         FactorTable.load([negative])
 
 
-def test_conflicting_duplicate_values_are_rejected(tmp_path):
-    a = _table(tmp_path, "108-88-3,toluene,3.0,src,v1,GLO,2026-01-01,background_db,CC0,\n", "a.csv")
-    b = _table(tmp_path, "108-88-3,toluene,4.0,src,v1,GLO,2026-01-01,background_db,CC0,\n", "b.csv")
-    with pytest.raises(FactorTableError, match="conflicting"):
-        FactorTable.load([a, b])
+def test_disagreeing_sources_are_recorded_not_refused(tmp_path):
+    """Two public sources differing about a substance is a measurement.
+
+    Refusing to load would throw that measurement away and block the
+    comparison; picking one quietly would hide it. Both values are carried.
+    """
+    a = _table(tmp_path, "108-88-3,toluene,3.0,src A,v1,GLO,2026-01-01,background_db,CC0,\n", "a.csv")
+    b = _table(tmp_path, "108-88-3,toluene,4.0,src B,v1,GLO,2026-01-01,background_db,CC0,\n", "b.csv")
+    table = FactorTable.load([a, b])
+    assert table.by_key["cas:108-88-3"].gwp_kgCO2e_per_kg == 3.0
+    assert len(table.conflicts) == 1
+    conflict = table.conflicts[0]
+    assert conflict.kept.source == "src A"
+    assert conflict.rejected.gwp_kgCO2e_per_kg == 4.0
+    assert conflict.ratio == pytest.approx(4.0 / 3.0)
+
+
+def test_which_source_wins_does_not_depend_on_argument_order(tmp_path):
+    a = _table(tmp_path, "108-88-3,toluene,3.0,src A,v1,GLO,2026-01-01,background_db,CC0,\n", "a.csv")
+    b = _table(tmp_path, "108-88-3,toluene,4.0,src B,v1,GLO,2026-01-01,background_db,CC0,\n", "b.csv")
+    forwards = FactorTable.load([a, b])
+    backwards = FactorTable.load([b, a])
+    assert (
+        forwards.by_key["cas:108-88-3"].gwp_kgCO2e_per_kg
+        == backwards.by_key["cas:108-88-3"].gwp_kgCO2e_per_kg
+    )
+
+
+def test_an_identical_duplicate_is_not_a_conflict(tmp_path):
+    a = _table(tmp_path, "108-88-3,toluene,3.0,src A,v1,GLO,2026-01-01,background_db,CC0,\n", "a.csv")
+    b = _table(tmp_path, "108-88-3,toluene,3.0,src B,v1,GLO,2026-01-01,background_db,CC0,\n", "b.csv")
+    assert FactorTable.load([a, b]).conflicts == []
 
 
 def test_inchikey_and_cas_keys_are_distinguished(tmp_path):

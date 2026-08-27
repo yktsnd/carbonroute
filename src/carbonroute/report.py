@@ -377,6 +377,7 @@ def render_report(comparison: "Comparison", thresholds: "list[Threshold] | None"
     lines.append("")
 
     lines.extend(_factor_table_section(comparison))
+    lines.extend(render_conflicts(comparison.factor_conflicts))
     lines.extend(_provenance_breakdown(comparison))
     lines.extend(_warning_block(comparison))
     lines.extend(_conclusion(comparison, thresholds))
@@ -508,6 +509,24 @@ def build_lock(
         "factor_tables": {
             "sources": {_portable_path(p): d for p, d in sorted(table.sources.items())},
             "fingerprint": table.fingerprint(),
+            # Which source won a disagreement changes the numbers, so it is
+            # pinned alongside the tables themselves.
+            "conflicts": [
+                {
+                    "key": c.key,
+                    "used": {
+                        "gwp_kgCO2e_per_kg": c.kept.gwp_kgCO2e_per_kg,
+                        "source": c.kept.source,
+                        "table": _portable_path(c.kept.table),
+                    },
+                    "not_used": {
+                        "gwp_kgCO2e_per_kg": c.rejected.gwp_kgCO2e_per_kg,
+                        "source": c.rejected.source,
+                        "table": _portable_path(c.rejected.table),
+                    },
+                }
+                for c in sorted(table.conflicts, key=lambda c: c.key)
+            ],
         },
         "uncertainty_config": {
             "path": _portable_path(uncertainty_model.path),
@@ -603,3 +622,33 @@ def render_coverage(cov, a_name: str, b_name: str, table: "FactorTable") -> str:
         lines.append("Every material in the delta set resolved to a factor.")
         lines.append("")
     return "\n".join(lines)
+
+
+def render_conflicts(conflicts) -> list[str]:
+    """Substances the loaded tables disagree about.
+
+    Not an error and not a footnote. Two independent public sources differing
+    about the same material measures how far apart openly available data sits,
+    which is one of the things this project set out to find out. The first table
+    in sorted path order supplies the value used; both are shown.
+    """
+    if not conflicts:
+        return []
+    lines = [
+        "## Sources disagree",
+        "",
+        f"{len(conflicts)} substance(s) appear in more than one loaded table with "
+        "different values. The value used is the one from the first table in sorted "
+        "path order; the alternative is shown so the spread is visible.",
+        "",
+        "| substance | used | from | alternative | from | ratio |",
+        "|---|---|---|---|---|---|",
+    ]
+    for c in sorted(conflicts, key=lambda c: c.key):
+        lines.append(
+            f"| {c.kept.name} (`{c.key}`) | {_fmt(c.kept.gwp_kgCO2e_per_kg)} | "
+            f"{c.kept.source} | {_fmt(c.rejected.gwp_kgCO2e_per_kg)} | "
+            f"{c.rejected.source} | {c.ratio:.2f}x |"
+        )
+    lines.append("")
+    return lines

@@ -148,3 +148,24 @@ Concretely:
 7. **Commit the table only if its license and your redistribution rights
    allow it** — see the ecoinvent warning above; the same reasoning applies
    to any other license that forbids redistribution.
+
+## When two tables disagree
+
+Nothing stops two sources from giving different numbers for the same substance,
+and in practice they do: ADEME and the US LCI Database differ by a factor of
+1.42 on hydrochloric acid, both openly licensed, both citable.
+
+The loader does not refuse to run, and it does not pick quietly. It keeps the
+value from the first table in **sorted path order** — so the outcome never
+depends on the order a caller happened to pass its arguments — records the
+alternative as a `Conflict`, and every report that touches the table prints a
+"Sources disagree" section showing both values, both sources and the ratio. The
+lock file pins which one was used.
+
+A disagreement is not a defect in either source. It measures how far openly
+available data spreads for the same material, which is one of the questions
+this project set out to answer. Suppressing it would throw that away. If you
+want a particular source to win, load only that source, or order the file names
+so it sorts first.
+
+An identical duplicate is not a conflict and is ignored.

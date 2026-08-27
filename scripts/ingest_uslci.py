@@ -247,29 +247,23 @@ GWP100_KGCO2E_PER_KG: dict[str, float] = {
 }
 
 # Target processes: USLCI's LCI_RESULT (pre-aggregated) chemical datasets
-# that are (a) not copyright-protected, (b) not already present under a
-# different value in another factor table in this repo, and (c) have
-# near-zero residual technosphere linkage. See module docstring for the
-# full reasoning, including the two rows deliberately NOT here (HCl -- CAS
-# conflicts with data/factors/ademe_base_carbone.csv) and why every
-# unit-process chemical (toluene, methanol, etc.) is excluded outright.
+# that are (a) not copyright-protected and (b) have near-zero residual
+# technosphere linkage. See the module docstring for the full reasoning,
+# including why every unit-process chemical (toluene, methanol, etc.) is
+# excluded outright.
 TARGET_PROCESSES: dict[str, str] = {
     "e0368d96-44a3-3628-8220-e6ae975b0931": "Carbon monoxide",
     "136cbdd8-ef76-3834-904d-6fce42b2b660": "Ethylene oxide",
+    "9ee66dd5-dcc9-3e94-9da3-3a7cc6cddeb3": "Hydrochloric acid",
 }
 
-# Already covered by data/factors/ademe_base_carbone.csv under the same CAS
-# -- kept only as an LCI_RESULT process that was fetched, inspected and
-# rejected for that reason (see module docstring); recorded here so
-# --report shows it was looked at, not silently skipped.
-NOT_INGESTED_LCI_RESULTS: dict[str, str] = {
-    "9ee66dd5-dcc9-3e94-9da3-3a7cc6cddeb3": (
-        "Hydrochloric acid, without water, in 30% solution state, at plant -- "
-        "CAS 7647-01-0 already present in data/factors/ademe_base_carbone.csv "
-        "with a different value; FactorTable.load() rejects conflicting "
-        "duplicate identifiers across tables, so this row is left out"
-    ),
-}
+# Hydrochloric acid also appears in data/factors/ademe_base_carbone.csv under
+# the same CAS with a different value. It is ingested anyway: FactorTable now
+# records such a disagreement as a Conflict and reports it, rather than
+# refusing to load. Two independent public sources differing about the same
+# substance is a measurement of how far public data spreads, and hiding it
+# would throw that measurement away.
+NOT_INGESTED_LCI_RESULTS: dict[str, str] = {}
 
 
 def http_get(url: str, timeout: int = 60) -> bytes:

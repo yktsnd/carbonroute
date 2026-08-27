@@ -49,13 +49,16 @@ This is the important part; see the script's module docstring
   inputs, not further technosphere links). Of USLCI's 24 such processes,
   only three are chemicals: Hydrochloric acid, Carbon monoxide, and
   Ethylene oxide.
-  - **Hydrochloric acid is deliberately excluded** even though it is safe
-    by the same standard as the two kept rows: `data/factors/
-    ademe_base_carbone.csv` already carries CAS 7647-01-0 at
-    1.199 kgCO2e/kg. `FactorTable.load()` raises on two tables giving the
-    same identifier conflicting values, so adding a second, different HCl
-    number here would break every command that loads all factor tables at
-    once, not just this one.
+  - **Hydrochloric acid is included, and it disagrees with ADEME.**
+    `data/factors/ademe_base_carbone.csv` carries CAS 7647-01-0 at
+    1.199 kgCO2e/kg; this table gives 1.700, a factor of 1.42 apart. An
+    earlier version of the loader refused to load two tables that
+    disagreed, and this row was left out for that reason. The loader now
+    records the disagreement as a `Conflict`, uses the value from the first
+    table in sorted path order, and prints both in every report. Two
+    independent public sources differing about the same substance measures
+    how far openly available data spreads, which is worth more than a table
+    that agrees with itself by construction. See `docs/data.md`.
 - None of USLCI's aggregated processes are solvents (no THF, 2-MeTHF, DCM,
   ethyl acetate, acetone, ethanol, isopropanol, acetonitrile, DMF, DMSO,
   heptane). See `docs/sources-investigated.md` for the other sources
@@ -181,14 +184,9 @@ both rows; `uncertainty_class = background_db` supplies the fallback GSD
 
 ## Rejected candidates (recorded here per the project's reporting rules)
 
-- **Hydrochloric acid, without water, in 30% solution state, at plant**
-  (USLCI process `9ee66dd5-dcc9-3e94-9da3-3a7cc6cddeb3`, also
-  `LCI_RESULT`, not copyright-protected, near-zero residual technosphere):
-  rejected purely for the CAS-conflict reason above, not a data-quality
-  reason. If ADEME's HCl row is ever removed, this is the first candidate
-  to add back (already verified reachable, licensed, and correctly
-  characterizable by the same method: 1.700 kgCO2e/kg from this script's
-  characterization logic run once by hand against that dataset).
+- **Hydrochloric acid** was previously listed here as rejected on the
+  CAS-conflict grounds described above. It is now ingested; the
+  disagreement with ADEME is reported rather than avoided.
 - **Toluene, methanol, sulfuric acid, sodium carbonate, sodium hydroxide,
   ammonia, hydrogen (2 routes), acetic acid, ethanol (multiple biofuel
   routes)** — all present in USLCI as unit processes, all rejected

@@ -57,6 +57,21 @@ class Factor:
 
 
 @dataclass(frozen=True)
+class Conflict:
+    """Two sources give different values for the same substance."""
+
+    key: str
+    kept: Factor
+    rejected: Factor
+
+    @property
+    def ratio(self) -> float:
+        low = min(self.kept.gwp_kgCO2e_per_kg, self.rejected.gwp_kgCO2e_per_kg)
+        high = max(self.kept.gwp_kgCO2e_per_kg, self.rejected.gwp_kgCO2e_per_kg)
+        return float("inf") if low == 0 else high / low
+
+
+@dataclass(frozen=True)
 class Resolution:
     """Outcome of looking one material up in the factor tables."""
 
@@ -108,13 +123,17 @@ class FactorTable:
     by_key: dict[str, Factor] = field(default_factory=dict)
     by_name: dict[str, Factor] = field(default_factory=dict)
     by_inchikey: dict[str, Factor] = field(default_factory=dict)
+    #: Substances two loaded tables disagree about. Never silently dropped.
+    conflicts: list[Conflict] = field(default_factory=list)
     #: path -> sha256 of the file, recorded in reports and lock files.
     sources: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def load(cls, paths: list[str | Path]) -> "FactorTable":
+        """Load tables in sorted path order, so which source wins a conflict
+        does not depend on how the caller happened to order its arguments."""
         table = cls()
-        for path in paths:
+        for path in sorted(paths, key=lambda p: str(Path(p))):
             table.load_file(path)
         return table
 
@@ -164,11 +183,15 @@ class FactorTable:
                 gsd=gsd,
                 table=str(p),
             )
-            if key in self.by_key and self.by_key[key].gwp_kgCO2e_per_kg != gwp:
-                raise FactorTableError(
-                    f"{p}:{lineno}: conflicting values for {key} "
-                    f"({self.by_key[key].table} and {p}); resolve the conflict explicitly"
-                )
+            existing = self.by_key.get(key)
+            if existing is not None and existing.gwp_kgCO2e_per_kg != gwp:
+                # Two independent public sources disagreeing about a substance is
+                # information, not a reason to refuse to run. The first table in
+                # load order wins so the outcome is deterministic, and the
+                # disagreement is carried through to the report rather than being
+                # picked quietly or blocking the comparison entirely.
+                self.conflicts.append(Conflict(key=key, kept=existing, rejected=factor))
+                continue
             self.by_key[key] = factor
             self.by_name.setdefault(normalize_name(factor.name), factor)
             if inchikey:
