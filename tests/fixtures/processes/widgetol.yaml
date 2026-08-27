@@ -1,0 +1,25 @@
+# Synthetic recipe. The numbers are chosen so the arithmetic can be checked by
+# hand; the substances are real only so the CAS check digits validate.
+substance:
+  name: widgetol
+  cas: "67-64-1"          # acetone's CAS, borrowed so the fixture validates
+  inchikey: CSCPPACGZOOCGX-UHFFFAOYSA-N
+route:
+  name: "Fictional condensation"
+  description: "Exists to exercise the arithmetic, not to describe a plant."
+  stoichiometry: "2 MeOH -> widgetol + H2O"
+  yield: 0.5
+  yield_source: {document: "test fixture", url: "", locator: "n/a"}
+inputs:
+  - name: methanol
+    cas: "67-56-1"
+    kg_per_kg_product: 2.0
+    basis: stoichiometric
+    source: {document: "test fixture", url: "", locator: "n/a"}
+energy:
+  electricity_kWh_per_kg: 10.0
+  electricity_source: {document: "test fixture", url: "", locator: "n/a"}
+notes: |
+  Methanol is in the real ADEME table at 0.521 kgCO2e/kg.
+gaps:
+  - "No fuel figure; this fixture omits it on purpose."

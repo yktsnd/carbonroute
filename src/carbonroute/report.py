@@ -122,7 +122,8 @@ def _provenance_breakdown(comparison: "Comparison") -> list[str]:
 def _warning_block(comparison: "Comparison") -> list[str]:
     illustrative = comparison.illustrative_keys
     unresolved = comparison.diff.delta_unresolved
-    if not illustrative and not unresolved:
+    derived = comparison.derived_keys
+    if not illustrative and not unresolved and not derived:
         return []
     lines = ["> **WARNING — read before trusting the conclusion below.**", ">"]
     if illustrative:
@@ -134,6 +135,24 @@ def _warning_block(comparison: "Comparison") -> list[str]:
             res = comparison.resolutions.get(key)
             label = res.name if res is not None else key
             lines.append(f"> - `{key}` ({label})")
+        lines.append(">")
+    if derived:
+        lines.append(
+            f"> {len(derived)} of the factors consumed here were **derived by "
+            "`carbonroute bootstrap`** from a production recipe rather than measured. "
+            "Each is a lower bound widened into an interval by a declared completeness "
+            "assumption, so it is a model of a plant, not an observation of one:"
+        )
+        for key in sorted(derived):
+            res = comparison.resolutions.get(key)
+            label = res.name if res is not None else key
+            factor = res.factor if res is not None else None
+            interval = ""
+            if factor is not None and factor.gsd:
+                low = factor.gwp_kgCO2e_per_kg / factor.gsd ** 1.6448536269514722
+                high = factor.gwp_kgCO2e_per_kg * factor.gsd ** 1.6448536269514722
+                interval = f" — modelled range {_fmt(low)} to {_fmt(high)} kgCO2e/kg"
+            lines.append(f"> - `{key}` ({label}){interval}")
         lines.append(">")
     if unresolved:
         lines.append(

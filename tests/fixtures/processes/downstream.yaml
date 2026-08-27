@@ -1,0 +1,18 @@
+# Depends on widgetol, so it can only be derived after it.
+substance:
+  name: downstreamine
+  cas: "71-43-2"          # benzene's CAS, borrowed for a valid check digit
+  inchikey: UHOVQNZJYSORNB-UHFFFAOYSA-N
+route:
+  name: "Fictional second stage"
+  description: "Consumes the product of widgetol.yaml."
+  yield: 1.0
+  yield_source: {document: "test fixture", url: "", locator: "n/a"}
+inputs:
+  - name: widgetol
+    cas: "67-64-1"
+    kg_per_kg_product: 1.0
+    basis: stated
+    source: {document: "test fixture", url: "", locator: "n/a"}
+energy: {}
+gaps: []

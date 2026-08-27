@@ -126,7 +126,7 @@ Points worth knowing:
 The complete route ledger is the only place assumptions are allowed to
 live. There is no other configuration surface for them.
 
-## The five commands
+## The commands
 
 ```
 carbonroute validate route.yaml
@@ -134,6 +134,7 @@ carbonroute resolve  route.yaml [--show-missing]
 carbonroute coverage route.yaml --a <route> --b <route>
 carbonroute compare  route.yaml --a <route> --b <route> -o report.md
 carbonroute lock     route.yaml -o route.lock.json
+carbonroute bootstrap --processes data/processes -o data/factors/derived.csv
 ```
 
 - **`validate`** checks the ledger against the schema only. No factor
@@ -148,6 +149,12 @@ carbonroute lock     route.yaml -o route.lock.json
   unresolved.
 - **`compare`** runs the full comparison — diff, Monte Carlo ranking,
   reversal thresholds — and writes the report.
+- **`bootstrap`** derives factors for substances no open database covers, by
+  computing them from production recipes in `data/processes/` rather than
+  looking them up. Each result is a lower bound — every omitted term is
+  non-negative — widened into an interval by a declared completeness
+  assumption, marked `DERIVED`, and flagged in any report that uses it. See
+  [`docs/bootstrap.md`](docs/bootstrap.md).
 - **`lock`** pins the factor table version(s), the resolved value and
   provenance for every material, and the RNG seed and iteration count, so
   that someone else can reproduce the exact numbers later.

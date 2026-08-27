@@ -188,6 +188,7 @@ class Comparison:
     factor_sources: dict[str, str]  # path -> sha256
     illustrative_keys: list[str]  # resolved via an ILLUSTRATIVE row
     factor_conflicts: list[Conflict]  # substances the loaded tables disagree about
+    derived_keys: list[str]  # resolved via a model, not a measurement
     resolutions: dict[str, Resolution]
 
 
@@ -258,6 +259,16 @@ def run_comparison(
         indeterminate_reason=reason,
     )
 
+    from .bootstrap import is_derived
+
+    derived_keys = sorted(
+        {
+            key
+            for key, res in resolutions.items()
+            if res.resolved and res.factor is not None and is_derived(res.factor)
+        }
+    )
+
     illustrative_keys = sorted(
         {
             key
@@ -276,6 +287,7 @@ def run_comparison(
         factor_sources=dict(table.sources),
         illustrative_keys=illustrative_keys,
         factor_conflicts=list(table.conflicts),
+        derived_keys=derived_keys,
         resolutions=resolutions,
     )
 
