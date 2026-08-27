@@ -25,7 +25,11 @@ from carbonroute.compute import (  # noqa: E402
     unresolved_flip_factor,
 )
 from carbonroute.ledger import adjust_all, load_ledger  # noqa: E402
-from carbonroute.resolve import FactorTable, resolve_materials  # noqa: E402
+from carbonroute.resolve import (  # noqa: E402
+    FactorTable,
+    default_synonym_paths,
+    resolve_materials,
+)
 from carbonroute.uncertainty import load_uncertainty  # noqa: E402
 
 LEDGER = ROOT / "benchmarks" / "letermovir" / "ledger.yaml"
@@ -35,6 +39,8 @@ OUT = ROOT / "benchmarks" / "letermovir" / "RESULTS.json"
 def main() -> None:
     ledger = load_ledger(LEDGER)
     table = FactorTable.load(sorted((ROOT / "data" / "factors").glob("*.csv")))
+    for path in default_synonym_paths(ROOT):
+        table.load_synonyms(path)
     comparison = run_comparison(ledger, "merck", "denovo", table, load_uncertainty())
 
     adjusted = adjust_all(ledger)
@@ -51,6 +57,7 @@ def main() -> None:
             "working, not failing."
         ),
         "factor_tables": sorted(Path(p).name for p in table.sources),
+        "synonym_tables": sorted(Path(p).name for p in table.alias_sources),
         "factor_fingerprint": table.fingerprint(),
         "delta_material_count": cov.delta_material_count,
         "resolved_count": cov.resolved_count,

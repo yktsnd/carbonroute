@@ -1,0 +1,47 @@
+substance:
+  name: n-heptane
+  cas: "142-82-5"
+  inchikey: IMNFDUFMRHMDMM-UHFFFAOYSA-N
+
+route:
+  name: "Fractional distillation from petroleum naphtha / natural gas liquids"
+  description: >
+    n-Heptane is not synthesised by a chemical reaction in its dominant
+    commercial route: like toluene (see data/processes/toluene.yaml), it is
+    a straight-run component already present in petroleum naphtha or
+    natural gas liquids, isolated by fractional/extractive distillation
+    (and, for high-purity grades, further separated from its branched and
+    cyclic C7 isomers by processes such as molecular-sieve adsorption).
+    This ledger found no BREF, AP-42 chapter, or patent giving a
+    feedstock-mass or energy-per-kg figure specific to n-heptane isolation
+    (as opposed to the aromatics-extraction figures found for toluene) in
+    the time available for this task (see gaps).
+  stoichiometry: null
+
+inputs: []
+
+energy: {}
+
+notes: |
+  Unlike toluene, no equivalent of the LVOC BREF's Chapter 4 "Aromatics"
+  table (Table 4.3, "Energy usage per tonne of product") was found for
+  paraffinic solvent isolation (n-heptane, n-pentane): the LVOC BREF's
+  chapter list (Lower Olefins, Aromatics, Ethylbenzene/Styrene,
+  Formaldehyde, EO/EG, Phenol, Ethanolamines, TDI/MDI, EDC/VCM, H2O2 --
+  see data/processes/README.md) does not include paraffin/solvent-naphtha
+  separation, and no AP-42 chapter or patent covering it was located
+  either. Given the coordinator's steering to prioritise substances not
+  already covered and to stop when sources run out rather than guess, this
+  file was left as a documentation-only stub after a limited search rather
+  than pursued further.
+
+gaps:
+  - "No feedstock, yield, or energy figure of any kind was sourced for
+    n-heptane isolation; this file is route documentation only."
+  - "No BREF, AP-42 chapter, or patent covering paraffinic-solvent
+    (as opposed to aromatic) separation from petroleum/NGL streams was
+    located in the time available."
+  - "This substance's own factor is already held directly in
+    data/factors (per the coordinating engine's inventory), which is part
+    of why this file was given limited search effort relative to
+    substances still needing a factor."

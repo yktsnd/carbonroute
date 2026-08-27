@@ -1,0 +1,64 @@
+substance:
+  name: dimethyl sulfoxide
+  cas: "67-68-5"
+  inchikey: IAZDPXIOMUYVGZ-UHFFFAOYSA-N
+
+route:
+  name: "Liquid-phase oxidation of dimethyl sulfide with oxygen (NOx-catalysed)"
+  description: >
+    Dimethyl sulfide (a byproduct of kraft wood pulping, recovered as a
+    by-product stream) is continuously oxidised by an oxygen-rich gas in the
+    liquid phase, using NOx (NO/N2O3/NO2/N2O4) as a homogeneous catalyst, to
+    give dimethyl sulfoxide. This is described in the cited patent, and in
+    general technical literature, as the standard industrial DMSO route.
+  stoichiometry: "C2H6S (dimethyl sulfide) + 1/2 O2 -> C2H6OS (DMSO)"
+  yield: 0.99
+  yield_source:
+    document: "US Patent 6,414,193 B1, 'Process for producing dimethyl sulfoxide'"
+    url: "https://patents.google.com/patent/US6414193B1/en"
+    locator: >
+      Example 2: DMS fed at 100 g/h, catalyst NOx at 6.2 g/h, 90%-oxygen gas
+      at 34.0 g/h, reactor at 30C: "The conversion into DMSO in this DMS
+      liquid phase continuous oxidation was more than 99%." Example 3 (with
+      NOx recycle): "The conversion into DMSO in this case was 99%." Used
+      the more conservative stated figure (99%) as route.yield.
+
+inputs:
+  - name: dimethyl sulfide
+    cas: "75-18-3"
+    kg_per_kg_product: 0.7952
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C2H6S = 62.13, O2 = 32.00, C2H6OS = 78.13)."
+      url: null
+      locator: "Arithmetic."
+  - name: oxygen
+    cas: "7782-44-7"
+    kg_per_kg_product: 0.2048
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  The cited patent's Example 2 mass balance (100 g/h DMS in; 124.8 g/h
+  reaction product solution out, plus an off-gas of 12.2 g/h O2 and 2.4 g/h
+  NOx) is a lab-scale continuous-flow demonstration, not a plant-scale
+  material or energy balance, and the "reaction product solution" figure
+  is not pure DMSO (it also carries dissolved NOx catalyst and unreacted
+  DMS), so it was not used directly for the kg/kg figures above; the
+  stoichiometric ratio, divided by the stated 99% conversion via
+  route.yield, was used instead.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for DMSO
+    production was found; the cited patent's reaction is run at a mild
+    30C and does not report utility consumption. No BREF or AP-42 source
+    covering DMSO was found."
+  - "DMS's own upstream footprint (dominant commercial source: co-product
+    of kraft pulping, i.e. sulfur byproduct recovery, or made on-purpose
+    from methanol + hydrogen sulfide/sodium sulfide) was not investigated;
+    this recipe only covers the DMS -> DMSO oxidation step."

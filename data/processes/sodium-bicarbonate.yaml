@@ -1,0 +1,134 @@
+substance:
+  name: sodium bicarbonate
+  cas: "144-55-8"
+  inchikey: UIIMBOGNXHQVGW-UHFFFAOYSA-M
+
+route:
+  name: "Solvay (ammonia-soda) process - brine ammoniation and carbonation"
+  description: >
+    The reaction by which sodium bicarbonate crystals first form in the
+    classical Solvay process: ammonia is absorbed into saturated brine, the
+    ammoniated brine is carbonated with CO2 (via intermediate ammonium
+    carbonate then ammonium bicarbonate), and sodium bicarbonate precipitates
+    while ammonium chloride stays in solution. The source BREF gives this as
+    four numbered sub-reactions (1)-(4); the combined/net equation is used
+    here as the route stoichiometry. See notes for how this crude
+    bicarbonate relates to the commercial "refined sodium bicarbonate"
+    product this file names as its target substance.
+  stoichiometry: "NaCl + NH3 + CO2 + H2O -> NaHCO3 + NH4Cl"
+  stoichiometry_source:
+    document: "EC JRC/EIPPCB, 'Reference Document on Best Available Techniques for the Manufacture of Large Volume Inorganic Chemicals - Solids and Others Industry' (LVIC-S BREF), August 2007"
+    url: "https://bureau-industrial-transformation.jrc.ec.europa.eu/sites/default/files/2019-11/lvic-s_bref_0907.pdf"
+    locator: >
+      Section 2.2.1.1 'Main chemical reactions', p.86-87 of PDF, equations
+      (1)-(4): NaCl+H2O+NH3->NaCl+NH4OH (1); 2NH4OH+CO2->(NH4)2CO3+H2O (2);
+      (NH4)2CO3+CO2+H2O->2NH4HCO3 (3); 2NH4HCO3+2NaCl->2NaHCO3+2NH4Cl (4).
+      The combined net equation above is arithmetic (sum of the four stated
+      steps), not separately stated in the source as a single line.
+  yield: 0.70
+  yield_source:
+    document: "EC JRC/EIPPCB, LVIC-S BREF, August 2007"
+    url: "https://bureau-industrial-transformation.jrc.ec.europa.eu/sites/default/files/2019-11/lvic-s_bref_0907.pdf"
+    locator: >
+      Section 2.5, p.99 of PDF: "limited material efficiency of the Solvay
+      process, due to intractable chemical equilibrium limitations, with
+      the conversion of a Na+ cation at the level of ~70% and CO3(2-) anion
+      at the level of ~80%" [85, EIPPCB, 2004-2005]. The lower (Na+, ~70%)
+      of the two stated conversion figures is used as route.yield, applied
+      uniformly to all three stoichiometric inputs below -- see notes for
+      why this is an approximation, not an exact per-input figure.
+
+inputs:
+  - name: sodium chloride
+    cas: "7647-14-5"
+    kg_per_kg_product: 0.6957
+    basis: stoichiometric
+    source:
+      document: "Derived from the stated Solvay reaction sequence (above) and standard atomic weights."
+      url: null
+      locator: "Arithmetic (NaCl MW 58.44 / NaHCO3 MW 84.01)."
+  - name: ammonia
+    cas: "7664-41-7"
+    kg_per_kg_product: 0.2027
+    basis: stoichiometric
+    source:
+      document: "Derived from the stated Solvay reaction sequence (above) and standard atomic weights."
+      url: null
+      locator: "Arithmetic (NH3 MW 17.03 / NaHCO3 MW 84.01)."
+  - name: carbon dioxide
+    cas: "124-38-9"
+    kg_per_kg_product: 0.5239
+    basis: stoichiometric
+    source:
+      document: "Derived from the stated Solvay reaction sequence (above) and standard atomic weights."
+      url: null
+      locator: "Arithmetic (CO2 MW 44.01 / NaHCO3 MW 84.01)."
+
+notes: |
+  IMPORTANT SCOPE CAVEAT: this route describes the reaction that first
+  precipitates sodium bicarbonate inside a Solvay soda-ash plant. In most of
+  the world's Solvay capacity this crude bicarbonate is immediately calcined
+  onward to soda ash (Na2CO3) -- reaction (5) in the source, 2NaHCO3 ->
+  Na2CO3 + H2O + CO2 -- and never sold as NaHCO3. The commercial "refined
+  sodium bicarbonate" product (food/pharma/flue-gas-treatment grade, ~2.4
+  Mt/yr worldwide per Table 2.18 of the same source) is instead typically
+  made at 10 of the EU's 14 Solvay sites by a SEPARATE downstream step: soda
+  ash is redissolved in water and re-carbonated/re-precipitated for purity
+  (Section 2.3.6.2, "Refined sodium bicarbonate", reaction Na2CO3 + CO2 +
+  H2O -> 2 NaHCO3). For THAT specific downstream step the same source states
+  actual (non-stoichiometric) material consumption: "Approximately 0.7 tonne
+  of raw soda ash and up to 1.1 tonnes of 40% CO2 gas ... are used for the
+  production of 1 tonne of refined sodium bicarbonate. It is assumed that,
+  on average, some 550 kg 100% CO2 is used for the production of one tonne
+  of NaHCO3" (p.66 of PDF, source [33, CEFIC-ESAPA 2004]) -- i.e. 0.7 kg
+  soda ash and 0.55 kg CO2 (100% basis) per kg refined NaHCO3, both basis
+  "stated". This ledger uses the ammonia-consuming primary reaction instead
+  (per explicit steering to prioritise routes chaining to feedstocks already
+  in data/factors, which holds ammonia but not soda ash/sodium carbonate) --
+  a user of this file should treat it as the upstream/primary-crystallisation
+  step, and treat the 0.7 kg soda ash + 0.55 kg CO2 figures above as the
+  better-sourced (stated, not derived) numbers for the specific downstream
+  purification route if that is the process actually being modelled.
+
+  CO2 in the primary reaction is substantially internally recycled in a real
+  plant (the CO2 released on calcining crude bicarbonate to soda ash, and
+  from lime-kiln operation, is fed back into the carbonation step) -- the
+  0.52 kg/kg stoichiometric figure above is a gross reactant requirement,
+  not a net purchased/atmospheric CO2 figure.
+
+  route.yield caveat: the source states TWO different conversion figures for
+  this equilibrium-limited reaction -- Na+ at ~70%, CO3(2-)/CO2 at ~80% --
+  reflecting that sodium and carbonate do not convert at the same rate. This
+  ledger's schema applies a single route.yield to every stoichiometric input
+  uniformly, so the 70% figure (chosen as the more conservative of the two)
+  is applied to CO2 and ammonia as well as to NaCl, even though the source
+  separately implies CO2 converts somewhat more efficiently (~80%) and gives
+  no figure at all for ammonia. This will modestly overstate the CO2 (and
+  possibly ammonia) feedstock requirement relative to using each species'
+  own conversion figure.
+
+gaps:
+  - "route.yield (0.70) is the Na+ conversion figure, applied uniformly to
+    all three inputs though the source gives a different (~80%) figure for
+    CO2 and none at all for ammonia -- see the route.yield caveat in notes."
+  - "No stated (non-stoichiometric) feedstock-consumption figures were found
+    for the primary ammoniation-carbonation step itself; only stoichiometric
+    values are given for NaCl/NH3/CO2 above. Stated figures exist only for
+    the separate downstream refined-bicarbonate purification step (see
+    notes) and were not substituted in, to avoid conflating two different
+    process steps."
+  - "No electricity or fuel energy figure specific to sodium bicarbonate (or
+    its immediate precipitation step) was found. The source's only
+    quantified energy table (Table 2.22, 'Ranges of energy consumption in
+    soda ash production': fuels 7.5-10.8 GJ/t soda ash + electricity 50-130
+    kWh/t soda ash + lime-kiln fuel 2.2-2.8 GJ/t) is for soda ash as a whole
+    plant, not attributable to the bicarbonate step specifically, and is not
+    used here to avoid an unfounded allocation."
+  - "H2O input is stoichiometrically required (0.2145 kg/kg by the same
+    derivation) but omitted as a listed input: this ledger's schema and the
+    engine it feeds treat water inputs as out of scope for GWP accounting
+    per the letermovir benchmark precedent (deionised/process water has its
+    own near-zero-impact factor entry), so it is noted here rather than
+    listed to avoid double-counting against that factor."
+  - "Only the 2007 LVIC-S BREF was consulted; no newer edition or BAT
+    Conclusions document was located/checked for this substance."

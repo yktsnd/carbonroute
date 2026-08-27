@@ -1,0 +1,49 @@
+substance:
+  name: water (deionised, industrial)
+  cas: "7732-18-5"
+  inchikey: XLYOFNOQVPJJNP-UHFFFAOYSA-N
+
+route:
+  name: "Reverse osmosis + mixed-bed ion exchange polishing of fresh/municipal water"
+  description: >
+    Standard industrial deionised-water train: multimedia/cartridge
+    pre-filtration, reverse osmosis (RO) desalination of a fresh or
+    municipal feed (not seawater), then mixed-bed ion-exchange polishing to
+    reach low-conductivity process-water quality. This ledger could NOT
+    source a defensible electricity figure for this specific case (see
+    gaps): the readily available public figures are for SEAWATER RO
+    desalination (feed salinity roughly 35 g/L), which is far more
+    energy-intensive than treating fresh/municipal water (typically <1
+    g/L) and would misrepresent this substance's footprint if used as a
+    stand-in.
+  stoichiometry: null
+
+inputs: []
+
+energy: {}
+
+notes: |
+  Public literature located (via WebSearch, not deeply verified against a
+  primary technical report in this session) gives energy intensities of
+  roughly 2-5.5 kWh/m3 for SEAWATER reverse osmosis, and roughly 0.8-2.8
+  kWh/m3 for BRACKISH-water RO -- both well above what a municipal-feed
+  industrial deioniser would need, since feed salinity is the dominant
+  driver of RO energy demand and municipal water is far less saline than
+  either seawater or brackish groundwater. No public source specifically
+  quantifying municipal-to-deionised-water energy consumption (as opposed
+  to seawater or brackish-water desalination) was located and read in full
+  in this session, so no number is entered here rather than mis-citing a
+  seawater/brackish figure as representative.
+
+gaps:
+  - "No electricity or fuel energy figure specific to municipal-water
+    deionisation (as opposed to seawater/brackish desalination, a
+    materially different and much more energy-intensive process) was
+    sourced from a document actually retrieved and read in this session."
+  - "No feedstock input applies (water in, water out; the 'feedstock' is
+    the same substance as the product, net of rejected concentrate/brine,
+    which this ledger does not attempt to quantify)."
+  - "This substance's own factor is already held directly in
+    data/factors (per the coordinating engine's inventory), which is why
+    this file was given comparatively little further search effort once
+    that became clear partway through this task."

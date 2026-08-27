@@ -169,3 +169,38 @@ want a particular source to win, load only that source, or order the file names
 so it sorts first.
 
 An identical duplicate is not a conflict and is ignored.
+
+## Synonym tables: the names a ledger uses
+
+A ledger written by a chemist says `2-Me-THF`. A factor table says
+`2-methyltetrahydrofuran`. Nothing connects them, so the material goes
+unresolved and its mass drops silently out of the comparison. On the letermovir
+benchmark that one name was worth 20.65 kg per functional unit — 16% of the
+differing mass — and the factor for it was already in the table.
+
+`data/synonyms/*.csv` closes that gap. Columns: `alias`, `identifier`,
+`inchikey`, `source`, `retrieved_date`, `notes`. A row without a `source` is
+rejected: an alias is an identity claim about chemistry, and an unchecked one
+silently attributes one substance's footprint to another.
+
+`scripts/resolve_synonyms.py` generates candidate rows. It takes the names a
+ledger failed to resolve, asks PubChem what they are, and records the CID and
+InChIKey that support each mapping. A name that resolves to more than one
+compound, or whose CAS fails its check digit, is reported and left out — as are
+compound numbers (`15`, `8a (8)`), bespoke catalysts and placeholders like
+`Catalyst`, none of which name a substance at all.
+
+Where the exact string is not in PubChem's index, the script retries **purely
+orthographic** variants: whitespace collapsed around hyphens, spaces turned into
+hyphens or removed, the last internal hyphen dropped. That is punctuation, not
+chemistry — nothing is changed about a substituent, a locant or a parent — and
+the variant that actually matched is written into `notes` so a reviewer can see
+what was asked. `2-Me-THF` resolves through `2-MeTHF`; `2- picoline` through
+`2-picoline`.
+
+Lookup order is exact identifier, then synonym, then name. An exact CAS always
+wins, so a synonym can never override a material that already resolved.
+
+**Review the generated file before committing it.** This is the one place in the
+project where a machine proposes a claim about chemistry, and it is the one
+place a wrong row does its damage quietly.

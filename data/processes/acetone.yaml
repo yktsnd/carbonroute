@@ -1,0 +1,88 @@
+substance:
+  name: acetone
+  cas: "67-64-1"
+  inchikey: CSCPPACGZOOCGX-UHFFFAOYSA-N
+
+route:
+  name: "Dehydrogenation of isopropanol"
+  description: >
+    Vapour-phase catalytic dehydrogenation of isopropanol to acetone and
+    hydrogen over a copper-based catalyst (commercially, "brass spelter" --
+    a copper/zinc alloy -- per the cited patent's own description of prior
+    commercial practice). This is a real, currently-used industrial acetone
+    route, but it is NOT the dominant one globally: the co-product route
+    from cumene (cumene + O2 -> phenol + acetone, the "Hock process",
+    integrated with phenol manufacture) accounts for the large majority of
+    world acetone production. This file uses the isopropanol route because
+    isopropanol already has a sourced factor in data/factors, letting this
+    recipe derive immediately; see notes for the cumene-route data that was
+    also found and the allocation problem that route raises.
+  stoichiometry: "C3H8O (isopropanol) -> C3H6O (acetone) + H2"
+  yield: 0.994
+  yield_source:
+    document: "US Patent 4,472,593 A, 'Conversion of isopropyl alcohol to acetone' (assignee: Standard Oil Company (Indiana))"
+    url: "https://patents.google.com/patent/US4472593A/en"
+    locator: >
+      "By comparison, when a conventional brass spelter (copper and zinc)
+      catalyst that is used commercially is tested as above, a 70%w
+      conversion and a 99.4%w selectivity is obtained at 400C and an LHSV
+      of 4.4." The 99.4 wt% SELECTIVITY figure (fraction of reacted
+      isopropanol that becomes acetone rather than by-products, e.g.
+      propylene from competing dehydration) is used as route.yield; the
+      70% figure is single-PASS conversion through the reactor, not overall
+      raw-material utilisation -- see notes for why selectivity, not
+      per-pass conversion, is the appropriate number here.
+
+inputs:
+  - name: isopropanol
+    cas: "67-63-0"
+    kg_per_kg_product: 1.0347
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C3H8O = 60.10, C3H6O = 58.08)."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  Per-pass vs. overall yield: continuous vapour-phase dehydrogenation
+  processes of this kind are standardly operated with distillation recovery
+  and recycle of unconverted alcohol back to the reactor, so the
+  raw-material-efficiency that matters for a per-kg-product feedstock
+  figure is the reaction's SELECTIVITY (how much of the isopropanol that
+  does react ends up as acetone), not the single-pass conversion (how much
+  reacts on one trip through the reactor bed) -- recycle recovers most of
+  the unconverted 30%. This is standard chemical-engineering practice for
+  this process type, not something the cited patent states explicitly for
+  its own commercial-practice comparison, so it is flagged here as an
+  assumption rather than presented as directly sourced.
+
+  Cumene co-product route (NOT used as the primary route here, but real
+  data was found and is recorded for a future contributor comparing
+  allocation approaches): EC JRC/EIPPCB LVOC BREF
+  (https://bureau-industrial-transformation.jrc.ec.europa.eu/sites/default/files/2019-11/JRC109279_LVOC_Bref.pdf),
+  Chapter 8 "Phenol", Section 8.3.3(a) (p.408 of PDF): "Cumene consumption
+  is typically in the range 1.31-1.38 tonnes per tonne of phenol [10,
+  Zakoshansky 2009], [9, Schmidt 2005], [11, Zakoshansky 2007], [13,
+  Eni-polimeri 2009], [14, IPP 2009]." This figure is stated per tonne of
+  PHENOL, the co-product, not per tonne of acetone -- the BREF gives no
+  economic or mass allocation split between the two co-products, so this
+  ledger could not turn it into a kg-cumene-per-kg-acetone figure without
+  silently choosing an allocation basis, which the task instructions
+  explicitly warn against doing silently. A future contributor building a
+  cumene-route recipe should choose and STATE an allocation basis (mass,
+  stoichiometric-mole, or economic) rather than reuse this note's number
+  directly. Cumene process stoichiometry: C6H5CH(CH3)2 (cumene) + O2 ->
+  C6H5OH (phenol) + C3H6O (acetone), 1:1:1 molar.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for isopropanol
+    dehydrogenation to acetone was found."
+  - "The 'overall yield accounts for alcohol recycle' reasoning above is an
+    engineering assumption, not a cited number; no source stating an actual
+    plant-level isopropanol utilisation efficiency was found."
+  - "The cumene co-product route, which is the actual majority global
+    route, is not modelled as a full recipe here because the source data
+    (LVOC BREF) requires a co-product allocation choice this ledger did not
+    want to make silently; see notes."

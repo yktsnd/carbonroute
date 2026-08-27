@@ -1,0 +1,93 @@
+substance:
+  name: triethylamine
+  cas: "121-44-8"
+  inchikey: ZMANZCXQSJIPKH-UHFFFAOYSA-N
+
+route:
+  name: "Hydrogenation of acetonitrile (a by-product of acrylonitrile manufacture)"
+  description: >
+    Acetonitrile -- typically the purified by-product stream from propylene
+    ammoxidation to acrylonitrile (the SOHIO process) -- is hydrogenated
+    over a noble-metal-on-lithium-aluminium-spinel catalyst, with
+    recirculation of the mono-/di-ethylamine intermediates, to give
+    triethylamine as the major product alongside ammonia. See notes below:
+    this is NOT confirmed as the dominant global route (see gaps) --
+    catalytic amination of ethanol with ammonia and hydrogen is described
+    elsewhere as "the" industrialised process, but no quantitative yield for
+    that route could be retrieved (see notes); this route is used because it
+    is the one for which a real, quoted yield figure was found.
+  stoichiometry: "3 CH3CN (acetonitrile) + 6 H2 -> N(C2H5)3 (triethylamine) + 2 NH3"
+  yield: 0.965
+  yield_source:
+    document: "US Patent 4,297,512 A, 'Process for the preparation of triethylamine' (Bayer AG)"
+    url: "https://patents.google.com/patent/US4297512A/en"
+    locator: >
+      Continuous hydrogenation example (following 'Example 1'): "The bottom
+      product stream removed contained 99.5% of triethylamine, with a total
+      yield of 96.5% of theory." Reaction run at ~105 C, 17 atmospheres,
+      over a Pt/vanadium-doped lithium-aluminium-spinel catalyst; acetonitrile
+      fed as a 99.0% pure worked-up by-product of acrylonitrile manufacture.
+
+inputs:
+  - name: acetonitrile
+    cas: "75-05-8"
+    kg_per_kg_product: 1.2170
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: CH3CN = 41.05, H2 = 2.016, N(C2H5)3 = 101.19, NH3 = 17.03)."
+      url: null
+      locator: "Arithmetic."
+  - name: hydrogen
+    cas: "1333-74-0"
+    kg_per_kg_product: 0.1195
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  Route-choice caveat: Chinese patent CN114716325A, "Method for continuously
+  preparing triethylamine" (https://patents.google.com/patent/CN114716325A/en),
+  states plainly: "The synthesis process of the present industrialized
+  triethylamine is mainly an ethanol hydroamination method, wherein ethanol,
+  ammonia gas and hydrogen gas are preheated and gasified according to a
+  certain proportion, the reaction is carried out by a fixed bed..." --
+  i.e. ethanol + ammonia + H2 over a heterogeneous (there: Ni-based) catalyst
+  is described as the actual dominant industrial process, not the
+  acetonitrile route used in this file. That patent gives real reaction
+  conditions (160-230C, 1-10 MPa, ethanol:ammonia molar ratio 1-4:1) across
+  eleven numbered examples, but its quantitative results (conversion,
+  selectivity) are reported only in "Table 1", which on Google Patents is
+  rendered as an image and was not machine-readable in this session -- no
+  numeric figure from it could be quoted with confidence. US Patent
+  Application 20070112218A1 similarly confirms ethanol+ammonia+H2
+  hydroamination as the industrial method (background section) but its
+  own worked examples concern feedstock (bioethanol) desulfurisation, not
+  amine yield. Because both feedstocks of the ethanol+ammonia route
+  (ethanol, ammonia) already have factors in data/factors, a future
+  contributor who can source a real yield number for that route (e.g. by
+  requesting the CN114716325A table via a different retrieval path) would
+  produce a materially more useful recipe than this one.
+
+  The acetonitrile-hydrogenation route used here, by contrast, does NOT
+  chain to a held factor (acetonitrile itself is on carbonroute's target
+  list and has no recipe of its own here -- see acetonitrile.yaml gaps) --
+  so this recipe currently derives nothing further upstream than
+  acetonitrile and hydrogen, both external floor inputs.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure was found for
+    either the acetonitrile-hydrogenation route used here or the
+    ethanol-amination route described as dominant."
+  - "Could not confirm, from a document actually retrieved and read, the
+    relative market share of the acetonitrile-hydrogenation route vs. the
+    ethanol-hydroamination route; only the CN114716325A patent's own
+    (unverifiable-elsewhere) assertion that ethanol hydroamination is 'the
+    industrialized' method."
+  - "CN114716325A's Table 1 (conversion/selectivity data for its eleven
+    examples) could not be extracted as text from the Google Patents HTML
+    retrieved in this session; a future session should try Espacenet or
+    the USPTO/WIPO PDF directly."

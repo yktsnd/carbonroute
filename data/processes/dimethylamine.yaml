@@ -1,0 +1,89 @@
+substance:
+  name: dimethylamine
+  cas: "124-40-3"
+  inchikey: ROSDSFDQCJNGOL-UHFFFAOYSA-N
+
+route:
+  name: "Catalytic amination of methanol with ammonia"
+  description: >
+    Gas-phase reaction of methanol with ammonia over a solid acid catalyst
+    (e.g. gamma-alumina, silica-alumina, or a shape-selective zeolite such
+    as mordenite for improved dimethylamine selectivity) at elevated
+    temperature (patent literature surveyed cites roughly 300-400C), giving
+    a mixture of mono-, di- and tri-methylamine that is separated by
+    distillation, with unreacted methanol/ammonia and the unwanted
+    mono-/tri-methylamine co-products recycled to extinction. This entry
+    provides only the stoichiometry for the dimethylamine-forming reaction
+    itself, as a feedstock recipe for downstream products (e.g. DMF); it
+    does not attempt to model the real mixed-product/recycle process.
+  stoichiometry: "2 CH4O (methanol) + NH3 -> C2H7N (dimethylamine) + 2 H2O"
+  yield: 0.9
+  yield_source:
+    document: "US Patent 4,578,516 A, 'Process for producing dimethylamine in preference to mono- or trimethylamine by vapor-phase catalytic reaction of methanol and ammonia' (Nitto Chemical Industry)"
+    url: "https://patents.google.com/patent/US4578516A/en"
+    locator: >
+      Background section: DMA "is generally produced by reacting methanol
+      with ammonia in gas phase at an elevated temperature (around 400C) in
+      the presence of a solid acid catalyst ... having dehydration and
+      amination action such as gamma-alumina, silica, silica-alumina and
+      thoria" -- i.e. the conventional (non-zeolite) commercial process.
+      Preferred operating range for the invention's own (improved,
+      DMA-selective) mordenite catalyst: "a methanol conversion of 80 to
+      97%, more preferably 85 to 96%, most preferably 90 to 95%." The
+      midpoint of the "most preferred" band, 0.90, is used as route.yield.
+      IMPORTANT CAVEAT, see notes: this is METHANOL CONVERSION, not a
+      stated overall yield to dimethylamine specifically -- see notes for
+      why it is used as a proxy for route.yield regardless.
+
+inputs:
+  - name: methanol
+    cas: "67-56-1"
+    kg_per_kg_product: 1.4214
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: CH4O = 32.04, NH3 = 17.03, C2H7N = 45.09)."
+      url: null
+      locator: "Arithmetic."
+  - name: ammonia
+    cas: "7664-41-7"
+    kg_per_kg_product: 0.3778
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  Industrial methylamine production is genuinely a co-production of mono-,
+  di- and tri-methylamine: US4578516A itself states that at 400C and a 1:1
+  ammonia:methanol weight ratio, the THERMODYNAMIC EQUILIBRIUM split among
+  the three amines is "0.284 for MMA, 0.280 for DMA and 0.436 for TMA" --
+  i.e. even at high methanol conversion, only ~28% of converted methanol
+  becomes DMA in a single pass; the rest (MMA, TMA) is separated by
+  distillation and recycled to extinction (stated in the same patent's
+  background section: "these by-product amines ... are separated from the
+  reaction product and then transferred to the reaction system for
+  reutilization"). Using METHANOL CONVERSION (0.90, see route.yield_source)
+  rather than single-pass DMA SELECTIVITY (~0.28) as route.yield is a
+  deliberate modelling choice: since MMA and TMA are recycled rather than
+  discarded, methanol's ultimate fate (assuming near-total recycle
+  efficiency, not itself sourced) is overwhelmingly to end up as one of the
+  three methylamines rather than an entirely separate by-product, making
+  overall methanol utilisation to (recycled-to-completion) DMA approach the
+  conversion figure rather than the single-pass selectivity figure. This is
+  an assumption about recycle completeness, not a directly sourced overall
+  DMA yield -- flagged explicitly here and in gaps, per the task's
+  instruction not to silently pick an allocation/recycle assumption.
+
+gaps:
+  - "route.yield (0.90) is methanol CONVERSION from the cited patent, used
+    as a proxy for overall DMA yield under an unverified assumption of
+    near-complete MMA/TMA recycle to extinction -- not a directly stated
+    DMA-specific yield figure. A future contributor should look for an
+    explicit overall DMA yield/utilisation number to replace this proxy."
+  - "No process-energy figure for dimethylamine production was found; the
+    cited patent notes DMA/ammonia/MMA azeotrope separation is energy-
+    intensive ('the energy consumption in the DMA recovery process becomes
+    very great') but gives no number."

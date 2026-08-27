@@ -1,0 +1,37 @@
+substance:
+  name: n-pentane
+  cas: "109-66-0"
+  inchikey: OFBQJSOFQDEBGM-UHFFFAOYSA-N
+
+route:
+  name: "Fractional distillation from natural gas liquids / light naphtha"
+  description: >
+    n-Pentane is not synthesised by a chemical reaction in its dominant
+    commercial route: it is recovered by fractional distillation of natural
+    gas liquids (NGLs) or light straight-run naphtha, then further
+    separated from isopentane and cyclic C5s (e.g. by superfractionation or
+    molecular-sieve adsorption) for higher-purity grades. See
+    data/processes/n-heptane.yaml, which documents the same "no source
+    found" outcome for the paraffinic-solvent-separation case in general;
+    that file's notes apply equally here and are not repeated.
+  stoichiometry: null
+
+inputs: []
+
+energy: {}
+
+notes: |
+  See data/processes/n-heptane.yaml notes: no BREF, AP-42 chapter, or
+  patent covering paraffinic-solvent separation from NGL/naphtha streams
+  (as opposed to the LVOC BREF's aromatics-extraction data used for
+  toluene) was located for this substance in the time available.
+
+gaps:
+  - "No feedstock, yield, or energy figure of any kind was sourced for
+    n-pentane isolation; this file is route documentation only."
+  - "No BREF, AP-42 chapter, or patent covering paraffinic-solvent
+    separation from NGL/naphtha streams was located in the time available."
+  - "This substance's own factor is already held directly in
+    data/factors (per the coordinating engine's inventory), which is part
+    of why this file was given limited search effort relative to
+    substances still needing a factor."

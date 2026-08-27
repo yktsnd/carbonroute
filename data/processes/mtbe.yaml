@@ -1,0 +1,72 @@
+substance:
+  name: MTBE
+  cas: "1634-04-4"
+  inchikey: BZLVMXJERCGZMT-UHFFFAOYSA-N
+
+route:
+  name: "Etherification of isobutylene with methanol"
+  description: >
+    The standard industrial MTBE process: a mixed C4 hydrocarbon cut
+    (containing isobutylene alongside butane, isobutane and n-butenes) is
+    reacted with methanol over an acid ion-exchange resin catalyst
+    (e.g. Amberlyst 15) to etherify isobutylene selectively, with unreacted
+    C4s recovered and the raffinate stream commonly recycled/used elsewhere.
+    The cited patent describes a real two-stage commercial process design
+    (two reactors in series plus intermediate fractionation) with a
+    tonnes/hour worked material balance.
+  stoichiometry: "C4H8 (isobutylene) + CH4O (methanol) -> C5H12O (MTBE)"
+  yield: 0.998
+  yield_source:
+    document: "GB Patent 2047706 A, 'Process for producing methyl tert-butyl ether from methanol and isobutene'"
+    url: "https://patents.google.com/patent/GB2047706A/en"
+    locator: >
+      Claim 1 / Example 1-2 (two-reactor process, Amberlyst-15 catalyst,
+      50-100C, 10-30 bar): single-reactor conversion of isobutene is 93-98%;
+      "the overall conversion of isobutene is thus equal to 99.8%" after the
+      second reaction stage (Example 1, p.2; Example 2 states 99.8%
+      overall conversion also).
+
+inputs:
+  - name: isobutylene
+    cas: "115-11-7"
+    kg_per_kg_product: 0.6365
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C4H8 = 56.11, CH4O = 32.04, C5H12O = 88.15)."
+      url: null
+      locator: "Arithmetic."
+  - name: methanol
+    cas: "67-56-1"
+    kg_per_kg_product: 0.3635
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  The cited patent's Example 1 gives an actual industrial-scale mass
+  balance (14 t/h C4 cut at 49 wt% isobutylene + 3.9 t/h fresh methanol +
+  0.5 t/h recycled methanol -> 10.4 t/h MTBE at 96.3% purity from the first
+  fractionation stage, plus further MTBE recovered from a second reactor
+  stage), which corroborates that near-stoichiometric methanol excess
+  (methanol:isobutylene molar ratio ~1.05-1.3:1 at the first reactor inlet)
+  is standard practice, consistent with the stoichiometric feedstock ratio
+  used above. That real-plant mass balance was not used directly for the
+  kg/kg figures above because it reports total C4-cut flow (isobutylene is
+  only 49 wt% of it) rather than isolating isobutylene mass cleanly across
+  both reaction stages and recycle loops; the stoichiometric ratio, divided
+  by the stated 99.8% overall conversion via route.yield, was used instead
+  for a defensible per-kg figure.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for MTBE
+    production was found in the cited patent or any BREF/AP-42 source
+    consulted."
+  - "No source for MTBE's global feedstock share (isobutylene sourced from
+    FCC off-gas, steam-cracker C4 raffinate, or on-purpose dehydrogenation)
+    was found; the recipe therefore does not distinguish where the
+    isobutylene itself comes from, which would materially change its own
+    upstream footprint."

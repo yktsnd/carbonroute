@@ -159,8 +159,10 @@ carbonroute bootstrap --processes data/processes -o data/factors/derived.csv
   provenance for every material, and the RNG seed and iteration count, so
   that someone else can reproduce the exact numbers later.
 
-`resolve`, `compare` and `lock` accept `--factors PATH` (repeatable;
-defaults to every CSV under `data/factors/`). `compare` and `lock` accept
+`resolve`, `coverage`, `compare`, `lock` and `bootstrap` accept
+`--factors PATH` (repeatable; defaults to every CSV under `data/factors/`) and
+`--synonyms PATH` (defaults to every CSV under `data/synonyms/`, which maps the
+names a ledger uses onto identifiers — see [`docs/data.md`](docs/data.md)). `compare` and `lock` accept
 `--uncertainty PATH` (defaults to the bundled `config/uncertainty.yaml`);
 `resolve` does not, because it never touches the uncertainty model.
 `compare` additionally takes `--iterations`, `--seed` and `--no-thresholds`.

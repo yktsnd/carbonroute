@@ -26,7 +26,7 @@ from typing import NoReturn
 import click
 
 from .ledger import LedgerError, adjust_all, load_ledger
-from .resolve import FactorTable, FactorTableError, default_factor_paths, resolve_materials
+from .resolve import default_synonym_paths, FactorTable, FactorTableError, default_factor_paths, resolve_materials
 from .report import render_coverage, build_lock, dump_lock_json, render_resolution_table
 
 _FETCH_ERROR = (
@@ -48,7 +48,9 @@ def _load_ledger_or_exit(path: str):
         _fail(str(exc))
 
 
-def _load_factors_or_exit(factor_paths: tuple[str, ...]) -> FactorTable:
+def _load_factors_or_exit(
+    factor_paths: tuple[str, ...], synonym_paths: tuple[str, ...] = ()
+) -> FactorTable:
     paths: list[str | Path] = list(factor_paths) or list(default_factor_paths())
     if not paths:
         _fail(
@@ -56,7 +58,10 @@ def _load_factors_or_exit(factor_paths: tuple[str, ...]) -> FactorTable:
             "populate data/factors/*.csv"
         )
     try:
-        return FactorTable.load(paths)
+        table = FactorTable.load(paths)
+        for synonyms in list(synonym_paths) or list(default_synonym_paths()):
+            table.load_synonyms(synonyms)
+        return table
     except FactorTableError as exc:
         _fail(str(exc))
 
@@ -75,6 +80,15 @@ _FACTORS_OPTION = click.option(
     multiple=True,
     type=click.Path(exists=True, dir_okay=False),
     help="Factor table CSV (repeatable). Defaults to every CSV under data/factors/.",
+)
+
+_SYNONYMS_OPTION = click.option(
+    "--synonyms",
+    "synonym_paths",
+    multiple=True,
+    type=click.Path(exists=True, dir_okay=False),
+    help="Alias table CSV mapping the names a ledger uses onto identifiers "
+    "(repeatable). Defaults to every CSV under data/synonyms/.",
 )
 
 
@@ -98,14 +112,15 @@ def validate(ledger_path: str) -> None:
 @main.command()
 @click.argument("ledger_path", type=click.Path(exists=True, dir_okay=False))
 @_FACTORS_OPTION
+@_SYNONYMS_OPTION
 @click.option("--show-missing", is_flag=True, help="List each unresolved material in detail.")
 @click.option("--fetch", is_flag=True, help="Not implemented in v0; always errors.")
-def resolve(ledger_path: str, factor_paths: tuple[str, ...], show_missing: bool, fetch: bool) -> None:
+def resolve(ledger_path: str, factor_paths: tuple[str, ...], synonym_paths: tuple[str, ...], show_missing: bool, fetch: bool) -> None:
     """List factor resolution and gaps for every route in ROUTE.yaml. No emissions math."""
     if fetch:
         _fail(_FETCH_ERROR)
     ledger = _load_ledger_or_exit(ledger_path)
-    table = _load_factors_or_exit(factor_paths)
+    table = _load_factors_or_exit(factor_paths, synonym_paths)
     adjusted = adjust_all(ledger)
 
     from .compute import route_result  # deferred: compute.py is a sibling deliverable
@@ -133,6 +148,7 @@ def resolve(ledger_path: str, factor_paths: tuple[str, ...], show_missing: bool,
     help="Directory of production recipes, one YAML per substance.",
 )
 @_FACTORS_OPTION
+@_SYNONYMS_OPTION
 @click.option("--grid-kgco2e-per-kwh", "grid_value", type=float, default=None,
               help="Emission factor for process electricity. Omit and electricity is left out, "
                    "which weakens the bound rather than invalidating it.")
@@ -149,6 +165,7 @@ def resolve(ledger_path: str, factor_paths: tuple[str, ...], show_missing: bool,
 def bootstrap(
     processes_dir: str,
     factor_paths: tuple[str, ...],
+    synonym_paths: tuple[str, ...],
     grid_value: float | None,
     grid_source: str,
     fuel_value: float | None,
@@ -180,7 +197,7 @@ def bootstrap(
     if fuel_value is not None and not fuel_source.strip():
         _fail("--fuel-kgco2e-per-mj requires --fuel-source")
 
-    table = _load_factors_or_exit(factor_paths) if factor_paths else _load_factors_or_exit(())
+    table = _load_factors_or_exit(factor_paths, synonym_paths) if factor_paths else _load_factors_or_exit(())
     try:
         recipes = load_recipes(processes_dir)
         result = derive_all(
@@ -234,14 +251,15 @@ def bootstrap(
 @click.option("--a", "a_name", required=True, help="Name of the first route in the ledger.")
 @click.option("--b", "b_name", required=True, help="Name of the second route in the ledger.")
 @_FACTORS_OPTION
+@_SYNONYMS_OPTION
 @click.option("-o", "--output", "output_path", type=click.Path(dir_okay=False), default=None)
 def coverage(
     ledger_path: str, a_name: str, b_name: str,
-    factor_paths: tuple[str, ...], output_path: str | None,
+    factor_paths: tuple[str, ...], synonym_paths: tuple[str, ...], output_path: str | None,
 ) -> None:
     """Report how much of the A-vs-B delta set the loaded factor tables cover."""
     ledger = _load_ledger_or_exit(ledger_path)
-    table = _load_factors_or_exit(factor_paths)
+    table = _load_factors_or_exit(factor_paths, synonym_paths)
     adjusted = adjust_all(ledger)
     for name in (a_name, b_name):
         if name not in adjusted:
@@ -265,6 +283,7 @@ def coverage(
 @click.option("--a", "a_name", required=True, help="Name of the first route in the ledger.")
 @click.option("--b", "b_name", required=True, help="Name of the second route in the ledger.")
 @_FACTORS_OPTION
+@_SYNONYMS_OPTION
 @click.option(
     "--uncertainty",
     "uncertainty_path",
@@ -282,6 +301,7 @@ def compare(
     a_name: str,
     b_name: str,
     factor_paths: tuple[str, ...],
+    synonym_paths: tuple[str, ...],
     uncertainty_path: str | None,
     iterations: int | None,
     seed: int | None,
@@ -293,7 +313,7 @@ def compare(
     if fetch:
         _fail(_FETCH_ERROR)
     ledger = _load_ledger_or_exit(ledger_path)
-    table = _load_factors_or_exit(factor_paths)
+    table = _load_factors_or_exit(factor_paths, synonym_paths)
 
     from .compute import run_comparison
     from .report import render_report
@@ -322,6 +342,7 @@ def compare(
 @main.command()
 @click.argument("ledger_path", type=click.Path(exists=True, dir_okay=False))
 @_FACTORS_OPTION
+@_SYNONYMS_OPTION
 @click.option(
     "--uncertainty",
     "uncertainty_path",
@@ -330,10 +351,10 @@ def compare(
     help="Override the default uncertainty class config; pinned into the lock file.",
 )
 @click.option("-o", "--output", "output_path", type=click.Path(dir_okay=False), default=None)
-def lock(ledger_path: str, factor_paths: tuple[str, ...], uncertainty_path: str | None, output_path: str | None) -> None:
+def lock(ledger_path: str, factor_paths: tuple[str, ...], synonym_paths: tuple[str, ...], uncertainty_path: str | None, output_path: str | None) -> None:
     """Pin the factor table versions and resolution results for ROUTE.yaml."""
     ledger = _load_ledger_or_exit(ledger_path)
-    table = _load_factors_or_exit(factor_paths)
+    table = _load_factors_or_exit(factor_paths, synonym_paths)
     adjusted = adjust_all(ledger)
 
     all_materials = [m for ar in adjusted.values() for m in ar.materials]

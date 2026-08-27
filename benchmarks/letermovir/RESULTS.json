@@ -1,22 +1,26 @@
 {
   "_comment": "Regenerate with scripts/record_letermovir_result.py. These numbers are expected to move as data/factors grows; that is the benchmark working, not failing.",
-  "accounted_total_denovo_kgCO2e": 37.33787253769911,
-  "accounted_total_merck_kgCO2e": 76.29829007847121,
-  "breakeven_kgCO2e_per_kg": 3.5919263213024997,
-  "coverage_count_fraction": 0.09302325581395349,
-  "coverage_mass_fraction": 0.41376517334604423,
+  "accounted_total_denovo_kgCO2e": 144.40990974344908,
+  "accounted_total_merck_kgCO2e": 194.69056771259358,
+  "breakeven_kgCO2e_per_kg": 11.957211866612617,
+  "coverage_count_fraction": 0.23255813953488372,
+  "coverage_mass_fraction": 0.7554777914317086,
   "delta_material_count": 43,
-  "factor_fingerprint": "4446a39131f8845e4248048c1286961da7bb0a671e1c852f0ecaa14e4f68b1aa",
+  "factor_fingerprint": "8a0460f0f8cc41d64a0ce63d5dfd2368e8d4ecc3932551bd4cf4cc2603e1ec3a",
   "factor_tables": [
     "ademe_base_carbone.csv",
+    "derived.csv",
     "probas_gemis.csv",
     "published_pcf.csv",
     "uslci.csv"
   ],
-  "indeterminate_reason": "only 41.4% of the differing mass (4 of 43 materials) resolved to a factor, below the declared minimum of 80%",
-  "p_a_lower_resolved_part_only": 0.0,
-  "resolved_count": 4,
-  "resolved_delta_kgCO2e": 38.960417540772085,
-  "unresolved_delta_mass_kg": -10.846663894443221,
+  "indeterminate_reason": "only 75.5% of the differing mass (10 of 43 materials) resolved to a factor, below the declared minimum of 80%",
+  "p_a_lower_resolved_part_only": 0.0006,
+  "resolved_count": 10,
+  "resolved_delta_kgCO2e": 50.2806579691445,
+  "synonym_tables": [
+    "pubchem.csv"
+  ],
+  "unresolved_delta_mass_kg": -4.205048679411633,
   "verdict": "indeterminate"
 }

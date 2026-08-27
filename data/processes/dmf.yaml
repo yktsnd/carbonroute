@@ -1,0 +1,80 @@
+substance:
+  name: dimethylformamide
+  cas: "68-12-2"
+  inchikey: ZMXDDKWLCZADIW-UHFFFAOYSA-N
+
+route:
+  name: "Carbonylation of dimethylamine with carbon monoxide"
+  description: >
+    Dimethylamine is reacted with carbon monoxide, catalysed by an alkali
+    metal methylate (e.g. sodium methylate), to give DMF directly. This
+    "one-stage" process is described in the cited patent as one of the two
+    methods used on a commercial scale (the alternative being a two-stage
+    route via methyl formate: CO + methanol -> methyl formate, then +
+    dimethylamine -> DMF). The cited patent is specifically an
+    improvement (catalyst recycling) to the established one-stage
+    commercial process, not a from-scratch process description, but its
+    background section confirms the reaction and catalyst as used
+    industrially, and its worked example gives real batch charge amounts.
+  stoichiometry: "C2H7N (dimethylamine) + CO -> C3H7NO (DMF)"
+  yield: 0.98
+  yield_source:
+    document: "US Patent 4,302,598 A, 'Recycling catalyst in preparation of dimethylformamide from dimethylamine and carbon monoxide' (calculated from the patent's own stated batch charges, not a directly quoted percentage)"
+    url: "https://patents.google.com/patent/US4302598A/en"
+    locator: >
+      "BEST MODE" example: reactor charged with 140 parts DMF (heel) + 1.8
+      parts sodium methylate in 38.2 parts methanol + 11 parts DMA (total
+      reaction mass 191 parts); held at 105C, 1379 kPa gauge CO, 40 minutes,
+      "at which time the DMA content of the reaction mass was about 0.1%."
+      0.1% of 191 parts is ~0.19 parts residual DMA against 11 parts
+      charged, i.e. DMA conversion (11-0.19)/11 = 98.3%, rounded down to
+      0.98. This is DMA CONVERSION calculated from the patent's own stated
+      masses, assumed here to approximate DMF yield (i.e. assuming the
+      carbonylation is highly selective, with no major side reaction
+      consuming DMA reported in the patent) -- see notes for this caveat.
+
+inputs:
+  - name: dimethylamine
+    cas: "124-40-3"
+    kg_per_kg_product: 0.6168
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C2H7N = 45.09, CO = 28.01, C3H7NO = 73.10)."
+      url: null
+      locator: "Arithmetic."
+  - name: carbon monoxide
+    cas: "630-08-0"
+    kg_per_kg_product: 0.3833
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  US Patent 4,302,598 A, "Recycling catalyst in preparation of
+  dimethylformamide from dimethylamine and carbon monoxide"
+  (https://patents.google.com/patent/US4302598A/en). Background section:
+  "One method for preparing DMF on a commercial scale is that in which DMA
+  and carbon monoxide are catalytically reacted, using an alkali metal
+  methylate as the catalyst." "BEST MODE" example: a reactor charged with
+  140 parts DMF (solvent/heel), a solution of 1.8 parts sodium methylate in
+  38.2 parts methanol, and 11 parts DMA, held at 105C under 1379 kPa gauge
+  (200 psig) CO for 40 minutes, "at which time the DMA content of the
+  reaction mass was about 0.1%" -- i.e. the reaction is run to near-complete
+  DMA consumption (see route.yield_source for the conversion figure
+  calculated from this).
+
+gaps:
+  - "route.yield (0.98) is DMA conversion calculated by this ledger from
+    the patent's own stated batch masses, not a directly quoted DMF
+    yield/selectivity percentage; it assumes the reaction is highly
+    selective for DMF, which the patent does not explicitly confirm (its
+    subject is catalyst-recycling economics, not yield/selectivity)."
+  - "No process energy (electricity or fuel/steam) figure for DMF
+    production was found."
+  - "This recipe depends on data/processes/dimethylamine.yaml, whose own
+    feedstock figures are themselves stoichiometric-only (see that file's
+    gaps); errors compound through the chain."

@@ -1,0 +1,89 @@
+substance:
+  name: 2-methyltetrahydrofuran
+  cas: "96-47-9"
+  inchikey: JWUJQDFVADABEY-UHFFFAOYSA-N
+
+route:
+  name: "Two-stage vapour-phase hydrogenation of furfural"
+  description: >
+    Furfural (itself made industrially from the acid-catalysed dehydration
+    of biomass-derived pentose sugars, chiefly xylose from hemicellulose --
+    NOT investigated further in this file, see gaps) is hydrogenated in two
+    stages: first, vapour-phase hydrogenolysis over a copper-chromite
+    catalyst to 2-methylfuran (losing the aldehyde oxygen as water);
+    second, vapour-phase hydrogenation of the furan ring's two double bonds
+    over a nickel catalyst to give 2-methyltetrahydrofuran. This is the
+    route described in the cited patent, which frames itself as solving a
+    lack of "economically-viable methods" for 2-MF/2-MTHF production at the
+    time -- i.e. describing the route intended for, and consistent with,
+    commercial-scale manufacture, though the worked examples given are
+    laboratory/bench-scale.
+  stoichiometry: "C5H4O2 (furfural) + 4 H2 -> C5H10O (2-methyltetrahydrofuran) + H2O"
+  yield: 0.765
+  yield_source:
+    document: "US Patent 6,479,677 B1, 'Processes for the preparation of 2-methylfuran and 2-methyltetrahydrofuran' (calculated by this ledger by combining two separately stated stage selectivities, not a single directly quoted overall figure)"
+    url: "https://patents.google.com/patent/US6479677B1/en"
+    locator: >
+      Stage 1 (Example 1, furfural + H2 over copper-chromite, 175C):
+      "There was no unreacted furfural present in the samples" (near-
+      complete conversion) and the organic-phase product distribution was
+      "about 85 percent for 2-MF, about 10 percent for FA [furfuryl
+      alcohol], and less than 3 percent for the other products" (85%
+      selectivity to 2-MF). Stage 2 (Example 3, 2-MF + H2 over nickel
+      catalyst, 100-130C): "the percentage of 2-MTHF increasing to almost
+      90 percent and the percentage of unreacted 2-MF decreasing [to]
+      insignificant amounts (less than one percent)" (90% selectivity to
+      2-MTHF at near-complete 2-MF conversion). Combined: 0.85 x 0.90 =
+      0.765, used as route.yield.
+
+inputs:
+  - name: furfural
+    cas: "98-01-1"
+    kg_per_kg_product: 1.1155
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C5H4O2 = 96.09, H2 = 2.016, C5H10O = 86.13, H2O = 18.02)."
+      url: null
+      locator: "Arithmetic."
+  - name: hydrogen
+    cas: "1333-74-0"
+    kg_per_kg_product: 0.0936
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  The 0.765 combined yield is this ledger's own multiplication of two
+  patent-stated stage selectivities (see route.yield_source), not a single
+  number the patent itself reports for the overall two-stage process; the
+  patent's own combined-process examples (e.g. "Example 6", a linked
+  two-reactor system) describe operating conditions but the text extracted
+  did not include a clean overall furfural-to-2-MTHF mass-yield percentage
+  comparable in clarity to the two separate stage figures used here, so
+  this ledger's own multiplication was used instead of guessing at, or
+  omitting, an overall number.
+
+  2-MTHF is a comparatively low-volume, higher-value specialty solvent
+  (increasingly marketed as bio-based); this two-stage furfural
+  hydrogenation route (commercialised at small scale by firms such as
+  Pennakem/International Furan Chemicals) is understood from general
+  technical literature to be the dominant production route, but no cited
+  market-share statistic was found to confirm "dominant" quantitatively.
+
+gaps:
+  - "route.yield is this ledger's own combination of two separately quoted
+    patent figures, not a single sourced overall yield; see notes."
+  - "No process energy (electricity or fuel/steam) figure for either
+    hydrogenation stage was found."
+  - "Furfural's own upstream footprint (acid-catalysed dehydration of
+    biomass pentose sugars) was not investigated; furfural has no factor
+    in data/factors and no recipe of its own in data/processes, so this
+    recipe's furfural input will not currently resolve to a value in the
+    bootstrap engine."
+  - "No citation was found for the claim that this route is 'dominant';
+    that characterisation reflects general technical-literature consensus,
+    not a specific cited market-share statistic."

@@ -1,0 +1,67 @@
+substance:
+  name: isopropyl acetate
+  cas: "108-21-4"
+  inchikey: JMMWKPVZQRWMSS-UHFFFAOYSA-N
+
+route:
+  name: "Fischer esterification of isopropanol with acetic acid"
+  description: >
+    Direct acid-catalysed esterification of isopropanol with acetic acid
+    (reactive distillation, azeotropic water removal to drive the
+    equilibrium). Sourced from the same patent used for ethyl acetate
+    (below), which describes the two esters as commonly co-produced from a
+    shared ethanol/isopropanol feed blend and the same acid catalyst and
+    reactor.
+  stoichiometry: "C3H8O (isopropanol) + C2H4O2 (acetic acid) -> C5H10O2 (isopropyl acetate) + H2O"
+  yield: 0.97
+  yield_source:
+    document: "US Patent 6,765,110 B2, 'Process for the simultaneous coproduction and purification of ethyl acetate and isopropyl acetate'"
+    url: "https://patents.google.com/patent/US6765110B2/en"
+    locator: >
+      "EXAMPLES" section, opening line: "The present invention was found to
+      yield high alcohol conversions with selectivites to ester products
+      exceeding 97%." (Same figure used for ethyl acetate, see that file's
+      notes for why a single-pass isopropanol-only conversion could not be
+      cleanly isolated from the patent's Table 1 coproduction/recycle data.)
+
+inputs:
+  - name: isopropanol
+    cas: "67-63-0"
+    kg_per_kg_product: 0.5883
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C3H8O = 60.10, C2H4O2 = 60.05, C5H10O2 = 102.13)."
+      url: null
+      locator: "Arithmetic."
+  - name: acetic acid
+    cas: "64-19-7"
+    kg_per_kg_product: 0.5880
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  An earlier, independent confirmation of the same route chemistry: US
+  Patent 1,808,155 A, "Process of making isopropyl acetate" (1931):
+  esterification of isopropyl alcohol with acetic acid, sulfuric acid
+  catalyst (0.2-0.3 wt%), states "An 80% or better yield of ester may be
+  obtained by continuing the operation for a sufficient time"
+  (https://patents.google.com/patent/US1808155A/en) -- this older/lower
+  figure was NOT used for route.yield (the more recent, higher, and more
+  clearly attributable 97% figure from US6765110B2 was preferred as
+  representative of current practice with continuous water removal), but is
+  recorded here as a cross-check that the reaction and general yield range
+  are independently corroborated.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for isopropyl
+    acetate production was found in either patent consulted, or in any
+    BREF/AP-42 source."
+  - "As with ethyl acetate, the 97% figure is a stated selectivity for
+    'ester products' generally in a coproduction process, not a
+    single-substance isopropyl-acetate-only figure isolated from raw plant
+    data."

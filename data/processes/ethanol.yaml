@@ -1,0 +1,63 @@
+substance:
+  name: ethanol
+  cas: "64-17-5"
+  inchikey: LFQSCWFLJHTTHZ-UHFFFAOYSA-N
+
+route:
+  name: "Direct catalytic hydration of ethylene (petrochemical route)"
+  description: >
+    Ethylene is hydrated directly with steam over a solid phosphoric-acid
+    catalyst to give ethanol. NOTE: globally, most ethanol by volume is
+    actually produced by FERMENTATION of sugar/starch/cellulosic feedstocks
+    ("bioethanol"), not by this petrochemical route -- this file does not
+    attempt to establish which route is larger by volume, and was not able
+    to source fermentation-route numbers in the time available (see gaps).
+    The petrochemical route is documented here because it was the one for
+    which patent search located concrete reaction data.
+  stoichiometry: "C2H4 (ethylene) + H2O -> C2H6O (ethanol)"
+
+inputs:
+  - name: ethylene
+    cas: "74-85-1"
+    kg_per_kg_product: 0.6087
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C2H4 = 28.05, H2O = 18.02, C2H6O = 46.07)."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  A WebSearch summary (not independently confirmed by reading a retrieved
+  primary document in this session -- Google Patents returned repeated
+  HTTP 503 errors for every candidate ethylene-hydration patent tried,
+  including US3686334A, US4003952A and US2673221A) described a specific
+  example as: "reaction conditions of 260C and 65 bar pressure with a
+  molar ratio of water to ethylene of 0.66 yielded an ethylene conversion
+  per pass of 4.2% and an ethanol yield of 93.0%." Per the task's rule
+  against citing search-result summaries as if they were retrieved
+  documents, this figure is recorded here only as an unconfirmed lead for
+  a future session (worth retrying the same patent fetches once Google
+  Patents' rate limiting, encountered repeatedly in this session, has
+  cleared), and is NOT used as route.yield.
+
+gaps:
+  - "No route.yield sourced from an actually-retrieved document; a
+    plausible '93.0% ethanol yield' figure was seen in a search summary
+    but could not be confirmed (see notes above) and is not used. Without
+    it, the bootstrap engine would still count the ethylene input at its
+    bare theoretical stoichiometric amount rather than omitting it (a
+    weaker but still legitimate lower bound) -- but that is moot here
+    because ethylene itself has no factor in data/factors and no recipe
+    of its own, so THIS RECIPE CURRENTLY CONTRIBUTES NOTHING regardless of
+    route.yield; ethylene, not the missing yield, is the actual blocker."
+  - "No process energy (electricity or fuel/steam) figure for ethylene
+    hydration was found."
+  - "The globally larger-volume fermentation (bioethanol) route was not
+    investigated at all in the time available for this task; a future
+    contributor should treat that as the higher-priority gap to close for
+    this substance, not the petrochemical route's yield/energy figures."
+  - "This substance's own factor is already held directly in
+    data/factors (per the coordinating engine's inventory), which is why
+    this file was given comparatively limited further search effort."

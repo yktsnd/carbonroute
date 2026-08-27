@@ -1,0 +1,106 @@
+substance:
+  name: dichloromethane
+  cas: "75-09-2"
+  inchikey: YMWUJEATGCHHMB-UHFFFAOYSA-N
+
+route:
+  name: "Chlorination of methyl chloride"
+  description: >
+    Methyl chloride is reacted with chlorine gas (thermally or
+    photochemically initiated, with or without a Lewis-acid catalyst such as
+    iron chloride) to give a mixture of methylene chloride (dichloromethane)
+    and higher-chlorinated products (chiefly chloroform), with methyl
+    chloride typically used in excess and unreacted methyl chloride
+    recycled. This staged methane/methyl-chloride chlorination is the basis
+    of the chloromethanes process still used industrially. The cited patent
+    is the original disclosure of using methyl chloride (rather than
+    methane directly) as the chlorination feedstock specifically to favour
+    dichloromethane; industrial detail on a present-day plant's exact
+    per-pass conversion or recycle ratio was not sourced (see gaps).
+  stoichiometry: "CH3Cl + Cl2 -> CH2Cl2 + HCl"
+  yield: 0.91
+  yield_source:
+    document: "US Patent 1,964,868 A, 'Process of preparing methylene chloride' (calculated from the patent's own reported product-selectivity figures, not a single directly quoted percentage)"
+    url: "https://patents.google.com/patent/US1964868A/en"
+    locator: >
+      Product-selectivity figures at different methyl-chloride:chlorine
+      ratios (percent of the CHLORINATED-product slate, i.e. excluding
+      unreacted methyl chloride which is recycled): Example 1 (3:1 vol
+      ratio, 360-380C) "92 per cent. of methylene chloride, 8 per cent. of
+      chloroform"; Example 2 (4:1 vol ratio, FeCl3 catalyst, 300-350C)
+      "about 90 per cent. of methylene chloride and 10 per cent. of
+      higher-chlorinated products"; Example 4 (5:1 vol ratio, 350-370C,
+      5 atm) "about 91 per cent. of methylene chloride and 9 per cent. of
+      chloroform". Midpoint of these three (92, 90, 91) = 91%, used as
+      route.yield under the assumption (see notes) that chlorine is the
+      effectively fully-converted limiting reagent, so this per-chlorinated-
+      product-slate selectivity approximates overall chlorine-to-DCM yield.
+
+inputs:
+  - name: methyl chloride
+    cas: "74-87-3"
+    kg_per_kg_product: 0.5945
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: CH3Cl = 50.49, Cl2 = 70.90, CH2Cl2 = 84.93)."
+      url: null
+      locator: "Arithmetic."
+  - name: chlorine
+    cas: "7782-50-5"
+    kg_per_kg_product: 0.8348
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  US Patent 1,964,868 A, "Process of preparing methylene chloride" (I.G.
+  Farbenindustrie, 1934) -- https://patents.google.com/patent/US1964868A/en
+  -- Example 1: "3 volumes of methyl chloride and 1 volume of chlorine ...
+  passed at the rate of 120 liters per hour through a tube ... heated to
+  360C to 380C. ... The chlorination product consists of 92 per cent. of
+  methylene chloride, 8 per cent. of chloroform and traces of carbon
+  tetrachloride." This is a SELECTIVITY figure (the split among chlorinated
+  products actually formed, at a stated methyl chloride : chlorine feed
+  ratio and temperature), not an overall per-pass or plant yield of
+  dichloromethane from methyl chloride charged, so it was not entered as
+  route.yield; the stoichiometric feedstock ratio above is therefore not
+  divided by any yield/selectivity factor and should be read as a lower
+  bound on real per-kg feedstock consumption (real plants run below-quantitative
+  per-pass conversion with recycle of unreacted methyl chloride, and produce
+  a co-product slate of chloroform and carbon tetrachloride alongside DCM).
+  This 90-year-old patent was used because it gives the clearest quoted
+  worked example of methyl-chloride (as opposed to methane) chlorination
+  found; it does not represent a specific present-day commercial plant.
+
+  Known simplification in applying route.yield: the 91% figure really
+  describes the fate of CHLORINE (the limiting reagent, essentially fully
+  converted per Example 2's mass balance -- see below); methyl chloride is
+  charged in stoichiometric excess and recycled, so its true net
+  consumption should be closer to the plain stoichiometric ratio than to
+  that ratio divided by 0.91. This ledger's schema applies one route.yield
+  to every stoichiometric input uniformly, so methyl chloride's feedstock
+  figure is likely modestly overstated (by ~10%) as a result -- flagged
+  here rather than hidden. Example 2's mass balance supports the "chlorine
+  ~fully converted" reading: "4 volumes of methyl chloride and 1 volume of
+  chlorine ... leaving the chamber consists approximately of 3 parts by
+  volume of methyl chloride, 1 volume of hydrogen chloride and 1 volume of
+  chlorination products" -- 1 volume HCl formed against 1 volume Cl2 fed is
+  consistent with near-complete chlorine conversion.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for DCM/chloromethanes
+    production was found in any source consulted; no BREF or AP-42 chapter
+    covering chloromethanes production was located."
+  - "route.yield (0.91) is a product-selectivity figure treated as a
+    chlorine-conversion proxy, calculated by this ledger from the patent's
+    own numbers rather than directly quoted; and, per the 'known
+    simplification' note above, is applied uniformly to methyl chloride as
+    well as chlorine even though only chlorine's fate actually drives it,
+    modestly overstating methyl chloride's feedstock figure."
+  - "Methyl chloride's own upstream footprint (itself typically made by
+    hydrochlorination of methanol, or as a chlorination co-product) was not
+    investigated."

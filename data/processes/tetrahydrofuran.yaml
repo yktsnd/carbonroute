@@ -1,0 +1,66 @@
+substance:
+  name: tetrahydrofuran
+  cas: "109-99-9"
+  inchikey: WYURNTSHIVDZCO-UHFFFAOYSA-N
+
+route:
+  name: "Dehydration of 1,4-butanediol (Reppe/BDO route)"
+  description: >
+    1,4-Butanediol (itself typically made by the Reppe process from
+    acetylene and formaldehyde, or by the Davy/maleic-anhydride route, or
+    from butane via maleic anhydride) is cyclodehydrated over an acid
+    catalyst to tetrahydrofuran and water. This is the commonly cited
+    dominant industrial THF route (the great majority of world THF capacity
+    is co-produced with, or dedicated from, 1,4-butanediol); the cited
+    example below is one worked patent demonstration of the chemistry, not a
+    market-share study (see gaps).
+  stoichiometry: "C4H10O2 -> C4H8O + H2O"
+  yield: 0.995
+  yield_source:
+    document: "US Patent 7,465,816 B2, 'Production of tetrahydrofuran from 1,4-butanediol' (assignee: LG Chem)"
+    url: "https://patents.google.com/patent/US7465816B2/en"
+    locator: >
+      Example 1 (gas-phase, fixed-bed reactor, zirconium sulfate catalyst,
+      200C, atmospheric pressure): "the yield of tetrahydrofuran was 99.5%."
+      Example 2 (liquid-phase, same catalyst, 200C, 1 h, atmospheric
+      pressure, 100 g 1,4-butanediol + 1 g catalyst): "a yield of
+      tetrahydrofuran was 99.5%." Both examples state the same figure.
+
+inputs:
+  - name: "1,4-butanediol"
+    cas: "110-63-4"
+    kg_per_kg_product: 1.2499
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C4H10O2 = 90.12, C4H8O = 72.11)."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  The patent cited above is a catalyst-development patent (zirconium
+  sulfate vs. comparative catalysts: acidic alumina, tungstophosphoric
+  acid, silica-alumina, all giving lower yields per its Table 1) rather than
+  a description of a specific commercial plant's operating parameters. It is
+  used here only to source the reaction chemistry, conditions, and a real
+  (not invented) yield figure for BDO dehydration to THF, which is widely
+  described in the technical literature as the dominant industrial route
+  (the other commercially used route, hydrogenation of furan/maleic
+  anhydride derivatives, was not sourced here). No public-domain BREF or
+  AP-42 chapter covering THF or 1,4-butanediol production was found (LVOC
+  BREF's chapters do not include either substance; see
+  data/processes/README.md for the chapters that do exist).
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for THF
+    production or BDO dehydration was found in any public source consulted
+    (JRC LVOC BREF does not cover this chemical; no AP-42 section covers
+    it; no open-access energy-consumption study was located)."
+  - "The 1,4-butanediol feedstock figure is stoichiometric, not a stated
+    industrial feed ratio; the cited patent is a lab-scale catalyst
+    demonstration, not a plant material balance."
+  - "No figure for the relative market share of the BDO-dehydration route
+    vs. the furan-hydrogenation route was found and cited; 'dominant route'
+    here reflects general technical-literature consensus, not a cited
+    statistic."

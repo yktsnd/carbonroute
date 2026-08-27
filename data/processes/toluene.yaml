@@ -1,0 +1,85 @@
+substance:
+  name: toluene
+  cas: "108-88-3"
+  inchikey: YXFVVABEGXRONW-UHFFFAOYSA-N
+
+route:
+  name: "Extraction from catalytic-reformate/pyrolysis-gasoline BTX stream"
+  description: >
+    Toluene is not synthesised by a dedicated reaction in the dominant
+    commercial route: it is one of several aromatics (benzene, toluene,
+    xylenes) already present in catalytic-reformate naphtha or steam-cracker
+    pyrolysis gasoline, recovered by extractive distillation/solvent
+    extraction of the mixed aromatic ("BTX") stream. Because toluene
+    pre-exists in a mixed hydrocarbon feed rather than being formed from a
+    stoichiometric reaction, this recipe has NO feedstock inputs (see gaps)
+    -- only a process-energy figure for the extraction unit, which is
+    itself an aggregate figure covering the whole benzene+toluene+xylene
+    extraction unit, not toluene alone.
+  stoichiometry: null
+
+inputs: []
+
+energy:
+  fuel_MJ_per_kg: 3.92
+  fuel_source:
+    document: "EC JRC/EIPPCB, 'Best Available Techniques (BAT) Reference Document for the Production of Large Volume Organic Chemicals' (LVOC BREF), December 2017, JRC109279"
+    url: "https://bureau-industrial-transformation.jrc.ec.europa.eu/sites/default/files/2019-11/JRC109279_LVOC_Bref.pdf"
+    locator: >
+      Table 4.3 "Energy usage per tonne of product", p.217 of PDF (Chapter
+      4, Aromatics), column "BB2 BTX extraction": Steam min 531 / max 622
+      kWh/t; Fuel min 149 / max 875 kWh/t. Midpoints (576.5 and 512 kWh/t
+      respectively) summed = 1088.5 kWh/t = 1.0885 kWh/kg x 3.6 MJ/kWh =
+      3.92 MJ/kg. See notes for why this is attributed to fuel_MJ_per_kg
+      (steam+fuel combined) rather than split, and why it is a BB2-unit
+      aggregate rather than toluene-specific.
+  electricity_kWh_per_kg: 0.0415
+  electricity_source:
+    document: "EC JRC/EIPPCB, LVOC BREF, December 2017, JRC109279"
+    url: "https://bureau-industrial-transformation.jrc.ec.europa.eu/sites/default/files/2019-11/JRC109279_LVOC_Bref.pdf"
+    locator: >
+      Table 4.3, p.217 of PDF, column "BB2 BTX extraction", row
+      "Electrical": min 11 / max 72 kWh/t. Midpoint (41.5 kWh/t) = 0.0415
+      kWh/kg.
+
+notes: |
+  Table 4.3 covers three process units of an aromatics complex: "BB1
+  Pygas" (pygas hydrogenation), "BB2 BTX extraction" (benzene/toluene/xylene
+  extractive distillation), and "BB3 Xylene fractionation". BB2 is the unit
+  that actually separates toluene from the mixed aromatic stream, so its
+  energy figures are used here, in preference to BB1 or BB3. However, BB2's
+  reported energy is per tonne of the WHOLE extraction unit's throughput
+  (benzene + toluene + xylene together, plus non-aromatic raffinate), not
+  allocated to toluene specifically -- the source states plainly: "It is
+  difficult to make comparisons between different aromatics plants because
+  of the widely differing configurations. Only a few operators provided
+  data." No basis for splitting the BB2 energy figure among benzene,
+  toluene and xylene was found, so it is used unallocated (i.e. this ledger
+  treats it as if toluene alone accounted for the unit's whole energy use,
+  which likely overstates toluene's true share and should be read as a
+  rough order-of-magnitude figure, not a precise per-substance number).
+
+  Table 4.3's "Steam" and "Fuel" rows were both folded into fuel_MJ_per_kg
+  (steam generation being itself a fuel-energy conversion) rather than
+  reported separately, since the source does not give steam a separate
+  emission-factor pathway distinct from fuel combustion for this table.
+
+  This ledger has NO feedstock inputs because toluene is separated from,
+  not synthesised out of, a mixed hydrocarbon stream (reformate/pygas). The
+  upstream footprint of producing that reformate/pygas stream (i.e. crude
+  oil refining / naphtha cracking) is entirely out of scope for this
+  recipe; only the extraction step's own reported process energy is
+  captured.
+
+gaps:
+  - "No basis was found to allocate the BB2 unit's aggregate energy figure
+    among benzene, toluene and xylene individually; the whole-unit figure
+    is used unallocated (see notes), which is a likely overstatement for
+    toluene alone if toluene is a minority fraction of BB2 throughput."
+  - "No feedstock mass figure (e.g. kg reformate/pygas per kg toluene
+    recovered) was found; this recipe has an empty inputs list by
+    necessity, not by omission of a sourced number."
+  - "No route.yield applies (there is no reaction to convert); recovery
+    efficiency of the extraction/distillation train itself (how much of
+    the toluene present in the feed is actually recovered vs. lost to
+    other product streams or waste) was not found."

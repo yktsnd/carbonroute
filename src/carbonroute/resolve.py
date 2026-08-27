@@ -86,6 +86,11 @@ class Resolution:
         return self.factor is not None
 
 
+def _is_derived_source(source: str) -> bool:
+    """A row produced by ``carbonroute bootstrap`` rather than measured."""
+    return source.strip().upper().startswith("DERIVED")
+
+
 def _parse_gsd(raw: str | None, where: str) -> float | None:
     """Parse the optional per-row geometric standard deviation.
 
@@ -125,6 +130,12 @@ class FactorTable:
     by_inchikey: dict[str, Factor] = field(default_factory=dict)
     #: Substances two loaded tables disagree about. Never silently dropped.
     conflicts: list[Conflict] = field(default_factory=list)
+    #: Normalized alias -> factor key. A ledger written by a chemist says
+    #: "2-Me-THF"; a factor table says "2-methyltetrahydrofuran". Without a
+    #: mapping between them the material silently goes unresolved, which is the
+    #: most expensive kind of gap because the data was there all along.
+    aliases: dict[str, str] = field(default_factory=dict)
+    alias_sources: dict[str, str] = field(default_factory=dict)
     #: path -> sha256 of the file, recorded in reports and lock files.
     sources: dict[str, str] = field(default_factory=dict)
 
@@ -185,6 +196,17 @@ class FactorTable:
             )
             existing = self.by_key.get(key)
             if existing is not None and existing.gwp_kgCO2e_per_kg != gwp:
+                if _is_derived_source(existing.source) and not _is_derived_source(source):
+                    # A measurement outranks a model regardless of load order.
+                    # Without this, a derived row would win a conflict purely
+                    # because "derived.csv" sorts before "probas_gemis.csv".
+                    self.conflicts.append(Conflict(key=key, kept=factor, rejected=existing))
+                    self.by_key[key] = factor
+                    self.by_name[normalize_name(factor.name)] = factor
+                    if inchikey:
+                        self.by_key[f"inchikey:{inchikey}"] = factor
+                        self.by_inchikey[inchikey] = factor
+                    continue
                 # Two independent public sources disagreeing about a substance is
                 # information, not a reason to refuse to run. The first table in
                 # load order wins so the outcome is deterministic, and the
@@ -206,10 +228,50 @@ class FactorTable:
         if key in self.by_key:
             kind = key.split(":", 1)[0]
             return Resolution(key=key, name=name, factor=self.by_key[key], matched_by=kind)
+
+        # An alias is a structural identity claim checked against a public
+        # database, recorded with the record that supports it. It is not a guess
+        # about what the chemist probably meant.
+        for candidate in (key, f"name:{normalize_name(name)}", normalize_name(name)):
+            target = self.aliases.get(candidate)
+            if target and target in self.by_key:
+                return Resolution(
+                    key=key, name=name, factor=self.by_key[target], matched_by="synonym"
+                )
+
         by_name = self.by_name.get(normalize_name(name))
         if by_name is not None:
             return Resolution(key=key, name=name, factor=by_name, matched_by="name")
         return Resolution(key=key, name=name, factor=None, matched_by=None)
+
+    def load_synonyms(self, path: str | Path) -> None:
+        """Load alias -> identifier mappings, each with the record that backs it."""
+        p = Path(path)
+        text = p.read_text(encoding="utf-8")
+        self.alias_sources[str(p)] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        reader = csv.DictReader(text.splitlines())
+        required = ("alias", "identifier", "source")
+        missing = [c for c in required if c not in (reader.fieldnames or [])]
+        if missing:
+            raise FactorTableError(
+                f"{p}: synonym table is missing required column(s): {', '.join(missing)}"
+            )
+        for lineno, row in enumerate(reader, start=2):
+            alias = normalize_name(row.get("alias") or "")
+            identifier = (row.get("identifier") or "").strip()
+            source = (row.get("source") or "").strip()
+            if not alias or not identifier:
+                raise FactorTableError(f"{p}:{lineno}: alias and identifier are both required")
+            if not source:
+                raise FactorTableError(
+                    f"{p}:{lineno}: an alias without a source is an unchecked identity claim"
+                )
+            try:
+                target = _identifier_key(identifier)
+            except FactorTableError as exc:
+                raise FactorTableError(f"{p}:{lineno}: {exc}") from exc
+            self.aliases.setdefault(alias, target)
+            self.aliases.setdefault(f"name:{alias}", target)
 
     def fingerprint(self) -> str:
         """Order-independent hash of the *contents* of every table loaded.
@@ -220,6 +282,14 @@ class FactorTable:
         """
         joined = "\n".join(sorted(self.sources.values()))
         return hashlib.sha256(joined.encode("utf-8")).hexdigest()
+
+
+def default_synonym_paths(root: Path | None = None) -> list[Path]:
+    base = root or Path(__file__).resolve().parents[2]
+    directory = base / "data" / "synonyms"
+    if not directory.is_dir():
+        return []
+    return sorted(directory.glob("*.csv"))
 
 
 def default_factor_paths(root: Path | None = None) -> list[Path]:

@@ -177,3 +177,37 @@ def test_derivation_is_deterministic(table):
     a = derive_all(load_recipes(FIXTURES), table, EnergyFactors(0.4, "x"), 0.5)
     b = derive_all(load_recipes(FIXTURES), table, EnergyFactors(0.4, "x"), 0.5)
     assert to_rows(a, "2026-08-27", 0.5) == to_rows(b, "2026-08-27", 0.5)
+
+
+def test_a_derived_floor_never_exceeds_an_independent_measurement():
+    """Cross-check the model against the measurements, where both exist.
+
+    A derived value is built as a lower bound, so for any substance that also
+    has a measured factor from an open database, the derived *floor* must sit at
+    or below it. If it ever climbs above, either the recipe is wrong or the
+    measurement is, and both are worth knowing about immediately.
+    """
+    root = Path(__file__).resolve().parents[1]
+    processes = root / "data" / "processes"
+    if not processes.is_dir():
+        pytest.skip("no production recipes in this checkout")
+
+    measured = FactorTable.load(
+        [p for p in sorted((root / "data" / "factors").glob("*.csv")) if p.name != "derived.csv"]
+    )
+    result = derive_all(
+        load_recipes(processes), measured, EnergyFactors(), completeness_floor=0.5
+    )
+
+    compared = 0
+    for key, d in result.derived.items():
+        hit = measured.by_key.get(key)
+        if hit is None:
+            continue
+        compared += 1
+        assert d.low_kgCO2e_per_kg <= hit.gwp_kgCO2e_per_kg * (1 + 1e-9), (
+            f"{d.name}: derived floor {d.low_kgCO2e_per_kg:.4g} exceeds the measured "
+            f"{hit.gwp_kgCO2e_per_kg:.4g} from {hit.source}. A lower bound cannot do that; "
+            "check the recipe and the measurement."
+        )
+    assert compared >= 1, "no substance has both a recipe and a measurement to compare"

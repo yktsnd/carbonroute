@@ -1,0 +1,64 @@
+substance:
+  name: acetonitrile
+  cas: "75-05-8"
+  inchikey: WEVYAHXRMPXWCK-UHFFFAOYSA-N
+
+route:
+  name: "Byproduct of propylene ammoxidation (SOHIO process) for acrylonitrile manufacture"
+  description: >
+    Essentially all merchant acetonitrile is recovered as a byproduct of
+    the catalytic ammoxidation of propylene (with ammonia and oxygen/air)
+    to acrylonitrile, not made by a dedicated on-purpose reaction. The
+    condensed reactor effluent is a crude aqueous mixture from which
+    acetonitrile is separated and purified by distillation. This ledger
+    could NOT construct a defensible per-kg-acetonitrile feedstock or
+    energy figure from the sources found (see gaps): unlike a dedicated
+    synthesis, a byproduct stream's footprint depends on an allocation
+    choice (mass, economic, or marginal) against the acrylonitrile main
+    product, which this task's instructions warn against picking silently,
+    and no source gives acetonitrile-specific consumption data separate
+    from the whole acrylonitrile plant's inputs.
+  stoichiometry: null
+
+inputs: []
+
+energy: {}
+
+notes: |
+  Confirmed by US Patent 6,780,289 B2, "Process for the purification and
+  recovery of acetonitrile" (https://patents.google.com/patent/US6780289B2/en):
+  "this invention is an improved process for the production of acetonitrile.
+  More particularly, this invention is an improved process for the
+  purification of crude acetonitrile produced, for example, as a byproduct
+  during the formation of acrylonitrile by the ammoxidation of an olefin
+  such as propylene." The main ammoxidation reaction (not separately
+  stoichiometrically balanced here, since acetonitrile is a minor
+  side-product of it, not its main output) is: CH2=CHCH3 (propylene) + NH3
+  + 3/2 O2 -> CH2=CHCN (acrylonitrile) + 3 H2O, with acetonitrile
+  (CH3CN) arising from a distinct, less-selective side reaction consuming
+  some of the same propylene/ammonia/oxygen feed. No source found gives
+  the split (e.g. kg acetonitrile formed per kg acrylonitrile, or per kg
+  propylene fed) as a clean, quotable ratio -- a WebSearch summary (not a
+  primary document actually retrieved and read in full) mentioned a crude
+  byproduct-stream composition of "about 52% acetonitrile, 43.6% water,
+  2.5% HCN, 0.5% acrylonitrile, 1.3% other organics", but this figure was
+  NOT independently confirmed in the text actually extracted from
+  US6780289B2 or any other patent retrieved in this session, so per the
+  task's rule against citing search-result snippets, it is recorded here
+  only as an unconfirmed lead, not used as a ledger number.
+
+gaps:
+  - "No feedstock, yield, or energy figure could be sourced at all; this
+    file documents the route qualitatively only. The core obstacle is that
+    acetonitrile is a byproduct, not a dedicated product, of the
+    acrylonitrile process, and allocating a share of that process's
+    footprint to acetonitrile requires a stated allocation basis (mass,
+    economic, or marginal-production) that no source consulted provided
+    and that this ledger declines to invent."
+  - "A '52% acetonitrile in crude byproduct stream' composition figure was
+    seen in a search-result summary but could not be confirmed by directly
+    reading a retrieved primary document in this session; it is not used
+    (see notes)."
+  - "No dedicated on-purpose acetonitrile synthesis route (e.g. from
+    acetic acid + ammonia, a route used by some smaller producers) was
+    investigated; only the dominant byproduct route was looked into."

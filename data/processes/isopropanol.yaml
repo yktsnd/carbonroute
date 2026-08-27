@@ -1,0 +1,75 @@
+substance:
+  name: isopropanol
+  cas: "67-63-0"
+  inchikey: KFZMGEQAYNKOFK-UHFFFAOYSA-N
+
+route:
+  name: "Direct catalytic hydration of propylene"
+  description: >
+    Propylene is hydrated directly with water/steam over a solid acid
+    catalyst (historically tungsten oxide or phosphoric-acid-on-silica;
+    the cited patent's invention is a superacidic perfluorinated sulfonic
+    acid resin catalyst, compared throughout against these older
+    commercial catalysts). This "direct hydration" process, run as a
+    fixed-bed vapour/mixed-phase reaction, is the modern industrial route,
+    having displaced the older two-step "indirect" (sulfuric acid
+    esterification/hydrolysis) process the patent also describes.
+  stoichiometry: "C3H6 (propylene) + H2O -> C3H8O (isopropanol)"
+  yield: 0.97
+  yield_source:
+    document: "US Patent 4,861,923 A, 'Hydration of propylene to isopropyl alcohol over solid superacidic perfluorinated sulfonic acid catalysts'"
+    url: "https://patents.google.com/patent/US4861923A/en"
+    locator: >
+      Summary of the invention's operating range: "Under these conditions
+      15-30% conversion of propylene to isopropyl alcohol is achieved
+      per-pass with 96 to 99% selectivity." The SELECTIVITY figure (96-99%,
+      midpoint 97%, used as route.yield) is the fraction of REACTED
+      propylene that becomes isopropanol; per-pass CONVERSION (15-30%) is
+      lower because propylene hydration is thermodynamically equilibrium-
+      limited per pass, with unconverted propylene recycled in commercial
+      practice (a standard, but not in this patent explicitly stated,
+      assumption -- see notes, same reasoning as used for the acetone
+      recipe's isopropanol-dehydrogenation route in this same directory).
+
+inputs:
+  - name: propylene
+    cas: "115-07-1"
+    kg_per_kg_product: 0.7003
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C3H6 = 42.08, H2O = 18.02, C3H8O = 60.10)."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  Per-pass vs. overall yield: as for the acetone (isopropanol
+  dehydrogenation) recipe in this directory, this recipe uses reaction
+  SELECTIVITY rather than single-pass CONVERSION as route.yield, on the
+  assumption (not itself sourced) that a continuous commercial plant
+  recycles unconverted propylene to near-total utilisation, so overall
+  propylene efficiency approaches the reaction's intrinsic selectivity
+  rather than being capped at the low per-pass conversion. This is
+  standard practice for equilibrium-limited catalytic processes of this
+  kind but is flagged as an assumption, not a directly sourced number.
+
+  The cited patent notes an older commercially-used two-step ("indirect
+  hydration") process -- propylene + H2SO4 -> isopropyl sulfate esters,
+  then hydrolysis to isopropanol -- which this ledger does not model; the
+  direct-hydration route above is used as the modern/dominant one, per the
+  patent's own framing of direct hydration as solving the indirect
+  process's "major difficulties."
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for propylene
+    hydration was found."
+  - "The 'recycle to near-total propylene utilisation' assumption behind
+    using selectivity (not conversion) as route.yield is not itself
+    sourced from a document stating actual plant-level propylene
+    utilisation."
+  - "This substance's own factor is already held directly in
+    data/factors (per the coordinating engine's inventory), which is why
+    this file was given comparatively limited further search effort (e.g.
+    no attempt was made to also source the older indirect-hydration
+    route's numbers)."

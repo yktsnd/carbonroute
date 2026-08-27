@@ -1,0 +1,78 @@
+substance:
+  name: acetic acid
+  cas: "64-19-7"
+  inchikey: QTBSBXVTEAMEQO-UHFFFAOYSA-N
+
+route:
+  name: "Methanol carbonylation (Cativa iridium-catalysed process)"
+  description: >
+    Methanol is carbonylated with carbon monoxide, catalysed by a soluble
+    iridium complex (promoted with ruthenium), the "Cativa" process that
+    succeeded the older rhodium-catalysed "Monsanto" process as the
+    dominant route to acetic acid from the late 1990s onward. The cited
+    patent is BP Chemicals' own disclosure of the CO-partial-pressure /
+    water-concentration kinetics that underlie the Cativa process, giving
+    real reactor charge compositions, but it is a kinetics/selectivity
+    study (aimed at suppressing the propionic-acid by-product), not a
+    plant-yield report, so no route.yield is entered (see gaps).
+  stoichiometry: "CH4O (methanol) + CO -> C2H4O2 (acetic acid)"
+
+inputs:
+  - name: methanol
+    cas: "67-56-1"
+    kg_per_kg_product: 0.5336
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: CH4O = 32.04, CO = 28.01, C2H4O2 = 60.05)."
+      url: null
+      locator: "Arithmetic."
+  - name: carbon monoxide
+    cas: "630-08-0"
+    kg_per_kg_product: 0.4664
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  US Patent 5,877,347 A, "Iridium catalyzed carbonylation process for the
+  production of acetic acid" (BP Chemicals) --
+  https://patents.google.com/patent/US5877347A/en. Confirms the reaction
+  and catalyst system (iridium complex, e.g. [Ir(CO)2I2]-, optionally
+  ruthenium-promoted, methyl iodide co-catalyst, in an acetic
+  acid/water/methyl acetate liquid reaction medium) and gives a detailed
+  kinetic study (rate vs. water concentration vs. CO partial pressure,
+  Tables A/1/2, batch autoclave experiments at 190C) whose purpose is
+  minimising propionic-acid by-product formation, not reporting an overall
+  plant yield -- no single "X% yield of acetic acid from methanol" figure
+  is stated anywhere in it, so route.yield is left unset (both inputs are
+  therefore omitted by the bootstrap engine unless/until a yield is
+  sourced; see gaps).
+
+  Both methanol and carbon monoxide already have factors in data/factors,
+  so this recipe DOES currently derive a value from the bootstrap engine
+  even without route.yield -- with no yield to divide by, the engine counts
+  each stoichiometric input at its bare theoretical (100%-yield) amount
+  rather than omitting it, which is itself a legitimate lower bound (real
+  consumption can only be higher than the theoretical minimum), but a
+  looser one than a yield-adjusted figure would give. The engine explicitly
+  flags this in its own output ("stoichiometric quantity with no sourced
+  yield to divide by; counted at theoretical demand, which understates
+  it") rather than silently treating theoretical demand as the real figure.
+
+gaps:
+  - "No route.yield sourced: the consulted patent is a selectivity/kinetics
+    study, not a yield report. This recipe DOES still derive a value (both
+    feedstocks already have factors), but at the bare theoretical
+    stoichiometric amount rather than a yield-adjusted one, which
+    understates true feedstock consumption -- see notes."
+  - "No process energy (electricity or fuel/steam) figure for methanol
+    carbonylation was found in the cited patent or elsewhere."
+  - "This substance's own factor is already held directly in
+    data/factors (per the coordinating engine's inventory), so this recipe
+    is now primarily useful only if a future contributor needs to model a
+    different acetic-acid supply chain, or wants to cross-check the held
+    factor against a derived one."

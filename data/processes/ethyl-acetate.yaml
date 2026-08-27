@@ -1,0 +1,85 @@
+substance:
+  name: ethyl acetate
+  cas: "141-78-6"
+  inchikey: XEKOWRVHYACXOJ-UHFFFAOYSA-N
+
+route:
+  name: "Fischer esterification of ethanol with acetic acid"
+  description: >
+    Direct acid-catalysed esterification of ethanol with acetic acid
+    (reactive distillation, azeotropic water removal to drive the
+    equilibrium), the standard modern industrial route. (An older route,
+    the Tishchenko reaction -- direct conversion of acetaldehyde to ethyl
+    acetate over an aluminium alkoxide catalyst -- was historically used,
+    chiefly in Europe in the first half of the 20th century, but is
+    described in patent-literature background sections as no longer the
+    dominant process; see notes.)
+  stoichiometry: "C2H6O (ethanol) + C2H4O2 (acetic acid) -> C4H8O2 (ethyl acetate) + H2O"
+  yield: 0.97
+  yield_source:
+    document: "US Patent 6,765,110 B2, 'Process for the simultaneous coproduction and purification of ethyl acetate and isopropyl acetate' (Celanese/Eastman-type reactive-distillation process)"
+    url: "https://patents.google.com/patent/US6765110B2/en"
+    locator: >
+      "EXAMPLES" section, opening line: "The present invention was found to
+      yield high alcohol conversions with selectivites to ester products
+      exceeding 97%." Example 1 gives a full continuous reactive-distillation
+      material balance (40-tray column, methanesulfonic acid catalyst,
+      ~100C base temperature, atmospheric pressure, acetic acid:alcohol feed
+      ratio 1.2 kg/kg) consistent with this: reactor-overhead organic phase
+      composition (Table 1, Run A) shows only 1.21 wt% unreacted ethanol
+      remaining against 82.57 wt% ethanol fed.
+
+inputs:
+  - name: ethanol
+    cas: "64-17-5"
+    kg_per_kg_product: 0.5229
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C2H6O = 46.07, C2H4O2 = 60.05, C4H8O2 = 88.11)."
+      url: null
+      locator: "Arithmetic."
+  - name: acetic acid
+    cas: "64-19-7"
+    kg_per_kg_product: 0.6816
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  Background confirmation of the route: US Patent 5,770,761 A, "Process for
+  ethyl acetate production" (https://patents.google.com/patent/US5770761A/en):
+  "The commercial production of ethyl acetate is mainly by two processes:
+  the Tischenko reaction produces ethyl acetate by direct conversion of
+  ethanol via acetaldehyde using an aluminum alkoxide catalyst; and the
+  production of ethyl acetate by direct esterification of ethanol with
+  acetic acid with a sulphuric acid catalyst. The Tischenko reaction is the
+  main industrial process for the manufacture of ethyl acetate. Industrial
+  scale production by this method took place mainly in Europe during the
+  first half of this century" -- i.e. that patent (1998) frames Tishchenko
+  as the historical, not current, dominant route, and describes direct
+  ethanol+acetic acid esterification as the other established commercial
+  process, which the more recent US6765110B2 (2004) reactive-distillation
+  patent confirms and quantifies. This ledger uses ethanol+acetic acid
+  esterification, both feedstocks with factors already in data/factors.
+
+  The 97% figure is stated as a selectivity/conversion headline for the
+  invention generally (applicable to both co-produced esters, ethyl and
+  isopropyl acetate, from the same reaction chemistry), not calculated by
+  this ledger from Table 1's raw stream compositions -- Table 1 reports a
+  coproduction/recycle stream (2.92 g/min recycled esters fed back
+  alongside 5 g/min acetic acid and 4.17 g/min alcohol blend) from which a
+  clean single-pass ethanol-only conversion cannot be cleanly isolated
+  without over-interpreting the patent's numbers, so the patent's own
+  stated 97% figure was used instead.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for ethyl acetate
+    production was found in either patent consulted, or in any BREF/AP-42
+    source (neither covers ethyl acetate)."
+  - "The 97% figure is a stated selectivity to 'ester products' generally
+    in a coproduction process (with isopropyl acetate); a single-substance,
+    single-pass ethyl-acetate-only yield number was not separately found."
