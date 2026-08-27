@@ -96,6 +96,31 @@ Supplying no energy factors is allowed: those terms drop out, the bound gets
 weaker, and the output says so. Supplying one without a source is refused — an
 undocumented number is the thing this tool exists to prevent.
 
+### Which energy factors to supply
+
+The grid factor belongs to whoever runs the tool, not to the recipe, because it
+depends on where the plant is — and that choice moves the answer more than most
+of the chemistry does. Some citable options, verified live in ADEME's Base
+Carbone (Licence Ouverte / Open Licence):
+
+| What | Value | Where |
+| --- | --- | --- |
+| Grid electricity, France continentale, 2020 | 0.0599 kgCO2e/kWh | Base Carbone element id 28333, stated uncertainty 10% |
+| Natural gas, boiler combustion | 0.243 kgCO2e/kWh | element id 25826 |
+| Natural gas, mix | 56.8 kgCO2e/GJ = 0.0568 kgCO2e/MJ | element id 26629, stated uncertainty 5% |
+
+**Read the France figure carefully before using it.** At 0.06 kgCO2e/kWh it is
+among the lowest grid factors in the world, because the French grid is largely
+nuclear. Applying it to a plant in a coal-heavy grid understates that plant by
+more than an order of magnitude. Pick the factor for the geography you are
+actually modelling and cite it; the tool records whatever you pass in the
+derivation trace, but it cannot tell you that you picked the wrong one.
+
+This is why `data/factors/derived.csv` as shipped carries **no energy terms at
+all**. A repository-wide grid assumption would be a geography smuggled into
+every comparison. The shipped table is a weaker, geographically neutral floor;
+regenerate it with your own grid factor to tighten it.
+
 `--report` prints the full derivation for every substance, which is the output
 to read before trusting any of it.
 
