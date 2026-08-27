@@ -1,0 +1,12 @@
+{
+  "PropertyTable": {
+    "Properties": [
+      {
+        "CID": 14798,
+        "MolecularFormula": "HNaO",
+        "ConnectivitySMILES": "[OH-].[Na+]",
+        "InChIKey": "HEMHJVSKTPXQMS-UHFFFAOYSA-M"
+      }
+    ]
+  }
+}

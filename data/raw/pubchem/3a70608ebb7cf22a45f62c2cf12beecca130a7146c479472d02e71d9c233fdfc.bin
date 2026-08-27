@@ -1,0 +1,12 @@
+{
+  "PropertyTable": {
+    "Properties": [
+      {
+        "CID": 24436,
+        "MolecularFormula": "Na2O4S",
+        "ConnectivitySMILES": "[O-]S(=O)(=O)[O-].[Na+].[Na+]",
+        "InChIKey": "PMZURENOXWZQFD-UHFFFAOYSA-L"
+      }
+    ]
+  }
+}

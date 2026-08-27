@@ -1,0 +1,154 @@
+{
+  "(t-Bu)3P-Pd G2": {
+    "cas": null,
+    "reason": ""
+  },
+  "1 M NaOH": {
+    "cas": "1310-73-2",
+    "reason": "matched via query 'NaOH' -> CID 14798 -> CAS 1310-73-2"
+  },
+  "2- picoline": {
+    "cas": "109-06-8",
+    "reason": "matched via query '2-picoline' -> CID 7975 -> CAS 109-06-8"
+  },
+  "2-Me-THF": {
+    "cas": null,
+    "reason": ""
+  },
+  "2-amino-3-fluorobenzoic acid": {
+    "cas": "825-22-9",
+    "reason": "matched via query '2-amino-3-fluorobenzoic acid' -> CID 586408 -> CAS 825-22-9"
+  },
+  "2-bromo-6-fluoroaniline": {
+    "cas": "65896-11-9",
+    "reason": "matched via query '2-bromo-6-fluoroaniline' -> CID 2782940 -> CAS 65896-11-9"
+  },
+  "2-isothiocyanato-1-methoxy-4-(trifluoromethyl)benzene": {
+    "cas": "1360934-34-4",
+    "reason": "matched via query '2-isothiocyanato-1-methoxy-4-(trifluoromethyl)benzene' -> CID 86665375 -> CAS 1360934-34-4"
+  },
+  "AcCl": {
+    "cas": "75-36-5",
+    "reason": "matched via query 'AcCl' -> CID 6367 -> CAS 75-36-5"
+  },
+  "Acetone": {
+    "cas": "67-64-1",
+    "reason": "matched via query 'Acetone' -> CID 180 -> CAS 67-64-1"
+  },
+  "BH3SMe3": {
+    "cas": null,
+    "reason": ""
+  },
+  "DMAP": {
+    "cas": "1122-58-3",
+    "reason": "matched via query 'DMAP' -> CID 14284 -> CAS 1122-58-3"
+  },
+  "EDC HCl": {
+    "cas": "25952-53-8",
+    "reason": "matched via query 'EDC HCl' -> CID 2723939 -> CAS 25952-53-8"
+  },
+  "Et3N": {
+    "cas": "121-44-8",
+    "reason": "matched via query 'Et3N' -> CID 8471 -> CAS 121-44-8"
+  },
+  "EtOAc": {
+    "cas": "141-78-6",
+    "reason": "matched via query 'EtOAc' -> CID 8857 -> CAS 141-78-6"
+  },
+  "H2O": {
+    "cas": "7732-18-5",
+    "reason": "matched via query 'H2O' -> CID 962 -> CAS 7732-18-5"
+  },
+  "K3PO4": {
+    "cas": "7778-53-2",
+    "reason": "matched via query 'K3PO4' -> CID 62657 -> CAS 7778-53-2"
+  },
+  "KOH": {
+    "cas": "1310-58-3",
+    "reason": "matched via query 'KOH' -> CID 14797 -> CAS 1310-58-3"
+  },
+  "Ketene Acetal": {
+    "cas": null,
+    "reason": "CID 19867143: no CAS-shaped synonym"
+  },
+  "MTBE": {
+    "cas": "1634-04-4",
+    "reason": "matched via query 'MTBE' -> CID 15413 -> CAS 1634-04-4"
+  },
+  "Magnesium (monoperoxyphthalate)2": {
+    "cas": null,
+    "reason": ""
+  },
+  "MeOH": {
+    "cas": "67-56-1",
+    "reason": "matched via query 'MeOH' -> CID 887 -> CAS 67-56-1"
+  },
+  "Methyl acrylate": {
+    "cas": "96-33-3",
+    "reason": "matched via query 'Methyl acrylate' -> CID 7294 -> CAS 96-33-3"
+  },
+  "NEt3": {
+    "cas": "121-44-8",
+    "reason": "matched via query 'NEt3' -> CID 8471 -> CAS 121-44-8"
+  },
+  "Na2HPO4": {
+    "cas": "7558-79-4",
+    "reason": "matched via query 'Na2HPO4' -> CID 24203 -> CAS 7558-79-4"
+  },
+  "NaH2PO4": {
+    "cas": "7558-80-7",
+    "reason": "matched via query 'NaH2PO4' -> CID 23672064 -> CAS 7558-80-7"
+  },
+  "NaOH": {
+    "cas": "1310-73-2",
+    "reason": "matched via query 'NaOH' -> CID 14798 -> CAS 1310-73-2"
+  },
+  "PCl5": {
+    "cas": "10026-13-8",
+    "reason": "matched via query 'PCl5' -> CID 24819 -> CAS 10026-13-8"
+  },
+  "Pentane": {
+    "cas": "109-66-0",
+    "reason": "matched via query 'Pentane' -> CID 8003 -> CAS 109-66-0"
+  },
+  "Phenyl chloroformate": {
+    "cas": "1885-14-9",
+    "reason": "matched via query 'Phenyl chloroformate' -> CID 15891 -> CAS 1885-14-9"
+  },
+  "Salicylic Acid": {
+    "cas": "69-72-7",
+    "reason": "matched via query 'Salicylic Acid' -> CID 338 -> CAS 69-72-7"
+  },
+  "Sec Butanol": {
+    "cas": null,
+    "reason": ""
+  },
+  "TFAA": {
+    "cas": "407-25-0",
+    "reason": "matched via query 'TFAA' -> CID 9845 -> CAS 407-25-0"
+  },
+  "Toluene": {
+    "cas": "108-88-3",
+    "reason": "matched via query 'Toluene' -> CID 1140 -> CAS 108-88-3"
+  },
+  "aq. NaHCO3": {
+    "cas": "144-55-8",
+    "reason": "matched via query 'NaHCO3' -> CID 516892 -> CAS 144-55-8"
+  },
+  "citric acid": {
+    "cas": "77-92-9",
+    "reason": "matched via query 'citric acid' -> CID 311 -> CAS 77-92-9"
+  },
+  "iProAc": {
+    "cas": "108-21-4",
+    "reason": "matched via query 'iProAc' -> CID 7915 -> CAS 108-21-4"
+  },
+  "piperazine bis hydrochloride": {
+    "cas": null,
+    "reason": ""
+  },
+  "toluene": {
+    "cas": "108-88-3",
+    "reason": "matched via query 'toluene' -> CID 1140 -> CAS 108-88-3"
+  }
+}

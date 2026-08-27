@@ -198,3 +198,12 @@ both rows; `uncertainty_class = background_db` supplies the fallback GSD
   out of this project's target scope (not solvents or reagents on the
   brief's list) and, being unit processes, subject to the same
   system-solve problem; not pursued.
+
+## Snapshot status (offline-replay infrastructure)
+
+Unlike the other three sources in `data/factors/`, this one's raw snapshot
+under `data/raw/uslci/` is **not yet populated** — the live run to build it hit
+api.data.gov's shared `DEMO_KEY` hourly rate limit mid-session. Tracked in
+[carbonroute#1](https://github.com/yktsnd/carbonroute/issues/1). The committed
+`uslci.csv` itself is unaffected; only the durable "replay this without any
+network access" snapshot is pending.

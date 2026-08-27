@@ -560,8 +560,14 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("workbook", type=Path, help="path to ja5c14470_si_002.xlsx")
     ap.add_argument("--out", type=Path, required=True, help="output ledger.yaml path")
-    ap.add_argument("--cas-cache", type=Path, default=None,
-                     help="JSON cache of name->CAS resolutions (read+write)")
+    ap.add_argument(
+        "--cas-cache",
+        type=Path,
+        default=Path(__file__).resolve().parents[1] / "data" / "raw" / "letermovir_cas_cache.json",
+        help="JSON cache of name->CAS resolutions (read+write). Defaults to a durable, "
+        "committed path under data/raw/, so a plain re-run with no flags at all replays "
+        "from the frozen snapshot instead of silently trying PubChem again.",
+    )
     ap.add_argument("--offline", action="store_true",
                      help="never contact PubChem; unresolved names not already in --cas-cache "
                           "become cas: null")

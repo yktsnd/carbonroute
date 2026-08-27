@@ -1,0 +1,62 @@
+{
+  "07049cfea0046eb563849df62d0854806b2e614739f6d303d0ceed4336078204": {
+    "first_retrieved": "2026-08-27T23:43:39.061170+00:00",
+    "last_retrieved": "2026-08-27T23:43:39.061170+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner"
+  },
+  "3bd872971209c51f388ee6a958ba92bc406b9e4f0fa67532dc4a11becc1c3e2d": {
+    "first_retrieved": "2026-08-27T23:43:43.053119+00:00",
+    "last_retrieved": "2026-08-27T23:43:43.053119+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Plastiques+et+caoutchouc+%3E+Polym%C3%A8res+du+styr%C3%A8ne&size=200"
+  },
+  "40e15e5228dcd65ed682587213b655b9983f494f49adacda6810219f1f877c24": {
+    "first_retrieved": "2026-08-27T23:43:44.661302+00:00",
+    "last_retrieved": "2026-08-27T23:43:44.661302+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Combustibles+%3E+Fossiles+%3E+Gazeux+%3E+Gaz+industriels&size=200"
+  },
+  "421a0d3d126a1c2b6aeab4ce502d6b86ea0a80721cd705cef6c8cc7df357c6e8": {
+    "first_retrieved": "2026-08-27T23:43:40.790265+00:00",
+    "last_retrieved": "2026-08-27T23:43:40.790265+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Produits+chimiques+%3E+Peintures+et+r%C3%A9sines&size=200"
+  },
+  "833deb2537fccaaf64d07acd52cb1d85840059d633e5db2f451b4ef104f719a8": {
+    "first_retrieved": "2026-08-27T23:43:44.147119+00:00",
+    "last_retrieved": "2026-08-27T23:43:44.147119+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Plastiques+et+caoutchouc+%3E+Polym%C3%A8res+de+propyl%C3%A8ne&size=200"
+  },
+  "8d7c7e832d2890bce37c593d313d461ee7b39a56cf315b10c6cea63cd7969772": {
+    "first_retrieved": "2026-08-27T23:43:40.248720+00:00",
+    "last_retrieved": "2026-08-27T23:43:40.248720+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Produits+chimiques+%3E+Autres+produits+chimiques&size=200"
+  },
+  "9eb28a2187f4d1cfeb096c66e889633759d65867277c432c7c1bf6545f3f3c49": {
+    "first_retrieved": "2026-08-27T23:43:43.612210+00:00",
+    "last_retrieved": "2026-08-27T23:43:43.612210+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Plastiques+et+caoutchouc+%3E+Polyamides&size=200"
+  },
+  "b2ef13d74727f17730e2beaf8d0e99c01af9d56e04d4cdffc06bfa4ce98b169d": {
+    "first_retrieved": "2026-08-27T23:43:42.479819+00:00",
+    "last_retrieved": "2026-08-27T23:43:42.479819+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Plastiques+et+caoutchouc+%3E+Polym%C3%A8res+du+chlorure+de+vinyle&size=200"
+  },
+  "d2791e387f4c8eaf37483047a518983f8925c7dcf2ef557694969abab68b9510": {
+    "first_retrieved": "2026-08-27T23:43:41.882100+00:00",
+    "last_retrieved": "2026-08-27T23:43:41.882100+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Plastiques+et+caoutchouc+%3E+Plastique+moyen&size=200"
+  },
+  "d34ab6cc1b157dd691b7df1a3d6523a21851633f6b8ddeb0d946dc0cdfc2e000": {
+    "first_retrieved": "2026-08-27T23:43:39.695816+00:00",
+    "last_retrieved": "2026-08-27T23:43:39.695816+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Produits+chimiques+%3E+Produits+chimiques+de+base&size=200"
+  },
+  "ec4ea621c53fda8ac826fe4d53a2b3f280490e2200417369cfa1591f91e751bd": {
+    "first_retrieved": "2026-08-27T23:43:45.418335+00:00",
+    "last_retrieved": "2026-08-27T23:43:45.418335+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Hydrog%C3%A8ne+%3E+Production+d%27hydrog%C3%A8ne&size=200"
+  },
+  "fbb0df12ef59d7b66a848b40801535f8b60fd862a00863ce3022e290349ec7c9": {
+    "first_retrieved": "2026-08-27T23:43:41.307066+00:00",
+    "last_retrieved": "2026-08-27T23:43:41.307066+00:00",
+    "url": "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner/lines?Code_de_la_cat%C3%A9gorie_eq=Achats+de+biens+%3E+Plastiques+et+produits+chimiques+%3E+Plastiques+et+caoutchouc+%3E+Polym%C3%A8res+de+l%27%C3%A9thyl%C3%A8ne&size=200"
+  }
+}

@@ -106,6 +106,9 @@ a refresh.
 from __future__ import annotations
 
 import argparse
+import sys as _sys_for_path
+_sys_for_path.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
+from _snapshot import Snapshot, add_offline_flag  # noqa: E402
 import csv
 import hashlib
 import json
@@ -127,10 +130,6 @@ from carbonroute.schema import cas_checksum_ok  # noqa: E402
 PROBAS_BASE = "https://data.probas.umweltbundesamt.de"
 PUBCHEM_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
 DEFAULT_OUT = REPO_ROOT / "data" / "factors" / "probas_gemis.csv"
-DEFAULT_CACHE_DIR = Path(
-    "/tmp/claude-0/-home-user-carbonroute/615824c5-ea95-5811-9178-bd4f433c32ff/scratchpad/cache_probas"
-)
-
 LICENSE_TEXT = "Free of charge for all users and uses (ProBas / Umweltbundesamt, attribution required)"
 REQUIRED_LICENSE_TYPE = "Free of charge for all users and uses"
 
@@ -239,14 +238,21 @@ SUBSTANCE_SPECS = (
 )
 
 
+#: Set once in main() to a live-or-offline Snapshot for the ProBas source.
+_PROBAS_SNAPSHOT: "Snapshot | None" = None
+#: Shared with the other ingestion scripts: one PubChem cache for all of them.
+_PUBCHEM_SNAPSHOT: "Snapshot | None" = None
+
+
 def http_get_json(url: str, params: dict | None = None) -> dict:
     if params:
         url = url + "?" + urllib.parse.urlencode(params)
-    req = urllib.request.Request(
-        url, headers={"User-Agent": "carbonroute-ingest/1.0 (research script; see scripts/ingest_probas_gemis.py)"}
+    assert _PROBAS_SNAPSHOT is not None, "main() must set up _PROBAS_SNAPSHOT before fetching"
+    return _PROBAS_SNAPSHOT.fetch_json(
+        url,
+        headers={"User-Agent": "carbonroute-ingest/1.0 (research script; see scripts/ingest_probas_gemis.py)"},
+        timeout=30,
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read().decode("utf-8"))
 
 
 def search_processes(term: str, page_size: int = 100) -> list[dict]:
@@ -307,35 +313,17 @@ def is_per_kg(functional_unit: list[dict] | None) -> bool:
 
 
 class PubChemClient:
-    def __init__(self, cache_dir: Path, min_interval: float = 0.25):
-        self.cache_dir = cache_dir
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.min_interval = min_interval
-        self._last_request = 0.0
-
-    def _cache_path(self, key: str) -> Path:
-        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
-        return self.cache_dir / f"{digest}.json"
+    """PubChem lookups via the shared, cross-script snapshot (see ademe script)."""
 
     def _get(self, path: str) -> dict | None:
-        cache_path = self._cache_path(path)
-        if cache_path.exists():
-            return json.loads(cache_path.read_text(encoding="utf-8"))
-        wait = self.min_interval - (time.monotonic() - self._last_request)
-        if wait > 0:
-            time.sleep(wait)
+        assert _PUBCHEM_SNAPSHOT is not None, "main() must set up _PUBCHEM_SNAPSHOT first"
         url = f"{PUBCHEM_BASE}/{path}"
         try:
-            data = http_get_json(url)
+            return _PUBCHEM_SNAPSHOT.fetch_json(url)
         except urllib.error.HTTPError as exc:
             if exc.code == 404:
-                data = {"__not_found__": True}
-            else:
-                raise
-        finally:
-            self._last_request = time.monotonic()
-        cache_path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-        return data
+                return {"__not_found__": True}
+            raise
 
     def cids_for_name(self, name: str) -> list[int]:
         data = self._get(f"compound/name/{urllib.parse.quote(name)}/cids/JSON")
@@ -506,11 +494,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--report", action="store_true")
-    parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
+    add_offline_flag(parser)
     args = parser.parse_args()
 
+    global _PROBAS_SNAPSHOT, _PUBCHEM_SNAPSHOT
+    _PROBAS_SNAPSHOT = Snapshot("probas_gemis", offline=args.offline, rate_limit_seconds=0.1)
+    _PUBCHEM_SNAPSHOT = Snapshot("pubchem", offline=args.offline, rate_limit_seconds=0.25)
+
     retrieved_date = date.today().isoformat()
-    client = PubChemClient(args.cache_dir)
+    client = PubChemClient()
     lcia_unit_cache: dict[str, str] = {}
 
     kept: list[Kept] = []
@@ -583,6 +575,8 @@ def main() -> int:
             print(f"  [{r.spec_label}] {r.process_name!r} ({r.uuid}): {r.reason}")
         print(f"\nWrote {len(kept)} rows to {args.out}")
 
+    print(_PROBAS_SNAPSHOT.describe())
+    print(_PUBCHEM_SNAPSHOT.describe())
     return 0
 
 

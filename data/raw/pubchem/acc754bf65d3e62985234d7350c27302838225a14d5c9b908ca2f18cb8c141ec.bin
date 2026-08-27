@@ -1,0 +1,12 @@
+{
+  "PropertyTable": {
+    "Properties": [
+      {
+        "CID": 1118,
+        "MolecularFormula": "H2O4S",
+        "ConnectivitySMILES": "OS(=O)(=O)O",
+        "InChIKey": "QAOWNCQODCNURD-UHFFFAOYSA-N"
+      }
+    ]
+  }
+}

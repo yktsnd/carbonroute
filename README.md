@@ -295,6 +295,17 @@ row's `source` column starts with `ILLUSTRATIVE`, and any report built from
 it says so prominently. Do not cite it, and do not use it for anything but
 exercising the commands above.
 
+## Reproducing the factor tables without any live API
+
+`carbonroute` itself never touches a network — enforced by a test that parses
+its import graph, not just claimed in prose. The scripts that *built*
+`data/factors/` used to require one, though, and every one of ADEME's,
+PubChem's, ProBas's and the Federal LCA Commons' APIs is outside this
+project's control. Each ingestion script now has a `--offline` flag that
+replays from a durable, committed snapshot under `data/raw/` instead of
+touching the network — see [`docs/reproducibility.md`](docs/reproducibility.md)
+for which snapshot covers which source, and its one known gap.
+
 ## Benchmarks
 
 Two test sets, both with their acceptance conditions written before the

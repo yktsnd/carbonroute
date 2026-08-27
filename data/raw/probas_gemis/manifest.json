@@ -1,0 +1,277 @@
+{
+  "0402e9ed015e79a3526f336274c8beb039870b9632054f51507eb9428679a157": {
+    "first_retrieved": "2026-08-27T23:47:12.879117+00:00",
+    "last_retrieved": "2026-08-27T23:47:12.879117+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/eff96fb6-be6c-403f-8383-d57bba712a18?format=json&view=extended"
+  },
+  "0498dd1e84a193cd1ccdf362a34ab614ad8b6dd65912eeb6671038f69c1d6683": {
+    "first_retrieved": "2026-08-27T23:46:44.284479+00:00",
+    "last_retrieved": "2026-08-27T23:46:44.284479+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/lciamethods/b2df61f8-1825-42f8-a163-895a8dcfd9a9?format=json"
+  },
+  "0d4b68b72f08b4c49844128bae2ffbc4200c421cf640651ae60dafe41f5e7f4f": {
+    "first_retrieved": "2026-08-27T23:47:18.406909+00:00",
+    "last_retrieved": "2026-08-27T23:47:18.406909+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/c0f9b473-9c3c-4321-b1b6-2030c9968915?format=json&view=extended"
+  },
+  "0e899be3ebe93c96b33e791fafc07cf257d5f7f118e32dfc9d3658f3e31b7361": {
+    "first_retrieved": "2026-08-27T23:47:04.815678+00:00",
+    "last_retrieved": "2026-08-27T23:47:04.815678+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/d3496469-53b2-4e45-8cd1-38fa5b5411f5?format=json&view=extended"
+  },
+  "1152ecc82cd1e77921e286c1173a37495d1cb4ee10594c10eb4799a5e23a4e63": {
+    "first_retrieved": "2026-08-27T23:47:14.036122+00:00",
+    "last_retrieved": "2026-08-27T23:47:14.036122+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/c2750800-988c-4cd8-aac0-b210e0adae1d?format=json&view=extended"
+  },
+  "18a723a1fcecc519d2f9bf9226f74dba904f3bf60804ab6a4d8bf3910377d666": {
+    "first_retrieved": "2026-08-27T23:47:42.765500+00:00",
+    "last_retrieved": "2026-08-27T23:47:42.765500+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/6898dda3-09ec-41bf-8069-62a613f60d2f?format=json&view=extended"
+  },
+  "1d605f8e7c3422217259b2059bb7dcc3045a224f0abb4a9fc455ed13122ebc30": {
+    "first_retrieved": "2026-08-27T23:47:32.198307+00:00",
+    "last_retrieved": "2026-08-27T23:47:32.198307+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/20fa3be8-ccd2-4abf-a3a5-265e44b371e4?format=json&view=extended"
+  },
+  "230951d40a34b86d9337df7eefedc33b18790ad5521a149d9c4b219f89112a71": {
+    "first_retrieved": "2026-08-27T23:47:24.392802+00:00",
+    "last_retrieved": "2026-08-27T23:47:24.392802+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/1469cc7d-c82a-49c4-8040-9ac20d4c6dad?format=json&view=extended"
+  },
+  "2f2139a5b2cf33d3fdf4b9199abdf62389a0b705000d2449b369fa24630437a1": {
+    "first_retrieved": "2026-08-27T23:47:39.411560+00:00",
+    "last_retrieved": "2026-08-27T23:47:39.411560+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/ea0d246a-8e19-4329-8a04-2ba0f106db94?format=json&view=extended"
+  },
+  "373da86b864b0002f7a043b47202e1b26bb9fd19fa4c4eccf6ec521eba9cc880": {
+    "first_retrieved": "2026-08-27T23:47:44.073169+00:00",
+    "last_retrieved": "2026-08-27T23:47:44.073169+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/f9d29a0f-5aa2-44b1-a9ef-e5f3969301b2?format=json&view=extended"
+  },
+  "389ee07eb078842f9c4142468f0e97fbdd0bbcfa7af8c4f982d15abf5121107b": {
+    "first_retrieved": "2026-08-27T23:47:49.443383+00:00",
+    "last_retrieved": "2026-08-27T23:47:49.443383+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes?format=json&search=true&name=H2-Stoff&pageSize=100&startIndex=0"
+  },
+  "432e1e985c8c14d315edae33113a5fbcba0960f4cff51eee15249c446cea1467": {
+    "first_retrieved": "2026-08-27T23:46:46.977712+00:00",
+    "last_retrieved": "2026-08-27T23:46:46.977712+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes?format=json&search=true&name=Toluol&pageSize=100&startIndex=0"
+  },
+  "464300ff6d6b827616d0376dcd6226a022ff5a21db2fa9157bafa5184b47966a": {
+    "first_retrieved": "2026-08-27T23:47:01.159126+00:00",
+    "last_retrieved": "2026-08-27T23:47:01.159126+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/d6446ea0-97ea-4c57-ac88-a168cae47b57?format=json&view=extended"
+  },
+  "47eb1b0241b729b27a7e2b2739e218438248714503da180be519e6dfcf7b809e": {
+    "first_retrieved": "2026-08-27T23:47:51.600627+00:00",
+    "last_retrieved": "2026-08-27T23:47:51.600627+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/8c0bb813-e620-456f-9b4b-e755d35f0d4d?format=json&view=extended"
+  },
+  "4b5973752709ed276d20e026cf825830717a444318c911a65d26db0513cd588d": {
+    "first_retrieved": "2026-08-27T23:47:38.402929+00:00",
+    "last_retrieved": "2026-08-27T23:47:38.402929+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/29a445df-97aa-44f4-a61e-944c7e3a95fd?format=json&view=extended"
+  },
+  "5344e8c59175e5c1be6fcc048711acc283fd6f35fd7264e26371b0f02a9734ef": {
+    "first_retrieved": "2026-08-27T23:47:16.368725+00:00",
+    "last_retrieved": "2026-08-27T23:47:16.368725+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/62507e40-eb38-4ded-aa27-78708cb0120f?format=json&view=extended"
+  },
+  "552042e66f284cfa2d9c93d1c07528fabcd158c2df963eb5fd8a2187c49e23c6": {
+    "first_retrieved": "2026-08-27T23:47:41.517429+00:00",
+    "last_retrieved": "2026-08-27T23:47:41.517429+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/056d5192-3e2a-4e9a-82b7-cdc3650cbfd8?format=json&view=extended"
+  },
+  "5683e6b21dba60ec16ddd3311a1b2fcecf15f8074fd44c40c426dcc28a69e280": {
+    "first_retrieved": "2026-08-27T23:47:25.325380+00:00",
+    "last_retrieved": "2026-08-27T23:47:25.325380+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/7089108f-576d-4fca-8452-8a9d2e82b6f2?format=json&view=extended"
+  },
+  "595e64476d614c94c0d210e7e40bfa6abdbfa3239af9dfda27e2799d6598c63e": {
+    "first_retrieved": "2026-08-27T23:47:50.443930+00:00",
+    "last_retrieved": "2026-08-27T23:47:50.443930+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/71e8b6f0-6075-4f37-9421-5fada2679137?format=json&view=extended"
+  },
+  "642cd1ae06f026240535b13851152496fcfde1bd3f19195a3ca7bc0b9b00651e": {
+    "first_retrieved": "2026-08-27T23:47:30.187756+00:00",
+    "last_retrieved": "2026-08-27T23:47:30.187756+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/e5c52bfd-6f24-4c51-ac39-8153c4c8a6b0?format=json&view=extended"
+  },
+  "6740cbefbadc4ba8b741998fb88f8173d738ab72310389d7d0eb63b1ad0f894e": {
+    "first_retrieved": "2026-08-27T23:47:10.643413+00:00",
+    "last_retrieved": "2026-08-27T23:47:10.643413+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/88aacb6c-da81-4ea1-96aa-ced4059b6ec5?format=json&view=extended"
+  },
+  "6dacc465402e774a678b9262a28b7c3ae08f3176c6bfd0618f2b4356e59ccaf9": {
+    "first_retrieved": "2026-08-27T23:47:09.420892+00:00",
+    "last_retrieved": "2026-08-27T23:47:09.420892+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/db731aa4-65bb-4614-94fb-e8ee608e7bdf?format=json&view=extended"
+  },
+  "77300694e94705ebfd5825b60434d10f56204e4392efa811904fd9b2fed8c3dd": {
+    "first_retrieved": "2026-08-27T23:46:48.255026+00:00",
+    "last_retrieved": "2026-08-27T23:46:48.255026+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/ea2cc0e1-e146-4655-a21a-d15fe63996f1?format=json&view=extended"
+  },
+  "7a5ad436bbe4a8f324444f47035e7e72ebf770d63745ef52d0da2914e7ecfaf6": {
+    "first_retrieved": "2026-08-27T23:47:00.136134+00:00",
+    "last_retrieved": "2026-08-27T23:47:00.136134+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes?format=json&search=true&name=Ethanol&pageSize=100&startIndex=0"
+  },
+  "7d9cad79d79ce427af6d4bbd941e585b42a05c1259ef79bc52126f579afd2f50": {
+    "first_retrieved": "2026-08-27T23:47:28.146406+00:00",
+    "last_retrieved": "2026-08-27T23:47:28.146406+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/77bc5bab-1700-468d-b818-796143ba8903?format=json&view=extended"
+  },
+  "81f792d59dec929a0d063d9e7eb9ce18e1e6ac5d786ff37c878c5e3fa11d75ec": {
+    "first_retrieved": "2026-08-27T23:47:08.211549+00:00",
+    "last_retrieved": "2026-08-27T23:47:08.211549+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/a3848c81-9833-46fb-abbd-02e149f81dd2?format=json&view=extended"
+  },
+  "880a0b2c95e7d772e6771ce6f9bb772db8f485aa3f5433b1b8c16ee1bc7408db": {
+    "first_retrieved": "2026-08-27T23:47:22.520766+00:00",
+    "last_retrieved": "2026-08-27T23:47:22.520766+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/716a5615-f708-4063-abc0-b0d8d7ac8cff?format=json&view=extended"
+  },
+  "8852c7dcdb223b01fb0f4af07b11506149b31853a52593e98267c10ac3657411": {
+    "first_retrieved": "2026-08-27T23:47:07.224904+00:00",
+    "last_retrieved": "2026-08-27T23:47:07.224904+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/c5ea5fda-6839-4817-ac4f-7bb81d7bce5f?format=json&view=extended"
+  },
+  "894348cd6794e31dd528b38187b9e41cdee40d207315e4fe5b324e48ddf75498": {
+    "first_retrieved": "2026-08-27T23:47:31.189607+00:00",
+    "last_retrieved": "2026-08-27T23:47:31.189607+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/d83756bf-d524-4463-b2f1-849b9378440c?format=json&view=extended"
+  },
+  "8b4ecd9a8c5a2588331546075d26938eac00c76f679fdd280efd394262ddad2b": {
+    "first_retrieved": "2026-08-27T23:47:03.407163+00:00",
+    "last_retrieved": "2026-08-27T23:47:03.407163+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/c4638870-8e46-4290-a523-2e68cd1c4a6c?format=json&view=extended"
+  },
+  "8cd0c3a6b79b93041537f8d931852126ddfcb4a4fb4f5eeae1b0febb793e1acf": {
+    "first_retrieved": "2026-08-27T23:47:19.459534+00:00",
+    "last_retrieved": "2026-08-27T23:47:19.459534+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/32746e68-b802-461c-a398-7ad15b23c6aa?format=json&view=extended"
+  },
+  "8d348d31ec81d5695b554682d061c81f5f1681f09e41be389434ad36d6abe80f": {
+    "first_retrieved": "2026-08-27T23:46:56.003998+00:00",
+    "last_retrieved": "2026-08-27T23:46:56.003998+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/8770ea5d-9ef0-4e6b-bb25-55bb510de6e1?format=json&view=extended"
+  },
+  "8eea10c92d266eac156bf5121ca86e0211acf1e1bf6a239e3218402e3649dbc5": {
+    "first_retrieved": "2026-08-27T23:47:20.461702+00:00",
+    "last_retrieved": "2026-08-27T23:47:20.461702+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/c8dca969-8c64-4252-bc67-dbc8935a66d3?format=json&view=extended"
+  },
+  "8f6f8dc13f4afd1d76f9899161aeb3d3705d652f5fc21bae8e4fd74db8ddde7f": {
+    "first_retrieved": "2026-08-27T23:47:45.366753+00:00",
+    "last_retrieved": "2026-08-27T23:47:45.366753+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/5a965f41-5008-496f-8651-43a350e3eab3?format=json&view=extended"
+  },
+  "92ba6e9815b1c6ace72d467e129eaadb1453dff7f751e78b32f38c42f0c5b3b7": {
+    "first_retrieved": "2026-08-27T23:47:46.360353+00:00",
+    "last_retrieved": "2026-08-27T23:47:46.360353+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/ccd08c9c-e26d-406a-a85a-5b2bf01a74ea?format=json&view=extended"
+  },
+  "92ead830e84e3dc3e5695bbd1ffa30d6f77400387fbf897b04032852c8f4211f": {
+    "first_retrieved": "2026-08-27T23:47:29.184185+00:00",
+    "last_retrieved": "2026-08-27T23:47:29.184185+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/a0507203-9467-4fc7-905e-f0ac19619d01?format=json&view=extended"
+  },
+  "9300665b3dce52344a31fbb77c8fdd91bd99113e7ec1987fdc195b8ad12a58f2": {
+    "first_retrieved": "2026-08-27T23:46:43.358652+00:00",
+    "last_retrieved": "2026-08-27T23:46:43.358652+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/41441a82-64ab-4b21-a67d-b69d2609e158?format=json&view=extended"
+  },
+  "97ba6247483c499a45a7114178bce403f5fd17db061bf0af4747e004d647c943": {
+    "first_retrieved": "2026-08-27T23:47:17.396945+00:00",
+    "last_retrieved": "2026-08-27T23:47:17.396945+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/bf147dd9-01f8-4ec1-87bb-be2da0a676dd?format=json&view=extended"
+  },
+  "9d107d6e609668c8f96c93be1768279b4290b15d971ff87920f2bc04d2aa46d2": {
+    "first_retrieved": "2026-08-27T23:47:37.303946+00:00",
+    "last_retrieved": "2026-08-27T23:47:37.303946+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/350d3b4e-6432-4d17-9032-32de8bda8d30?format=json&view=extended"
+  },
+  "9d4a6a8a22fe4e585d8d1b39dd63e19b7a8eafeffd2beb4637ded0ccfd12f8c9": {
+    "first_retrieved": "2026-08-27T23:47:15.263292+00:00",
+    "last_retrieved": "2026-08-27T23:47:15.263292+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/11547110-396a-4631-b611-0c9d0ee0e5e4?format=json&view=extended"
+  },
+  "9f72920d28584bb2b2e5899554c1a0b423ef26a68db959340441229c4c460dc5": {
+    "first_retrieved": "2026-08-27T23:47:33.129147+00:00",
+    "last_retrieved": "2026-08-27T23:47:33.129147+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/16309f94-9f3e-488c-8808-dcfbcb9b95a3?format=json&view=extended"
+  },
+  "a852d7428cb25216a63c6bf7e096b686c3dae4a33fbf47ab399b1a319fdb40b8": {
+    "first_retrieved": "2026-08-27T23:46:51.100193+00:00",
+    "last_retrieved": "2026-08-27T23:46:51.100193+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes?format=json&search=true&name=2-Propanol&pageSize=100&startIndex=0"
+  },
+  "a9810310f653fabd9a05a2063bc2b2df224b96cd367dbd922456b2396ff6d9ef": {
+    "first_retrieved": "2026-08-27T23:46:54.783880+00:00",
+    "last_retrieved": "2026-08-27T23:46:54.783880+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes?format=json&search=true&name=Essigs%C3%A4ure&pageSize=100&startIndex=0"
+  },
+  "ae8a6c2d211b3191e3273fc3896a4fda68d2fd597848b03ce1fe3cd3d0afa8a1": {
+    "first_retrieved": "2026-08-27T23:46:57.139490+00:00",
+    "last_retrieved": "2026-08-27T23:46:57.139490+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/f151033b-bf40-4267-a064-dbc957f718a6?format=json&view=extended"
+  },
+  "b34bdd1d4ffe8a6b675069a0f9aa2ad509c817c97de72d898e00b7667026a306": {
+    "first_retrieved": "2026-08-27T23:47:36.171382+00:00",
+    "last_retrieved": "2026-08-27T23:47:36.171382+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes?format=json&search=true&name=Ammoniak&pageSize=100&startIndex=0"
+  },
+  "b8363e28af126caa1f7496970148fdd05cf9a8d4c677bb1ed0a1c01b9796166b": {
+    "first_retrieved": "2026-08-27T23:47:02.269695+00:00",
+    "last_retrieved": "2026-08-27T23:47:02.269695+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/64e1cf8f-2237-44ba-b88f-9288ab66101b?format=json&view=extended"
+  },
+  "bdac7dd822bef355b33535c7d2b4f8ddb787e48569f3936d86f5b9f1017201ee": {
+    "first_retrieved": "2026-08-27T23:47:21.494774+00:00",
+    "last_retrieved": "2026-08-27T23:47:21.494774+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/a55f6984-016b-466b-ad03-84df9d24c17e?format=json&view=extended"
+  },
+  "bdfecd555fb4f2a62697c6b75e8612e3638cac8b312acbfb751f7e6e361f4556": {
+    "first_retrieved": "2026-08-27T23:47:40.398398+00:00",
+    "last_retrieved": "2026-08-27T23:47:40.398398+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/dd7889b8-005a-4157-b662-279e40dd9201?format=json&view=extended"
+  },
+  "c445caca741b63f4a19f7e4ee2bce56a6466555bb77e5134ae5790bf13c2bef0": {
+    "first_retrieved": "2026-08-27T23:47:27.147169+00:00",
+    "last_retrieved": "2026-08-27T23:47:27.147169+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/7653be8a-c8ae-4227-8dd0-70fea15a1ace?format=json&view=extended"
+  },
+  "c9bace2da16af723e6e732b050b120c4fa7d9b932fd181df40451854b87ff35f": {
+    "first_retrieved": "2026-08-27T23:47:23.479074+00:00",
+    "last_retrieved": "2026-08-27T23:47:23.479074+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/36d787c8-390d-4455-a8cc-b196361daca6?format=json&view=extended"
+  },
+  "d8dcc6287c8e50cfacfcd6ad0f698c1d9e11d94d6dd68cab74fb6a6a2c6b53f8": {
+    "first_retrieved": "2026-08-27T23:47:05.940191+00:00",
+    "last_retrieved": "2026-08-27T23:47:05.940191+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/a98dab45-ddde-4759-9930-5e2cd94afd15?format=json&view=extended"
+  },
+  "eb33d6e3d1a684b99ad23141f4210898013d18ff8f49d6122ce4b568f1bd7fad": {
+    "first_retrieved": "2026-08-27T23:47:11.738374+00:00",
+    "last_retrieved": "2026-08-27T23:47:11.738374+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/4053d596-aeab-4cd4-b7c1-2ffa59d97fc2?format=json&view=extended"
+  },
+  "f6d52661203cf7cc7a7a0e9c061cc07ea4f7f3c662d112523922c64b53732ef9": {
+    "first_retrieved": "2026-08-27T23:46:42.110448+00:00",
+    "last_retrieved": "2026-08-27T23:46:42.110448+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes?format=json&search=true&name=destilliertes+Wasser&pageSize=100&startIndex=0"
+  },
+  "fc06905bd88a9d2b565c9dce53a6b999e7ca5607c84eead9189b8e4e01153b16": {
+    "first_retrieved": "2026-08-27T23:46:52.238602+00:00",
+    "last_retrieved": "2026-08-27T23:46:52.238602+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/47d18bdf-08e2-4f7e-8e27-c0942f308699?format=json&view=extended"
+  },
+  "fd2ea12c85032f226811300f1b9d92e34fd4cb9e2894b4224749362c4b7b5ef5": {
+    "first_retrieved": "2026-08-27T23:47:26.245407+00:00",
+    "last_retrieved": "2026-08-27T23:47:26.245407+00:00",
+    "url": "https://data.probas.umweltbundesamt.de/resource/processes/dd4e6a88-901f-4a02-ae2d-271caf9237f1?format=json&view=extended"
+  }
+}

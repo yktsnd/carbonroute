@@ -204,3 +204,10 @@ wins, so a synonym can never override a material that already resolved.
 **Review the generated file before committing it.** This is the one place in the
 project where a machine proposes a claim about chemistry, and it is the one
 place a wrong row does its damage quietly.
+
+## Regenerating a table without hitting the network
+
+Every `scripts/ingest_*.py` script accepts `--offline`, which replays from the
+durable snapshot in `data/raw/<source>/` instead of fetching live. See
+[`docs/reproducibility.md`](reproducibility.md) for the full mechanism and the
+exact retrieval window each snapshot represents.

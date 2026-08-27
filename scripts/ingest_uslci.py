@@ -176,6 +176,9 @@ Requires network access to api.nal.usda.gov and pubchem.ncbi.nlm.nih.gov.
 from __future__ import annotations
 
 import argparse
+import sys as _sys_for_path
+_sys_for_path.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
+from _snapshot import Snapshot, add_offline_flag  # noqa: E402
 import csv
 import hashlib
 import json
@@ -201,10 +204,6 @@ LCA_COMMONS_REPO = "USLCI_Database_Public"
 PUBCHEM_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
 
 DEFAULT_OUT = REPO_ROOT / "data" / "factors" / "uslci.csv"
-DEFAULT_CACHE_DIR = Path(
-    "/tmp/claude-0/-home-user-carbonroute/615824c5-ea95-5811-9178-bd4f433c32ff/scratchpad/cache_uslci"
-)
-
 CAS_RE = re.compile(r"\d{2,7}-\d{2}-\d")
 
 CSV_COLUMNS = (
@@ -266,16 +265,24 @@ TARGET_PROCESSES: dict[str, str] = {
 NOT_INGESTED_LCI_RESULTS: dict[str, str] = {}
 
 
-def http_get(url: str, timeout: int = 60) -> bytes:
-    req = urllib.request.Request(
-        url, headers={"User-Agent": "carbonroute-ingest/1.0 (research script; see scripts/ingest_uslci.py)"}
+#: Set once in main() to a live-or-offline Snapshot for the LCA Commons source.
+_USLCI_SNAPSHOT: "Snapshot | None" = None
+#: Shared with the other ingestion scripts: one PubChem cache for all of them.
+_PUBCHEM_SNAPSHOT: "Snapshot | None" = None
+
+
+def http_get(url: str, timeout: int = 60, cache_key: str | None = None) -> bytes:
+    assert _USLCI_SNAPSHOT is not None, "main() must set up _USLCI_SNAPSHOT before fetching"
+    return _USLCI_SNAPSHOT.fetch(
+        url,
+        headers={"User-Agent": "carbonroute-ingest/1.0 (research script; see scripts/ingest_uslci.py)"},
+        timeout=timeout,
+        cache_key=cache_key,
     )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read()
 
 
-def http_get_json(url: str, timeout: int = 60) -> dict:
-    return json.loads(http_get(url, timeout=timeout).decode("utf-8"))
+def http_get_json(url: str, timeout: int = 60, cache_key: str | None = None) -> dict:
+    return json.loads(http_get(url, timeout=timeout, cache_key=cache_key).decode("utf-8"))
 
 
 # --------------------------------------------------------------------------
@@ -284,33 +291,25 @@ def http_get_json(url: str, timeout: int = 60) -> dict:
 # across DEMO_KEY and a personal key alike.
 # --------------------------------------------------------------------------
 class LcaCommonsClient:
-    def __init__(self, cache_dir: Path, api_key: str, min_interval: float = 1.0):
-        self.cache_dir = cache_dir
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.api_key = api_key
-        self.min_interval = min_interval
-        self._last_request = 0.0
+    """LCA Commons access via the shared snapshot, with the API key redacted.
 
-    def _cache_path(self, ref_id: str) -> Path:
-        digest = hashlib.sha256(f"{LCA_COMMONS_GROUP}/{LCA_COMMONS_REPO}/PROCESS/{ref_id}".encode()).hexdigest()
-        return self.cache_dir / f"{digest}.json"
+    The live URL carries ``?api_key=...`` and must never be written into
+    ``data/raw/uslci/manifest.json`` — even DEMO_KEY being shared publicly is
+    no excuse to commit a personal key by the same code path. The cache is
+    keyed and labelled by the URL with the key replaced by a placeholder;
+    the real key is only ever used for the live request itself.
+    """
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
 
     def get_process(self, ref_id: str) -> tuple[dict, bool, str]:
         """Returns (process_json, from_cache, fetched_at_date)."""
-        cache_path = self._cache_path(ref_id)
-        if cache_path.exists():
-            envelope = json.loads(cache_path.read_text(encoding="utf-8"))
-            return envelope["data"], True, envelope["fetched_at"]
-
-        wait = self.min_interval - (time.monotonic() - self._last_request)
-        if wait > 0:
-            time.sleep(wait)
-        url = (
-            f"{LCA_COMMONS_BASE}/browse/{LCA_COMMONS_GROUP}/{LCA_COMMONS_REPO}/PROCESS/{ref_id}"
-            f"?api_key={urllib.parse.quote(self.api_key)}"
-        )
+        path = f"browse/{LCA_COMMONS_GROUP}/{LCA_COMMONS_REPO}/PROCESS/{ref_id}"
+        cache_key = f"{LCA_COMMONS_BASE}/{path}?api_key=REDACTED"
+        real_url = f"{LCA_COMMONS_BASE}/{path}?api_key={urllib.parse.quote(self.api_key)}"
         try:
-            data = http_get_json(url)
+            data = http_get_json(real_url, cache_key=cache_key)
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", "replace")
             raise RuntimeError(
@@ -319,13 +318,7 @@ class LcaCommonsClient:
                 "by every anonymous caller. Wait for the Retry-After window, or set "
                 "USLCI_API_KEY to a personal key (free: https://api.data.gov/signup/)."
             ) from exc
-        finally:
-            self._last_request = time.monotonic()
-        fetched_at = date.today().isoformat()
-        cache_path.write_text(
-            json.dumps({"fetched_at": fetched_at, "data": data}, ensure_ascii=False), encoding="utf-8"
-        )
-        return data, False, fetched_at
+        return data, False, date.today().isoformat()
 
 
 # --------------------------------------------------------------------------
@@ -333,35 +326,17 @@ class LcaCommonsClient:
 # ingest_ademe_basecarbone.py's PubChemClient.
 # --------------------------------------------------------------------------
 class PubChemClient:
-    def __init__(self, cache_dir: Path, min_interval: float = 0.25):
-        self.cache_dir = cache_dir
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.min_interval = min_interval
-        self._last_request = 0.0
-
-    def _cache_path(self, key: str) -> Path:
-        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
-        return self.cache_dir / f"{digest}.json"
+    """PubChem lookups via the shared, cross-script snapshot (see ademe script)."""
 
     def _get(self, path: str) -> dict | None:
-        cache_path = self._cache_path(path)
-        if cache_path.exists():
-            return json.loads(cache_path.read_text(encoding="utf-8"))
-        wait = self.min_interval - (time.monotonic() - self._last_request)
-        if wait > 0:
-            time.sleep(wait)
+        assert _PUBCHEM_SNAPSHOT is not None, "main() must set up _PUBCHEM_SNAPSHOT first"
         url = f"{PUBCHEM_BASE}/{path}"
         try:
-            data = http_get_json(url)
+            return _PUBCHEM_SNAPSHOT.fetch_json(url)
         except urllib.error.HTTPError as exc:
             if exc.code == 404:
-                data = {"__not_found__": True}
-            else:
-                raise
-        finally:
-            self._last_request = time.monotonic()
-        cache_path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-        return data
+                return {"__not_found__": True}
+            raise
 
     def cids_for_name(self, name: str) -> list[int]:
         data = self._get(f"compound/name/{urllib.parse.quote(name)}/cids/JSON")
@@ -466,16 +441,20 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--report", action="store_true", help="print kept vs. dropped rows with reasons")
-    parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     parser.add_argument(
         "--api-key",
         default=os.environ.get("USLCI_API_KEY", "DEMO_KEY"),
         help="api.data.gov key (default: $USLCI_API_KEY or the shared, low-quota DEMO_KEY)",
     )
+    add_offline_flag(parser)
     args = parser.parse_args()
 
-    lca_client = LcaCommonsClient(args.cache_dir / "lca_commons", args.api_key)
-    pubchem = PubChemClient(args.cache_dir / "pubchem")
+    global _USLCI_SNAPSHOT, _PUBCHEM_SNAPSHOT
+    _USLCI_SNAPSHOT = Snapshot("uslci", offline=args.offline, rate_limit_seconds=1.0)
+    _PUBCHEM_SNAPSHOT = Snapshot("pubchem", offline=args.offline, rate_limit_seconds=0.25)
+
+    lca_client = LcaCommonsClient(args.api_key)
+    pubchem = PubChemClient()
 
     reports: list[ProcessReport] = []
     kept: list[Kept] = []
@@ -583,6 +562,8 @@ def main() -> int:
             print(f"  {ref_id}: {reason}")
         print(f"\nWrote {len(kept)} rows to {args.out}")
 
+    print(_USLCI_SNAPSHOT.describe())
+    print(_PUBCHEM_SNAPSHOT.describe())
     return 0
 
 

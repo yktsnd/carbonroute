@@ -1,0 +1,12 @@
+{
+  "PropertyTable": {
+    "Properties": [
+      {
+        "CID": 1004,
+        "MolecularFormula": "H3O4P",
+        "ConnectivitySMILES": "OP(=O)(O)O",
+        "InChIKey": "NBIIXXVUZAFLBC-UHFFFAOYSA-N"
+      }
+    ]
+  }
+}

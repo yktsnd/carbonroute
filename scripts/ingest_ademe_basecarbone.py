@@ -96,6 +96,9 @@ PubChem responses are cached under a local cache directory (see
 from __future__ import annotations
 
 import argparse
+import sys as _sys_for_path
+_sys_for_path.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
+from _snapshot import Snapshot, add_offline_flag  # noqa: E402
 import csv
 import hashlib
 import json
@@ -118,8 +121,6 @@ from carbonroute.schema import cas_checksum_ok  # noqa: E402
 ADEME_BASE = "https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner"
 PUBCHEM_BASE = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
 DEFAULT_OUT = REPO_ROOT / "data" / "factors" / "ademe_base_carbone.csv"
-DEFAULT_CACHE_DIR = Path("/tmp/claude-0/-home-user-carbonroute/615824c5-ea95-5811-9178-bd4f433c32ff/scratchpad/cache")
-
 LICENSE_TEXT = "Licence Ouverte / Open Licence (Etalab)"
 
 CAS_RE = re.compile(r"\d{2,7}-\d{2}-\d")
@@ -214,15 +215,21 @@ MASS_UNITS = {
 }
 
 
+#: Set once in main() to a live-or-offline Snapshot for the ADEME source.
+_ADEME_SNAPSHOT: "Snapshot | None" = None
+#: Shared across every ingestion script: a PubChem lookup made once, by any
+#: script, is frozen once and replayed by all of them.
+_PUBCHEM_SNAPSHOT: "Snapshot | None" = None
+
+
 def http_get_json(url: str, params: dict | None = None, headers: dict | None = None) -> dict:
     if params:
         url = url + "?" + urllib.parse.urlencode(params)
     req_headers = {"User-Agent": "carbonroute-ingest/1.0 (research script; see repo scripts/ingest_ademe_basecarbone.py)"}
     if headers:
         req_headers.update(headers)
-    req = urllib.request.Request(url, headers=req_headers)
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    assert _ADEME_SNAPSHOT is not None, "main() must set up _ADEME_SNAPSHOT before fetching"
+    return _ADEME_SNAPSHOT.fetch_json(url, headers=req_headers, timeout=30)
 
 
 # --------------------------------------------------------------------------
@@ -257,35 +264,22 @@ def fetch_category_lines(category: str, size: int = 200) -> list[dict]:
 # --------------------------------------------------------------------------
 
 class PubChemClient:
-    def __init__(self, cache_dir: Path, min_interval: float = 0.25):
-        self.cache_dir = cache_dir
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.min_interval = min_interval  # seconds; 0.25s => <=4 req/s, under the 5/s cap
-        self._last_request = 0.0
+    """PubChem lookups, backed by the shared, durable, cross-script snapshot.
 
-    def _cache_path(self, key: str) -> Path:
-        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
-        return self.cache_dir / f"{digest}.json"
+    Rate limiting and the "404 means not found, not an error" translation live
+    on the Snapshot itself now, so every script that queries PubChem behaves
+    identically and shares one on-disk cache.
+    """
 
     def _get(self, path: str) -> dict | None:
-        cache_path = self._cache_path(path)
-        if cache_path.exists():
-            return json.loads(cache_path.read_text(encoding="utf-8"))
-        wait = self.min_interval - (time.monotonic() - self._last_request)
-        if wait > 0:
-            time.sleep(wait)
+        assert _PUBCHEM_SNAPSHOT is not None, "main() must set up _PUBCHEM_SNAPSHOT first"
         url = f"{PUBCHEM_BASE}/{path}"
         try:
-            data = http_get_json(url)
+            return _PUBCHEM_SNAPSHOT.fetch_json(url)
         except urllib.error.HTTPError as exc:
             if exc.code == 404:
-                data = {"__not_found__": True}
-            else:
-                raise
-        finally:
-            self._last_request = time.monotonic()
-        cache_path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-        return data
+                return {"__not_found__": True}
+            raise
 
     def cids_for_name(self, name: str) -> list[int]:
         data = self._get(f"compound/name/{urllib.parse.quote(name)}/cids/JSON")
@@ -449,8 +443,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--report", action="store_true", help="print kept vs rejected rows with reasons")
-    parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
+    add_offline_flag(parser)
     args = parser.parse_args()
+
+    global _ADEME_SNAPSHOT, _PUBCHEM_SNAPSHOT
+    _ADEME_SNAPSHOT = Snapshot("ademe_base_carbone", offline=args.offline, rate_limit_seconds=0.1)
+    _PUBCHEM_SNAPSHOT = Snapshot("pubchem", offline=args.offline, rate_limit_seconds=0.25)
 
     retrieved_date = date.today().isoformat()
 
@@ -461,7 +459,7 @@ def main() -> int:
         print(f"WARNING: dataset license changed since this script was written: {license_info!r}", file=sys.stderr)
     dataset_version = str(meta.get("dataVersion") or meta.get("updatedAt") or meta.get("finalizedAt") or "unknown")
 
-    client = PubChemClient(args.cache_dir)
+    client = PubChemClient()
 
     all_candidate_rows: list[dict] = []
     for cat in CANDIDATE_CATEGORIES:
@@ -519,6 +517,8 @@ def main() -> int:
             print(f"  [{n:3d} rows] {cat}\n           reason: {EXCLUDED_CATEGORIES[cat]}")
         print(f"\nWrote {len(kept)} rows to {args.out}")
 
+    print(_ADEME_SNAPSHOT.describe())
+    print(_PUBCHEM_SNAPSHOT.describe())
     return 0
 
 

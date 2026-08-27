@@ -365,14 +365,17 @@ def _pubchem_inchikey(name: str, timeout: float = 20.0) -> str | None:
         return None
 
 
-def build_rows(check_pubchem: bool, report: bool) -> list[SourceRow]:
+def build_rows(check_pubchem: bool, check_reachability: bool, report: bool) -> list[SourceRow]:
     kept: list[SourceRow] = []
     for row in sorted(ROWS, key=lambda r: r.identifier):
         if not cas_checksum_ok(row.identifier):
             print(f"REJECT {row.name} ({row.identifier}): fails CAS checksum", file=sys.stderr)
             continue
 
-        reachable, status = _http_reachable(row.verify_url)
+        if check_reachability:
+            reachable, status = _http_reachable(row.verify_url)
+        else:
+            reachable, status = True, "not checked (--offline)"
         pubchem_note = "skipped"
         if check_pubchem:
             key = _pubchem_inchikey(row.name)
@@ -438,13 +441,26 @@ def main() -> int:
         "--report", action="store_true", help="print per-row reachability/PubChem status"
     )
     parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="Touch no network at all: skip both the PubChem re-confirmation and the "
+        "citation-URL reachability check. The GWP values themselves are a declarative "
+        "table baked into this script, cited to a document, not fetched -- this flag "
+        "only affects the two live re-verification steps, matching the meaning of "
+        "--offline in this project's other ingestion scripts.",
+    )
+    parser.add_argument(
         "--skip-pubchem",
         action="store_true",
         help="skip the live PubChem InChIKey re-check (offline re-runs)",
     )
     args = parser.parse_args()
 
-    rows = build_rows(check_pubchem=not args.skip_pubchem, report=args.report)
+    rows = build_rows(
+        check_pubchem=not args.skip_pubchem and not args.offline,
+        check_reachability=not args.offline,
+        report=args.report,
+    )
     if not rows:
         print("No rows survived validation -- refusing to write an empty table", file=sys.stderr)
         return 1

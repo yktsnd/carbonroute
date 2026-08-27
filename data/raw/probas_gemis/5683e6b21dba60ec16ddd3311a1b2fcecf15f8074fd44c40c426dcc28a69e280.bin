@@ -1,0 +1,2696 @@
+{
+  "processInformation" : {
+    "dataSetInformation" : {
+      "UUID" : "7089108f-576d-4fca-8452-8a9d2e82b6f2",
+      "name" : {
+        "baseName" : [ {
+          "value" : "Pkw-Otto-mittel-EtOH-Weizen-DE-2010 (Endenergie)",
+          "lang" : "de"
+        } ]
+      },
+      "classificationInformation" : {
+        "classification" : [ {
+          "class" : [ {
+            "value" : "Landverkehr; Transport in Rohrfernleitungen",
+            "level" : 0,
+            "classId" : "60"
+          }, {
+            "value" : "Sonstiger Landverkehr",
+            "level" : 1,
+            "classId" : "60.2"
+          } ],
+          "name" : "NACE 1.1",
+          "classes" : "../346de909-54de-490d-90df-18c4952c3d26.xml"
+        } ]
+      },
+      "generalComment" : [ {
+        "value" : "Kurzinfo: Datensatz aus GEMIS. Negative Werte durch Gutschriftenrechnung. \n \nGEMIS steht für “Globales Emissions-Modell Integrierter Systeme“; es ist ein Softwaretool des Öko-Instituts. GEMIS wurde 1987 erstmals angewendet und wird seitdem weiterentwickelt. \n \nDie GEMIS-Datensätze beruhen - je nach Anwendung - auf unterschiedlichen Methoden; auch der zeitliche und der örtliche Bezug der Datensätze sind verschieden.\n \nMethode bei Prozessen mit mehreren Outputs:\n \nZur Modellierung der Datensätze zu Multi-Output Prozessen wird in GEMIS die Methode der Systemerweiterung verwendet. Hierbei werden Datensätze, in denen jeweils alle Inputs, alle Outputs und alle Umweltaspekte eines Multi-Output Prozesses ausgewiesen sind, als “Brutto“ bezeichnet. Durch Subtraktion von ‚Bonus’-Prozessen, die jeweils einen der Outputs auf herkömmliche Weise bereitstellen, entsteht ein Nettoprozess, in denen das substituierte Nebenprodukt als Gutschrift erscheint. Die Gutschrift ist dabei kein realer Output des Prozesses, sondern ein rechnerischer ‚Merker’. \n \nBeispiel: \n \nMulti-Output Prozess Biogas-BZ-MC-HKW-D-2020/brutto: Output ist 1 TJ Elektrizität und 0,6 TJ Wärme, der “Netto“-Datensatz soll sich aber nur auf die Elektrizität beziehen. Durch Subtraktion des Bonusprozesses Wärme-Bonus-Gas-Hzg-D-2020 mit dem Output Wärme(0,6 TJ) entsteht der “Netto“-Datensatz Biogas-BZ-MC-HKW-D-2020/Gas, für den als Output 1 TJ Elektrizität und 0,6 TJ ‚Gutschrift Wärme-Bonus-für-KWK (Bio)-2020 bei Wärme-Bonus-Gas-Hzg-D-2020’ angegeben werden; die Gutschrift stellt keinen Stoff- oder Energiefluss des Prozesses dar, sie ist allein rechnerisch begründet.\n \n\n \nTransport:\n \nAngaben zu den angesetzten Transportdistanzen werden nicht gegeben.\n \nAbschneidekriterien:\n \nWasser wird in der Regel nur auf der Inputseite angegeben (etwa als Kühlwasser), auch wenn es den Prozess wieder verlässt als Abwasser.\n Weitere Angaben zu angewendeten Abschneidekriterien werden nicht gegeben.\n \nBesondere Nomenklatur:\n \nZahlreiche Abkürzungen für Brennstoffe aus Biomasse und entsprechende Technologien.\n \nBesonderheiten auf Datensatzebene:\n \nDie Datensätze sind mit Vorketten-Datensätzen verknüpft, in denen die jeweils benötigten Vorprodukte, Energien und Transportleistungen erzeugt werden. Die Daten zu den Umweltaspekten werden erstens “direkt“ (d.h., nur aus dem jeweiligen Prozess, falls dieser direkt zu Umweltaspekten beiträgt) als auch “mit Vorkette“ (d.h., einschließlich aller vorausgehenden Prozesse) ausgewiesen. \n Negative Werte für Stoffflüsse kommen in GEMIS regelmäßig vor; sie entstehen durch die Anwendung von Systemerweiterung um Multi-Output Prozesse in Single Output Prozesse umzurechnen. \n Teilweise werden Aufwendungen für Produktionsmittel (Anlagen, Fahrzeuge etc.) aufgeführt (als Stoffflüsse im Input); diese sind jedoch nicht auf die funktionelle Einheit bezogen, sondern werden als absolute Werte angegeben; sie werden nur als Input und nicht als Output (Entsorgung der Betriebsmittel) angegeben. \n Die durch die Herstellung dieser Produktionsmittel verursachten Umweltaspekte sind dagegen über Leistung, jährliche Auslastung und Lebensdauer auf die funktionelle Einheit bezogen \n \nWeiterführende Hinweise und Literatur:\n \n#1: Fritsche, U.R., Schmidt, K.: Globales Emissions-Modell Integrierter Systeme (GEMIS), Version 4.2, Handbuch, Darmstadt, August 2004.\n #2: Fritsche, U.R., Schmidt, K.: Globales Emissions-Modell Integrierter Systeme (GEMIS), Version 4.1, Handbuch, Darmstadt, Darmstadt, Januar 2003.\n #3: Fritsche, U., et al.: Stoffstromanalyse zur nachhaltigen energetischen Nutzung von Biomasse, Verbundprojekt gefördert vom BMU im Rahmen des ZIP, Projektträger: FZ Jülich, Mai 2004, Anhangband zum Endbericht.\n #4: Fritsche, U., et al.: Umweltanalyse von Energie-, Transport- und Stoffsystemen: Gesamt-Emissions-Modell integrierter Systeme (GEMIS) Version 2.1 - erweiterter und aktualisierter Endbericht, U. Fritsche u.a., i.A. des Hessischen Ministeriums für Umwelt, Energie und Bundesangelegenheiten (HMUEB), veröffentlicht durch HMUEB, Wiesbaden 1995\n \n\n\n",
+        "lang" : "de"
+      } ],
+      "referenceToExternalDocumentation" : [ {
+        "shortDescription" : [ {
+          "value" : "Probas-Anmerkungen zu Gemis-Daten",
+          "lang" : "de"
+        }, {
+          "value" : "Probas remarks regarding GEMIS data",
+          "lang" : "en"
+        } ],
+        "type" : "source data set",
+        "refObjectId" : "a20ed7d8-cb0a-46fe-95cc-e563a495184a"
+      } ],
+      "other" : {
+        "anies" : [ "<idOfUnitProcess xmlns=\"http://probas2.umweltbundesamt.de\" xmlns:common=\"http://lca.jrc.it/ILCD/Common\" xmlns:ef2018=\"http://eplca.jrc.ec.europa.eu/ILCD/Extensions/2018/EF\">53f2b1ac-d410-4d9d-88c5-986b4a007d49</idOfUnitProcess>" ]
+      }
+    },
+    "quantitativeReference" : {
+      "referenceToReferenceFlow" : [ 25 ],
+      "functionalUnitOrOther" : [ {
+        "value" : "1 P.km  Personentransport-Dienstleistung",
+        "lang" : "de"
+      } ],
+      "type" : "Reference flow(s)"
+    },
+    "time" : {
+      "referenceYear" : 2010
+    },
+    "geography" : {
+      "locationOfOperationSupplyOrProduction" : {
+        "location" : "DE"
+      }
+    },
+    "technology" : {
+      "technologyDescriptionAndIncludedProcesses" : [ {
+        "value" : "Daten aus der Technologiedatenbank renewbility des Öko-Instituts (#1) - hier für 1 MJ/km (Endenergie), ohne Materialvorleistungen und ohne Kosten !\n\n\nBesetzungsgrad: 1Personen\nFahrleistung: 11291km/a\nKraftstoff/Antrieb: Ethanol (bio)\nLebensdauer: 14,7a\nspezifischer Verbrauch: 1MJ/km\nStraßenkategorie: Durchschnittswert",
+        "lang" : "de"
+      } ]
+    }
+  },
+  "modellingAndValidation" : {
+    "LCIMethodAndAllocation" : {
+      "typeOfDataSet" : "LCI result"
+    },
+    "dataSourcesTreatmentAndRepresentativeness" : {
+      "referenceToDataSource" : [ {
+        "shortDescription" : [ {
+          "value" : "ÖKO 2009 (Technologiedaten renewbility)",
+          "lang" : "de"
+        } ],
+        "type" : "source data set",
+        "refObjectId" : "0879553f-bacb-4c8e-8e95-8fcf2bd7315e"
+      }, {
+        "shortDescription" : [ {
+          "value" : "Originaldokumentation von 'Pkw-Otto-mittel-EtOH-Weizen-DE-2010 (Endenergie)'",
+          "lang" : "de"
+        } ],
+        "type" : "source data set",
+        "refObjectId" : "86d353f0-a66f-485e-8306-edbc990cc623"
+      } ]
+    },
+    "validation" : {
+      "review" : [ {
+        "referenceToNameOfReviewerAndInstitution" : [ {
+          "shortDescription" : [ {
+            "value" : "Öko-Institut",
+            "lang" : "de"
+          } ],
+          "type" : "contact data set",
+          "refObjectId" : "c3c24af1-de1f-4b04-bd72-764e899b8373"
+        } ],
+        "type" : "Independent external review"
+      } ]
+    }
+  },
+  "administrativeInformation" : {
+    "commissionerAndGoal" : {
+      "referenceToCommissioner" : [ {
+        "shortDescription" : [ {
+          "value" : "Umweltbundesamt",
+          "lang" : "de"
+        }, {
+          "value" : "German Environment Agency(Umweltbundesamt – UBA)",
+          "lang" : "en"
+        } ],
+        "type" : "contact data set",
+        "refObjectId" : "0a115508-df22-47d6-a974-355974c6626e"
+      } ],
+      "project" : [ {
+        "value" : "BMU renewbility 2009",
+        "lang" : "de"
+      } ]
+    },
+    "dataGenerator" : {
+      "referenceToPersonOrEntityGeneratingTheDataSet" : [ {
+        "shortDescription" : [ {
+          "value" : "BMU renewbility 2009",
+          "lang" : "de"
+        } ],
+        "type" : "contact data set",
+        "refObjectId" : "a8121809-e37b-4365-be75-d56af7d99760"
+      } ]
+    },
+    "dataEntryBy" : {
+      "referenceToDataSetFormat" : [ {
+        "shortDescription" : [ {
+          "value" : "ILCD Format",
+          "lang" : "de"
+        }, {
+          "value" : "ILCD format",
+          "lang" : "en"
+        } ],
+        "type" : "source data set",
+        "refObjectId" : "a97a0155-0234-4b87-b4ce-a45da52f2a40"
+      } ],
+      "referenceToPersonOrEntityEnteringTheData" : {
+        "shortDescription" : [ {
+          "value" : "Uwe R. Fritsche",
+          "lang" : "de"
+        } ],
+        "type" : "contact data set",
+        "refObjectId" : "7912238a-d2c7-4927-9a22-31564eacce29"
+      }
+    },
+    "publicationAndOwnership" : {
+      "dataSetVersion" : "02.44.152",
+      "permanentDataSetURI" : "https://probas.umweltbundesamt.de/daten/resource/processes/53f2b1ac-d410-4d9d-88c5-986b4a007d49?Version=02.44.152",
+      "dateOfLastRevision" : 1600204380000,
+      "referenceToOwnershipOfDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Uwe R. Fritsche",
+          "lang" : "de"
+        }, {
+          "value" : "Uwe R. Fritsche",
+          "lang" : "en"
+        } ],
+        "type" : "contact data set",
+        "refObjectId" : "7912238a-d2c7-4927-9a22-31564eacce29"
+      },
+      "copyright" : true,
+      "licenseType" : "Free of charge for all users and uses",
+      "accessRestrictions" : [ {
+        "value" : "Es gelten die Probas Nutzungsbedingungen, die hier eingesehen werden können: https://probas.umweltbundesamt.de/daten/static/Nutzungsbedingungen_ProBas.pdf",
+        "lang" : "de"
+      } ]
+    }
+  },
+  "exchanges" : {
+    "exchange" : [ {
+      "dataSetInternalID" : 0,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Sekundärrohstoffe",
+          "lang" : "de"
+        }, {
+          "value" : "secondary raw materials",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0e0b2476-9043-11d3-b2c8-0080c8941b49"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 1.57E-6,
+      "resultingAmount" : 1.57E-6,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 1.57E-6,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Waste flow",
+      "classification" : {
+        "classHierarchy" : "End-of-life treatment / Material recycling",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 1,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Sekundärrohstoffe",
+          "lang" : "de"
+        }, {
+          "value" : "secondary raw materials",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "814cedc6-b3ec-4474-86fa-051740192dec"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 2.16E-4,
+      "resultingAmount" : 2.16E-4,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 2.16E-4,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Waste flow",
+      "classification" : {
+        "classHierarchy" : "End-of-life treatment / Energy recycling",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 2,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "NE-Schrott",
+          "lang" : "de"
+        }, {
+          "value" : "NF-scrap",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0e0b2403-9043-11d3-b2c8-0080c8941b49"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 3.87E-7,
+      "resultingAmount" : 3.87E-7,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 3.87E-7,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Waste flow",
+      "classification" : {
+        "classHierarchy" : "End-of-life treatment / Other end-of-life services",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 3,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Müll",
+          "lang" : "de"
+        }, {
+          "value" : "waste",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "a22c8047-fd56-49a4-8dd2-0c0e54c60cc6"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.0042899999999999995,
+      "resultingAmount" : 0.0042899999999999995,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 0.0042899999999999995,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Waste flow",
+      "classification" : {
+        "classHierarchy" : "End-of-life treatment / Other end-of-life services",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 4,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Fe-Schrott",
+          "lang" : "de"
+        }, {
+          "value" : "Fe-scrap",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "cc0e481c-80da-11d4-9e81-0080c8426c9a"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 1.91E-11,
+      "resultingAmount" : 1.91E-11,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 1.91E-11,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Waste flow",
+      "classification" : {
+        "classHierarchy" : "End-of-life treatment / Material recycling",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 5,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Eisen-Schrott",
+          "lang" : "de"
+        }, {
+          "value" : "iron-scrap",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0e0b238c-9043-11d3-b2c8-0080c8941b49"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 4.19E-5,
+      "resultingAmount" : 4.19E-5,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 4.19E-5,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Waste flow",
+      "classification" : {
+        "classHierarchy" : "End-of-life treatment / Material recycling",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 6,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "primary energy from wind power",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0420204a-6556-11dd-ad8b-0800200c9a66"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.00244,
+      "resultingAmount" : 0.00244,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.00244,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from air / Renewable energy resources from air",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 7,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "primary energy from hydro power",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "04202047-6556-11dd-ad8b-0800200c9a66"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.0018800000000000002,
+      "resultingAmount" : 0.0018800000000000002,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0018800000000000002,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from water / Renewable energy resources from water",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 8,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "water",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "419682fe-60fb-4b43-be89-bf2824b51104"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 8.15E-5,
+      "resultingAmount" : 8.15E-5,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "00.00.002",
+      "resultingflowAmount" : 8.15E-5,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Volume"
+        } ],
+        "uuid" : "93a60a56-a3c8-22da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "m3",
+        "unitGroupUUID" : "93a60a57-a3c8-12da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from water / Renewable material resources from water",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 9,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "hard coal",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6fc-0050c2490048"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.0303,
+      "resultingAmount" : 0.0303,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "04.00.004",
+      "resultingflowAmount" : 0.0303,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from ground / Non-renewable energy resources from ground",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 10,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "primary energy from solar energy",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "04202048-6556-11dd-ad8b-0800200c9a66"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 7.390000000000001E-4,
+      "resultingAmount" : 7.390000000000001E-4,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 7.390000000000001E-4,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from air / Renewable energy resources from air",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 11,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Mineralien",
+          "lang" : "de"
+        }, {
+          "value" : "minerals",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0e0b23fc-9043-11d3-b2c8-0080c8941b49"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.0154,
+      "resultingAmount" : 0.0154,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 0.0154,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow"
+    }, {
+      "dataSetInternalID" : 12,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "air",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-aaa4-0050c2490048"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 6.43E-6,
+      "resultingAmount" : 6.43E-6,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 6.43E-6,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from air / Renewable material resources from air",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 13,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "primary energy from geothermics",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "04202046-6556-11dd-ad8b-0800200c9a66"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 1.68E-6,
+      "resultingAmount" : 1.68E-6,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.68E-6,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from ground / Renewable energy resources from ground",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 14,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Erze",
+          "lang" : "de"
+        }, {
+          "value" : "ores",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0e0b2383-9043-11d3-b2c8-0080c8941b49"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 1.14E-4,
+      "resultingAmount" : 1.14E-4,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 1.14E-4,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow"
+    }, {
+      "dataSetInternalID" : 15,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "crude oil",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6f8-0050c2490048"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.04039993,
+      "resultingAmount" : 0.04039993,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "04.00.004",
+      "resultingflowAmount" : 0.04039993,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from ground / Non-renewable energy resources from ground",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 17,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "natural gas",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6fa-0050c2490048"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.30822698,
+      "resultingAmount" : 0.30822698,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "04.00.004",
+      "resultingflowAmount" : 0.30822698,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from ground / Non-renewable energy resources from ground",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 19,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "brown coal",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6f9-0050c2490048"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 0.0272,
+      "resultingAmount" : 0.0272,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "04.00.004",
+      "resultingflowAmount" : 0.0272,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from ground / Non-renewable energy resources from ground",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 20,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "biomass",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6fd-0050c2490048"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 1.033670071484,
+      "resultingAmount" : 1.033670071484,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.033670071484,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Resources / Resources from biosphere / Renewable energy resources from biosphere",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 24,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Atomkraft",
+          "lang" : "de"
+        }, {
+          "value" : "nuclear",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "01e1ac6f-8683-40df-b1b1-64684ada1ddd"
+      },
+      "exchange direction" : "INPUT",
+      "meanAmount" : 3.06E-8,
+      "resultingAmount" : 3.06E-8,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 3.06E-8,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Net calorific value"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200c9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "MJ",
+        "unitGroupUUID" : "93a60a57-a3c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow"
+    }, {
+      "dataSetInternalID" : 25,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Personentransport-Dienstleistung",
+          "lang" : "de"
+        }, {
+          "value" : "Personentransport-Dienstleistung",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "d52283fd-1482-11d4-b41c-0080c88d3b6a"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.075,
+      "resultingAmount" : 0.075,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "referenceFlow" : true,
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 0.075,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Distance transported"
+        } ],
+        "uuid" : "9833bf28-0b81-4d54-b562-9802987983f1",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "t*km",
+        "unitGroupUUID" : "838aaa21-0117-11db-92e3-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Product flow",
+      "classification" : {
+        "classHierarchy" : "Systems / Other systems",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 26,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "particles (PM10)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-91be-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 9.48E-6,
+      "resultingAmount" : 9.48E-6,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 9.48E-6,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 27,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "sulfur dioxide",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-ac48-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.75E-5,
+      "resultingAmount" : 1.75E-5,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.75E-5,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 28,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "sulphur hexafluoride",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-ac51-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 29,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-11",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-9e53-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 6.59E-10,
+      "resultingAmount" : 6.59E-10,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 6.59E-10,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to urban air close to ground",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 30,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "perfluoropropane",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-986c-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 31,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "dodecafluoropentane",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-9062-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 32,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "PFC-14",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "a19bf970-e251-11e6-bf01-fe55135034f3"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.46E-9,
+      "resultingAmount" : 1.46E-9,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "01.00.004",
+      "resultingflowAmount" : 1.46E-9,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 33,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "perfluorohexane",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9482-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 34,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "PFC-318",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "a19c088e-e251-11e6-bf01-fe55135034f3"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "01.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 35,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "perfluorobutane",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-9aea-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified (long-term)",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 36,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "PFC-116",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "a19bf07e-e251-11e6-bf01-fe55135034f3"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.84E-10,
+      "resultingAmount" : 1.84E-10,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "01.00.004",
+      "resultingflowAmount" : 1.84E-10,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 37,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "PCDD/F (Luft)",
+          "lang" : "de"
+        }, {
+          "value" : "PCDD/F (air)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe41f3d1-a009-4818-b941-4224bc9d9303"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 2.47E-15,
+      "resultingAmount" : 2.47E-15,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 2.47E-15,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow"
+    }, {
+      "dataSetInternalID" : 38,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "lead",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-91dc-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 5.78E-10,
+      "resultingAmount" : 5.78E-10,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 5.78E-10,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 39,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "lead",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-91e0-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.86E-14,
+      "resultingAmount" : 1.86E-14,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.86E-14,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to water / Emissions to fresh water",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 40,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "polycyclic aromatic hydrocarbons",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-aadf-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.71E-12,
+      "resultingAmount" : 1.71E-12,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.71E-12,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 41,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Nitrogen oxides",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "f79d0f8f-2b0e-49cb-bed0-b1ea0fbd8625"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.28E-4,
+      "resultingAmount" : 1.28E-4,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "01.00.004",
+      "resultingflowAmount" : 1.28E-4,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 42,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "non-methane volatile organic compounds",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-a302-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 2.05E-4,
+      "resultingAmount" : 2.05E-4,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 2.05E-4,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 43,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "nickel",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-96c8-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.42E-9,
+      "resultingAmount" : 1.42E-9,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.42E-9,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 44,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "ammonia",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-a2a9-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 3.17E-4,
+      "resultingAmount" : 3.17E-4,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 3.17E-4,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 45,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "nitrous oxide",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-94c3-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 7.81E-5,
+      "resultingAmount" : 7.81E-5,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 7.81E-5,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 46,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Müll-atomar (hochaktiv)",
+          "lang" : "de"
+        }, {
+          "value" : "waste-nuclear fuel",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "9d9820e1-2aed-41a0-af88-5f0fc8d0f3bf"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.12E-8,
+      "resultingAmount" : 1.12E-8,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "generalComments" : [ {
+        "value" : "Nicht eindeutig mappbarer Fluß – kontextabhängige Verwendung ist zwingend zu überprüfen: ",
+        "lang" : "de"
+      } ],
+      "resolvedFlowVersion" : "02.44.152",
+      "resultingflowAmount" : 1.12E-8,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow"
+    }, {
+      "dataSetInternalID" : 47,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "mercury",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8c4-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.08E-10,
+      "resultingAmount" : 1.08E-10,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.08E-10,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 48,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "mercury",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8c8-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.42E-15,
+      "resultingAmount" : 1.42E-15,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.42E-15,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to water / Emissions to fresh water",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 49,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-4310mee",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "305f161f-d07d-43c9-bd8c-97cee9781056"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 50,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-32",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-9ca4-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 51,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-245ca",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-984c-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 52,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-236fa",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9848-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 53,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-23",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-9e55-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 54,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-227ca",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "9308a1ce-e251-11e6-bf01-fe55135034f3"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "01.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 55,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-152a",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9309-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 56,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,1,1-trifluoroethane",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "26162114-f5b3-45b5-87c3-f0fe0ecf2bb9"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 57,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-143",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9305-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 58,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-134a",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6d2-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 59,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-134",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9f07-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 60,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-125",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a3ea-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0,
+      "resultingAmount" : 0.0,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 61,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "fluoride",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-93f7-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.6625E-8,
+      "resultingAmount" : 1.6625E-8,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.6625E-8,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 62,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "acid (as H+)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "29066274-6556-11dd-ad8b-0800200c9a66"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 9.816305667999998E-9,
+      "resultingAmount" : 9.816305667999998E-9,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 9.816305667999998E-9,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 63,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chloride",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-9444-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 3.17058694332E-7,
+      "resultingAmount" : 3.17058694332E-7,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 3.17058694332E-7,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 65,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "hydrogen sulfide",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-94a9-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 5.29E-10,
+      "resultingAmount" : 5.29E-10,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 5.29E-10,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 66,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chromium",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9acc-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.37E-10,
+      "resultingAmount" : 1.37E-10,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.37E-10,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 67,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chromium",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9f73-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 2.82E-15,
+      "resultingAmount" : 2.82E-15,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 2.82E-15,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to water / Emissions to fresh water",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 68,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (fossil)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-923d-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0261,
+      "resultingAmount" : 0.0261,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0261,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 69,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (fossil)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-924e-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 0.0012,
+      "resultingAmount" : 0.0012,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 0.0012,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 70,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (fossil)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9610-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 4.82E-5,
+      "resultingAmount" : 4.82E-5,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 4.82E-5,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 71,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "cadmium (ii)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "5c69d34a-51e7-4e7d-a89c-c8536962b51a"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 7.89E-11,
+      "resultingAmount" : 7.89E-11,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "00.00.002",
+      "resultingflowAmount" : 7.89E-11,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 72,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "cadmium (ii)",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0d8a8cbb-f28e-4af9-8ddb-d4fed17e6d57"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 2.85E-15,
+      "resultingAmount" : 2.85E-15,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "00.00.002",
+      "resultingflowAmount" : 2.85E-15,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to water / Emissions to fresh water",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 73,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "arsenic",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-91d7-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.05E-10,
+      "resultingAmount" : 1.05E-10,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.05E-10,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to air / Emissions to air, unspecified",
+        "name" : "ilcd"
+      }
+    }, {
+      "dataSetInternalID" : 74,
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "arsenic",
+          "lang" : "en"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-91df-0050c2490048"
+      },
+      "exchange direction" : "OUTPUT",
+      "meanAmount" : 1.17E-15,
+      "resultingAmount" : 1.17E-15,
+      "uncertaintyDistributionType" : "UNDEFINED",
+      "resolvedFlowVersion" : "03.00.004",
+      "resultingflowAmount" : 1.17E-15,
+      "flowProperties" : [ {
+        "name" : [ {
+          "lang" : "en",
+          "value" : "Mass"
+        }, {
+          "lang" : "de",
+          "value" : "Masse"
+        } ],
+        "uuid" : "93a60a56-a3c8-11da-a746-0800200b9a66",
+        "referenceFlowProperty" : true,
+        "meanValue" : 1.0,
+        "referenceUnit" : "kg",
+        "unitGroupUUID" : "93a60a57-a4c8-11da-a746-0800200c9a66"
+      } ],
+      "typeOfFlow" : "Elementary flow",
+      "classification" : {
+        "classHierarchy" : "Emissions / Emissions to water / Emissions to fresh water",
+        "name" : "ilcd"
+      }
+    } ]
+  },
+  "LCIAResults" : {
+    "LCIAResult" : [ {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "KEA, sonstige",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "5e0c0def-8819-41aa-8c65-c41e029231f8"
+      },
+      "meanAmount" : 0.0045,
+      "uncertaintyDistributionType" : "undefined"
+    }, {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "KEA, erneuerbar",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "0112e78e-eeee-4a4d-8e1a-6c7eead1cfca"
+      },
+      "meanAmount" : 1.04,
+      "uncertaintyDistributionType" : "undefined"
+    }, {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "KEA-nichterneuerbar",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "aa4ff649-ff2f-4c5c-8d70-23160ac4d8a1"
+      },
+      "meanAmount" : 0.436,
+      "uncertaintyDistributionType" : "undefined"
+    }, {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "KEV, sonstige",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "342c0b66-1f97-4393-8190-f5716c683fa1"
+      },
+      "meanAmount" : 0.0045,
+      "uncertaintyDistributionType" : "undefined"
+    }, {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "KEV, erneuerbar",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "66ea4732-e5e0-4fc4-91eb-6ff6970bfde7"
+      },
+      "meanAmount" : 1.04,
+      "uncertaintyDistributionType" : "undefined"
+    }, {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "KEV-nichterneuerbar",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "d52283fe-1482-11d4-b41c-0080c88d3b6a"
+      },
+      "meanAmount" : 0.436,
+      "uncertaintyDistributionType" : "undefined"
+    }, {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Treibhauseffekt",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "b2df61f8-1825-42f8-a163-895a8dcfd9a9"
+      },
+      "meanAmount" : 0.0483,
+      "uncertaintyDistributionType" : "undefined"
+    }, {
+      "referenceToLCIAMethodDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Versauerung",
+          "lang" : "de"
+        } ],
+        "type" : "LCIA method data set",
+        "refObjectId" : "47782e9d-4b4e-4122-ba33-45bcfdaaac60"
+      },
+      "meanAmount" : 7.03E-4,
+      "uncertaintyDistributionType" : "undefined"
+    } ]
+  },
+  "version" : "1.1"
+}

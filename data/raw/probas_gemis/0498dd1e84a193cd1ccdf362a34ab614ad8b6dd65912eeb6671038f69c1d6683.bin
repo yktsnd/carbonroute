@@ -1,0 +1,1073 @@
+{
+  "LCIAMethodInformation" : {
+    "dataSetInformation" : {
+      "UUID" : "b2df61f8-1825-42f8-a163-895a8dcfd9a9",
+      "name" : [ {
+        "value" : "Treibhauseffekt",
+        "lang" : "de"
+      } ],
+      "methodology" : [ "UBA Probas" ],
+      "impactCategory" : [ "other" ],
+      "generalComment" : [ {
+        "lang" : "de"
+      } ]
+    },
+    "quantitativeReference" : {
+      "referenceQuantity" : {
+        "shortDescription" : [ {
+          "value" : "kg CO2-Äq.",
+          "lang" : "de"
+        }, {
+          "value" : "kg CO2-Äq.",
+          "lang" : "en"
+        } ],
+        "type" : "flow property data set",
+        "refObjectId" : "7df6d2b6-09c4-4531-ada8-f7c9b7c6bc82"
+      }
+    },
+    "geography" : { }
+  },
+  "modellingAndValidation" : { },
+  "administrativeInformation" : {
+    "dataGenerator" : {
+      "referenceToPersonOrEntityGeneratingTheDataSet" : [ {
+        "shortDescription" : [ {
+          "value" : "Umweltbundesamt",
+          "lang" : "de"
+        }, {
+          "value" : "German Environment Agency(Umweltbundesamt – UBA)",
+          "lang" : "en"
+        } ],
+        "type" : "contact data set",
+        "refObjectId" : "0a115508-df22-47d6-a974-355974c6626e"
+      } ]
+    },
+    "dataEntryBy" : { },
+    "publicationAndOwnership" : {
+      "dataSetVersion" : "02.50.001",
+      "referenceToOwnershipOfDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Umweltbundesamt",
+          "lang" : "de"
+        }, {
+          "value" : "German Environment Agency(Umweltbundesamt – UBA)",
+          "lang" : "en"
+        } ],
+        "type" : "contact data set",
+        "refObjectId" : "0a115508-df22-47d6-a974-355974c6626e"
+      }
+    }
+  },
+  "characterisationFactors" : {
+    "factor" : [ {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9c12-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9c12-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9c13-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9c13-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-923e-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-923e-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9c14-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9c14-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-923d-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-923d-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Carbon dioxide (land use change)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "a03c5c88-dfaa-4a2a-9a5d-b6cfc55c5cd2",
+        "version" : "03.01.004",
+        "uri" : "../flows/a03c5c88-dfaa-4a2a-9a5d-b6cfc55c5cd2.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Carbon dioxide (land use change)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "adcb79f3-89cf-45fb-b0b2-65558cb2af26",
+        "version" : "03.01.004",
+        "uri" : "../flows/adcb79f3-89cf-45fb-b0b2-65558cb2af26.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9240-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9240-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 0.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9241-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9241-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 0.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon dioxide (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9c15-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9c15-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 0.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "9f20de0e-42bf-4590-8b05-b84c325a1dc1",
+        "version" : "01.00.004",
+        "uri" : "../flows/9f20de0e-42bf-4590-8b05-b84c325a1dc1.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 4.87142857142857
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "153f58ea-cb43-4b9d-b3fd-5280d020c114",
+        "version" : "01.00.004",
+        "uri" : "../flows/153f58ea-cb43-4b9d-b3fd-5280d020c114.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 4.87142857142857
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "02b0c94f-b234-49fd-901b-8a7f5d5410c0",
+        "version" : "01.00.004",
+        "uri" : "../flows/02b0c94f-b234-49fd-901b-8a7f5d5410c0.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 4.87142857142857
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "0c86331f-bdc6-4933-a679-0664eee45d0c",
+        "version" : "01.00.004",
+        "uri" : "../flows/0c86331f-bdc6-4933-a679-0664eee45d0c.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 4.87142857142857
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-924e-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-924e-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 4.87142857142857
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (land use change)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "cfb825a8-709e-4d1b-9a6e-d500c6f66b77",
+        "version" : "01.00.004",
+        "uri" : "../flows/cfb825a8-709e-4d1b-9a6e-d500c6f66b77.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 3.3
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "a29f36f7-efd4-4420-867c-3aa2ecac8cba",
+        "version" : "01.00.004",
+        "uri" : "../flows/a29f36f7-efd4-4420-867c-3aa2ecac8cba.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 3.3
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "242520d7-9e70-4422-af5c-6ea7042703fb",
+        "version" : "01.00.004",
+        "uri" : "../flows/242520d7-9e70-4422-af5c-6ea7042703fb.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 3.3
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "carbon monoxide (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "8a313a02-e251-11e6-bf01-fe55135034f3",
+        "version" : "01.00.004",
+        "uri" : "../flows/8a313a02-e251-11e6-bf01-fe55135034f3.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 3.3
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chloroform"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-af02-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-af02-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 16.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chloroform"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9642-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9642-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 16.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chloroform"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-af00-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-af00-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 16.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "nitrous oxide"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-94c5-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-94c5-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 265.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "nitrous oxide"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-94c6-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-94c6-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 265.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "nitrous oxide"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-94c4-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-94c4-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 265.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "nitrous oxide"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-94c3-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-94c3-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 265.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-134a"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6d4-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a6d4-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1300.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-134a"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6d5-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a6d5-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1300.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-134a"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a6d2-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a6d2-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1300.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HCFC-140"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-925c-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/4d9a8790-3ddd-11dd-925c-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 160.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HCFC-140"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "d86cafdf-6555-11dd-ad8b-0800200c9a66",
+        "version" : "03.00.004",
+        "uri" : "../flows/d86cafdf-6555-11dd-ad8b-0800200c9a66.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 160.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,1,1-trifluoroethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "ac210084-b8ae-427f-976f-5e436e3d793c",
+        "version" : "03.00.004",
+        "uri" : "../flows/ac210084-b8ae-427f-976f-5e436e3d793c.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 4800.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,1,2-trichlorotrifluoroethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "ad6ce603-d4a9-4064-80e7-5a6acc818057",
+        "version" : "03.00.004",
+        "uri" : "../flows/ad6ce603-d4a9-4064-80e7-5a6acc818057.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 5820.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,1,2-trichlorotrifluoroethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "cb864c47-95d8-4d91-8e97-96d018abb949",
+        "version" : "03.00.004",
+        "uri" : "../flows/cb864c47-95d8-4d91-8e97-96d018abb949.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 5820.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,1,2-trichlorotrifluoroethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "a3fe3630-a497-45c3-a1ed-7b20f9d6e51a",
+        "version" : "03.00.004",
+        "uri" : "../flows/a3fe3630-a497-45c3-a1ed-7b20f9d6e51a.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 5820.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-152a"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-930b-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-930b-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 138.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-152a"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-930c-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-930c-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 138.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,2-dichloroethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a747-0050c2490048",
+        "version" : "01.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a747-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,2-dichloroethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a748-0050c2490048",
+        "version" : "01.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a748-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "1,2-dichloroethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a745-0050c2490048",
+        "version" : "04.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a745-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-114"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-ab9b-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-ab9b-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 8590.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HCFC-124"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-ab9c-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-ab9c-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 527.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-116"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9340-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9340-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 11100.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-116"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-933e-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-933e-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 11100.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-125"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a3ed-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a3ed-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 3170.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "hydrogen"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-949e-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-949e-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 5.8
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "hydrogen"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-949f-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-949f-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 5.8
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "hydrogen"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-949c-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-949c-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 5.8
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8e5-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8e5-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 30.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Halon-1001"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8f1-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8f1-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 2.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Halon-1001"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8ef-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8ef-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 2.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Halon-1211"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8fb-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8fb-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1750.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Halon-1301"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a90b-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a90b-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 6290.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "Halon-1301"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a90c-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a90c-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 6290.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HCFC-22"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a90f-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a90f-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1760.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HCFC-22"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a910-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a910-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1760.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HCFC-22"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a90d-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a90d-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1760.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "dichloromethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-961a-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-961a-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 9.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "dichloromethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-961b-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-961b-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 9.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "dichloromethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9618-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9618-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 9.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-12"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9656-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9656-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 10200.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-12"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9657-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9657-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 10200.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-12"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-9efe-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-9efe-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 10200.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HCFC-21"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a919-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a919-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 148.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8e5-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8e5-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 30.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8e6-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8e6-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 30.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9611-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9611-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 30.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (fossil)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9610-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9610-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 30.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (land use change)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "3c6837c5-1930-4979-8163-a4c726f0a8df",
+        "version" : "03.00.004",
+        "uri" : "../flows/3c6837c5-1930-4979-8163-a4c726f0a8df.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 28.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chloromethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-967a-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-967a-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 12.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "chloromethane"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9677-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9677-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 12.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8ea-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8ea-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 28.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8eb-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8eb-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 28.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "methane (biogenic)"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a8e8-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a8e8-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 28.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-10"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a92b-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a92b-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1730.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-10"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-a929-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-a929-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 1730.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "FC-14"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9682-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9682-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 6630.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "FC-14"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "08a91e70-3ddc-11dd-9680-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/08a91e70-3ddc-11dd-9680-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 6630.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "CFC-11"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-9e53-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-9e53-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 4660.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "HFC-23"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-9e57-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-9e57-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 12400.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "nitrogen trifluoride"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "db7982d3-297b-453d-a310-99f2f1ee5cf1",
+        "version" : "03.00.004",
+        "uri" : "../flows/db7982d3-297b-453d-a310-99f2f1ee5cf1.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 16100.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "sulphur hexafluoride"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-96ea-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/4d9a8790-3ddd-11dd-96ea-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 23500.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "sulphur hexafluoride"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "4d9a8790-3ddd-11dd-96eb-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/4d9a8790-3ddd-11dd-96eb-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 23500.0
+    }, {
+      "referenceToFlowDataSet" : {
+        "shortDescription" : [ {
+          "value" : "sulphur hexafluoride"
+        } ],
+        "type" : "flow data set",
+        "refObjectId" : "fe0acd60-3ddc-11dd-ac51-0050c2490048",
+        "version" : "03.00.004",
+        "uri" : "../flows/fe0acd60-3ddc-11dd-ac51-0050c2490048.xml"
+      },
+      "exchangeDirection" : "Output",
+      "meanValue" : 23500.0
+    } ]
+  },
+  "version" : "1.1"
+}

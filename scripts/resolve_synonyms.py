@@ -34,26 +34,23 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from carbonroute.ledger import adjust_all, load_ledger  # noqa: E402
 from carbonroute.resolve import FactorTable, resolve_materials  # noqa: E402
 from carbonroute.schema import cas_checksum_ok, normalize_name  # noqa: E402
+from _snapshot import Snapshot, add_offline_flag  # noqa: E402
 
 PUG = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound"
 CAS_RE = re.compile(r"^\d{2,7}-\d{2}-\d$")
 COLUMNS = ("alias", "identifier", "inchikey", "source", "retrieved_date", "notes")
-_CACHE: dict[str, object] = {}
+#: Shared with the ingestion scripts: one durable, cross-script PubChem cache.
+_PUBCHEM_SNAPSHOT: "Snapshot | None" = None
 
 
 def _get(url: str):
-    if url in _CACHE:
-        return _CACHE[url]
-    time.sleep(0.25)  # PubChem asks for no more than 5 requests a second
-    req = urllib.request.Request(url, headers={"User-Agent": "carbonroute-synonyms/0.1"})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        payload = json.load(resp)
-    _CACHE[url] = payload
-    return payload
+    assert _PUBCHEM_SNAPSHOT is not None, "main() must set up _PUBCHEM_SNAPSHOT before fetching"
+    return _PUBCHEM_SNAPSHOT.fetch_json(url, headers={"User-Agent": "carbonroute-synonyms/0.1"})
 
 
 def spelling_variants(name: str) -> list[str]:
@@ -129,7 +126,11 @@ def main() -> int:
     ap.add_argument("ledger", help="ledger whose unresolved names should be looked up")
     ap.add_argument("--factors", action="append", default=None)
     ap.add_argument("--out", default="data/synonyms/pubchem.csv")
+    add_offline_flag(ap)
     args = ap.parse_args()
+
+    global _PUBCHEM_SNAPSHOT
+    _PUBCHEM_SNAPSHOT = Snapshot("pubchem", offline=args.offline, rate_limit_seconds=0.25)
 
     factor_paths = [Path(p) for p in (args.factors or [])] or sorted(
         (ROOT / "data" / "factors").glob("*.csv")
@@ -179,6 +180,7 @@ def main() -> int:
     for name, reason in skipped:
         print(f"  - {name}: {reason}")
     print(f"wrote {out}")
+    print(_PUBCHEM_SNAPSHOT.describe())
     return 0
 
 

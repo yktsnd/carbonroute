@@ -1,0 +1,657 @@
+{
+  "00e11051b6aa6d6fa9bd9c112265aeb083ae884b58facac9d6f5a28f23608ea8": {
+    "first_retrieved": "2026-08-27T23:50:50.868727+00:00",
+    "last_retrieved": "2026-08-27T23:50:50.868727+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Catalyst/cids/JSON"
+  },
+  "013c31c8c3f3ed5f70172eca486f80cddda438f67749157e5f54db9115f46d33": {
+    "first_retrieved": "2026-08-27T23:50:52.942326+00:00",
+    "last_retrieved": "2026-08-27T23:50:52.942326+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/EDC%20HCl/cids/JSON"
+  },
+  "04e02fff02a03ab796782b7350e9175f779e09a1153d262b06fcaea7b84d0055": {
+    "first_retrieved": "2026-08-27T23:47:46.661962+00:00",
+    "last_retrieved": "2026-08-27T23:47:46.661962+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/ammonia/cids/JSON"
+  },
+  "04ea13c7b332a70730a518f7f52d9031e4bc69d485442ff922653c5ee398b663": {
+    "first_retrieved": "2026-08-27T23:43:49.774858+00:00",
+    "last_retrieved": "2026-08-27T23:43:49.774858+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/1118/synonyms/JSON"
+  },
+  "08acb4f0401e5322b601123234c198b389d5a2c433c978489122045ab374e1e3": {
+    "first_retrieved": "2026-08-27T23:50:47.378727+00:00",
+    "last_retrieved": "2026-08-27T23:50:47.378727+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/8a-%288%29/cids/JSON"
+  },
+  "08ae776e602be52df5215ebac38cc93d3b1435cb7d569a32050869a6849669fb": {
+    "first_retrieved": "2026-08-27T23:51:03.773494+00:00",
+    "last_retrieved": "2026-08-27T23:51:03.773494+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/23672064/property/InChIKey/JSON"
+  },
+  "0ba866412cf3adfd2adf6e47c7cd9c6cd0aaeb4b5e004ae9dcd505bfee37f5d1": {
+    "first_retrieved": "2026-08-27T23:51:08.568268+00:00",
+    "last_retrieved": "2026-08-27T23:51:08.568268+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/15891/property/InChIKey/JSON"
+  },
+  "0c5001e5a8366a3af8605102c6658a834c32a6f413d44f66fc217f1b9f257aa1": {
+    "first_retrieved": "2026-08-27T23:51:17.613167+00:00",
+    "last_retrieved": "2026-08-27T23:51:17.613167+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/piperazinebishydrochloride/cids/JSON"
+  },
+  "100146020fd4210c76d7b4b11debdfb898bee81fa0c295b8daa68b4cc8401527": {
+    "first_retrieved": "2026-08-27T23:50:44.402596+00:00",
+    "last_retrieved": "2026-08-27T23:50:44.402596+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/86665375/property/InChIKey/JSON"
+  },
+  "129ed119d05339980d54990bd9909d44d6b8e5af3c982e8cf9dee957275d656d": {
+    "first_retrieved": "2026-08-27T23:50:41.851591+00:00",
+    "last_retrieved": "2026-08-27T23:50:41.851591+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/586408/synonyms/JSON"
+  },
+  "1310d77a1305102f6664307de95e1a1447899066b468e2fb48c335556a8721f6": {
+    "first_retrieved": "2026-08-27T23:51:03.279881+00:00",
+    "last_retrieved": "2026-08-27T23:51:03.279881+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/NaH2PO4/cids/JSON"
+  },
+  "13736a72ce5b4ea8b0f2f344f9e22b538f9204ca250d6dd593ceef380b74defd": {
+    "first_retrieved": "2026-08-27T23:51:01.233994+00:00",
+    "last_retrieved": "2026-08-27T23:51:01.233994+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/7294/synonyms/JSON"
+  },
+  "147778d1e1c90ec74f0998f1e3aa74551b7128e638e48218a2548ce1a17a02c6": {
+    "first_retrieved": "2026-08-27T23:50:58.353092+00:00",
+    "last_retrieved": "2026-08-27T23:50:58.353092+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/19867143/synonyms/JSON"
+  },
+  "16b8d5f6b65f35e78605a0d0b3ff3cabf6d833ecddf227e56f866e019e3c09ac": {
+    "first_retrieved": "2026-08-27T23:50:35.720882+00:00",
+    "last_retrieved": "2026-08-27T23:50:35.720882+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2/cids/JSON"
+  },
+  "18670531053c46be57bb82c3c38a1b04e2fa3c2ad7d844ffad12c01b30c7ca13": {
+    "first_retrieved": "2026-08-27T23:51:13.937764+00:00",
+    "last_retrieved": "2026-08-27T23:51:13.937764+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/9845/synonyms/JSON"
+  },
+  "1a8c535152e1aadfc399ea9b7e102cb110228065c92560c5d98bd3a3259378e5": {
+    "first_retrieved": "2026-08-27T23:50:39.384592+00:00",
+    "last_retrieved": "2026-08-27T23:50:39.384592+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-MeTHF/cids/JSON"
+  },
+  "1adc17675c11bbfdeaef25725ae63e147d9e6afeac64945de0b7c8605b977f93": {
+    "first_retrieved": "2026-08-27T23:47:33.445805+00:00",
+    "last_retrieved": "2026-08-27T23:47:33.445805+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/ethanol/cids/JSON"
+  },
+  "1f230bf454ef2dc806e6d39d6bbd2d794a9d7695121ee83eaa852274f4b28212": {
+    "first_retrieved": "2026-08-27T23:50:57.396264+00:00",
+    "last_retrieved": "2026-08-27T23:50:57.396264+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Ketene%20Acetal/cids/JSON"
+  },
+  "1ff04d323beab71a6b002d4b590b47ba117929c6706de321f8ad2c64673777d6": {
+    "first_retrieved": "2026-08-27T23:50:38.403768+00:00",
+    "last_retrieved": "2026-08-27T23:50:38.403768+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/7975/synonyms/JSON"
+  },
+  "2006b1e5b0ab9b9fc74fbeb988feef045c0d7753d791784d6240061c3c89e7c8": {
+    "first_retrieved": "2026-08-27T23:51:16.468625+00:00",
+    "last_retrieved": "2026-08-27T23:51:16.468625+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/piperazine%20bis%20hydrochloride/cids/JSON"
+  },
+  "20888f861d9ee7b65a3028837ec05a793dfd98a98ed2771322a064e7ca3c0037": {
+    "first_retrieved": "2026-08-27T23:50:39.860804+00:00",
+    "last_retrieved": "2026-08-27T23:50:39.860804+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/7301/property/InChIKey/JSON"
+  },
+  "21f9ced2205761f6640befc597885afe926d13e9888d1d8c1e6d091972320b68": {
+    "first_retrieved": "2026-08-27T23:47:34.707201+00:00",
+    "last_retrieved": "2026-08-27T23:47:34.707201+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/702/synonyms/JSON"
+  },
+  "286e61dab8c16beebdd9441a902fc94e281aa7f893a8f938b3402bbca5799ba2": {
+    "first_retrieved": "2026-08-27T23:47:47.239363+00:00",
+    "last_retrieved": "2026-08-27T23:47:47.239363+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/222/property/InChIKey/JSON"
+  },
+  "288acb2718217f42dcba273bb1debe297fedca7590cfb960186fd5662451d689": {
+    "first_retrieved": "2026-08-27T23:46:53.619143+00:00",
+    "last_retrieved": "2026-08-27T23:46:53.619143+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/3776/synonyms/JSON"
+  },
+  "2b79971ac12eec04cca3e883d19dccc5ef90ad7716e970e225d19007de606b17": {
+    "first_retrieved": "2026-08-27T23:50:54.968116+00:00",
+    "last_retrieved": "2026-08-27T23:50:54.968116+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/62657/property/InChIKey/JSON"
+  },
+  "2c93139f5eaa5ffefce0caac1ff293f98f52b0940a05e00eafc9fe87fc5665bd": {
+    "first_retrieved": "2026-08-27T23:51:16.938336+00:00",
+    "last_retrieved": "2026-08-27T23:51:16.938336+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/piperazine-bis-hydrochloride/cids/JSON"
+  },
+  "2dcd8f54925020661ff3e06e6dccfd5aec23bb8ae52077dbf2ca653668ab4be7": {
+    "first_retrieved": "2026-08-27T23:51:02.795713+00:00",
+    "last_retrieved": "2026-08-27T23:51:02.795713+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/24203/synonyms/JSON"
+  },
+  "2decd4a28f4a1a3d59b6455cb46da64e2107a8a8ecb999d3a4949399d4810bd3": {
+    "first_retrieved": "2026-08-27T23:43:45.683027+00:00",
+    "last_retrieved": "2026-08-27T23:43:45.683027+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Hydrochloric%20acid/cids/JSON"
+  },
+  "317141c7c34ce764410aed1bf2d08e0498f4ac642c021a7f2dcfe05402a98a94": {
+    "first_retrieved": "2026-08-27T23:50:36.684882+00:00",
+    "last_retrieved": "2026-08-27T23:50:36.684882+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-picoline/cids/JSON"
+  },
+  "35d505377e2cc7bf59e641cd15dd898e5dda16b3e5fde0dd9de30184166def2a": {
+    "first_retrieved": "2026-08-27T23:46:45.688796+00:00",
+    "last_retrieved": "2026-08-27T23:46:45.688796+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/962/synonyms/JSON"
+  },
+  "37105ea3101e727a9f2c82fcbd910a99c40d10929e97022aadc6c3f2371fad93": {
+    "first_retrieved": "2026-08-27T23:51:11.987689+00:00",
+    "last_retrieved": "2026-08-27T23:51:11.987689+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6568/property/InChIKey/JSON"
+  },
+  "3a70608ebb7cf22a45f62c2cf12beecca130a7146c479472d02e71d9c233fdfc": {
+    "first_retrieved": "2026-08-27T23:43:55.975973+00:00",
+    "last_retrieved": "2026-08-27T23:43:55.975973+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/24436/property/InChIKey,MolecularFormula,CanonicalSMILES/JSON"
+  },
+  "3afc3b4391cc035fb7dd5dfb4e2e50fea19ec3a807a2e95d9977706d5429d731": {
+    "first_retrieved": "2026-08-27T23:43:50.688427+00:00",
+    "last_retrieved": "2026-08-27T23:43:50.688427+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Hexane/cids/JSON"
+  },
+  "3ce29ef08bb506d718dcab0ac0a9245e4fd534231c35f64505081a75704d22e7": {
+    "first_retrieved": "2026-08-27T23:50:41.336254+00:00",
+    "last_retrieved": "2026-08-27T23:50:41.336254+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/586408/property/InChIKey/JSON"
+  },
+  "3d5947ed510fc7dd09b378e5efa7bcd9bd6ff77bbc05f9e878a661f6e4eae378": {
+    "first_retrieved": "2026-08-27T23:51:14.714614+00:00",
+    "last_retrieved": "2026-08-27T23:51:14.714614+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/citric%20acid/cids/JSON"
+  },
+  "3f0d59d0890698a12846c5130b27e42e3c1fcb87a1961447cf8ba83704fc4cc3": {
+    "first_retrieved": "2026-08-27T23:51:04.306817+00:00",
+    "last_retrieved": "2026-08-27T23:51:04.306817+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/23672064/synonyms/JSON"
+  },
+  "4109fc53b082a1c0896623100908399dbe3a803fa2930b7ab4c1f643843318fa": {
+    "first_retrieved": "2026-08-27T23:51:06.463179+00:00",
+    "last_retrieved": "2026-08-27T23:51:06.463179+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Pentane/cids/JSON"
+  },
+  "435a7d046d85d6a814defae922b7307bfa8c4e076da6b590708dcbd0bd41fefe": {
+    "first_retrieved": "2026-08-27T23:43:46.199176+00:00",
+    "last_retrieved": "2026-08-27T23:43:46.199176+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/313/property/InChIKey,MolecularFormula,CanonicalSMILES/JSON"
+  },
+  "488317d6a162e90ee1de45ae64f036538f81a8e549138ee112c0442d29cc4356": {
+    "first_retrieved": "2026-08-27T23:43:54.545588+00:00",
+    "last_retrieved": "2026-08-27T23:43:54.545588+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/14798/property/InChIKey,MolecularFormula,CanonicalSMILES/JSON"
+  },
+  "4af7779eb12bb5f40f1e42b60912857b33db5828730fe2939ff671e4438d74fb": {
+    "first_retrieved": "2026-08-27T23:50:59.269124+00:00",
+    "last_retrieved": "2026-08-27T23:50:59.269124+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Magnesium-%28monoperoxyphthalate%292/cids/JSON"
+  },
+  "4ccf5fcdb5a1e4b38638fa95a79a4b11e9fdcb9a345b5e4d66969b7d3a8b9e6e": {
+    "first_retrieved": "2026-08-27T23:50:45.401643+00:00",
+    "last_retrieved": "2026-08-27T23:50:45.401643+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/3/cids/JSON"
+  },
+  "4eed7ec9480703a2e007a1eaed12ac42ed257ab4dea856637d63a315bb7f92dc": {
+    "first_retrieved": "2026-08-27T23:50:35.168977+00:00",
+    "last_retrieved": "2026-08-27T23:50:35.168977+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/17/cids/JSON"
+  },
+  "4efd6071d52d79ab11493ba0fb00ea5d1dba198d244829b34885059bc45b3738": {
+    "first_retrieved": "2026-08-27T23:50:38.861627+00:00",
+    "last_retrieved": "2026-08-27T23:50:38.861627+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-Me-THF/cids/JSON"
+  },
+  "50411d82dc7209e7300178be1a6fa7226d6a7842403c92b2762cad41e36bb3ee": {
+    "first_retrieved": "2026-08-27T23:43:52.999698+00:00",
+    "last_retrieved": "2026-08-27T23:43:52.999698+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/887/property/InChIKey,MolecularFormula,CanonicalSMILES/JSON"
+  },
+  "5104ccebf103914501ecdcb6305ce376a6831621fc58b61adc3e761704c3f82e": {
+    "first_retrieved": "2026-08-27T23:50:32.504533+00:00",
+    "last_retrieved": "2026-08-27T23:50:32.504533+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/%28t-Bu%293P-PdG2/cids/JSON"
+  },
+  "5565fd2a3d4983022d58fe80e54ca85db15d76fe2800a22346eb06bb59b9cd26": {
+    "first_retrieved": "2026-08-27T23:50:51.509490+00:00",
+    "last_retrieved": "2026-08-27T23:50:51.509490+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/DMAP/cids/JSON"
+  },
+  "55e0a3bcc2cdf5e0c95e759f87ae09afe8f45d351e802fdf1df30f05e5da33b2": {
+    "first_retrieved": "2026-08-27T23:50:53.418170+00:00",
+    "last_retrieved": "2026-08-27T23:50:53.418170+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/2723939/property/InChIKey/JSON"
+  },
+  "57294da730730ec2d01e9a98482bb9225c44c687dc85a36879e127749ecb6ed1": {
+    "first_retrieved": "2026-08-27T23:51:12.953634+00:00",
+    "last_retrieved": "2026-08-27T23:51:12.953634+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/TFAA/cids/JSON"
+  },
+  "5def4b137f7a7e4e1c3ad5e859d0ee4553557408676004d5c470600fcf710d63": {
+    "first_retrieved": "2026-08-27T23:46:58.524385+00:00",
+    "last_retrieved": "2026-08-27T23:46:58.524385+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/176/synonyms/JSON"
+  },
+  "5e3a1dd0ec5ea5b95929f4b211fa135c87681bdd8fb0a1b6ef2393008dc231c8": {
+    "first_retrieved": "2026-08-27T23:50:46.867357+00:00",
+    "last_retrieved": "2026-08-27T23:50:46.867357+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/8a%20%288%29/cids/JSON"
+  },
+  "5ec7307d9c235afce8f93f6361779e339cabe7635ae060f3a37a5edc7a62499d": {
+    "first_retrieved": "2026-08-27T23:50:45.947363+00:00",
+    "last_retrieved": "2026-08-27T23:50:45.947363+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/4/cids/JSON"
+  },
+  "5ef914bd651c0abdb82fe87f02879ac68491c7b5cf329087d3b2c506ceb7c13f": {
+    "first_retrieved": "2026-08-27T23:47:52.361364+00:00",
+    "last_retrieved": "2026-08-27T23:47:52.361364+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/783/property/InChIKey/JSON"
+  },
+  "5f8fd187c915c38fa37addd1eae56a70e114c205de576029c504184c5303bfd9": {
+    "first_retrieved": "2026-08-27T23:51:12.478046+00:00",
+    "last_retrieved": "2026-08-27T23:51:12.478046+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6568/synonyms/JSON"
+  },
+  "610c4259713902e85b7bb2c57d575a4eb134827d7e616e2504b7bca42414893b": {
+    "first_retrieved": "2026-08-27T23:46:45.111061+00:00",
+    "last_retrieved": "2026-08-27T23:46:45.111061+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/962/property/InChIKey/JSON"
+  },
+  "65b047b0a4b1dc1c94aeba7a23090d7bba4496cfa7d9b93f60aaffbb10e76718": {
+    "first_retrieved": "2026-08-27T23:50:34.690151+00:00",
+    "last_retrieved": "2026-08-27T23:50:34.690151+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/16/cids/JSON"
+  },
+  "6685fb09c903eb25515662d11e0875b10196fe85be73a6389fc2ee37b2dabe8e": {
+    "first_retrieved": "2026-08-27T23:50:52.487152+00:00",
+    "last_retrieved": "2026-08-27T23:50:52.487152+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/14284/synonyms/JSON"
+  },
+  "69b886c162c97abb47b8d67ca14974716c3642924a07b155eb595283acaa0d4d": {
+    "first_retrieved": "2026-08-27T23:50:43.370960+00:00",
+    "last_retrieved": "2026-08-27T23:50:43.370960+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/2782940/synonyms/JSON"
+  },
+  "69b88c4f79def1b427b27bdbc4e0535ba538a255fd6b6c003b31ad86f3a83fb6": {
+    "first_retrieved": "2026-08-27T23:43:54.996090+00:00",
+    "last_retrieved": "2026-08-27T23:43:54.996090+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/14798/synonyms/JSON"
+  },
+  "69bf14c81de0207256bf4613b74ab3c79d861eafab28c84a4da28881589fb4bb": {
+    "first_retrieved": "2026-08-27T23:51:08.075131+00:00",
+    "last_retrieved": "2026-08-27T23:51:08.075131+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Phenyl%20chloroformate/cids/JSON"
+  },
+  "6d37dd42d424ae239090dbd7437c4b13f6e2a6670c3f93a54a6686f96323b709": {
+    "first_retrieved": "2026-08-27T23:51:00.709697+00:00",
+    "last_retrieved": "2026-08-27T23:51:00.709697+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/7294/property/InChIKey/JSON"
+  },
+  "704ce2fe5bd94692a4307470c0c95480980d5e7af3ccbeed78935ad7e2716ed1": {
+    "first_retrieved": "2026-08-27T23:50:58.813051+00:00",
+    "last_retrieved": "2026-08-27T23:50:58.813051+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Magnesium%20%28monoperoxyphthalate%292/cids/JSON"
+  },
+  "704d93c92086dfa40c0e5d272161ca5685ae8ff63da3e60130c4281f06e7aefb": {
+    "first_retrieved": "2026-08-27T23:50:31.430045+00:00",
+    "last_retrieved": "2026-08-27T23:50:31.430045+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/%28t-Bu%293P-Pd%20G2/cids/JSON"
+  },
+  "7336be80ee52b6254d6c726ee15938e7327ac9741736d5b102a2b5e354e78baa": {
+    "first_retrieved": "2026-08-27T23:50:47.839649+00:00",
+    "last_retrieved": "2026-08-27T23:50:47.839649+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/8a%288%29/cids/JSON"
+  },
+  "776f359eb0c822dc5e123834a0de6166e23a445e27f3d2d1ff17b130d2725162": {
+    "first_retrieved": "2026-08-27T23:46:49.644680+00:00",
+    "last_retrieved": "2026-08-27T23:46:49.644680+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/1140/synonyms/JSON"
+  },
+  "7a2853d712bac8136d72d9a13c60e977c7d45e220abd3dbd2b336df225faf8ee": {
+    "first_retrieved": "2026-08-27T23:50:40.382521+00:00",
+    "last_retrieved": "2026-08-27T23:50:40.382521+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/7301/synonyms/JSON"
+  },
+  "7bb1e455a19f4a28d77267eb86ff3b6b302cc08f61dd933654a1c5457d911385": {
+    "first_retrieved": "2026-08-27T23:47:48.364992+00:00",
+    "last_retrieved": "2026-08-27T23:47:48.364992+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/222/synonyms/JSON"
+  },
+  "7ce50590abbd69b3eb1a981c537d8e535203eccb8c96c5bd71f6a8ee12488af1": {
+    "first_retrieved": "2026-08-27T23:50:43.917191+00:00",
+    "last_retrieved": "2026-08-27T23:50:43.917191+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-isothiocyanato-1-methoxy-4-%28trifluoromethyl%29benzene/cids/JSON"
+  },
+  "88fd8870c0ee920b89b1a82a7f332e33bdd4447cad99719ada06f9f428e2e97e": {
+    "first_retrieved": "2026-08-27T23:51:02.304152+00:00",
+    "last_retrieved": "2026-08-27T23:51:02.304152+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/24203/property/InChIKey/JSON"
+  },
+  "89e615b653494bb75084953c226788f26bfb584e7ab477e8fb81a3acd7ac0225": {
+    "first_retrieved": "2026-08-27T23:50:56.455516+00:00",
+    "last_retrieved": "2026-08-27T23:50:56.455516+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/14797/property/InChIKey/JSON"
+  },
+  "8b353fcb9904246fe49e5626b196ef9f71cc08609bf69e8a4d2f6de7b856ff7a": {
+    "first_retrieved": "2026-08-27T23:47:52.879456+00:00",
+    "last_retrieved": "2026-08-27T23:47:52.879456+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/783/synonyms/JSON"
+  },
+  "8b3861139c296bcba2f998c5a1ff993c9aff02c849ff952ca458a23deb2bed97": {
+    "first_retrieved": "2026-08-27T23:50:48.414002+00:00",
+    "last_retrieved": "2026-08-27T23:50:48.414002+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/AcCl/cids/JSON"
+  },
+  "8b72930685b80e182f20ec4f16b15283f90c83db4874273024a9e10ff3898bed": {
+    "first_retrieved": "2026-08-27T23:51:07.026652+00:00",
+    "last_retrieved": "2026-08-27T23:51:07.026652+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/8003/property/InChIKey/JSON"
+  },
+  "8bb3ae9997278ab4e12913766faf26f8387f74deed9c264d6b8f432de8831f61": {
+    "first_retrieved": "2026-08-27T23:50:59.760604+00:00",
+    "last_retrieved": "2026-08-27T23:50:59.760604+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Magnesium%28monoperoxyphthalate%292/cids/JSON"
+  },
+  "8cf2cc66bb2a34952d4c12d503f974bab8e853ed8da573bc30d32ebb7cdfa82f": {
+    "first_retrieved": "2026-08-27T23:50:54.452515+00:00",
+    "last_retrieved": "2026-08-27T23:50:54.452515+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/K3PO4/cids/JSON"
+  },
+  "8ea39f6d0a029ed2fb712d8f9480ccde1f27156f529923b48bd54159b87b5e45": {
+    "first_retrieved": "2026-08-27T23:50:42.331226+00:00",
+    "last_retrieved": "2026-08-27T23:50:42.331226+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-bromo-6-fluoroaniline/cids/JSON"
+  },
+  "8ea480d9878b47b238bc208b49e0758eb6dd3c5bdfd0ebeac6f8cceef1ae279a": {
+    "first_retrieved": "2026-08-27T23:43:46.686666+00:00",
+    "last_retrieved": "2026-08-27T23:43:46.686666+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/313/synonyms/JSON"
+  },
+  "8ef1db9afed42d24edcb38ae27f67eb023df81ada171cb22e8680149410fafe7": {
+    "first_retrieved": "2026-08-27T23:50:33.557465+00:00",
+    "last_retrieved": "2026-08-27T23:50:33.557465+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/11a/cids/JSON"
+  },
+  "9122ceee8f7f8963e6ba5b5884cab17e01744889d634301b9113243393259573": {
+    "first_retrieved": "2026-08-27T23:43:48.226500+00:00",
+    "last_retrieved": "2026-08-27T23:43:48.226500+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/1004/synonyms/JSON"
+  },
+  "9b953c47e2869215f3377291335cc7bba4537217f747c7f6a72f4bda49fb4504": {
+    "first_retrieved": "2026-08-27T23:50:55.536456+00:00",
+    "last_retrieved": "2026-08-27T23:50:55.536456+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/62657/synonyms/JSON"
+  },
+  "9f0be60b12383a7dc029ff59624e6e5348f08bad6f11e85c9ad2eeef6f3903d9": {
+    "first_retrieved": "2026-08-27T23:43:52.338769+00:00",
+    "last_retrieved": "2026-08-27T23:43:52.338769+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Methanol/cids/JSON"
+  },
+  "a086aacdbeb064cfe2f4a7958758adbc38977336f84c4b05ee117360c87f0180": {
+    "first_retrieved": "2026-08-27T23:51:04.787068+00:00",
+    "last_retrieved": "2026-08-27T23:51:04.787068+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/PCl5/cids/JSON"
+  },
+  "a1173a6042a6c937ac14f598caee48854220ef0040a54e4006424d04a416b1e6": {
+    "first_retrieved": "2026-08-27T23:50:37.462023+00:00",
+    "last_retrieved": "2026-08-27T23:50:37.462023+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/7975/property/InChIKey/JSON"
+  },
+  "a55ed6b80014e85b6d8f837677fcf17f9927babf5fc3b12f6494a5cfbf210e62": {
+    "first_retrieved": "2026-08-27T23:46:48.490433+00:00",
+    "last_retrieved": "2026-08-27T23:46:48.490433+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/toluene/cids/JSON"
+  },
+  "a683d0d9b2fdaf4b1287cf71f220ca9793e18673fad291cdae701ce096fc4e8c": {
+    "first_retrieved": "2026-08-27T23:51:05.295404+00:00",
+    "last_retrieved": "2026-08-27T23:51:05.295404+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/24819/property/InChIKey/JSON"
+  },
+  "a8c9691e987145840e5e74498911c97f2591ff8f7a135d15ad490574a5af2a3d": {
+    "first_retrieved": "2026-08-27T23:50:31.887651+00:00",
+    "last_retrieved": "2026-08-27T23:50:31.887651+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/%28t-Bu%293P-Pd-G2/cids/JSON"
+  },
+  "ab67e18c349be3cd8f7fcc67c674366d782fccc6820db056db9c1599f57e2a00": {
+    "first_retrieved": "2026-08-27T23:51:11.510714+00:00",
+    "last_retrieved": "2026-08-27T23:51:11.510714+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sec-Butanol/cids/JSON"
+  },
+  "acc754bf65d3e62985234d7350c27302838225a14d5c9b908ca2f18cb8c141ec": {
+    "first_retrieved": "2026-08-27T23:43:49.252103+00:00",
+    "last_retrieved": "2026-08-27T23:43:49.252103+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/1118/property/InChIKey,MolecularFormula,CanonicalSMILES/JSON"
+  },
+  "ad37f4887c107324dca502fb8d51c293f132323f1014b85b7df54de85bee03fb": {
+    "first_retrieved": "2026-08-27T23:43:47.187081+00:00",
+    "last_retrieved": "2026-08-27T23:43:47.187081+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Phosphoric%20acid/cids/JSON"
+  },
+  "adca11ef7607d76e56cce0ba5fcf1aae6aecb5548b275eeb93cdc317a28c93e1": {
+    "first_retrieved": "2026-08-27T23:51:10.549758+00:00",
+    "last_retrieved": "2026-08-27T23:51:10.549758+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/338/synonyms/JSON"
+  },
+  "b0ceb7d99178259ee6d31f218abd429802ef0c2dd3ad686dbc4d03023098be12": {
+    "first_retrieved": "2026-08-27T23:43:51.286096+00:00",
+    "last_retrieved": "2026-08-27T23:43:51.286096+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/8058/property/InChIKey,MolecularFormula,CanonicalSMILES/JSON"
+  },
+  "b1579443a2c03a085e42402a1760f347c8647512b88b0f4158a88ff07f6b4304": {
+    "first_retrieved": "2026-08-27T23:47:34.051054+00:00",
+    "last_retrieved": "2026-08-27T23:47:34.051054+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/702/property/InChIKey/JSON"
+  },
+  "b2c3d71a4f39ec5c9f0c4b21e24e367a948fa20522439f5822407a47d2b65b1b": {
+    "first_retrieved": "2026-08-27T23:50:32.983663+00:00",
+    "last_retrieved": "2026-08-27T23:50:32.983663+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/%28t-Bu%293PPd%20G2/cids/JSON"
+  },
+  "b36a5721468726bc99051a2db0436aca3afd6e9558aa053d79453e393d3f89fe": {
+    "first_retrieved": "2026-08-27T23:50:36.193487+00:00",
+    "last_retrieved": "2026-08-27T23:50:36.193487+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-%20picoline/cids/JSON"
+  },
+  "b400dc449f44e9f34c3cdc9efb16c1f2757a2bddc2c3ae7366fe3836c3b5d4c7": {
+    "first_retrieved": "2026-08-27T23:51:10.028706+00:00",
+    "last_retrieved": "2026-08-27T23:51:10.028706+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/338/property/InChIKey/JSON"
+  },
+  "b56799952a0046395246b143456038bac74a0f084428ac6214dc71b1f4c585fa": {
+    "first_retrieved": "2026-08-27T23:46:52.497925+00:00",
+    "last_retrieved": "2026-08-27T23:46:52.497925+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-propanol/cids/JSON"
+  },
+  "b6845f63fb268ada7d0c0bb9f1b99ee5aa8f295f148d11983a6e2aba6baba4b9": {
+    "first_retrieved": "2026-08-27T23:43:51.760951+00:00",
+    "last_retrieved": "2026-08-27T23:43:51.760951+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/8058/synonyms/JSON"
+  },
+  "b75d4f3210511e358e207bf92cce0c5e741424d40e0ccfa7747fcb73848ae2cc": {
+    "first_retrieved": "2026-08-27T23:43:53.999172+00:00",
+    "last_retrieved": "2026-08-27T23:43:53.999172+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sodium%20hydroxide/cids/JSON"
+  },
+  "b88e7ad1e4f1c15d4e833fa3e2dc3b797ae2b87864cdc7c5774acb99bcbdbeb1": {
+    "first_retrieved": "2026-08-27T23:50:34.170052+00:00",
+    "last_retrieved": "2026-08-27T23:50:34.170052+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/15/cids/JSON"
+  },
+  "ba05d6b5c13fbdce572404410945e3401f4fd81127e174fba2b97b51812a368f": {
+    "first_retrieved": "2026-08-27T23:50:56.945073+00:00",
+    "last_retrieved": "2026-08-27T23:50:56.945073+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/14797/synonyms/JSON"
+  },
+  "bb565ecb923b744e7ff53fca65b9fdd2a0376ad6ae0523b96a08749b02647250": {
+    "first_retrieved": "2026-08-27T23:50:57.873946+00:00",
+    "last_retrieved": "2026-08-27T23:50:57.873946+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/19867143/property/InChIKey/JSON"
+  },
+  "bb67bcc44e05e6e755d7649138d6c36a2e6c00108fdc8dfd188e61ba1b04c628": {
+    "first_retrieved": "2026-08-27T23:51:15.196183+00:00",
+    "last_retrieved": "2026-08-27T23:51:15.196183+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/311/property/InChIKey/JSON"
+  },
+  "bef0c083d08bbb929d7996edb22418aa12138f72dbf9d97a30c8f359aebe249c": {
+    "first_retrieved": "2026-08-27T23:50:40.875695+00:00",
+    "last_retrieved": "2026-08-27T23:50:40.875695+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/2-amino-3-fluorobenzoic%20acid/cids/JSON"
+  },
+  "bfc8a78275d36a72ef63be55b59b7dff97326e638ae8265d2abf6693095a08a6": {
+    "first_retrieved": "2026-08-27T23:51:13.455453+00:00",
+    "last_retrieved": "2026-08-27T23:51:13.455453+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/9845/property/InChIKey/JSON"
+  },
+  "c10c877558000583f214f227ca585de77f6f6fe27b0a6bca41e47f9e3d940fcb": {
+    "first_retrieved": "2026-08-27T23:43:48.680830+00:00",
+    "last_retrieved": "2026-08-27T23:43:48.680830+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sulphuric%20acid/cids/JSON"
+  },
+  "c665c4daf5def1a8d7c2d08c793d9c0a35d5f290a3b4b2ee3b3701e05936bb2c": {
+    "first_retrieved": "2026-08-27T23:43:56.463971+00:00",
+    "last_retrieved": "2026-08-27T23:43:56.463971+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/24436/synonyms/JSON"
+  },
+  "c78aeaf1218b2788bcf0c855170dc55c51465a58a0479d97dba5f75f77365204": {
+    "first_retrieved": "2026-08-27T23:46:57.997673+00:00",
+    "last_retrieved": "2026-08-27T23:46:57.997673+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/176/property/InChIKey/JSON"
+  },
+  "ca99e20dc757ad3d8b917b8f4b7766b3aa512da2ca1f75db07243633cbd95875": {
+    "first_retrieved": "2026-08-27T23:50:53.990160+00:00",
+    "last_retrieved": "2026-08-27T23:50:53.990160+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/2723939/synonyms/JSON"
+  },
+  "cfb8220e65f541bbe8e85cb6cafaa3bdf2490c34822b1efce0fc688d77fd625f": {
+    "first_retrieved": "2026-08-27T23:51:05.965554+00:00",
+    "last_retrieved": "2026-08-27T23:51:05.965554+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/24819/synonyms/JSON"
+  },
+  "d192fcd42019ba28b3430c77cf1243e478447063452c9b3d1cde37c940b408ec": {
+    "first_retrieved": "2026-08-27T23:50:55.983560+00:00",
+    "last_retrieved": "2026-08-27T23:50:55.983560+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/KOH/cids/JSON"
+  },
+  "d2bef78cfa309f4266ef52258334648d06dc87c10c19d10ef58c1d42f7217fdc": {
+    "first_retrieved": "2026-08-27T23:50:49.443421+00:00",
+    "last_retrieved": "2026-08-27T23:50:49.443421+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6367/synonyms/JSON"
+  },
+  "d5663bfba176c5153f49601d3d0e58dd9a6d39542b36f3a89ca3eb6a0d09aec1": {
+    "first_retrieved": "2026-08-27T23:51:09.096836+00:00",
+    "last_retrieved": "2026-08-27T23:51:09.096836+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/15891/synonyms/JSON"
+  },
+  "db2ea124dd1570088f68d3a43f5290ae99ed145e277e75cd9278f8f42fb4c18f": {
+    "first_retrieved": "2026-08-27T23:51:09.550469+00:00",
+    "last_retrieved": "2026-08-27T23:51:09.550469+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Salicylic%20Acid/cids/JSON"
+  },
+  "dd7ce906028da599af8239a1e517a49aff91bc138c587f4fa3fc55eee303ad78": {
+    "first_retrieved": "2026-08-27T23:43:47.718162+00:00",
+    "last_retrieved": "2026-08-27T23:43:47.718162+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/1004/property/InChIKey,MolecularFormula,CanonicalSMILES/JSON"
+  },
+  "ddeca3e2e487bdd9b72808b39104ac4e62167686d87b406c0d794fe630e48f15": {
+    "first_retrieved": "2026-08-27T23:43:53.498668+00:00",
+    "last_retrieved": "2026-08-27T23:43:53.498668+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/887/synonyms/JSON"
+  },
+  "e0fc8aa6ac3f9ad72993ad1ea8d4b45650d84d081d869945652afec82e8ae502": {
+    "first_retrieved": "2026-08-27T23:43:55.452765+00:00",
+    "last_retrieved": "2026-08-27T23:43:55.452765+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sodium%20sulphate/cids/JSON"
+  },
+  "e6dd9d87203e2244c33e1035a0795b2021c90f0f0c5c2b55ebb9378223b63749": {
+    "first_retrieved": "2026-08-27T23:51:00.231794+00:00",
+    "last_retrieved": "2026-08-27T23:51:00.231794+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Methyl%20acrylate/cids/JSON"
+  },
+  "e7835036457530c16e8bcccbf11e24a51b273c6c315d204c2b9e791a64d0aa73": {
+    "first_retrieved": "2026-08-27T23:51:01.786469+00:00",
+    "last_retrieved": "2026-08-27T23:51:01.786469+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Na2HPO4/cids/JSON"
+  },
+  "e873dfbbc458fe38b67e7ffc698fd6571ffcc3a7daea6a331bb2b6bb2886eec8": {
+    "first_retrieved": "2026-08-27T23:50:44.956945+00:00",
+    "last_retrieved": "2026-08-27T23:50:44.956945+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/86665375/synonyms/JSON"
+  },
+  "ea267f6a221395e283a92ba8ee13aaf7fe010d4aa6394c4935b7677ed9a5debf": {
+    "first_retrieved": "2026-08-27T23:46:49.062812+00:00",
+    "last_retrieved": "2026-08-27T23:46:49.062812+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/1140/property/InChIKey/JSON"
+  },
+  "ea593cd4c45b85257f73cc0ff4cacad4b8435dce6465ba3a6fc132d48323f54d": {
+    "first_retrieved": "2026-08-27T23:50:46.409489+00:00",
+    "last_retrieved": "2026-08-27T23:50:46.409489+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/5/cids/JSON"
+  },
+  "ea92610afe0195cb71e8cd6698d9c1bd23e37003b7bca1be009872c8c2465f15": {
+    "first_retrieved": "2026-08-27T23:47:51.836345+00:00",
+    "last_retrieved": "2026-08-27T23:47:51.836345+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/hydrogen/cids/JSON"
+  },
+  "f18358192f025d371f978e9e0ad1da40d117a5f8bea2bb6779bbe4f1743d9e5b": {
+    "first_retrieved": "2026-08-27T23:51:10.998794+00:00",
+    "last_retrieved": "2026-08-27T23:51:10.998794+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/Sec%20Butanol/cids/JSON"
+  },
+  "f340ccdf82d37092c726276ea07c28d5bc0f8d7b032de50f05714f614427069e": {
+    "first_retrieved": "2026-08-27T23:50:51.990604+00:00",
+    "last_retrieved": "2026-08-27T23:50:51.990604+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/14284/property/InChIKey/JSON"
+  },
+  "f43a569e8695318551b154fe8e00c3997116e1b72212411a709d46c843950ea5": {
+    "first_retrieved": "2026-08-27T23:51:15.908670+00:00",
+    "last_retrieved": "2026-08-27T23:51:15.908670+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/311/synonyms/JSON"
+  },
+  "f5568d4d55892a967010563948ce88c79d4d08f2af186ed575206d89b27f6d31": {
+    "first_retrieved": "2026-08-27T23:46:57.400133+00:00",
+    "last_retrieved": "2026-08-27T23:46:57.400133+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/acetic%20acid/cids/JSON"
+  },
+  "f593e77f31e5faf30bb0adcf0c1568e7424ed5be7e506357eb03b050150f72b6": {
+    "first_retrieved": "2026-08-27T23:50:50.126126+00:00",
+    "last_retrieved": "2026-08-27T23:50:50.126126+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/BH3SMe3/cids/JSON"
+  },
+  "f6c1f8e8d0062fea8af83ea64257df51e2d738bf0c99a1424b360ec70a218c10": {
+    "first_retrieved": "2026-08-27T23:51:07.579630+00:00",
+    "last_retrieved": "2026-08-27T23:51:07.579630+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/8003/synonyms/JSON"
+  },
+  "f6f5032b425ba18ed1e689b3691b7446f384cb9fb6b3f57e55425f2ece207f5d": {
+    "first_retrieved": "2026-08-27T23:50:42.817697+00:00",
+    "last_retrieved": "2026-08-27T23:50:42.817697+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/2782940/property/InChIKey/JSON"
+  },
+  "f9c990c5fbb9103380697a9b5ad176d62500b843422a120b6c30cc5d68577e76": {
+    "first_retrieved": "2026-08-27T23:46:53.006099+00:00",
+    "last_retrieved": "2026-08-27T23:46:53.006099+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/3776/property/InChIKey/JSON"
+  },
+  "fe469f6b160baaa22b5b7cc1f70b5360830baf6f7cb39e4891460814f1cdb60c": {
+    "first_retrieved": "2026-08-27T23:50:48.889721+00:00",
+    "last_retrieved": "2026-08-27T23:50:48.889721+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/6367/property/InChIKey/JSON"
+  },
+  "ff001b4ab59a6289b8555369b22b47ea927e0088b4419cd5c9d4a0298c694381": {
+    "first_retrieved": "2026-08-27T23:46:44.546988+00:00",
+    "last_retrieved": "2026-08-27T23:46:44.546988+00:00",
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/water/cids/JSON"
+  }
+}
