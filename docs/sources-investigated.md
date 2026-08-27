@@ -236,3 +236,29 @@ any producer) ever publishes even one representative example PCF value in
 a public sustainability report or product datasheet rather than gating it
 behind a login, that would be immediately usable and is worth checking for
 specifically in any follow-up round.
+
+## 2026-08-27 — n-pentane, checked again and still not found
+
+n-Pentane (CAS 109-66-0) is the single largest unresolved material in the
+letermovir benchmark at 7.7 kg per functional unit. Closing it alone would take
+coverage from 75.5% past the declared 80% floor, so it was worth a second look.
+
+Checked directly this round, none of which carry it:
+
+| Source | Query | Result |
+| --- | --- | --- |
+| ADEME Base Carbone | `pentane`, `heptane` | 2 hits, both a fluorinated pentanone refrigerant; no alkane |
+| ProBas / UBA-GEMIS | `Pentan`, `Heptan`, `Leichtbenzin` | 0 hits |
+| ProBas, wider | `Naphtha` | 2 hits, both `Markt für …` — ecoinvent-republished, excluded on principle |
+
+The earlier rounds had already enumerated GEMIS's full organic and inorganic
+chemical catalogue without finding it, and the process-data round found no
+per-kilogram feedstock or energy figure for it in any BREF or patent — n-pentane
+is a refinery separation from natural gasoline, not a synthesis with a citable
+stoichiometry, so the bootstrap route does not apply either.
+
+**Conclusion: not obtainable from any source this project has reached.** The
+tempting move is to borrow hexane's factor, which is in the table at 0.313
+kgCO2e/kg. That would be fabrication — a different substance, a different cut, a
+different process — and it is exactly what the tool exists to prevent. The gap
+stays open and is reported as a gap.
