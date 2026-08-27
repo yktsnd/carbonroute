@@ -250,6 +250,13 @@ regenerate the table. Each row names the dataset and the record it came
 from, the licence it is distributed under, the date it was retrieved, and —
 where the source published one — its own uncertainty.
 
+At the time of writing that means **nine substances** from two sources: ADEME's
+Base Carbone (Licence Ouverte) and the US LCI Database (US government work).
+They are hexane, methanol, carbon monoxide, ethylene oxide and five bulk acids
+and bases. Both tables carry hydrochloric acid, and they disagree about it by a
+factor of 1.42 — the report says so rather than hiding it, because how far
+openly available data spreads for one material is worth knowing.
+
 **The coverage is small.** Openly licensed, independently citable,
 per-kilogram cradle-to-gate factors for fine-chemical solvents and reagents
 are genuinely scarce; most of what the field uses day to day sits in
