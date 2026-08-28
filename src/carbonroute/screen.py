@@ -471,9 +471,28 @@ class ScreenResult:
     #: ``0.0`` means no conversion requirement -- the verdict holds however
     #: badly the enzyme performs. See `minimum_enzymatic_yield`.
     min_enzymatic_yield: float | None = None
-    #: The solvent recovery rate `min_enzymatic_yield` was computed at.
+    #: The solvent recovery rate `min_enzymatic_yield` was computed at, and
+    #: the standard operating point the advantage interval below is taken at.
     reference_recovery: float = 0.90
+    #: How much lower the enzymatic route's footprint is, in kg CO2e per kg
+    #: of product, evaluated at the standard operating point -- an interval,
+    #: because the cofactor's factor is one. Positive means the enzyme saves
+    #: that much. This is the only quantity here that means the same thing in
+    #: two different classes; the recovery threshold does not, because it is
+    #: measured against whatever solvent load that class's template happens
+    #: to carry. `advantage_max` is None when something in the delta is
+    #: unbounded above. See `rank_by_advantage`.
+    advantage_min_kgCO2e: float | None = None
+    advantage_max_kgCO2e: float | None = None
     skipped_reason: str = ""
+
+    @property
+    def advantage_decided(self) -> bool:
+        """True when the whole advantage interval is on one side of zero."""
+        lo, hi = self.advantage_min_kgCO2e, self.advantage_max_kgCO2e
+        if lo is None or hi is None:
+            return lo is not None and lo > 0.0
+        return lo > 0.0 or hi < 0.0
 
     @property
     def decided(self) -> bool:
@@ -662,6 +681,15 @@ def screen_reaction(
     min_yield = minimum_enzymatic_yield(
         lambda y: diff_at(reference_recovery, y), assumptions, bounds
     )
+    # The cross-class quantity, and the only one here that survives leaving
+    # this class. A recovery threshold is measured against the solvent load
+    # of one template, so 86% in a glycosylation class and 86% in a
+    # methylation class are not the same statement. Kilograms of CO2e saved
+    # per kilogram of product are, provided both are read at the same
+    # operating point -- which is what `reference_recovery` fixes.
+    standard = bounded_verdict(
+        diff_at(reference_recovery, enzymatic_yield), assumptions, bounds
+    )
 
     return ScreenResult(
         rhea_id=rxn.rhea_id,
@@ -678,6 +706,8 @@ def screen_reaction(
         enzymatic_yield=enzymatic_yield,
         min_enzymatic_yield=min_yield,
         reference_recovery=reference_recovery,
+        advantage_min_kgCO2e=standard.delta_min_kgCO2e,
+        advantage_max_kgCO2e=standard.delta_max_kgCO2e,
     )
 
 
@@ -864,6 +894,68 @@ def minimum_enzymatic_yield(
         else:
             lo = mid
     return hi
+
+
+@dataclass(frozen=True)
+class RankedReaction:
+    """One reaction's place in a ranking that refuses to invent precision.
+
+    `best_rank` and `worst_rank` bracket where this reaction can sit once
+    every other reaction is allowed to take any value inside its own
+    advantage interval. They are equal only when the interval genuinely
+    separates it from everything else; a wide spread between them is the
+    honest report that the data does not order these two reactions at all.
+    """
+
+    result: ScreenResult
+    best_rank: int
+    worst_rank: int
+
+    @property
+    def determinate(self) -> bool:
+        return self.best_rank == self.worst_rank
+
+
+def _advantage_interval(r: ScreenResult) -> tuple[float, float]:
+    lo = r.advantage_min_kgCO2e
+    hi = r.advantage_max_kgCO2e
+    return (
+        float("-inf") if lo is None else lo,
+        float("inf") if hi is None else hi,
+    )
+
+
+def rank_by_advantage(results: Sequence[ScreenResult]) -> list[RankedReaction]:
+    """Rank reactions by kg CO2e saved per kg of product, without faking order.
+
+    This is the metric that crosses class boundaries. A recovery threshold
+    cannot: it is stated relative to the solvent load of one template, so the
+    same percentage in two classes describes two different things. An
+    absolute saving per kilogram of product is the same statement anywhere,
+    as long as every class is read at the same operating point.
+
+    What it is not is a total order. Each saving is an interval, and
+    intervals overlap, so the honest output is a rank *range*: a reaction is
+    beaten only by reactions whose worst case is better than its best case.
+    Sorting the intervals by midpoint and printing 1, 2, 3 would manufacture
+    exactly the precision this project refuses to manufacture elsewhere.
+    """
+    scored = [(r, *_advantage_interval(r)) for r in results]
+    ranked: list[RankedReaction] = []
+    for r, lo, hi in scored:
+        # Strict domination only: another reaction outranks this one when its
+        # worst case still beats this one's best case.
+        beaten_by = sum(1 for _, o_lo, _o_hi in scored if o_lo > hi)
+        beats = sum(1 for _, _o_lo, o_hi in scored if o_hi < lo)
+        ranked.append(
+            RankedReaction(
+                result=r,
+                best_rank=beaten_by + 1,
+                worst_rank=len(scored) - beats,
+            )
+        )
+    ranked.sort(key=lambda x: (x.best_rank, x.worst_rank, -_advantage_interval(x.result)[0]))
+    return ranked
 
 
 def _cofactor_display(rxn: RheaReaction, template: ClassTemplate) -> str:

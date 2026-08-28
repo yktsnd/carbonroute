@@ -15,6 +15,7 @@ from carbonroute.resolve import (
 )
 from carbonroute.screen import (
     ScreenError,
+    ScreenResult,
     break_even_frontier,
     count_protectable_groups,
     load_reactions,
@@ -22,6 +23,7 @@ from carbonroute.screen import (
     load_template,
     molecular_weight,
     parse_reaction,
+    rank_by_advantage,
     screen_all,
 )
 
@@ -374,6 +376,87 @@ def test_the_break_even_frontier_slopes_the_only_way_it_can(inputs):
     # enzyme costs the class ~14 points of the median threshold.
     assert curve[0].median_threshold == pytest.approx(0.8642, abs=0.002)
     assert curve[-1].median_threshold == pytest.approx(0.7247, abs=0.002)
+
+
+# --- ranking on a quantity that survives leaving the class ------------------
+
+
+def _fake_result(rhea_id: str, lo: float | None, hi: float | None) -> ScreenResult:
+    """A ScreenResult carrying nothing but an advantage interval."""
+    return ScreenResult(
+        rhea_id=rhea_id,
+        equation="",
+        ec="",
+        product_name=rhea_id,
+        product_chebi="",
+        product_mw=1.0,
+        acceptor_name="",
+        protectable_groups=0,
+        cofactor_kg_per_fu=0.0,
+        verdict=None,
+        advantage_min_kgCO2e=lo,
+        advantage_max_kgCO2e=hi,
+    )
+
+
+def test_ranking_orders_strictly_only_when_the_intervals_separate():
+    """The machinery, on intervals that do and do not overlap.
+
+    A reaction outranks another only when its worst case still beats the
+    other's best case. [10,12] beats [1,2]; [3,8] overlaps both and can be
+    placed nowhere exact, so it must report a range rather than a number.
+    """
+    ranked = rank_by_advantage(
+        [_fake_result("hi", 10.0, 12.0), _fake_result("lo", 1.0, 2.0), _fake_result("mid", 3.0, 8.0)]
+    )
+    by_id = {x.result.rhea_id: x for x in ranked}
+    assert (by_id["hi"].best_rank, by_id["hi"].worst_rank) == (1, 1)
+    assert (by_id["lo"].best_rank, by_id["lo"].worst_rank) == (3, 3)
+    # "mid" overlaps neither strictly, so it is pinned second by both sides.
+    assert (by_id["mid"].best_rank, by_id["mid"].worst_rank) == (2, 2)
+    assert all(x.determinate for x in ranked)
+    assert [x.result.rhea_id for x in ranked] == ["hi", "mid", "lo"]
+
+
+def test_ranking_reports_a_range_rather_than_inventing_an_order():
+    """Two overlapping intervals are not ordered by the data, and the rank
+    must say so instead of breaking the tie on a midpoint."""
+    ranked = rank_by_advantage([_fake_result("a", 1.0, 9.0), _fake_result("b", 2.0, 8.0)])
+    assert all((x.best_rank, x.worst_rank) == (1, 2) for x in ranked)
+    assert not any(x.determinate for x in ranked)
+
+
+def test_an_open_upper_end_blocks_every_comparison(screened):
+    """The shipped bounds file asserts no ceiling on four chemical-side
+    materials, so every reaction's advantage runs to infinity and nothing can
+    outrank anything. This is a fact about the bounds, not the chemistry, and
+    the screen must expose it rather than quietly ordering on midpoints."""
+    ranked = rank_by_advantage(screened.decided)
+    assert all(x.result.advantage_max_kgCO2e is None for x in ranked)
+    assert all((x.best_rank, x.worst_rank) == (1, len(ranked)) for x in ranked)
+
+
+def test_the_advantage_is_read_at_the_industrial_operating_point(screened):
+    """Not at zero solvent recovery, which is where the recovery threshold
+    starts. A cross-class number is only comparable if every class is read at
+    the same operating point, and the bench point is not one a plant has."""
+    decided = screened.decided
+    assert all(r.reference_recovery == 0.90 for r in decided)
+    guaranteed = [r for r in decided if r.advantage_decided]
+    assert len(guaranteed) == 25
+    # The 363 others straddle zero at 90% recovery: no verdict, not a small one.
+    assert all(r.advantage_min_kgCO2e <= 0.0 for r in decided if not r.advantage_decided)
+
+
+def test_the_guaranteed_saving_reproduces_the_regioselectivity_mechanism(screened):
+    """The cross-class metric has to recover the same physical story the
+    recovery threshold does, or it is measuring something else. It does: the
+    largest guaranteed savings belong to the most heavily protected
+    acceptors, because that is what an enzyme spares a chemical route."""
+    ranked = rank_by_advantage(screened.decided)
+    top = [x.result for x in ranked[:10]]
+    assert all(r.protectable_groups >= 20 for r in top)
+    assert ranked[0].result.advantage_min_kgCO2e == pytest.approx(4.15, abs=0.05)
 
 
 def test_mass_delta_check_tolerates_chebis_own_charge_state_bookkeeping(screened):

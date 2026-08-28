@@ -772,6 +772,95 @@ def render_conflicts(conflicts) -> list[str]:
     return lines
 
 
+def _render_ranking(run: "ScreenRun") -> list[str]:
+    """Rank reactions on the one quantity that means the same in every class.
+
+    A recovery threshold is stated against the solvent load of one template,
+    so 86% in a glycosylation class and 86% in a methylation class are not
+    the same claim and cannot be put in one list. Kilograms of CO2e saved per
+    kilogram of product can, provided every class is read at the same
+    operating point.
+    """
+    from .screen import rank_by_advantage
+
+    lines: list[str] = []
+    rec = run.reference_recovery * 100
+    lines.append("## Ranked by saving, the way classes can be compared")
+    lines.append("")
+    if not run.decided:
+        lines.append("No reaction in this class was decided, so there is nothing to rank.")
+        lines.append("")
+        return lines
+
+    ranked = rank_by_advantage(run.decided)
+    guaranteed = [r for r in run.decided if r.advantage_decided]
+    lines.append(
+        "The recovery threshold above cannot be compared between classes: it "
+        "is measured against whatever solvent load that class's template "
+        "happens to carry. This column can be. It is the enzymatic route's "
+        "advantage in **kg CO₂e per kg of product**, read at the standard "
+        f"operating point of {rec:.0f}% solvent recovery and "
+        f"{run.enzymatic_yield * 100:.0f}% enzymatic conversion — the same "
+        "statement whatever the reaction makes."
+    )
+    lines.append("")
+    lines.append(
+        f"**{len(guaranteed)} of {len(run.decided)} reactions have a "
+        f"guaranteed saving at {rec:.0f}% recovery** — an advantage interval "
+        "lying entirely on one side of zero. For the rest the interval "
+        "straddles zero, which is not a small advantage but an absent verdict."
+    )
+    lines.append("")
+
+    determinate = sum(1 for x in ranked if x.determinate)
+    unbounded: tuple[str, ...] = ()
+    for r in run.decided:
+        if r.verdict is not None and r.verdict.unbounded_above_keys:
+            unbounded = r.verdict.unbounded_above_keys
+            break
+    if determinate == 0 and unbounded:
+        lines.append(
+            "**No two reactions here can be strictly ordered, and the reason "
+            "is nameable.** A reaction outranks another only when its worst "
+            "case still beats the other's best case. "
+            f"{len(unbounded)} materials on the chemical side carry no "
+            "asserted ceiling (`high: null`) — "
+            + ", ".join(f"`{k}`" for k in unbounded)
+            + " — so every reaction's advantage is unbounded above and every "
+            "rank range spans the whole class. That is a statement about the "
+            "bounds file, not about the chemistry: putting a defensible "
+            "ceiling on those four is what would make this ranking bite."
+        )
+        lines.append("")
+        lines.append(
+            "What survives is the **guaranteed floor**: the saving that holds "
+            "everywhere in the asserted bounds. Ordering on it is exact — it "
+            "is a computed bound, not an estimate — but it ranks the floor, "
+            "not the true saving."
+        )
+    else:
+        lines.append(
+            f"{determinate} of {len(ranked)} reactions have a rank that does "
+            "not move as the others range over their own intervals. A wide "
+            "rank range is the honest report that these reactions are not "
+            "ordered by the data."
+        )
+    lines.append("")
+    lines.append("| rank | guaranteed saving | rank range | groups | product |")
+    lines.append("|---|---|---|---|---|")
+    for i, x in enumerate(ranked[:20], 1):
+        r = x.result
+        floor = r.advantage_min_kgCO2e
+        floor_s = "unbounded below" if floor is None else f"{floor:+.2f}"
+        ceiling = "∞" if r.advantage_max_kgCO2e is None else f"{r.advantage_max_kgCO2e:.2f}"
+        lines.append(
+            f"| {i} | {floor_s} … {ceiling} | {x.best_rank}–{x.worst_rank} | "
+            f"{r.protectable_groups} | {r.product_name[:60]} |"
+        )
+    lines.append("")
+    return lines
+
+
 def render_screen(run: "ScreenRun", reaction_source: str) -> str:
     """Render a database screen: a ranked shortlist, not a set of verdicts.
 
@@ -920,6 +1009,8 @@ def render_screen(run: "ScreenRun", reaction_source: str) -> str:
             "performs."
         )
     lines.append("")
+
+    lines.extend(_render_ranking(run))
 
     lines.append("## Most robust in this class")
     lines.append("")

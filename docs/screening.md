@@ -229,6 +229,56 @@ performs.** RHEA:12560, the beta-arbutin calibration case (see
 90%, so its `min_enzymatic_yield` is `None` — no enzyme, however efficient,
 saves that verdict at a recovery rate a real plant achieves.
 
+## Comparing across classes: the threshold cannot, a saving can
+
+A recovery threshold is stated against the solvent load of one template. The
+shipped glycosylation template charges over 800 kg of solvent per kg of
+product; a methylation template built from a different paper will charge
+something else. So 86% in one class and 86% in another are not the same
+claim, and putting them in one ranked list would be comparing two different
+measuring sticks. That matters as soon as there is a second class, which is
+the point of building one.
+
+What does survive leaving a class is an absolute quantity: **kg CO₂e saved
+per kg of product**, read at the same operating point in every class.
+`bounded_verdict` already computes it — `delta_min_kgCO2e` and
+`delta_max_kgCO2e` bracket `GWP_chemical - GWP_enzymatic` over the whole box
+of asserted intervals — so the screen now evaluates it at
+`reference_recovery` (the 90% a plant achieves, not the bench's zero) and
+carries it on every row as `advantage_min_kgCO2e` / `advantage_max_kgCO2e`.
+
+It is an interval, so ranking on it cannot be a total order.
+`rank_by_advantage` returns a rank *range* per reaction instead: a reaction
+is outranked only by reactions whose worst case still beats its best case.
+`best_rank` and `worst_rank` are equal only where the intervals genuinely
+separate. Sorting by interval midpoint and printing 1, 2, 3 would
+manufacture exactly the precision this project refuses to manufacture
+anywhere else.
+
+Run against the shipped class, that machinery reports something worth
+knowing about the *bounds*, not the chemistry. Every rank range comes back
+as 1–388, because four chemical-side materials — acetic anhydride,
+potassium carbonate, and two sugar reagents — are deliberately asserted with
+no upper ceiling (`high: null`, an honest refusal to invent one). An
+unbounded chemical side makes every enzymatic advantage unbounded above, and
+nothing can outrank anything. Putting defensible ceilings on those four is
+what would make this ranking bite, and the report names them so the gap is
+actionable rather than mysterious.
+
+What is available meanwhile is the **guaranteed floor** — the saving that
+holds everywhere in the asserted bounds. Ordering on it is exact, because it
+is a computed bound rather than an estimate, but it ranks the floor and not
+the true saving. At 90% recovery only **25 of the 388** reactions have a
+floor above zero at all; for the other 363 the interval straddles zero,
+which is an absent verdict rather than a small advantage.
+
+The floor ranking does reproduce the mechanism the screen exists to measure,
+which is the check that it is measuring the same thing the threshold was.
+The largest guaranteed savings all belong to heavily protected acceptors —
+the top ten carry 20 to 34 protectable groups, led by an N-glycan at
++4.15 kg CO₂e per kg — because sparing a chemical route that much masking
+and unmasking is precisely what an enzyme's regioselectivity is worth.
+
 ## What the shipped class actually found
 
 Screening all 406 reactions in Rhea that consume UDP-glucose or its

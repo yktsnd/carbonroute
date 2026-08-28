@@ -96,7 +96,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Partial.** One class, 406 reactions, screened (2.2% of Rhea). Within-class ranking works; no cross-class metric is defined yet |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage not.** Reactions now rank on kg CO₂e saved per kg of product, which means the same thing in any class. Still only one class built (2.2% of Rhea), so there is nothing to compare it against yet |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -147,24 +147,47 @@ carbonroute screen --template ... --bounds ... --assumptions-from ... \
   --enzymatic-yield 0.5 --frontier
 ```
 
+### Q1's metric: what can be compared between classes, and what cannot
+
+A recovery threshold is measured against whatever solvent load a template
+happens to carry, so 86% in a glycosylation class and 86% in a methylation
+class are not the same claim. An absolute saving is: **kg CO₂e per kg of
+product**, read at the same operating point everywhere. Every row now
+carries that as an interval, evaluated at 90% recovery rather than the
+bench's zero.
+
+Ranking on an interval cannot be a total order, so `rank_by_advantage`
+returns a rank *range*: a reaction is outranked only by reactions whose
+worst case still beats its best case. Sorting by midpoint and printing
+1, 2, 3 would manufacture the precision this project refuses to manufacture
+anywhere else.
+
+Run on the shipped class, that reports something about the **bounds** rather
+than the chemistry. Every rank range comes back 1–388, because four
+chemical-side materials are deliberately asserted with no upper ceiling — an
+honest refusal to invent one — and an unbounded chemical side makes every
+enzymatic advantage unbounded above. The report names those four, so the gap
+is actionable: put defensible ceilings on them and the ranking bites.
+
+What is available meanwhile is the **guaranteed floor**, the saving that
+holds everywhere in the asserted bounds. At 90% recovery only **25 of 388**
+reactions have a floor above zero. And it reproduces the mechanism the
+screen exists to measure — the top ten carry 20 to 34 protectable groups,
+led by an N-glycan at **+4.15 kg CO₂e per kg** — which is the check that it
+measures the same thing the threshold did.
+
 ### The road from here
 
-1. **Define a cross-class comparable metric** (Q1). The solvent-recovery
-   threshold depends on a template's solvent load, so it cannot be compared
-   between classes. Compute Δ kg CO₂e per kg of product at a standardised
-   operating point (say 90% recovery) as an interval, and rank on that.
-   Intervals induce only a partial order, so the output is a Pareto ranking,
-   not a fabricated total order.
-2. **Add classes** (Q1 coverage). The largest EC-3 groups — 1.1.1 (526
+1. **Add classes** (Q1 coverage). The largest EC-3 groups — 1.1.1 (526
    reactions), 2.1.1 (500), 2.3.1 (382) — bring the cumulative total to
    1,808 reactions: 9.7% of Rhea, 23.7% of the 7,635 that carry an EC
    number. Each needs one real published chemical procedure, and that step
    does not get faster.
-3. **Locate the commercial processes** (Q3). Map already-commercialised
+2. **Locate the commercial processes** (Q3). Map already-commercialised
    enzymatic reactions — human-milk-oligosaccharide fucosylation
    (RHEA:14257 and others), anthocyanin glucosylation (RHEA:20093),
    β-arbutin (RHEA:12560) — onto Rhea ids and report their percentile in
-   the ranking from step 1.
+   the guaranteed-floor ranking above.
 
 The ceiling on "comprehensive" is worth stating plainly too. Only 7,635 of
 Rhea's 18,558 reactions (41.1%) carry an EC number at all, and templating
