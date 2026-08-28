@@ -20,26 +20,39 @@ the gap with an invented number.
 delta mass (kg per functional unit) that resolves to a public factor.
 `verdict` is what `carbonroute compare` actually prints for that pair.
 
-| Case study | Paper | Coverage | Verdict from factors | Verdict from bounds |
-|---|---|---|---|---|
-| [`ibuprofen-bogdan-vs-enzymatic`](ibuprofen-bogdan-vs-enzymatic/) | Grimaldi et al., *ACS Sustainable Chem. Eng.* 2021 | 52.9% | `indeterminate` | **decided** — `bogdan` lower, below 51% IL recycling |
-| [`benchmarks/letermovir`](../../benchmarks/letermovir/) | Sorgenfrei et al., *J. Am. Chem. Soc.* 2025 (CC BY) | 75.5% | `indeterminate` | not attempted |
-| [`zif8-dmf-vs-glycerol-carbonate`](zif8-dmf-vs-glycerol-carbonate/) | Sessa et al., *ChemSusChem* 2025 (CC BY) | 6.8% | (below `min_delta_coverage`, no ranking attempted) | not attempted |
+| Case study | Paper | Coverage | Verdict |
+|---|---|---|---|
+| [`beta-arbutin-chemical-vs-enzymatic`](beta-arbutin-chemical-vs-enzymatic/) | Cepanec & Litvić, *ARKIVOC* 2008 (chemical) + Arend et al., *Biotechnol. Bioeng.* 2001 (enzymatic) | 97.9% | **decided** — enzymatic lower, holds at every yield 5–100% and every solvent recovery up to 99.99% |
+| [`ibuprofen-bogdan-vs-enzymatic`](ibuprofen-bogdan-vs-enzymatic/) | Grimaldi et al., *ACS Sustainable Chem. Eng.* 2021 | 52.9% | `indeterminate` from factors alone; **decided from bounds** — `bogdan` lower, below 51% IL recycling |
+| [`benchmarks/letermovir`](../../benchmarks/letermovir/) | Sorgenfrei et al., *J. Am. Chem. Soc.* 2025 (CC BY) | 75.5% | `indeterminate` |
+| [`zif8-dmf-vs-glycerol-carbonate`](zif8-dmf-vs-glycerol-carbonate/) | Sessa et al., *ChemSusChem* 2025 (CC BY) | 6.8% | (below `min_delta_coverage`, no ranking attempted) |
 
-Letermovir has the highest coverage and is the demo in the top-level
-README, since it best shows carbonroute narrowing a comparison as far as
-public data allows.
+Letermovir has the highest coverage among the papers that end
+`indeterminate`, and is the demo in the top-level README, since it best
+shows carbonroute narrowing a comparison as far as public data allows
+without resolving it completely.
 
-**Ibuprofen is the one that gets decided.** It has the *worst* coverage of
-the two, and it is nonetheless the case that ends in an answer — because
-`--bounds` (see [`docs/bounds.md`](../../docs/bounds.md)) asks whether the
-ranking is the same everywhere the missing factors could be, rather than
-what they are. Seven of its nine unresolved materials turn out to be
-incapable of changing the answer at any value; the whole comparison
-reduces to one inequality about one ionic liquid, and to one recycling
-rate. That case study's `SOURCES.md` is the fullest worked example in the
-repository, and it also records the ledger defect that getting a decisive
-answer exposed.
+**β-arbutin is the most straightforwardly decisive case**, at 97.9%
+coverage: the resolved factors alone put P > 0.9999 on the enzymatic route
+being lower, and neither the enzymatic reaction's own (unverifiable)
+conversion efficiency nor the chemical route's solvent recovery rate
+changes that anywhere in the range tested. It also carries the most
+important caveat of any case study here: its chemical-route data is a
+first-generation academic bench procedure, not a disclosed industrial
+process, and that is very likely why its solvent-mass burden is so large —
+see its `SOURCES.md` for how directly that was checked, rather than
+assumed away.
+
+**Ibuprofen is the one that needed `--bounds` to get decided.** At 52.9%
+coverage — the *worst* of the four — the factors alone say
+`indeterminate`, but `--bounds` (see [`docs/bounds.md`](../../docs/bounds.md))
+asks whether the ranking is the same everywhere the missing factors could
+be, rather than what they are. Seven of its nine unresolved materials turn
+out to be incapable of changing the answer at any value; the whole
+comparison reduces to one inequality about one ionic liquid, and to one
+recycling rate. That case study's `SOURCES.md` is the fullest worked
+example in the repository, and it also records the ledger defect that
+getting a decisive answer exposed.
 
 ## Reproducing a case study
 

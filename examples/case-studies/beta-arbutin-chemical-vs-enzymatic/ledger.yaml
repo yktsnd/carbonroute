@@ -1,0 +1,110 @@
+schema_version: "0.1"
+
+# beta-arbutin: chemical (Helferich/BF3-catalysed glycosylation) vs enzymatic
+# (UDP-glucose-dependent glycosyltransferase, "arbutin synthase") synthesis
+# from hydroquinone. See SOURCES.md for full citations and derivation of
+# every mass_kg value below -- both routes are built from real, directly-
+# read primary sources, not estimated.
+#
+# Both routes use yield: 1.0 throughout: real step yields from the sources
+# are already baked into mass_kg (the same convention used in
+# examples/case-studies/ibuprofen-bogdan-vs-enzymatic/, for the same reason
+# -- the schema's own yield-based FU scaling assumes a single mass-basis
+# product flowing through steps of matching molecular weight, which breaks
+# across a multi-step synthesis where the compound itself changes at every
+# step). The one exception is the enzymatic route's own conversion
+# efficiency, which is deliberately left as a real, swept `yield` field --
+# see the note on that route below and SOURCES.md's threshold analysis.
+assumptions:
+  functional_unit: {mass_kg: 1.0, basis: product}
+  boundary: cradle-to-gate
+  grid_factor:
+    id: none-charged
+    value_kgCO2e_per_kWh: 0.0
+    source: >
+      No electricity is charged in either route (see each route's notes on
+      why); this value is unused but required by the schema.
+    uncertainty_class: assumption
+  gwp_method: {name: IPCC-AR6, horizon_years: 100, feedbacks: false}
+  solvent_recovery_default: 0.0
+  waste_treatment: excluded
+  monte_carlo: {iterations: 10000, seed: 20240101}
+  indeterminate_band: {low: 0.4, high: 0.6}
+
+routes:
+  chemical:
+    label: "Chemical (BF3-catalysed Helferich glycosylation)"
+    steps:
+      # Step 1: prepare the aglycone donor, 4-hydroxyphenyl acetate (3),
+      # by acid-catalysed transesterification of hydroquinone diacetate (6)
+      # with hydroquinone (5). Cepanec & Litvic 2008, Experimental Section,
+      # "Preparation of 4-hydroxyphenylacetate (3)": 19.41 g (0.1 mol) of 6
+      # + 11.01 g (0.1 mol) of 5 + 0.1 mL (184 mg, 1.9 mmol, 2 mol%) H2SO4
+      # in 60 mL toluene, reflux 1 h -> 30.18 g (99.2%) of 3. Scaled to the
+      # 10.539 mol of donor "3" needed downstream (see step 2), at that same
+      # 99.2% yield.
+      - id: 1
+        yield: 1.0
+        inputs:
+          - {name: "hydroquinone diacetate", cas: "1205-91-0", mass_kg: 2.0465, role: reactant}
+          - {name: "hydroquinone", cas: "123-31-9", mass_kg: 1.1605, role: reactant}
+          - {name: "sulfuric acid", cas: "7664-93-9", mass_kg: 0.019638, role: reagent}
+          - {name: "toluene", cas: "108-88-3", mass_kg: 10.9647, role: solvent}
+          - {name: "water", cas: "7732-18-5", mass_kg: 15.8084, role: solvent}
+        electricity_kWh: 0.0
+      # Step 2: BF3.Et2O-catalysed glycosylation of penta-O-acetyl-beta-D-
+      # glucopyranose (2b) with the donor "3" carried from step 1, giving
+      # penta-O-acetyl-beta-arbutin (4b). Cepanec & Litvic 2008, "General
+      # procedure for penta-O-acetyl-alpha,beta-arbutin": 2b (3.90 g,
+      # 10 mmol) + 3 (2.28 g, 15 mmol, 1.5 eq, carried from step 1) +
+      # BF3.Et2O (50%, 2.5 mL, 10 mmol, 1.0 eq) in 50 mL anhydrous CH2Cl2,
+      # reflux 72 h -> 3.01 g (62%) of 4b, based on the limiting reagent 2b.
+      - id: 2
+        yield: 1.0
+        inputs:
+          - {name: "1,2,3,4,6-penta-O-acetyl-beta-D-glucopyranose", cas: "604-69-3", mass_kg: 2.7206, role: reactant}
+          - {name: "boron trifluoride diethyl etherate", cas: "6681-36-3", mass_kg: 0.9892, role: catalyst}
+          - {name: "dichloromethane", cas: "75-09-2", mass_kg: 46.1745, role: solvent}
+        electricity_kWh: 0.0
+      # Step 3: deprotection of 4b (carried from step 2) by saponification.
+      # Cepanec & Litvic 2008, "General procedure for preparation of
+      # alpha,beta-arbutin": 4b (485 mg, 1 mmol) + K2CO3 (2.07 g, 15 mmol)
+      # in 50 mL MeOH + 10 mL water, r.t./N2/24 h, then quenched with
+      # methanolic H2SO4 (0.4 mL, 0.74 g, 7.5 mmol), extracted with 3x50 mL
+      # boiling EtOAc -> 230 mg (85%) of pure beta-arbutin (1b).
+      - id: 3
+        yield: 1.0
+        inputs:
+          - {name: "potassium carbonate", cas: "584-08-7", mass_kg: 8.9450, role: reagent}
+          - {name: "sulfuric acid", cas: "7664-93-9", mass_kg: 3.1977, role: reagent}
+          - {name: "methanol", cas: "67-56-1", mass_kg: 171.1211, role: solvent}
+          - {name: "water", cas: "7732-18-5", mass_kg: 43.2124, role: solvent}
+          - {name: "ethyl acetate", cas: "141-78-6", mass_kg: 584.6638, role: solvent}
+        electricity_kWh: 0.0
+
+  enzymatic:
+    label: "Enzymatic (UDP-glucose-dependent glycosyltransferase, 'arbutin synthase')"
+    steps:
+      # Single-step whole-cell/enzymatic biotransformation: hydroquinone +
+      # UDP-glucose -> beta-arbutin + UDP, catalysed by the arbutin synthase
+      # (AS) glycosyltransferase from Rauvolfia serpentina, as characterised
+      # in recombinant E. coli by Arend, Warzecha, Hefner & Stockigt (2001),
+      # Biotechnol. Bioeng. 76, 126-131 -- the enzyme system the review
+      # "Chemical and Biocatalytic Routes to Arbutin" (Cardoso et al. 2019,
+      # MDPI Molecules 24, 3303) identifies as the direct hydroquinone ->
+      # beta-arbutin glycosyltransferase route. This paper is paywalled and
+      # its exact reported conversion percentage could not be independently
+      # verified this session (see SOURCES.md) -- so, unlike the chemical
+      # route, this step's `yield` is NOT sourced from the literature. It is
+      # set to 0.5 purely as an illustrative baseline; mass_kg for both
+      # inputs is the real 1:1 reaction stoichiometry (basis: stoichiometric,
+      # computed from standard atomic weights, not a citable "amount
+      # charged"), so this route's yield can be swept honestly with
+      # `carbonroute compare`'s reversal-threshold scan -- see SOURCES.md for
+      # the resulting crossover against the chemical route above.
+      - id: 1
+        yield: 0.5
+        inputs:
+          - {name: "hydroquinone", cas: "123-31-9", mass_kg: 0.40450, role: reactant}
+          - {name: "uridine diphosphate glucose", cas: "133-89-1", mass_kg: 2.08000, role: reagent}
+        electricity_kWh: 0.0
