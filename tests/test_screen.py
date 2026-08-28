@@ -18,6 +18,7 @@ from carbonroute.screen import (
     ScreenResult,
     break_even_frontier,
     count_protectable_groups,
+    count_substructure,
     load_reactions,
     load_structures,
     load_template,
@@ -25,6 +26,7 @@ from carbonroute.screen import (
     parse_reaction,
     rank_by_advantage,
     screen_all,
+    screen_reaction,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -376,6 +378,103 @@ def test_the_break_even_frontier_slopes_the_only_way_it_can(inputs):
     # enzyme costs the class ~14 points of the median threshold.
     assert curve[0].median_threshold == pytest.approx(0.8642, abs=0.002)
     assert curve[-1].median_threshold == pytest.approx(0.7247, abs=0.002)
+
+
+# --- what bond was formed, which the mass delta cannot see -------------------
+
+ACETYL_ON_HETEROATOM = "[O,N,n,S;!$([O,N,S]=*)][CX3](=[OX1])[CH3]"
+
+
+def test_count_substructure_counts_a_bond_not_a_mass():
+    # Ethyl acetate has one acetyl on an oxygen; acetone has none on any
+    # heteroatom, though both are small carbonyls.
+    assert count_substructure("CC(=O)OCC", ACETYL_ON_HETEROATOM) == 1
+    assert count_substructure("CC(=O)C", ACETYL_ON_HETEROATOM) == 0
+    assert count_substructure("not-a-smiles", ACETYL_ON_HETEROATOM) is None
+    assert count_substructure("CCO", "not-a-smarts(") is None
+
+
+def _acetyl_template(tmp_path: Path, *, bond: bool, ec: bool) -> Path:
+    p = tmp_path / "acetyl.yaml"
+    lines = [
+        "reaction_class:",
+        "  id: acetyl",
+        "  name: Acetylation",
+        "  cofactor_chebi: 'CHEBI:57288'",
+        "  expected_mass_delta: 42.037",
+    ]
+    if bond:
+        lines.append(f"  transferred_bond_smarts: '{ACETYL_ON_HETEROATOM}'")
+    if ec:
+        lines.append("  ec_prefix: '2.3.1'")
+    lines += [
+        "chemical_counterpart:",
+        "  name: C",
+        "  source: S",
+        "  materials:",
+        "    - {name: acetic anhydride, cas: '108-24-7', kg_per_mol_product: 0.102,"
+        " basis: sourced, note: n}",
+    ]
+    p.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return p
+
+
+def test_ec_prefix_narrows_a_cofactor_that_does_more_than_one_thing(inputs, tmp_path):
+    """Acetyl-CoA is consumed by 347 reactions in Rhea. Only a fraction are
+    acyl transfers; the rest are Claisen condensations, redox steps and the
+    cofactor's own hydrolysis. Without `ec_prefix` the class is the whole
+    neighbourhood."""
+    reactions = inputs[0]
+    wide = load_template(_acetyl_template(tmp_path, bond=False, ec=False))
+    narrow_dir = tmp_path / "n"
+    narrow_dir.mkdir()
+    narrow = load_template(_acetyl_template(narrow_dir, bond=False, ec=True))
+    assert wide.ec_prefix is None and narrow.ec_prefix == "2.3.1"
+    assert sum(1 for r in reactions if wide.matches(r)) == 347
+    assert sum(1 for r in reactions if narrow.matches(r)) == 138
+
+
+def test_the_bond_check_rejects_chemistry_the_mass_check_lets_through(inputs, tmp_path):
+    """The finding that made this check necessary.
+
+    RHEA:21564 (an acyl-CoA + acetyl-CoA = a 3-oxoacyl-CoA + CoA) is a
+    beta-ketoacyl synthase: a Claisen condensation forming a carbon-carbon
+    bond. It consumes acetyl-CoA, it is annotated EC 2.3.1, and it adds
+    exactly the 42.04 g/mol an acetylation adds -- so cofactor, EC group and
+    mass delta all wave it through. It is not an acetylation, and no
+    acetic-anhydride procedure is a counterpart for it. Only asking what bond
+    was formed catches it.
+    """
+    reactions, _tpl, structures, table, assumptions, bounds = inputs
+    template = load_template(_acetyl_template(tmp_path, bond=True, ec=True))
+    by_id = {r.rhea_id: r for r in reactions}
+
+    claisen = screen_reaction(
+        by_id["RHEA:21564"], template, structures, table, assumptions, bounds
+    )
+    assert not claisen.decided
+    assert "not 1" in claisen.skipped_reason and "different transformation" in claisen.skipped_reason
+
+    # A genuine N-acetylation in the same EC group, same donor, same mass.
+    real = screen_reaction(
+        by_id["RHEA:24292"], template, structures, table, assumptions, bounds
+    )
+    assert real.skipped_reason == ""
+    assert real.acceptor_name == "L-glutamate"
+
+
+def test_the_shipped_glycosylation_class_declares_no_bond_check(screened):
+    """It does not need one, and saying so is part of the claim.
+
+    UDP-hexose is the rare cofactor that does one thing: every resolvable
+    acceptor/product pair in the class lands on the anhydrohexosyl mass, and
+    the exclusions were verified by hand. The bond check exists for donors
+    like acetyl-CoA that do not behave that way, and switching it on here
+    would imply a doubt the data does not support.
+    """
+    assert screened.template.transferred_bond_smarts is None
+    assert screened.template.ec_prefix is None
+    assert screened.matched == 406
 
 
 # --- ranking on a quantity that survives leaving the class ------------------

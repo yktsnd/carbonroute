@@ -257,6 +257,27 @@ def count_protectable_groups(smiles: str) -> int | None:
     return total
 
 
+def count_substructure(smiles: str, smarts: str) -> int | None:
+    """How many times `smarts` occurs in `smiles`. None if either won't parse.
+
+    Used to check *what bond a reaction forms*, which the mass delta cannot
+    see. Two reactions can add the same mass to the same acceptor and be
+    different chemistry: transferring an acetyl onto a hydroxyl makes an
+    ester, and condensing the same acetyl onto a carbon makes a ketone. Both
+    add 42.04. Only one of them is an acetylation.
+    """
+    try:
+        from rdkit import Chem, RDLogger
+    except ImportError as exc:  # pragma: no cover - environment-dependent
+        raise ScreenError('screening needs RDKit; install with: pip install -e ".[chem]"') from exc
+    RDLogger.DisableLog("rdApp.*")
+    mol = Chem.MolFromSmiles(smiles)
+    patt = Chem.MolFromSmarts(smarts)
+    if mol is None or patt is None:
+        return None
+    return len(mol.GetSubstructMatches(patt))
+
+
 # --- the class template -----------------------------------------------------
 
 
@@ -313,6 +334,22 @@ class ClassTemplate:
     #: checkable structural fact rather than a judgment call.
     expected_mass_delta: float
     mass_delta_tolerance: float = 1.0
+    #: SMARTS for the bond this transformation creates, counted on the
+    #: acceptor and on the product: a genuine member gains exactly one per
+    #: group transferred. Optional, and only worth setting where the mass
+    #: delta is not enough on its own -- but for a chemically mixed cofactor
+    #: it is the difference between a class and a coincidence. Acetyl-CoA is
+    #: the case that forced it: restricting to EC 2.3.1 *and* to a +42.04
+    #: mass delta still admits beta-ketoacyl syntheses, which condense the
+    #: same acetyl onto a carbon rather than transferring it onto a
+    #: heteroatom. Same donor, same mass, same EC-3 group, different
+    #: chemistry and a completely different chemical counterpart.
+    transferred_bond_smarts: str | None = None
+    #: Restricts the class to reactions whose EC number starts with this,
+    #: e.g. "2.3.1". Left unset the class is defined by its cofactor alone,
+    #: which is right only where that cofactor does one thing (UDP-hexose).
+    #: Where it does several, this is the field that says which one.
+    ec_prefix: str | None = None
     assumptions_note: str = ""
     #: The source procedure's own overall yield, if it reported one. Never
     #: applied to anything: the materials are already stated per mole of
@@ -325,19 +362,28 @@ class ClassTemplate:
     def matches(self, rxn: RheaReaction) -> bool:
         """True when this template's cofactor is consumed by `rxn`.
 
-        Matching is on the cofactor appearing as a *reactant*, not on the EC
-        number: EC numbers are incomplete in Rhea (many reactions carry none)
-        and describe the enzyme, while what decides whether a chemical
-        counterpart is even a candidate is what the transformation consumes.
+        Matching is primarily on the cofactor appearing as a *reactant*, not
+        on the EC number: EC numbers are incomplete in Rhea (only 41% of
+        reactions carry one) and describe the enzyme, while what decides
+        whether a chemical counterpart is even a candidate is what the
+        transformation consumes.
 
-        This is necessary but not sufficient -- a cofactor is consumed by
-        every reaction in its biochemical neighbourhood, not just the clean
-        group-transfer ones (CoA, for instance, is also consumed by Claisen
-        condensations and redox steps that share nothing with acetylation).
-        `screen_reaction` applies the `expected_mass_delta` check afterward
-        to reject those; `matches` alone only narrows the field.
+        That is necessary but nowhere near sufficient. A cofactor is consumed
+        by every reaction in its biochemical neighbourhood, and for a mixed
+        one the field has to be narrowed twice more: `ec_prefix` here, then
+        `expected_mass_delta` and `transferred_bond_smarts` in
+        `screen_reaction`. Acetyl-CoA needs all three -- 347 reactions
+        consume it, 138 of those are EC 2.3.1, and 9 of *those* still add
+        42.04 g/mol without being acetylations at all.
         """
-        return any(p.chebi in self.cofactor_chebi for p in rxn.left)
+        if not any(p.chebi in self.cofactor_chebi for p in rxn.left):
+            return False
+        if self.ec_prefix is None:
+            return True
+        return any(
+            tok.removeprefix("EC:").startswith(self.ec_prefix)
+            for tok in rxn.ec.replace(";", " ").split()
+        )
 
 
 def _source_yield(chem: dict, path: str | Path) -> float | None:
@@ -439,6 +485,8 @@ def load_template(path: str | Path) -> ClassTemplate:
         mass_delta_tolerance=mass_delta_tolerance,
         assumptions_note=chem.get("assumptions_note", ""),
         source_overall_yield=_source_yield(chem, path),
+        transferred_bond_smarts=cls.get("transferred_bond_smarts"),
+        ec_prefix=cls.get("ec_prefix"),
     )
 
 
@@ -634,6 +682,34 @@ def screen_reaction(
                 ),
             }
         )
+
+    # The mass delta says how much was added. It cannot say what it was added
+    # *to*, and for a chemically mixed cofactor that is the whole question:
+    # transferring an acetyl onto a hydroxyl makes an ester, condensing the
+    # same acetyl onto a carbon makes a ketone, and both weigh 42.04. A class
+    # whose donor does more than one thing declares the bond it forms, and a
+    # genuine member gains exactly one per group transferred.
+    if template.transferred_bond_smarts is not None:
+        before = count_substructure(acceptor_smiles, template.transferred_bond_smarts)
+        after = count_substructure(product_smiles, template.transferred_bond_smarts)
+        if before is None or after is None:
+            return ScreenResult(
+                **{
+                    **blank.__dict__,
+                    "skipped_reason": "acceptor or product structure would not parse",
+                }
+            )
+        if after - before != cofactor_coeff:
+            return ScreenResult(
+                **{
+                    **blank.__dict__,
+                    "skipped_reason": (
+                        f"adds the right mass but forms {after - before} of this "
+                        f"class's bond, not {cofactor_coeff:g} -- consumes the "
+                        "cofactor for a different transformation"
+                    ),
+                }
+            )
 
     n_protect = count_protectable_groups(acceptor_smiles)
     if n_protect is None:
