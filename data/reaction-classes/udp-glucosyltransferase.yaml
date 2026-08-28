@@ -32,6 +32,15 @@ reaction_class:
     the cofactor rather than the EC number, because many Rhea reactions carry
     no EC annotation at all while every member of this class necessarily
     consumes the cofactor.
+  # A genuine hexosylation adds one anhydroglucosyl unit (C6H10O5) to the
+  # acceptor: 6*12.011 + 10*1.008 + 5*15.999 = 162.14 g/mol, verified via
+  # RDKit against hydroquinone -> beta-arbutin (162.141 observed). Reactions
+  # that consume UDP-glucose without adding this mass -- there are a
+  # handful, e.g. isomerisations or reactions this parser mis-identifies
+  # the acceptor/product for -- are excluded rather than mis-templated;
+  # see screen.py's ClassTemplate.matches for why this check exists at all.
+  expected_mass_delta: 162.14
+  mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:58885"
   cofactor_role: reagent
 

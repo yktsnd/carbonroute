@@ -47,11 +47,21 @@ real published chemical procedure:
 
 That threshold is the honest headline, not a win count. It is the
 chemical-route solvent recovery rate at which each reaction's verdict
-stops holding — and **none of the 256 decided reactions survives 99%
+stops holding — and **none of the 250 decided reactions survives 99%
 recovery**, against the 90–95% real industrial distillation achieves. The
-finding is not "enzymes win 256 times." It is: *in this class, the
+finding is not "enzymes win 250 times." It is: *in this class, the
 enzymatic advantage is real but bounded, and does not survive industrial
 solvent recycling* — a falsifiable claim, not a marketing number.
+
+**What "about one second" does and doesn't cover.** That's the runtime of
+scoring 263 reactions against a class template that already exists — pure
+arithmetic, no lookup. It is not the cost of producing that template. A
+template starts from one real, fully-quantified published chemical
+procedure, found and verified by actually reading the paper — the same
+discipline every row of `data/factors/` is held to, and no faster than it.
+Screening scales for free with the number of *reactions*; it does not make
+the next *class* free to add. See "Why 18,558 reactions is a bounded
+problem" below for what does scale, and why.
 
 The mechanism the screen exists to measure shows up directly in the
 spread: the threshold **rises with the number of groups on the substrate a
@@ -99,7 +109,7 @@ independently built ledger in
 [`examples/case-studies/beta-arbutin-chemical-vs-enzymatic/`](examples/case-studies/beta-arbutin-chemical-vs-enzymatic/).
 The screen reproduces that ledger's product mass, acceptor, cofactor
 charge and verdict direction exactly, and a test asserts it. Without that
-agreement, the other 262 rows would only be reporting on their own
+agreement, the other 249 rows would only be reporting on their own
 template — with it, the template has been checked against real,
 independently sourced chemistry.
 

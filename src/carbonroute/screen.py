@@ -295,16 +295,31 @@ class ClassTemplate:
     chemical_name: str
     chemical_source: str
     materials: tuple[TemplateMaterial, ...]
+    #: The mass (g/mol) a genuine member of this class adds to the acceptor
+    #: -- +14.03 (CH2) for a methylation, +42.04 (C2H2O) for an acetylation,
+    #: +162.14 (C6H10O5) for a hexosylation, and so on. Required: a cofactor
+    #: is not a reaction type on its own (see the module docstring's note on
+    #: CoA and SAM covering several unrelated transformations), and this is
+    #: the one part of "does this reaction belong in this class" that is a
+    #: checkable structural fact rather than a judgment call.
+    expected_mass_delta: float
+    mass_delta_tolerance: float = 1.0
     assumptions_note: str = ""
 
     def matches(self, rxn: RheaReaction) -> bool:
-        """True when this template's chemical counterpart applies to `rxn`.
+        """True when this template's cofactor is consumed by `rxn`.
 
         Matching is on the cofactor appearing as a *reactant*, not on the EC
         number: EC numbers are incomplete in Rhea (many reactions carry none)
         and describe the enzyme, while what decides whether a chemical
-        counterpart is the same shape is what the transformation actually
-        consumes.
+        counterpart is even a candidate is what the transformation consumes.
+
+        This is necessary but not sufficient -- a cofactor is consumed by
+        every reaction in its biochemical neighbourhood, not just the clean
+        group-transfer ones (CoA, for instance, is also consumed by Claisen
+        condensations and redox steps that share nothing with acetylation).
+        `screen_reaction` applies the `expected_mass_delta` check afterward
+        to reject those; `matches` alone only narrows the field.
         """
         return any(p.chebi == self.cofactor_chebi for p in rxn.left)
 
@@ -323,6 +338,20 @@ def load_template(path: str | Path) -> ClassTemplate:
         chem = raw["chemical_counterpart"]
     except KeyError as exc:
         raise ScreenError(f"{p}: missing top-level key {exc}") from exc
+
+    if "expected_mass_delta" not in cls:
+        raise ScreenError(
+            f"{p}: reaction_class.expected_mass_delta is required -- the mass "
+            "(g/mol) a genuine member of this class adds to the acceptor. "
+            "Without it, every reaction that merely consumes this cofactor "
+            "would be screened as if it were the same transformation, "
+            "including ones that are not (see ClassTemplate.matches)."
+        )
+    try:
+        expected_mass_delta = float(cls["expected_mass_delta"])
+    except (TypeError, ValueError) as exc:
+        raise ScreenError(f"{p}: reaction_class.expected_mass_delta is not a number") from exc
+    mass_delta_tolerance = float(cls.get("mass_delta_tolerance", 1.0))
 
     materials: list[TemplateMaterial] = []
     for entry in chem.get("materials", []):
@@ -358,6 +387,8 @@ def load_template(path: str | Path) -> ClassTemplate:
         chemical_name=chem["name"],
         chemical_source=chem["source"],
         materials=tuple(materials),
+        expected_mass_delta=expected_mass_delta,
+        mass_delta_tolerance=mass_delta_tolerance,
         assumptions_note=chem.get("assumptions_note", ""),
     )
 
@@ -457,6 +488,53 @@ def screen_reaction(
     if not product_mw:
         return ScreenResult(**{**blank.__dict__, "skipped_reason": "product structure would not parse"})
 
+    acceptor_mw = molecular_weight(acceptor_smiles)
+    if not acceptor_mw:
+        return ScreenResult(**{**blank.__dict__, "skipped_reason": "acceptor structure would not parse"})
+
+    cofactor_coeff = next(
+        p.coefficient for p in rxn.left if p.chebi == template.cofactor_chebi
+    )
+
+    # The class-defining check: does this reaction actually add the group this
+    # template models, or does it merely happen to consume the same cofactor?
+    # A cofactor is not a reaction type on its own -- see ClassTemplate.matches.
+    #
+    # Two real effects have to be accounted for before rejecting a mismatch,
+    # both found by inspecting what this check actually excluded on the
+    # shipped UDP-glucosyltransferase class:
+    #
+    # - a reaction transferring the group N times (N UDP-glucose consumed,
+    #   e.g. a bis-glucoside) adds N times the mass of one transfer, so the
+    #   target scales by the cofactor's own stoichiometric coefficient; and
+    # - ChEBI records the same acceptor or product at whichever protonation
+    #   state its curators used -- often a carboxylate acceptor paired with
+    #   a neutral ester product, or vice versa -- so a genuine match can be
+    #   off by one proton's mass (1.008) purely from that bookkeeping, not
+    #   from a different reaction. Both signs are accepted for the same
+    #   reason charge state is not itself chemistry.
+    #
+    # What this does NOT paper over: a reaction where the "acceptor" is
+    # water (the cofactor's own hydrolysis) or where product and acceptor
+    # are isomers of each other (a sugar-nucleotide exchange) lands far
+    # outside either window and is correctly excluded -- verified by hand
+    # against every exclusion bucket before this comment was written.
+    _PROTON = 1.00784
+    expected = template.expected_mass_delta * cofactor_coeff
+    observed_delta = product_mw - acceptor_mw
+    candidates = (expected, expected + _PROTON, expected - _PROTON)
+    if min(abs(observed_delta - c) for c in candidates) > template.mass_delta_tolerance:
+        return ScreenResult(
+            **{
+                **blank.__dict__,
+                "skipped_reason": (
+                    f"mass added ({observed_delta:.2f}) does not match this class's "
+                    f"expected {expected:.2f} (+/- one proton) -- consumes the "
+                    "cofactor but is not this transformation"
+                ),
+            }
+        )
+
     n_protect = count_protectable_groups(acceptor_smiles)
     if n_protect is None:
         return ScreenResult(**{**blank.__dict__, "skipped_reason": "acceptor structure would not parse"})
@@ -471,9 +549,6 @@ def screen_reaction(
     cofactor_mw = molecular_weight(cofactor_smiles) if cofactor_smiles else None
     if not cofactor_mw:
         return ScreenResult(**{**blank.__dict__, "skipped_reason": "no usable cofactor structure"})
-    cofactor_coeff = next(
-        p.coefficient for p in rxn.left if p.chebi == template.cofactor_chebi
-    )
     cofactor_kg = mol_per_fu * cofactor_coeff * cofactor_mw / 1000.0
 
     def diff_at(solvent_recovery: float) -> DiffResult:

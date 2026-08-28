@@ -101,6 +101,7 @@ def _write_template(tmp_path: Path, materials: str) -> Path:
     p.write_text(
         "reaction_class:\n"
         "  id: t\n  name: T\n  cofactor_chebi: 'CHEBI:58885'\n"
+        "  expected_mass_delta: 162.14\n"
         "chemical_counterpart:\n"
         "  name: C\n  source: S\n  materials:\n" + materials,
         encoding="utf-8",
@@ -155,7 +156,13 @@ def screened():
 
 def test_the_class_matches_the_expected_number_of_reactions(screened):
     assert screened.matched == 263
-    assert len(screened.decided) == 256
+    # 13 of the 263 are excluded by the mass-delta check, not silently
+    # templated as glycosylations: 7 where an acceptor/product pair could
+    # not be identified, and 6 that consume UDP-glucose for a genuinely
+    # different transformation (its own hydrolysis, a sugar-nucleotide
+    # exchange) -- verified by hand for every exclusion bucket; see
+    # screen_reaction's comment on the check.
+    assert len(screened.decided) == 250
 
 
 def test_screen_reproduces_the_hand_built_case(screened):
@@ -164,7 +171,7 @@ def test_screen_reproduces_the_hand_built_case(screened):
 
     A screen that disagreed with the one case it was derived from would be
     reporting on its own template rather than on chemistry, so this is the
-    test that gives the other 262 rows any standing at all.
+    test that gives the other 249 rows any standing at all.
     """
     r = next(x for x in screened.results if x.rhea_id == "RHEA:12560")
     assert r.acceptor_name == "hydroquinone"
@@ -184,7 +191,7 @@ def test_no_reaction_in_this_class_survives_industrial_solvent_recovery(screened
 
     Every verdict here is decided at zero solvent recovery, but the template
     comes from a bench procedure that discards over 800 kg of solvent per kg
-    of product. None of the 256 survives 99% recovery, and the whole
+    of product. None of the 250 survives 99% recovery, and the whole
     distribution sits below the 90-95% a real plant achieves by distillation.
     If this ever starts passing, the class's advantage has stopped being an
     artefact of glassware and the claim can be made much more strongly.
@@ -219,3 +226,27 @@ def test_bis_glycosylation_scales_the_chemical_side_too(screened):
         pytest.skip("RHEA:31543 not in this snapshot")
     # It should sit inside the class's normal band, not far below it.
     assert r.recovery_threshold > 0.80
+
+
+def test_mass_delta_check_excludes_reactions_that_are_not_this_transformation(screened):
+    """RHEA:29555 consumes UDP-glucose but is the cofactor's OWN hydrolysis
+    (UDP-glucose + H2O -> glucose 1-phosphate + UMP), not a transfer onto an
+    external acceptor -- `_identify` mistakes water for the acceptor, and the
+    mass-delta check is what actually catches it. RHEA:13989 is a sugar-
+    nucleotide exchange (galactose 1-phosphate + UDP-glucose -> glucose
+    1-phosphate + UDP-galactose) where nothing is added at all. Both consume
+    the cofactor; neither belongs in a glycosylation class."""
+    for rhea_id in ("RHEA:29555", "RHEA:13989"):
+        r = next(x for x in screened.results if x.rhea_id == rhea_id)
+        assert not r.decided
+        assert "does not match this class's expected" in r.skipped_reason
+
+
+def test_mass_delta_check_tolerates_chebis_own_charge_state_bookkeeping(screened):
+    """RHEA:13437 (cinnamate -> 1-O-cinnamoyl-beta-D-glucose) is a genuine
+    glycosylation, but ChEBI records the acceptor as the carboxylate anion
+    and the product as the neutral ester, so the raw mass delta is short by
+    one proton (161.13, not 162.14). It must still be screened, not silently
+    dropped for a database bookkeeping artefact that isn't chemistry."""
+    r = next(x for x in screened.results if x.rhea_id == "RHEA:13437")
+    assert r.decided
