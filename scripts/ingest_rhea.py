@@ -172,7 +172,11 @@ def write_participants(
     with path.open("w", encoding="utf-8", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["chebi_id", "name", "n_reactions", "share_of_reactions", "smiles"])
-        for chebi, count in freq.most_common():
+        # Sorted by count, then by id. The id tiebreak is not cosmetic:
+        # `Counter.most_common` leaves equal counts in insertion order, so
+        # without it a re-run of this script reorders hundreds of tied rows
+        # and produces a large diff that says nothing changed.
+        for chebi, count in sorted(freq.items(), key=lambda kv: (-kv[1], kv[0])):
             w.writerow(
                 [
                     chebi,
