@@ -1,0 +1,95 @@
+substance:
+  name: 1-butyl-3-methylimidazolium chloride
+  cas: "79917-90-1"
+  inchikey: FHDQNOXQSTVAIC-UHFFFAOYSA-M
+
+route:
+  name: "N-alkylation (quaternization) of 1-methylimidazole with 1-chlorobutane"
+  description: >
+    1-Methylimidazole is alkylated at the ring nitrogen by 1-chlorobutane in
+    ethyl acetate, giving 1-butyl-3-methylimidazolium chloride ([BMIM]Cl)
+    directly. This is the first of the two steps industry and the ionic-
+    liquid literature use to make [BMIM][PF6] (see
+    1-butyl-3-methylimidazolium-hexafluorophosphate.yaml, the second step:
+    anion exchange of this chloride with a hexafluorophosphate salt), and is
+    also the entry point for the whole family of [BMIM]+ ionic liquids
+    (bromide, BF4, PF6, ...) via the same chloride intermediate.
+  stoichiometry: "C4H6N2 (1-methylimidazole) + C4H9Cl (1-chlorobutane) -> C8H15ClN2 ([BMIM]Cl)"
+  yield: 0.822
+  yield_source:
+    document: >
+      ChemSpider Synthetic Pages, entry 747, "Alkylation of 1-Methylimidazole
+      with 1-Chlorobutane", contributed by the Tom Welton group, Department
+      of Chemistry, Imperial College London (submitted by Jeraime Griffith
+      et al., 18 June 2014). DOI 10.1039/SP747.
+    url: "https://cssp.chemspider.com/747"
+    locator: >
+      "Primary Procedure": "1-methylimidazole (70 mL, 886.7 mmol)",
+      "1-chlorobutane (120 mL, 1.149 mol)", "ethyl acetate (120 mL)";
+      1-chlorobutane added dropwise with stirring, reaction mixture heated
+      to 45 C for 3 weeks; stated yield "82.2%". The same page also gives a
+      lower-temperature/shorter-time "Alternative Modified Procedure"
+      (1-chlorobutane 102.85 g/1.11 mol, 1-methylimidazole 82.92 g/1.01 mol,
+      ethyl acetate 100 mL, stepped 45 C for 3 days then 75 C for 4 days,
+      isolated 88.21 g product = 50% yield) -- not used here because the
+      Primary Procedure is both higher-yielding and the page's own preferred
+      route; recorded in gaps for completeness.
+
+inputs:
+  - name: 1-methylimidazole
+    cas: "616-47-7"
+    kg_per_kg_product: 0.5718
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: C4H6N2 = 82.106, C4H9Cl = 92.569, C8H15ClN2 = 174.675), divided by the sourced yield above."
+      url: null
+      locator: "Arithmetic."
+  - name: 1-chlorobutane
+    cas: "109-69-3"
+    kg_per_kg_product: 0.6447
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights, divided by the sourced yield above."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  This recipe captures only the theoretical 1:1 stoichiometric charge divided
+  by the stated overall yield -- it does NOT reflect the real charged excess
+  of 1-chlorobutane the source procedure actually used (886.7 mmol
+  methylimidazole against 1.149 mol chlorobutane is a ~1.30x molar excess of
+  the chloride, typical practice for driving an SN2 quaternization to
+  completion). Per this directory's convention (see README.md and e.g.
+  dmf.yaml), only the balanced-equation stoichiometric ratio is used as the
+  input basis; the excess-reagent practice is noted here for a reader's
+  benefit but not modelled, which if anything makes the derived floor for
+  1-chlorobutane specifically an underestimate of real consumption -- i.e.
+  the bound direction (floor, not ceiling) still holds.
+
+  Neither feedstock (1-methylimidazole, 1-chlorobutane) nor the solvent
+  (ethyl acetate) has an openly licensed cradle-to-gate GWP factor in
+  data/factors/ as of this session, and none was found in ADEME Base
+  Carbone or ProBas/GEMIS by direct query -- ADEME's only "1-chlorobutane"
+  entries are IPCC AR6 atmospheric GWP characterization factors for the
+  substance as a greenhouse gas if released (0.01-0.007 kgCO2e/kg), NOT a
+  cradle-to-gate production-emissions factor, and are explicitly not used
+  here for that reason. This recipe therefore does not currently derive a
+  non-zero floor on its own; it exists as sourced groundwork for whenever a
+  factor (direct or itself derived) for either feedstock is added.
+
+gaps:
+  - "No process energy (electricity or fuel/steam) figure for this
+    quaternization was found."
+  - "Neither 1-methylimidazole nor 1-chlorobutane has a factor of its own
+    (held or derived) in this session's data/factors/, so this recipe
+    currently derives nothing -- see notes."
+  - "The source procedure's real reagent excess (~1.30x molar chlorobutane)
+    is not modelled; only the 1:1 balanced-equation stoichiometry is used,
+    per this directory's convention -- see notes."
+  - "This is the upstream feedstock for
+    1-butyl-3-methylimidazolium-hexafluorophosphate.yaml; that file's own
+    anion-exchange yield could not be verified this session (see its own
+    gaps), so the chain does not currently reach [BMIM][PF6] even if this
+    step alone were resolved."

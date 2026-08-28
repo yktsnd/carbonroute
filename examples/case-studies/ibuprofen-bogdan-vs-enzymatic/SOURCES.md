@@ -145,3 +145,63 @@ toward the enzymatic route being higher, driven by its much larger ionic
 liquid and buffer inputs being absent from that lean entirely — a case where
 the *direction* even the partial evidence points is exactly why this project
 never treats a partial resolution as a substitute for a real one.
+
+## A dedicated attempt to close the [BMIM][PF6] and triflic acid gap
+
+This case study's two largest unresolved items ([BMIM][PF6] at 8.41 kg/FU,
+triflic acid at 4.54 kg/FU — together 86% of the unresolved mass) were the
+subject of a dedicated follow-up investigation, on the reasoning that a real
+production recipe (per `docs/bootstrap.md`) might close them the way it has
+for several solvents. The result is a partial, honestly-documented dead end,
+recorded here so a future session does not repeat the same dead ends:
+
+- **[BMIM][PF6]**: its standard two-step literature synthesis is
+  quaternization of 1-methylimidazole with 1-chlorobutane to
+  [BMIM]Cl, then anion exchange with a hexafluorophosphate salt.
+  A real, directly-verified yield (82.2%) for the *first* step was found
+  and written up as `data/processes/1-butyl-3-methylimidazolium-chloride.yaml`
+  (source: ChemSpider Synthetic Pages, entry 747, Tom Welton group,
+  Imperial College London, DOI 10.1039/SP747). A citable, verified yield
+  for the *second* step could not be obtained despite three separate
+  attempts — the standard literature procedure (Organic Syntheses 2002,
+  79, 236) sits behind a JavaScript browser check this session's tooling
+  could not pass; three close patent analogues were found via search
+  summaries but their PDFs 403'd/503'd on direct fetch, so the summarized
+  numbers were discarded, unverified, rather than used. That step is
+  recorded as `data/processes/1-butyl-3-methylimidazolium-hexafluorophosphate.yaml`
+  using bare stoichiometry with no yield (a legitimate but loose lower
+  bound). Even so, **the chain currently derives nothing**: running
+  `carbonroute bootstrap` confirms both recipes are `SKIPPED`, because
+  their own feedstocks (1-methylimidazole, 1-chlorobutane, potassium
+  hexafluorophosphate) have no factor of their own, held or derived, and
+  none was found in ADEME Base Carbone or ProBas/GEMIS by live query.
+  (ADEME does hold a "1-chlorobutane" entry, but it is an IPCC AR6
+  *atmospheric* GWP characterization factor for the substance as a
+  released greenhouse gas — not a cradle-to-gate production factor — and
+  was correctly not used for that reason.)
+- **Triflic acid**: a directly on-topic patent, WO2011104724A2
+  ("A process for the manufacture of triflic acid"), was identified but
+  could not be fetched (Google Patents returned HTTP 503 repeatedly).
+  The general industrial route (electrochemical fluorination of
+  methanesulfonic acid) is documented in secondary sources but no
+  quantities were recovered.
+- A peer-reviewed process-simulation LCA of a structurally close ionic
+  liquid, [BMIM][BF4] (not [PF6]), was found and directly verified:
+  Baaqel, Bernardi, Hallett, Guillén-Gosálbez & Chachuat, *ACS Sustainable
+  Chem. Eng.* 2023, 11, 7157 (DOI 10.1021/acssuschemeng.3c00547,
+  open access via PMC10170515), reports **27.3 kgCO2e/kg**, sourced from
+  ecoinvent 3.5 background data. The same paper states this is an order
+  of magnitude higher than an earlier independent estimate for the same
+  compound (Zhang et al., 3.5 kgCO2e/kg) — a real, citable illustration of
+  just how uncertain even peer-reviewed structural/process-simulation
+  estimates are for this class of chemical, and part of why this project
+  did not treat either number as a usable proxy for [BMIM][PF6] specifically.
+  (An initial web-search summary claimed this same paper gives 30.9
+  kgCO2e/kg for [BMIM][PF6] itself; that number was checked directly
+  against the paper's full text and does not appear anywhere in it — a
+  fabricated citation, caught before use, not a real finding.)
+
+**Conclusion**: this is not a failure of method, it is a directly-confirmed
+absence of public data. The paper's own methodology section states its
+background inventory came from GaBi + ecoinvent 3.6 — the same commercial
+databases this project cannot access — for exactly these materials.

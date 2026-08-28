@@ -1,0 +1,95 @@
+substance:
+  name: 1-butyl-3-methylimidazolium hexafluorophosphate
+  cas: "174501-64-5"
+  inchikey: IXQYBUDWDLYNMA-UHFFFAOYSA-N
+
+route:
+  name: "Anion exchange (metathesis) of 1-butyl-3-methylimidazolium chloride with potassium hexafluorophosphate"
+  description: >
+    [BMIM]Cl (see 1-butyl-3-methylimidazolium-chloride.yaml for its own
+    synthesis) is dissolved in water and treated with a hexafluorophosphate
+    salt (KPF6, NaPF6 or NH4PF6 are all used in the literature); the denser
+    [BMIM][PF6] phase separates out and chloride is washed away as the
+    soluble alkali/ammonium chloride. This is the standard second step used
+    throughout the ionic-liquid literature (e.g. Organic Syntheses 2002,
+    79, 236, "1H-Imidazolium, 1-butyl-3-methyl-, hexafluorophosphate (1-)",
+    Dupont, Consorti, Suarez and de Sousa) and in multiple US patents for
+    close structural analogues (1-butyl-2,3-dimethylimidazolium PF6,
+    1-butyl-3-allylimidazolium PF6, etc.).
+  stoichiometry: "C8H15ClN2 ([BMIM]Cl) + KPF6 -> C8H15F6N2P ([BMIM][PF6]) + KCl"
+  yield: null
+  yield_source: null
+
+inputs:
+  - name: 1-butyl-3-methylimidazolium chloride
+    cas: "79917-90-1"
+    kg_per_kg_product: 0.6147
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights (MW: [BMIM]Cl = 174.675, KPF6 = 184.060, [BMIM][PF6] = 284.184). No yield sourced -- see gaps -- so this is the bare theoretical (100%-yield) demand, counted at that lower amount per this directory's documented convention (README.md, 'A quirk worth knowing')."
+      url: null
+      locator: "Arithmetic."
+  - name: potassium hexafluorophosphate
+    cas: "17084-13-8"
+    kg_per_kg_product: 0.6477
+    basis: stoichiometric
+    source:
+      document: "Derived from the stoichiometry above and standard atomic weights, at bare theoretical (100%-yield) demand -- see the [BMIM]Cl input above and gaps."
+      url: null
+      locator: "Arithmetic."
+
+energy: {}
+
+notes: |
+  This session made a real effort to source a directly-verified, exact-
+  compound yield for this specific anion-exchange step and could not:
+
+  - Organic Syntheses 79, 236 (the standard, checker-verified literature
+    procedure for exactly this compound) is behind a JavaScript browser
+    check at orgsyn.org that this session's fetch tooling could not pass;
+    a WebSearch summary reported "81% yield" for this step but gave no
+    exact reagent masses and could not be independently verified against
+    the source document, so it is NOT used here, per this project's rule
+    against numbers that cannot be checked against the document itself.
+  - Three close structural analogues (1-butyl-2,3-dimethylimidazolium PF6,
+    1-butyl-3-allylimidazolium PF6, and a triethoxysilylpropyl-substituted
+    imidazolium PF6) were found in US patents via WebSearch summaries,
+    each showing a near-1:1 to 1.1:1 molar ratio of chloride/bromide salt
+    to hexafluorophosphate salt and yields of 81-85%+ -- consistent with
+    this being a simple, near-quantitative metathesis reaction -- but none
+    of these patent PDFs could be fetched directly this session (USPTO
+    image server returned HTTP 403, Google Patents returned HTTP 503) to
+    verify the summarized numbers against the actual document text, so
+    none is used as a sourced yield either.
+  - ADEME Base Carbone, queried live, has no entry for hexafluorophosphate
+    or potassium hexafluorophosphate; ProBas/GEMIS was queried but its
+    public search API did not accept a name filter as used in this
+    session's ad hoc queries (returned the full unfiltered dataset), so
+    ProBas coverage for this specific salt is unconfirmed either way.
+
+  Given the near-quantitative, well-established nature of this metathesis
+  reaction in the literature (every source found agrees on ~1:1 stoichiometry
+  and >80% yield, even though no single number could be verified against a
+  primary document), using the bare 1:1 theoretical stoichiometry with NO
+  yield adjustment is a legitimate, if loose, lower bound: real consumption
+  of both [BMIM]Cl and KPF6 can only be higher than this theoretical minimum,
+  never lower.
+
+gaps:
+  - "No sourced yield for this step -- see notes for the three separate
+    verification attempts that did not clear this project's bar for a
+    citable number. Inputs are counted at bare theoretical (100%-yield)
+    stoichiometric demand, which is still a legitimate but loose lower
+    bound (see the directory README's 'quirk' section)."
+  - "No process energy (electricity, fuel/steam, or drying) figure was
+    found for this step."
+  - "Neither feedstock (1-butyl-3-methylimidazolium chloride, potassium
+    hexafluorophosphate) currently has a factor of its own (held or
+    derived) in this session's data/factors/ -- the chloride's own recipe
+    (1-butyl-3-methylimidazolium-chloride.yaml) is sourced but does not
+    yet derive either, because ITS feedstocks (1-methylimidazole,
+    1-chlorobutane) are unheld -- and potassium hexafluorophosphate has no
+    recipe file at all in this session. This recipe therefore currently
+    derives nothing; it is sourced groundwork for a future session that
+    adds factors further up the chain (1-methylimidazole, 1-chlorobutane,
+    and/or KPF6's own production)."

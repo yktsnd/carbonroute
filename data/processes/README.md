@@ -178,20 +178,30 @@ term specifically, on top of that.
 | DMSO | `dmso.yaml` | stoichiometric (dimethyl sulfide, O2) | none found | stated (patent, 99%) | No (feedstocks not held) |
 | toluene | `toluene.yaml` | none (extraction, not synthesis) | stated (BREF, BB2 unit aggregate) | n/a | **Yes** (substance itself already held directly) |
 | water (deionised) | `water.yaml` | none | none found | n/a | No (substance itself already held directly) |
+| 1-butyl-3-methylimidazolium chloride `**` | `1-butyl-3-methylimidazolium-chloride.yaml` | stoichiometric (1-methylimidazole, 1-chlorobutane) | none found | stated (ChemSpider Synthetic Pages 747, 82.2%) | No (feedstocks not held) |
+| 1-butyl-3-methylimidazolium hexafluorophosphate `**` | `1-butyl-3-methylimidazolium-hexafluorophosphate.yaml` | stoichiometric ([BMIM]Cl, KPF6) | none found | none sourced (3 verification attempts failed — see file's notes) | No (feedstocks not held, chains through the file above) |
 
 `*` dimethylamine is not one of the 20 originally-requested substances; it
 was added because DMF's dominant route consumes it, and because both of
 *its* own feedstocks (methanol, ammonia) are already held, so it lets DMF's
 recipe chain all the way down to two held factors instead of dead-ending.
 
-**12 of the 21 files here (11 of the 20 requested substances, plus the
-dimethylamine helper) currently derive a non-zero floor**, verified by
-actually running the engine (see above), not just counting sourced
-numbers. Ammonia and toluene are the fullest treatments (a feedstock/
-stated-input line *and* an energy line) — **toluene is, in fact, the only
-file with a sourced electricity figure** (0.0415 kWh/kg, from the same
-LVOC BREF table as its fuel figure); ammonia has a fuel figure only. Every
-other file in this directory has **no process-energy figure of any kind**
-— this is the single biggest and most consistent gap across the whole
-directory, exactly as the brief warned it would be the hardest number to
-find.
+`**` these two were added in a later session, targeting the [BMIM][PF6]
+ionic liquid that dominates the unresolved mass in
+`examples/case-studies/ibuprofen-bogdan-vs-enzymatic/` — see that case
+study's `SOURCES.md` for the full account of what was and was not found.
+Neither currently derives; both are sourced groundwork for whenever a
+factor for 1-methylimidazole, 1-chlorobutane, or potassium
+hexafluorophosphate is added.
+
+**12 of the 23 files here (11 of the 20 originally-requested substances,
+plus the dimethylamine helper) currently derive a non-zero floor**,
+verified by actually running the engine (see above), not just counting
+sourced numbers. Ammonia and toluene are the fullest treatments (a
+feedstock/stated-input line *and* an energy line) — **toluene is, in
+fact, the only file with a sourced electricity figure** (0.0415 kWh/kg,
+from the same LVOC BREF table as its fuel figure); ammonia has a fuel
+figure only. Every other file in this directory has **no process-energy
+figure of any kind** — this is the single biggest and most consistent gap
+across the whole directory, exactly as the brief warned it would be the
+hardest number to find.
