@@ -231,44 +231,69 @@ chemical_counterpart:
         Quench of the saponification base (0.4 mL, 0.74 g, 7.5 mmol per
         1 mmol basis).
 
-# --- How the cofactor is regenerated, and what that costs ------------------
+# --- What running the enzyme actually costs --------------------------------
 #
-# The enzymatic route's own effort dial. A chemical plant's lever is solvent
-# recovery; a biocatalytic plant's is not solvent (it already runs in water)
-# but the cofactor -- regenerated in situ so one charge of it turns over many
-# times. Screening the chemical side at 90% solvent recovery while the
-# enzymatic side pays fresh cofactor every cycle compares an optimised
-# process against an unoptimised one.
+# The enzymatic side of this diff used to be one line: the cofactor. That
+# quietly assumed everything else about operating an enzyme is free. Two
+# things are not, and they behave oppositely as a process is pushed harder:
 #
-# It is not free, and this block exists so that it cannot be treated as
-# though it were. `screen_reaction` refuses any cofactor_recycling > 0 unless
-# a template declares this, because dividing the cofactor by a turnover
-# number while charging nothing for the co-substrate that drives the turnover
-# is the easiest way to make an enzymatic route look better than any real one.
-cofactor_regeneration:
-  name: "Sucrose synthase (SuSy), run in the UDP-glucose-forming direction"
-  source: >
-    Stoichiometry taken from Rhea's own curated equation RHEA:55092
-    (EC 2.4.1.13, sucrose synthase): D-fructose + UDP-alpha-D-glucose =
-    sucrose + UDP + H(+). Regeneration runs this equation right-to-left, so
-    each turnover consumes one sucrose and releases one D-fructose while
-    returning UDP to UDP-alpha-D-glucose. The 1:1 ratio is therefore read
-    from the same curated database this screen already uses for every other
-    reaction, not from an uncited assertion.
-  co_substrate: sucrose
-  co_substrate_chebi: "CHEBI:17992"
-  # 342.297 g/mol, computed by RDKit from the SMILES Rhea ships for
-  # CHEBI:17992 -- the same route every other molecular weight here takes.
-  # One turnover per group transferred, so one sucrose per mole of product.
-  kg_per_mol_product: 0.342297
-  basis: generalised
-  note: >
-    The 1:1 stoichiometry is sourced (RHEA:55092) but the AMOUNT is
-    generalised: this is the theoretical demand of one sucrose per turnover,
-    not a charged quantity read from a specific published SuSy process. A
-    real regeneration system charges sucrose in excess to drive the
-    equilibrium, so this figure UNDERSTATES the co-substrate burden and
-    therefore still flatters the enzymatic route -- less than crediting
-    recycling for free would, but it is not neutral. Replacing it with a
-    charged amount from a real cited SuSy procedure is the next piece of
-    primary-source work this class needs.
+#   * a REGENERATION co-substrate is consumed on every catalytic cycle, so
+#     recycling the cofactor never buys it down -- charge: per_turnover;
+#   * an IMMOBILISED enzyme preparation is bought once and reused over many
+#     batches, so its burden divides by the cycle count -- charge: amortised.
+#
+# Declaring measures rather than hard-coding one shape is deliberate. A
+# different class may regenerate with formate dehydrogenase, an electrode or
+# a whole cell, and may or may not immobilise; the template says which, and
+# the code does not assume. `screen_reaction` refuses any cofactor_recycling
+# unless some measure here is marked enables_recycling, because a turnover
+# number with nothing driving it is a free lunch.
+enzymatic_process:
+  measures:
+
+    - name: sucrose
+      chebi: "CHEBI:17992"
+      role: reagent
+      charge: per_turnover
+      enables_recycling: true
+      # 342.297 g/mol, computed by RDKit from the SMILES Rhea ships for
+      # CHEBI:17992 -- the same route every other molecular weight here
+      # takes. One turnover per group transferred, so one sucrose per mole
+      # of product, and it is NOT divided by the turnover number: that is
+      # the whole point of charging it.
+      kg_per_mol_product: 0.342297
+      basis: generalised
+      source: >
+        Stoichiometry from Rhea's own curated equation RHEA:55092
+        (EC 2.4.1.13, sucrose synthase): D-fructose + UDP-alpha-D-glucose =
+        sucrose + UDP + H(+). Regeneration runs this right-to-left, so each
+        turnover consumes one sucrose and releases one D-fructose while
+        returning UDP to UDP-alpha-D-glucose. The 1:1 ratio is read from the
+        same curated database this screen already uses for every other
+        reaction, not from an uncited assertion.
+      note: >
+        The 1:1 stoichiometry is sourced (RHEA:55092) but the AMOUNT is
+        generalised: this is theoretical demand of one sucrose per turnover,
+        not a charged quantity from a specific published SuSy process. A real
+        regeneration system charges sucrose in excess to drive the
+        equilibrium, so this figure UNDERSTATES the co-substrate burden and
+        therefore still flatters the enzymatic route -- less than crediting
+        recycling for free would, but it is not neutral. Replacing it with a
+        charged amount from a real cited SuSy procedure is outstanding
+        primary-source work for this class.
+
+# NOT DECLARED, AND THAT IS ITSELF A GAP:
+#
+# An immobilised enzyme preparation and its carrier belong here as a second,
+# `charge: amortised` measure -- that is how a real process makes an enzyme
+# affordable, and it is what the `amortised` shape exists for. Writing one
+# needs three numbers this repository does not yet hold from a document it
+# has actually read: the enzyme loading (kg of preparation per mole of
+# product), the reuse_cycles a published immobilisation achieves, and a
+# cradle-to-gate GWP for producing the enzyme itself. The canonical source
+# for the last of those (Nielsen, Oxenboll & Wenzel, Int J LCA 12(6):432-438,
+# 2007, Novozymes cradle-to-gate enzyme LCA) is paywalled and was not read.
+#
+# Until those exist the enzyme is absent from this diff, which understates
+# the enzymatic route -- the same direction as every other gap noted above.
+# It is left undeclared rather than filled with a plausible number.

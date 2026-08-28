@@ -384,37 +384,109 @@ def test_the_break_even_frontier_slopes_the_only_way_it_can(inputs):
 # --- the enzymatic route's own effort dial -----------------------------------
 
 
-def test_recycling_is_refused_without_a_declared_regeneration_system(inputs, tmp_path):
+def test_recycling_is_refused_when_nothing_declared_drives_it(inputs, tmp_path):
     """A turnover number with nothing driving it is a free lunch.
 
-    Regenerating a cofactor consumes a co-substrate every cycle. A template
-    that does not say what regenerates its cofactor may not be credited with
-    recycling it, because dividing the cofactor by a turnover number while
-    charging nothing for the driver makes the enzymatic route look better
+    What drives regeneration varies by system -- a co-substrate for sucrose
+    synthase or a dehydrogenase, an electrode, a whole cell -- so the code
+    does not assume a shape. It only insists that some declared measure
+    claims the job, because dividing the cofactor by a turnover number while
+    charging nothing for its driver makes the enzymatic route look better
     than any real one is.
     """
     reactions, template, structures, table, assumptions, bounds = inputs
     bare = load_template(_acetyl_template(tmp_path, bond=False, ec=False))
-    assert bare.regeneration is None
+    assert bare.enzymatic_measures == ()
+    assert bare.recycling_enablers == ()
     rxn = next(r for r in reactions if r.rhea_id == "RHEA:12560")
-    with pytest.raises(ScreenError, match="cofactor_regeneration"):
+    with pytest.raises(ScreenError, match="enables_recycling"):
         screen_reaction(
             rxn, bare, structures, table, assumptions, bounds, cofactor_recycling=0.9
         )
 
 
-def test_the_shipped_class_declares_what_regenerates_its_cofactor():
+def test_the_shipped_class_declares_what_drives_its_regeneration():
     """Sucrose synthase, with the 1:1 stoichiometry read from Rhea's own
-    curated equation RHEA:55092 rather than asserted."""
+    curated equation RHEA:55092 rather than asserted, and charged on every
+    turnover rather than divided by the turnover number."""
     t = load_template(CLASSES / "udp-glucosyltransferase.yaml")
-    assert t.regeneration is not None
-    assert t.regeneration.co_substrate == "sucrose"
-    assert t.regeneration.co_substrate_chebi == "CHEBI:17992"
+    (sucrose,) = t.recycling_enablers
+    assert sucrose.name == "sucrose"
+    assert sucrose.chebi == "CHEBI:17992"
+    assert sucrose.charge == "per_turnover"
     # 342.297 g/mol, RDKit from Rhea's own SMILES for CHEBI:17992.
-    assert t.regeneration.kg_per_mol_product == pytest.approx(0.342297)
+    assert sucrose.kg_per_mol_product == pytest.approx(0.342297)
     # Theoretical demand, not a charged amount from a cited SuSy procedure.
-    assert t.regeneration.basis == "generalised"
-    assert "UNDERSTATES" in t.regeneration.note
+    assert sucrose.basis == "generalised"
+    assert "UNDERSTATES" in sucrose.note
+
+
+def test_an_amortised_measure_divides_by_its_reuse_cycles(tmp_path):
+    """The shape immobilisation needs, and the reason two shapes exist.
+
+    A regeneration co-substrate is consumed every cycle, so pushing the
+    process harder never buys it down. An immobilised enzyme preparation is
+    bought once and reused, so its burden divides by the batches one purchase
+    serves -- the number immobilisation exists to raise. The two behave
+    oppositely and a template must be able to say which it means.
+    """
+    p = tmp_path / "t.yaml"
+    p.write_text(
+        "reaction_class:\n"
+        "  id: t\n  name: T\n  cofactor_chebi: 'CHEBI:58885'\n"
+        "  expected_mass_delta: 162.14\n"
+        "chemical_counterpart:\n"
+        "  name: C\n  source: S\n  materials:\n"
+        "    - {name: x, kg_per_mol_product: 1.0, basis: sourced, note: n}\n"
+        "enzymatic_process:\n  measures:\n"
+        "    - {name: co-substrate, charge: per_turnover, kg_per_mol_product: 2.0,"
+        " basis: sourced, note: n, source: s, enables_recycling: true}\n"
+        "    - {name: immobilised enzyme, charge: amortised, kg_per_mol_product: 50.0,"
+        " reuse_cycles: 25, basis: sourced, note: n, source: s}\n",
+        encoding="utf-8",
+    )
+    t = load_template(p)
+    per_turnover, amortised = t.enzymatic_measures
+    # 10 mol of product, 10 turnovers.
+    assert per_turnover.kg_per_fu(10.0, 10.0) == pytest.approx(20.0)
+    assert amortised.kg_per_fu(10.0, 10.0) == pytest.approx(10.0 * 50.0 / 25)
+    assert t.recycling_enablers == (per_turnover,)
+
+
+def test_an_amortised_measure_must_say_how_many_cycles(tmp_path):
+    p = tmp_path / "t.yaml"
+    p.write_text(
+        "reaction_class:\n"
+        "  id: t\n  name: T\n  cofactor_chebi: 'CHEBI:58885'\n"
+        "  expected_mass_delta: 162.14\n"
+        "chemical_counterpart:\n"
+        "  name: C\n  source: S\n  materials:\n"
+        "    - {name: x, kg_per_mol_product: 1.0, basis: sourced, note: n}\n"
+        "enzymatic_process:\n  measures:\n"
+        "    - {name: carrier, charge: amortised, kg_per_mol_product: 1.0,"
+        " basis: sourced, note: n, source: s}\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ScreenError, match="reuse_cycles"):
+        load_template(p)
+
+
+def test_an_enzymatic_measure_needs_a_source_like_everything_else(tmp_path):
+    p = tmp_path / "t.yaml"
+    p.write_text(
+        "reaction_class:\n"
+        "  id: t\n  name: T\n  cofactor_chebi: 'CHEBI:58885'\n"
+        "  expected_mass_delta: 162.14\n"
+        "chemical_counterpart:\n"
+        "  name: C\n  source: S\n  materials:\n"
+        "    - {name: x, kg_per_mol_product: 1.0, basis: sourced, note: n}\n"
+        "enzymatic_process:\n  measures:\n"
+        "    - {name: enzyme, charge: per_turnover, kg_per_mol_product: 1.0,"
+        " basis: sourced, note: n}\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ScreenError, match="source"):
+        load_template(p)
 
 
 def test_recycling_buys_down_the_cofactor_but_pays_a_co_substrate(inputs):

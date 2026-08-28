@@ -301,12 +301,41 @@ enzymatic route that is as serious about cofactor as anyone knows how to be.**
 Not a lazy one against an optimised one, in either direction.
 
 `cofactor_recycling` is that second dial, and `fair_fight_frontier` moves
-both together. Recycling is not free and the code refuses to let it look
-free: a template may not be credited with any recycling unless it declares a
-`cofactor_regeneration` block naming what drives the turnover, and that
-co-substrate is then charged **in full, every cycle**. The shipped class
-declares sucrose synthase, with the one-sucrose-per-turnover stoichiometry
-read from Rhea's own curated RHEA:55092 rather than asserted.
+both together.
+
+Recycling is not free and the code refuses to let it look free, but *how* it
+is paid for varies by system, so a template declares the measures its process
+actually uses rather than the code assuming one shape. Each measure states
+how it is charged, and the two shapes behave oppositely as a process is
+pushed harder:
+
+| charge | meaning | example |
+|---|---|---|
+| `per_turnover` | consumed on every catalytic cycle, so recycling never buys it down | sucrose for sucrose synthase; formate or glucose for a dehydrogenase |
+| `amortised` | bought once and reused over `reuse_cycles` batches, so its burden divides | an immobilised enzyme preparation and its carrier |
+
+That second shape is the one generalisation matters for. Immobilisation is
+how a real process makes an enzyme affordable, and it is not expressible as a
+discount on a co-substrate — it is a fixed charge divided by the number of
+batches one purchase serves, which is precisely the number immobilisation
+exists to raise. A screen may claim no recycling at all unless some declared
+measure is marked `enables_recycling`; what wears that mark is the template's
+business, because it might be a co-substrate, an electrode or a whole cell.
+
+The shipped class declares one measure: sucrose, `per_turnover`, with the
+one-sucrose-per-turnover stoichiometry read from Rhea's own curated
+RHEA:55092 rather than asserted.
+
+**It declares no immobilisation measure, and that omission is stated in the
+template rather than hidden.** Writing one needs three figures this
+repository does not hold from a document it has read: the enzyme loading per
+mole of product, the `reuse_cycles` a published immobilisation achieves, and
+a cradle-to-gate GWP for producing the enzyme itself. The canonical source
+for the last (Nielsen, Oxenboll & Wenzel, *Int J LCA* 12(6):432-438, 2007 —
+the Novozymes cradle-to-gate enzyme assessment) is paywalled and was not
+read. So the enzyme is currently absent from this diff entirely, which
+understates the enzymatic route — the same direction as every other gap here,
+and left as a gap rather than filled with a plausible number.
 
 Run that way, the enzymatic route stays ahead on all 388 reactions at every
 effort from 0% to 99%. **That result is not yet worth much, and the report

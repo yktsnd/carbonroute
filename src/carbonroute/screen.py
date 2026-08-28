@@ -307,37 +307,80 @@ class TemplateMaterial:
     per_protected_group: bool = False
 
 
+#: How a term on the enzymatic side is charged against a mole of product.
+#:
+#:   per_turnover  consumed on every catalytic cycle, so charged in full --
+#:                 a regeneration co-substrate (sucrose for sucrose synthase,
+#:                 formate or glucose for a dehydrogenase), a sacrificial
+#:                 reductant, a buffer salt.
+#:   amortised     bought once and used for many batches, so divided by
+#:                 `reuse_cycles` -- an immobilised enzyme preparation, its
+#:                 carrier resin, a packed-bed charge.
+#:
+#: Two shapes, because a real biocatalytic process has both and they behave
+#: oppositely: pushing harder buys down an amortised term and does nothing
+#: to a per-turnover one.
+_CHARGE_SHAPES = ("per_turnover", "amortised")
+
+
 @dataclass(frozen=True)
-class RegenerationSystem:
-    """What actually pays for recycling a cofactor.
+class ProcessMeasure:
+    """One thing the enzymatic route consumes, beyond the cofactor itself.
 
-    Cofactor regeneration is not free and modelling it as a discount on the
-    cofactor alone is the single easiest way to make an enzymatic route look
-    better than it is. Regenerating UDP-glucose with sucrose synthase
-    consumes a molecule of sucrose per turnover; NAD(P)H regeneration with
-    formate or glucose dehydrogenase consumes formate or glucose per
-    turnover. The cofactor is charged once and divided by the turnover
-    number, but the co-substrate is charged *every cycle* and does not
-    cancel out of the diff.
+    The enzymatic side of this diff used to be a single line -- the cofactor
+    -- which quietly assumed that everything else about running an enzyme is
+    free. It is not, and the two things that are not free pull in opposite
+    directions:
 
-    So a template may not claim recycling without saying what drives it, on
-    the same evidential terms as every other amount here: a real cited
-    procedure, and `sourced` or `generalised` stated per figure.
+      * **Regeneration** buys down the cofactor, and costs a co-substrate on
+        every single turnover. Recycling a cofactor without charging what
+        drives the recycling is the easiest way to make a biocatalytic route
+        look better than any real one.
+      * **Immobilisation** is the standard way a real process makes an
+        enzyme affordable: the enzyme and its carrier are bought once and
+        reused over many batches, so their burden is divided by the number
+        of cycles rather than paid per turnover.
+
+    Rather than hard-code either, a template declares whatever measures its
+    process actually uses and how each is charged. Every figure carries the
+    same `sourced` / `generalised` label and the same citation discipline as
+    the chemical side's materials, because an unsourced enzyme loading
+    flatters exactly the side this tool is most at risk of flattering.
     """
 
-    #: The enzyme system, e.g. "sucrose synthase (UDP-glucose regeneration)".
     name: str
-    source: str
-    co_substrate: str
-    co_substrate_cas: str | None
-    #: Consumed per mole of product, once per turnover -- not divided by the
-    #: turnover number, which is the whole point.
+    role: Role
+    #: One of `_CHARGE_SHAPES`.
+    charge: str
     kg_per_mol_product: float
     basis: str
     note: str
-    #: ChEBI id, when the co-substrate is a Rhea participant. Used as the
+    cas: str | None = None
+    #: ChEBI id, when the substance is a Rhea participant. Used as the
     #: resolution key so it lines up with how cofactors are keyed.
-    co_substrate_chebi: str | None = None
+    chebi: str | None = None
+    #: Batches one purchase serves. Required for `amortised`, ignored
+    #: otherwise. This is the number immobilisation exists to raise.
+    reuse_cycles: float | None = None
+    #: True when this measure is what licenses `cofactor_recycling`. A
+    #: template with no such measure may not claim any recycling at all.
+    enables_recycling: bool = False
+    #: Where the figure comes from. Required, like every other amount here.
+    source: str = ""
+
+    @property
+    def key(self) -> str:
+        if self.cas:
+            return f"cas:{self.cas}"
+        if self.chebi:
+            return f"name:{self.chebi.lower()}"
+        return f"name:{self.name.lower()}"
+
+    def kg_per_fu(self, mol_per_fu: float, turnovers: float) -> float:
+        """Mass per functional unit, by this measure's own charge shape."""
+        if self.charge == "amortised":
+            return mol_per_fu * self.kg_per_mol_product / (self.reuse_cycles or 1.0)
+        return turnovers * self.kg_per_mol_product
 
 
 @dataclass(frozen=True)
@@ -391,11 +434,16 @@ class ClassTemplate:
     #: it beside the enzymatic conversion the screen was run at, which is
     #: the only place the asymmetry between the two sides is visible.
     source_overall_yield: float | None = None
-    #: How this class's cofactor is regenerated, if it can be. Required
-    #: before any screen may credit the enzymatic route with recycling: a
-    #: turnover number asserted without naming what drives it is exactly the
-    #: kind of free lunch this tool exists to refuse.
-    regeneration: RegenerationSystem | None = None
+    #: What the enzymatic route consumes beyond the cofactor: regeneration
+    #: co-substrates, immobilised enzyme and carrier, anything else the
+    #: process actually needs. Each declares its own charge shape, because a
+    #: per-turnover co-substrate and an amortised immobilised preparation
+    #: behave oppositely as the process is pushed harder.
+    enzymatic_measures: tuple[ProcessMeasure, ...] = ()
+
+    @property
+    def recycling_enablers(self) -> tuple[ProcessMeasure, ...]:
+        return tuple(m for m in self.enzymatic_measures if m.enables_recycling)
 
     def matches(self, rxn: RheaReaction) -> bool:
         """True when this template's cofactor is consumed by `rxn`.
@@ -443,39 +491,62 @@ def _source_yield(chem: dict, path: str | Path) -> float | None:
     return y
 
 
-def _regeneration(raw, path) -> RegenerationSystem | None:
-    """Read the optional cofactor_regeneration block, on the usual terms."""
+def _measures(raw, path) -> tuple[ProcessMeasure, ...]:
+    """Read the optional enzymatic_process block, on the usual terms."""
     if raw is None:
-        return None
-    if not isinstance(raw, dict):
-        raise ScreenError(f"{path}: cofactor_regeneration must be a mapping")
-    missing = [
-        k
-        for k in ("name", "source", "co_substrate", "kg_per_mol_product", "basis", "note")
-        if not raw.get(k)
-    ]
-    if missing:
+        return ()
+    if not isinstance(raw, dict) or not isinstance(raw.get("measures"), list):
         raise ScreenError(
-            f"{path}: cofactor_regeneration is missing {', '.join(missing)}. "
-            "Recycling a cofactor costs a co-substrate every turnover, and "
-            "claiming the recycling without costing the co-substrate is the "
-            "easiest way to make an enzymatic route look better than it is."
+            f"{path}: enzymatic_process must be a mapping with a 'measures' list"
         )
-    if raw["basis"] not in ("sourced", "generalised"):
-        raise ScreenError(
-            f"{path}: cofactor_regeneration.basis must be 'sourced' or "
-            f"'generalised', got {raw['basis']!r}"
+    out: list[ProcessMeasure] = []
+    for i, m in enumerate(raw["measures"]):
+        where = f"{path}: enzymatic_process.measures[{i}]"
+        if not isinstance(m, dict):
+            raise ScreenError(f"{where} must be a mapping")
+        for k in ("name", "charge", "kg_per_mol_product", "basis", "note", "source"):
+            if m.get(k) in (None, ""):
+                raise ScreenError(
+                    f"{where} is missing {k}. Every figure on the enzymatic "
+                    "side carries the same citation discipline as the chemical "
+                    "side, because an unsourced enzyme loading flatters exactly "
+                    "the route this tool is most at risk of flattering."
+                )
+        if m["charge"] not in _CHARGE_SHAPES:
+            raise ScreenError(
+                f"{where}: charge must be one of {_CHARGE_SHAPES}, got "
+                f"{m['charge']!r}"
+            )
+        if m["basis"] not in ("sourced", "generalised"):
+            raise ScreenError(
+                f"{where}: basis must be 'sourced' or 'generalised', got "
+                f"{m['basis']!r}"
+            )
+        cycles = m.get("reuse_cycles")
+        if m["charge"] == "amortised":
+            if not cycles or float(cycles) < 1.0:
+                raise ScreenError(
+                    f"{where}: an amortised measure needs reuse_cycles >= 1 -- "
+                    "how many batches one purchase serves. That number is what "
+                    "immobilisation exists to raise, so it cannot be implicit."
+                )
+            cycles = float(cycles)
+        out.append(
+            ProcessMeasure(
+                name=m["name"],
+                role=m.get("role", "reagent"),
+                charge=m["charge"],
+                kg_per_mol_product=float(m["kg_per_mol_product"]),
+                basis=m["basis"],
+                note=m["note"],
+                cas=m.get("cas"),
+                chebi=m.get("chebi"),
+                reuse_cycles=cycles,
+                enables_recycling=bool(m.get("enables_recycling", False)),
+                source=m["source"],
+            )
         )
-    return RegenerationSystem(
-        name=raw["name"],
-        source=raw["source"],
-        co_substrate=raw["co_substrate"],
-        co_substrate_cas=raw.get("co_substrate_cas"),
-        co_substrate_chebi=raw.get("co_substrate_chebi"),
-        kg_per_mol_product=float(raw["kg_per_mol_product"]),
-        basis=raw["basis"],
-        note=raw["note"],
-    )
+    return tuple(out)
 
 
 def load_template(path: str | Path) -> ClassTemplate:
@@ -560,7 +631,7 @@ def load_template(path: str | Path) -> ClassTemplate:
         source_overall_yield=_source_yield(chem, path),
         transferred_bond_smarts=cls.get("transferred_bond_smarts"),
         ec_prefix=cls.get("ec_prefix"),
-        regeneration=_regeneration(raw.get("cofactor_regeneration"), p),
+        enzymatic_measures=_measures(raw.get("enzymatic_process"), p),
     )
 
 
@@ -674,9 +745,11 @@ def screen_reaction(
     """Build the enzymatic-vs-chemical delta for one reaction and decide it.
 
     Claiming recycling requires the template to declare a
-    ``cofactor_regeneration`` block; without one this raises. A turnover
-    number asserted with nothing driving it is a free lunch, and the
-    co-substrate that actually drives it is charged every cycle.
+    ``enzymatic_process`` measure marked ``enables_recycling``; without one
+    this raises. A turnover number asserted with nothing driving it is a free
+    lunch. What drives it varies by system -- a co-substrate for a
+    dehydrogenase or sucrose synthase, an electrode, a whole cell -- so the
+    template says which, rather than the code assuming one shape.
 
     ``cofactor_recycling`` is the enzymatic route's effort dial, and the exact
     counterpart of the chemical route's ``solvent_recovery``. A cofactor that
@@ -704,15 +777,16 @@ def screen_reaction(
     plant achieves by distillation, which is the operating point at which
     the question "how good does the enzyme have to be?" is worth asking.
     """
-    if cofactor_recycling > 0.0 and template.regeneration is None:
+    if cofactor_recycling > 0.0 and not template.recycling_enablers:
         raise ScreenError(
             f"{template.id}: cofactor_recycling={cofactor_recycling} was asked "
-            "for, but this template declares no cofactor_regeneration block. "
-            "Regenerating a cofactor consumes a co-substrate every turnover "
-            "-- sucrose for sucrose synthase, formate or glucose for a "
-            "dehydrogenase -- and that co-substrate does not cancel out of "
-            "the diff. Crediting the recycling without charging it would make "
-            "the enzymatic route look better than any real one is."
+            "for, but no enzymatic_process measure on this template is marked "
+            "enables_recycling. Regeneration is driven by something -- a "
+            "co-substrate for sucrose synthase or a dehydrogenase, an "
+            "electrode, a whole cell -- and whatever it is does not cancel "
+            "out of the diff. Crediting the recycling without charging its "
+            "driver would make the enzymatic route look better than any real "
+            "one is."
         )
     blank = ScreenResult(
         rhea_id=rxn.rhea_id,
@@ -859,8 +933,10 @@ def screen_reaction(
             cofactor_coeff,
             solvent_recovery,
             cofactor_chebi,
-            template.regeneration if recycling > 0.0 else None,
+            template.enzymatic_measures,
+            mol_per_fu,
             mol_per_fu * cofactor_coeff / yield_,
+            recycling > 0.0,
         )
 
     verdict = bounded_verdict(diff_at(0.0, enzymatic_yield), assumptions, bounds)
@@ -914,8 +990,10 @@ def _build_diff(
     cofactor_coeff: float,
     solvent_recovery: float,
     cofactor_chebi: str,
-    regeneration: RegenerationSystem | None = None,
+    measures: tuple[ProcessMeasure, ...] = (),
+    mol_per_fu_measures: float = 0.0,
     turnovers_per_fu: float = 0.0,
+    recycling_on: bool = False,
 ) -> DiffResult:
     """The enzymatic-vs-chemical delta set, at a given chemical solvent recovery.
 
@@ -956,23 +1034,20 @@ def _build_diff(
 
     enz_key = f"name:{cofactor_chebi.lower()}"
     enz = {enz_key: (_cofactor_display(rxn, template), template.cofactor_role, cofactor_kg)}
-    # Regeneration buys down the cofactor above, but its co-substrate is
-    # consumed once per turnover and so is charged in full here. This is the
-    # term that stops "recycle the cofactor" from being a free lunch.
-    if regeneration is not None:
-        if regeneration.co_substrate_cas:
-            key = f"cas:{regeneration.co_substrate_cas}"
-        elif regeneration.co_substrate_chebi:
-            key = f"name:{regeneration.co_substrate_chebi.lower()}"
-        else:
-            key = f"name:{regeneration.co_substrate.lower()}"
-        kg = turnovers_per_fu * regeneration.kg_per_mol_product
-        prev = enz.get(key)
-        enz[key] = (
-            regeneration.co_substrate,
-            "reagent",
-            (prev[2] if prev else 0.0) + kg,
-        )
+    # Everything else running the enzyme costs. A measure that only exists
+    # to enable recycling is charged only when recycling is switched on; an
+    # immobilised preparation is charged whether or not it is, because the
+    # process uses it either way. Each measure applies its own charge shape:
+    # per-turnover terms scale with the cycles, amortised ones divide by the
+    # batches a single purchase serves.
+    for m in measures:
+        if m.enables_recycling and not recycling_on:
+            continue
+        kg = m.kg_per_fu(mol_per_fu_measures, turnovers_per_fu)
+        if kg <= 0.0:
+            continue
+        prev = enz.get(m.key)
+        enz[m.key] = (m.name, m.role, (prev[2] if prev else 0.0) + kg)
 
     all_keys = set(chem) | set(enz)
     materials = [

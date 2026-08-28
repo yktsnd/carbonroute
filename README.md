@@ -181,9 +181,16 @@ measures the same thing the threshold did.
 1. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
-   together. Recycling is not free: a template may not claim it without
-   declaring what drives the turnover, and that co-substrate is charged
-   every cycle. Run that way the enzyme stays ahead on all 388 reactions at
+   together. Recycling is not free, and a template declares *how* it is paid
+   for rather than the code assuming one shape: `per_turnover` measures (a
+   co-substrate, charged every cycle, never bought down by recycling) and
+   `amortised` ones (**an immobilised enzyme and its carrier**, divided by
+   the batches one purchase serves — the number immobilisation exists to
+   raise). The shipped class declares sucrose as `per_turnover` and **no
+   immobilisation measure at all**, because the enzyme loading, reuse cycles
+   and enzyme-production GWP are not held from a document this repository has
+   read. The enzyme is therefore absent from the diff, which understates the
+   enzymatic route; it is left as a stated gap rather than a plausible number. Run that way the enzyme stays ahead on all 388 reactions at
    every effort up to 99%, but the result is carried by one number: the
    template's 159 kg/mol ethyl-acetate isolation. Recovery divides that; it
    cannot un-choose it. **Solvent recovery and solvent avoidance are
