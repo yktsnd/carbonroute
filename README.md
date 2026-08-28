@@ -1,57 +1,169 @@
 <!-- markdownlint-disable MD013 -->
+<p align="right"><strong>English</strong> | <a href="README.ja.md">日本語</a></p>
+
 # carbonroute
 
-Comparative cradle-to-gate greenhouse-gas screening for synthetic routes.
+**Which of these two ways to make the same product has the lower carbon footprint — and how sure are we?**
 
-`carbonroute` does not answer "what is the carbon footprint of this
-synthesis?" It answers a narrower, cheaper-to-answer question: **given two
-candidate routes to the same product, which one is lower, and how sure are
-we?** The output is a ranking and a probability, with an explicit
-"indeterminate" verdict when the evidence does not support one, never a
-single absolute number presented as the answer.
+`carbonroute` answers that question, and only that question. It does not try
+to tell you the absolute carbon footprint of a synthesis — that needs
+background data for every single input, most of which nobody can get for
+free. It only needs data for what's *different* between two routes, because
+everything the routes share cancels out. That is a much smaller, much
+cheaper problem, and it is one public data can actually solve.
 
-This is v0. Read [`docs/limitations.md`](docs/limitations.md) and
-["What this tool does not do"](#what-this-tool-does-not-do) below before
-relying on it for anything.
+The answer always comes back as **a ranking and a probability** — "Route B is
+very likely lower (P = 0.94)" — never a bare number, and never a guess when
+the evidence doesn't support one.
 
-## 概要
+> This is v0, and it is a screening tool, not a certification: its output is
+> **not** an ISO 14067-conformant carbon footprint. See
+> ["What this tool does not do"](#what-this-tool-does-not-do) and
+> [`docs/limitations.md`](docs/limitations.md) before relying on it for
+> anything.
 
-`carbonroute` は、2つの合成ルートの温室効果ガス排出量を比較し、「どちらが低いか、
-どのくらい確からしいか」を返すツールである。「排出量はいくつか」という絶対値の
-問いには答えない。両ルートに共通する原料・工程は差分をとることで相殺されるため、
-解決すべきデータを大幅に減らせるという設計になっている（DeltaLCA の発想を合成
-ルートに応用したもの、arXiv:2311.09611）。
+```
+pip install -e .
+carbonroute compare route.yaml --a routeA --b routeB
+```
 
-前提（システム境界、電力の排出係数、GWP の時間地平、溶媒回収率など）はすべて
-台帳ファイルの `assumptions` 節に集約し、それ以外の計算は決定論的である。値の
-出所（一次データ／供給者値／背景データベース／構造推定／類似物代替）は個々に
-保持し、集計後も追跡できる。不確実性が大きく順位が決まらない場合は、無理に結論
-を出さず「判定不能」を返す。
+---
 
-本ツールは公開データのみで既定動作が完結するよう設計されている。ecoinvent の
-ような商用データベースは同梱せず、`data/factors/` は v0 時点で数値を含まない
-（理由は下記「What this tool does not do」参照）。出力は ISO 14067 準拠の
-カーボンフットプリント算定結果ではない。詳細は本書の英語部分および
-`docs/` 以下の各文書を参照。
+## See it work — the 30-second version
 
-## Why rank instead of measure
+Two invented routes to the same invented product, so you can run this
+yourself right now with nothing but what's already in this repository:
 
-Most of a route's emissions come from the upstream manufacture of its inputs
-and from grid electricity, not from anything a reaction equation tells you.
-Getting an absolute number right therefore requires background data for
-every input in both routes. Getting a *ranking* right only requires data for
-the inputs that differ between the two routes — materials and process steps
-common to both cancel out when you take the difference. That is why the
-tool's central operation is a diff between two route inventories, not a
-sum over one (spec `docs/spec-ja.md` sections 2 and 7.4; the diff idea is
-borrowed from DeltaLCA, arXiv:2311.09611, which applies it to electronics
-hardware).
+```bash
+carbonroute compare examples/route.yaml \
+  --a legacy --b denovo \
+  --factors examples/factors_illustrative.csv
+```
 
-Every assumption a human has to supply — system boundary, GWP time horizon,
-grid emission factor, solvent recovery rate, Monte Carlo settings, the
-probability band treated as a tie — lives in one place: the ledger's
-`assumptions` block. Everything downstream of that block is deterministic:
-the same ledger and the same factor tables always produce the same output.
+```
+## Conclusion
+
+**New route is very likely lower** than Published route (P > 0.9999).
+
+Delta (Published route - New route): median 126.4 kgCO2e/FU,
+90% interval [70.94, 237.3], 10000 draws, seed 20240101.
+```
+
+Every one of those 10,000 draws is a full Monte Carlo simulation of "if the
+real emission factors are anywhere in their plausible range, which route
+wins this time?" Here, all 10,000 agree:
+
+<p align="center">
+  <img src="docs/img/hello-world-distribution.png" width="640" alt="Histogram of 10,000 Monte Carlo draws of the emissions difference between the two example routes, entirely on the side favoring the new route">
+</p>
+
+Nothing here is production data — every factor in `examples/factors_illustrative.csv`
+is an obviously fake round number, which the tool itself flags loudly in the
+full report. It exists so you can see the whole pipeline run before you've
+sourced a single real number of your own.
+
+## How it works
+
+```mermaid
+flowchart LR
+    L["route.yaml<br/>(the ledger)"] --> V["validate<br/>schema check"]
+    V --> R["resolve<br/>factor tables + synonyms"]
+    R --> D["diff<br/>shared materials cancel"]
+    D --> M["Monte Carlo<br/>10,000 draws"]
+    M --> G{"coverage of the<br/>differing mass ≥ 80%?"}
+    G -->|no| I["indeterminate<br/>+ how far off it could still be"]
+    G -->|yes| O["ranking + P(A &lt; B)"]
+```
+
+The step that matters most is **diff**. Two routes to the same product
+usually share a lot — the same solvent, the same reagent, sometimes the same
+catalyst. None of that needs a citable emission factor at all, because it's
+identical on both sides of the subtraction:
+
+```mermaid
+flowchart LR
+    subgraph A["Route A"]
+        a1["toluene — 10 kg"]
+        a2["water — 20 kg"]
+        a3["catalyst X — 0.01 kg"]
+    end
+    subgraph B["Route B"]
+        b1["toluene — 10 kg"]
+        b2["water — 15 kg"]
+        b3["catalyst Y — 0.02 kg"]
+    end
+    a1 --> cancel["same mass in both routes<br/>→ cancels exactly, contributes zero"]
+    b1 --> cancel
+    a2 --> delta1["Δ water = +5 kg<br/>→ this is what needs a factor"]
+    b2 --> delta1
+    a3 --> delta2["different catalysts<br/>→ both need a factor"]
+    b3 --> delta2
+```
+
+(This is the idea behind [DeltaLCA](https://arxiv.org/abs/2311.09611),
+applied here to synthetic routes instead of electronics hardware.)
+
+Everything a human has to decide — the electricity grid to assume, how much
+solvent gets recovered, the GWP time horizon, what counts as a statistical
+tie — lives in one place, the ledger's `assumptions:` block. Every step after
+that is deterministic: the same ledger and the same factor tables always
+produce the same numbers, down to the last decimal.
+
+## See it prove itself — a real published comparison
+
+The example above uses invented data. Here is what happens with a route
+comparison from a real, peer-reviewed paper.
+
+[Sorgenfrei et al., *J. Am. Chem. Soc.* **2025**, 147, 40944](https://doi.org/10.1021/jacs.5c14470)
+(open access) computed the cradle-to-gate footprint of two real routes to the
+antiviral **letermovir** — the industrial route used by Merck, and a novel
+route the authors designed — using **ecoinvent**, a commercial database this
+project cannot redistribute. They reported Merck at 382 kgCO₂e/kg and the new
+route at 369, a **3% gap** in the new route's favor.
+
+`carbonroute` can't see ecoinvent. It can only see what's openly licensed —
+and that's the honest situation almost anyone doing this work actually
+starts from. Watch what happens as more public sources get added to the
+factor table, on the exact same two routes:
+
+<p align="center">
+  <img src="docs/img/coverage-growth.png" width="640" alt="Bar chart showing the share of the two routes' differing mass resolved to an emission factor rising from 8.9% to 75.5% across four stages of adding public data sources">
+</p>
+
+At the first stage, the tool would have been *wrong* — with only 8.9% of the
+differing mass resolved, the numbers it could see leaned toward Merck being
+lower, opposite the published result. `carbonroute` refused to say so:
+
+```
+## Conclusion
+
+**The comparison is undecided**, because only 8.9% of the differing mass
+(2 of 43 materials) resolved to a factor, below the declared minimum of 80%.
+No ranking is reported.
+```
+
+As real, citable public sources were added — and as the tool learned to
+*derive* factors for chemicals no database had, from published production
+recipes (see [`docs/bootstrap.md`](docs/bootstrap.md)) — coverage climbed to
+**75.5%**, and the direction the evidence points flipped to agree with the
+published paper. The verdict is still `indeterminate`, because 75.5% is
+still short of the 80% the tool requires before it will commit to a ranking —
+and that refusal is the point, not a shortcoming:
+
+```
+Resolved part of the difference: 50.28 kgCO2e/FU.
+Unresolved differing mass: -4.205 kg/FU (signed).
+
+The ranking reverses if the 4.205 kg/FU of unresolved material averages
+more than 11.96 kgCO2e/kg. Compare that against the factors you do have
+before treating the ranking as settled.
+```
+
+That's the tool telling you exactly how wrong the missing 24.5% would have
+to be to change the answer — a number you can actually check your intuition
+against, instead of a false sense of certainty. Full story, including why
+this benchmark exists and what it caught, in
+[`benchmarks/README.md`](benchmarks/README.md).
 
 ## Install
 
@@ -128,58 +240,30 @@ live. There is no other configuration surface for them.
 
 ## The commands
 
-```
-carbonroute validate route.yaml
-carbonroute resolve  route.yaml [--show-missing]
-carbonroute coverage route.yaml --a <route> --b <route>
-carbonroute compare  route.yaml --a <route> --b <route> -o report.md
-carbonroute lock     route.yaml -o route.lock.json
-carbonroute bootstrap --processes data/processes -o data/factors/derived.csv
-```
-
-- **`validate`** checks the ledger against the schema only. No factor
-  lookup, no computation.
-- **`resolve`** looks every material up in the factor table(s) and reports
-  what matched and what did not. It does not compute any emissions.
-- **`coverage`** reports how much of the A-versus-B delta set the loaded
-  factor tables can actually resolve, by count and by mass, broken down by
-  role. Mass coverage is not impact coverage — a catalyst charged at a
-  fraction of a percent by mass can dominate a footprint — so the two numbers
-  are meant to be read together. Exits 3 when anything in the delta set is
-  unresolved.
-- **`compare`** runs the full comparison — diff, Monte Carlo ranking,
-  reversal thresholds — and writes the report.
-- **`bootstrap`** derives factors for substances no open database covers, by
-  computing them from production recipes in `data/processes/` rather than
-  looking them up. Each result is a lower bound — every omitted term is
-  non-negative — widened into an interval by a declared completeness
-  assumption, marked `DERIVED`, and flagged in any report that uses it. See
-  [`docs/bootstrap.md`](docs/bootstrap.md).
-- **`lock`** pins the factor table version(s), the resolved value and
-  provenance for every material, and the RNG seed and iteration count, so
-  that someone else can reproduce the exact numbers later.
+| Command | What it does |
+| --- | --- |
+| `carbonroute validate route.yaml` | Schema check only. No factor lookup, no computation. |
+| `carbonroute resolve route.yaml [--show-missing]` | Looks every material up in the factor table(s); reports what matched and what didn't. No emissions math. |
+| `carbonroute coverage route.yaml --a A --b B` | How much of the A-vs-B differing mass the loaded tables can actually reach, by count and by mass. Exits 3 if anything is unresolved. |
+| `carbonroute compare route.yaml --a A --b B -o report.md` | The full comparison: diff, Monte Carlo ranking, reversal thresholds. Writes the report. |
+| `carbonroute bootstrap --processes data/processes -o out.csv` | Derives factors for substances no open database covers, from production recipes — see [`docs/bootstrap.md`](docs/bootstrap.md). |
+| `carbonroute lock route.yaml -o route.lock.json` | Pins the factor table versions, every resolved value and its provenance, and the RNG seed, so someone else can reproduce the exact numbers later. |
 
 `resolve`, `coverage`, `compare`, `lock` and `bootstrap` accept
 `--factors PATH` (repeatable; defaults to every CSV under `data/factors/`) and
-`--synonyms PATH` (defaults to every CSV under `data/synonyms/`, which maps the
-names a ledger uses onto identifiers — see [`docs/data.md`](docs/data.md)). `compare` and `lock` accept
-`--uncertainty PATH` (defaults to the bundled `config/uncertainty.yaml`);
-`resolve` does not, because it never touches the uncertainty model.
-`compare` additionally takes `--iterations`, `--seed` and `--no-thresholds`.
-`validate` takes no options: it reads the ledger and nothing else. A `--fetch` flag exists on `resolve` and
-`compare` for a future network-backed factor lookup; in v0 it exits with an
-error, because **network access is off by default and there is no code path
-in this tool that opens a socket.** The only side effect any command has is
-writing the file named by `-o`; without `-o`, output goes to stdout.
+`--synonyms PATH` (defaults to every CSV under `data/synonyms/`, which maps
+the names a ledger uses onto identifiers — see [`docs/data.md`](docs/data.md)).
+`compare` and `lock` accept `--uncertainty PATH` (defaults to the bundled
+`config/uncertainty.yaml`); `resolve` does not, because it never touches the
+uncertainty model. `compare` additionally takes `--iterations`, `--seed` and
+`--no-thresholds`. `validate` takes no options. A `--fetch` flag exists on
+`resolve` and `compare` for a future network-backed factor lookup; in v0 it
+exits with an error, because **network access is off by default and there is
+no code path in this tool that opens a socket.** The only side effect any
+command has is writing the file named by `-o`; without `-o`, output goes to
+stdout.
 
-### Worked example
-
-`data/factors/` now ships a small table of real, citable factors (see
-["What is in `data/factors/`"](#what-is-in-datafactors)), but it covers only
-a handful of substances, so the example below points explicitly at the
-placeholder table in `examples/` to keep every material resolvable.
-`examples/route.yaml` defines two illustrative routes, `legacy` and
-`denovo`, to the same (invented) product.
+### The full worked example
 
 ```bash
 # 1. Structural check only.
@@ -259,30 +343,35 @@ regenerate the table. Each row names the dataset and the record it came
 from, the licence it is distributed under, the date it was retrieved, and —
 where the source published one — its own uncertainty.
 
-At the time of writing that means **eighteen substances** from four sources:
+At the time of writing that means **27 substances** from five sources:
 ADEME's Base Carbone (Licence Ouverte), the US LCI Database (US government
-work), ProBas/GEMIS (German environment agency, free for all users and uses),
-and figures published directly by producers and industry associations —
-PlasticsEurope eco-profiles and a Nobian EPD. Between them: water, methanol,
-ethanol, isopropanol, toluene, benzene, hexane, dichloromethane, acetic acid,
-ammonia, hydrogen, carbon monoxide, ethylene oxide and five bulk acids, bases
-and salts.
+work), ProBas/GEMIS (German environment agency, free for all users and
+uses), figures published directly by producers and industry associations
+(PlasticsEurope eco-profiles, a Nobian EPD), and `carbonroute bootstrap`
+itself, deriving factors for chemicals none of those databases cover from
+cited production recipes (2-MeTHF, ethyl acetate, isopropyl acetate,
+acetone, DMF, MTBE, triethylamine and more — see
+[`docs/bootstrap.md`](docs/bootstrap.md)).
 
-Four of those substances carry two independent public values, and the pairs
-disagree by 1.13x to 1.42x. Reports print both. How far openly available data
-spreads for the same material is one of the things worth knowing here.
+Several of those substances carry two or more independent public values,
+and they don't always agree — hydrochloric acid, for instance, is 1.199
+kgCO2e/kg by one source and 1.700 by another. Reports print every value in
+play. How far openly available data spreads for the same material is one
+of the things worth knowing here, not something to average away.
 
-**The coverage is small.** Openly licensed, independently citable,
+**The coverage is still small relative to a real pharmaceutical route** —
+see the letermovir example above. Openly licensed, independently citable,
 per-kilogram cradle-to-gate factors for fine-chemical solvents and reagents
 are genuinely scarce; most of what the field uses day to day sits in
-commercial databases this project may not redistribute. Expect a real
-comparison to leave materials unresolved. That is what `carbonroute
-coverage` is for: it tells you how much of your delta set the tables reach,
-by count and by mass, so the gap is a number in front of you rather than a
-silent omission. Adding a source means writing another ingestion script —
-see [`docs/data.md`](docs/data.md) and
+commercial databases this project may not redistribute
+([`docs/what-others-do.md`](docs/what-others-do.md) covers who has them and
+why, and how to point `carbonroute` at a licensed table if you have one).
+`carbonroute coverage` tells you exactly how far your own comparison is from
+80%, so the gap is a number in front of you rather than a silent omission.
+Adding a source means writing another ingestion script — see
+[`docs/data.md`](docs/data.md) and
 [`docs/sources-investigated.md`](docs/sources-investigated.md), which
-records the sources that were checked and why each was or was not used.
+records what was already checked and why it was or wasn't used.
 
 Nothing here is estimated, interpolated, or recalled from memory. That is a
 consequence of the "public data only, nothing invented" rule (spec sections
@@ -295,7 +384,7 @@ row's `source` column starts with `ILLUSTRATIVE`, and any report built from
 it says so prominently. Do not cite it, and do not use it for anything but
 exercising the commands above.
 
-## Reproducing the factor tables without any live API
+## Reproducing everything without a live API
 
 `carbonroute` itself never touches a network — enforced by a test that parses
 its import graph, not just claimed in prose. The scripts that *built*
@@ -303,74 +392,52 @@ its import graph, not just claimed in prose. The scripts that *built*
 PubChem's, ProBas's and the Federal LCA Commons' APIs is outside this
 project's control. Each ingestion script now has a `--offline` flag that
 replays from a durable, committed snapshot under `data/raw/` instead of
-touching the network — see [`docs/reproducibility.md`](docs/reproducibility.md)
-for which snapshot covers which source, and its one known gap.
+touching the network — see
+[`docs/reproducibility.md`](docs/reproducibility.md) for which snapshot
+covers which source, and its one known gap.
+
+The letermovir benchmark's entire empirical basis — a small, CC BY licensed
+Excel workbook — is committed at
+[`benchmarks/letermovir/source-material/`](benchmarks/letermovir/source-material/)
+for the same reason: `scripts/extract_letermovir_ledger.py --offline`, with
+no arguments at all, reproduces `benchmarks/letermovir/ledger.yaml`
+byte-for-byte using only files already in this repository.
 
 ## Benchmarks
 
 Two test sets, both with their acceptance conditions written before the
-assertions (`benchmarks/README.md`).
+assertions (see [`benchmarks/README.md`](benchmarks/README.md) for the
+full account of both).
 
 **B1, the analytic case**, is small enough to check by hand. It pins the
 functional-unit conversion, solvent make-up, the exact cancellation of
-materials common to both routes, and bit-for-bit reproducibility from a seed.
+materials common to both routes, and bit-for-bit reproducibility from a
+seed.
 
-**B2, the letermovir comparison**, is real. The ledger comes from the
-supplementary workbook of an open-access study
-([doi:10.1021/jacs.5c14470](https://doi.org/10.1021/jacs.5c14470)) that
-compared a published Merck route against a de novo route and reported 382
-against 369 kgCO2e/kg — a 3% gap. Those figures were computed with ecoinvent,
-so this project cannot reproduce them and does not try; the masses travel, the
-factors do not.
-
-What B2 measures instead is what happens when the data runs out, which is the
-normal case. Openly licensed factors resolve **2 of the 43 materials that
-differ between the routes, 41.4% of the differing mass** — up from 8.9% when
-the tables held nine substances. That is the measured answer to the question the
-specification left open, and it is still not a flattering one.
-
-The benchmark earned its place immediately. Before it existed the tool treated
-an unresolved material as absent rather than unknown, and on 9% of the mass it
-reported `P > 0.9999` — for the ranking opposite the published one. Two things
-came out of the failure: a coverage floor below which no ranking is reported at
-all, and a break-even calculation that asks what the missing materials would
-have to average for the ranking to flip.
-
-Watching those two numbers move as data arrived is the clearest argument for
-the design. At 9% coverage the resolved part leaned against the paper and the
-break-even was 0.19 kgCO2e/kg — below every organic solvent in the table, so
-the lean was worth nothing. Adding water and toluene took coverage to 41%, the
-lean flipped to agree with the paper, and the break-even rose to 3.59. The
-verdict stayed `indeterminate` throughout: the first refusal avoided publishing
-a wrong answer, and the break-even tracked the truth before the coverage did.
-
-## "Surely this data exists?"
-
-It does, and it is not free. Everything missing here is in ecoinvent, sold on an
-annual commercial subscription, which is what most people doing this work buy.
-The study this project benchmarks against used ecoinvent 3.10; this repository
-can carry its masses but not its factors.
-
-Worth knowing before assuming a licence fixes it: those authors report that on
-their first pass only about 20% of the chemicals in their synthesis were in
-ecoinvent at all. This project resolves 23.3% of the materials in the same
-comparison with no licence. Different quantities, so read it as an order of
-magnitude — but the fraction of a real route that any database covers is small,
-and the interesting work starts after the lookup fails.
-
-[`docs/what-others-do.md`](docs/what-others-do.md) covers what the industry
-tools do, and how to point this one at a licensed table if you have one.
+**B2, the letermovir comparison** is the one demonstrated above. It exists
+because a benchmark written *before* the calculation code catches things a
+benchmark written after cannot: before it existed, an unresolved material
+was silently treated as worth zero, and on 8.9% of the differing mass the
+tool reported `P > 0.9999` for the ranking opposite the one the paper
+published. The coverage floor and the break-even calculation shown above
+both exist because this benchmark ran first and failed.
 
 ## Further reading
 
 - [`docs/data.md`](docs/data.md) — the factor-table format and how to build
   a table you can cite.
+- [`docs/bootstrap.md`](docs/bootstrap.md) — deriving factors from
+  production recipes when no database has them.
 - [`docs/uncertainty.md`](docs/uncertainty.md) — how the Monte Carlo model
   works and the status of its parameters.
 - [`docs/convergence.md`](docs/convergence.md) — how many Monte Carlo
   iterations are enough, and what has not yet been checked.
 - [`docs/limitations.md`](docs/limitations.md) — what this tool can and
   cannot be expected to get right.
+- [`docs/reproducibility.md`](docs/reproducibility.md) — the non-API route:
+  reproducing every factor table without live network access.
+- [`docs/what-others-do.md`](docs/what-others-do.md) — what industry LCA
+  tools do instead, and how to plug a licensed database into this one.
 - [`docs/spec-ja.md`](docs/spec-ja.md) — the full design specification
   (Japanese), the authority on intent for everything above.
 - [`docs/internal-api.md`](docs/internal-api.md) — the module-level
