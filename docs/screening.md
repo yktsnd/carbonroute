@@ -163,6 +163,72 @@ which each verdict stops holding. Industrial distillation routinely recovers
 - one that turns over at 40% is one where the published chemistry, not the
   enzyme, was doing the work
 
+## Enzymatic conversion is the other half of that same asymmetry
+
+Every threshold above assumes the enzyme converts stoichiometrically — that
+`cofactor_kg` equals the bare stoichiometric amount, no losses. Real
+enzymatic routes do not run at 100% conversion. Meanwhile the chemical side
+of the same ledger was never given that courtesy: a class template's
+amounts are stated per mole of *product*, so the source paper's own real
+yield is already baked into every `sourced` figure — for the shipped
+UDP-hexosyltransferase template, 62% glycosylation times 85% deprotection,
+52.7% overall. One side of the comparison was discounted for real chemistry;
+the other was not. Every solvent-recovery threshold this document has
+published — including the 85.58% / 86.42% / 91.54% below — is therefore an
+**upper bound**: the recovery a plant would need if the enzyme were perfect.
+A real enzyme, converting at less than 100%, needs less recovery to still
+lose the comparison, or more recovery to still win it — the true break-even
+point sits somewhere on a plane, not on a line.
+
+Enzymatic conversion is now a first-class, declared variable rather than an
+implicit assumption. `screen_reaction` takes `enzymatic_yield` (default
+`1.0`) and `reference_recovery` (default `0.90`); `cofactor_kg` becomes
+`stoichiometric / enzymatic_yield`, and `screen_all` takes and records the
+same two arguments. Two questions follow from making it explicit:
+
+- `minimum_enzymatic_yield(diff_at_yield, assumptions, bounds)` — bisection,
+  mirroring `solvent_recovery_threshold` above. Holding the chemical plant
+  at `reference_recovery`, what is the *lowest* conversion at which the
+  verdict still holds? `0.0` means the verdict holds at any conversion;
+  `None` means it is not decided at that recovery even with a perfect
+  enzyme.
+- `break_even_frontier(reactions, template, structures, table, assumptions,
+  bounds, yields=(...))` — re-screens the whole class at each conversion in
+  `yields`, returning one `FrontierPoint(enzymatic_yield, decided,
+  min_threshold, median_threshold, max_threshold)` per point. This is the
+  verdict's boundary on the (conversion, solvent recovery) plane, not a
+  single number.
+
+`ScreenResult` gained `enzymatic_yield`, `min_enzymatic_yield` and
+`reference_recovery` to carry this through to the report. From the CLI:
+`carbonroute screen --enzymatic-yield 0.5 --reference-recovery 0.90
+--frontier`.
+
+Running the frontier against the shipped class (406 matched, 388 decided at
+every point):
+
+| enzymatic conversion | min threshold | median | max |
+|---|---|---|---|
+| 100% | 85.58% | 86.42% | 91.54% |
+| 90% | 83.94% | 84.87% | 90.54% |
+| 80% | 81.89% | 82.94% | 89.30% |
+| 70% | 79.25% | 80.44% | 87.70% |
+| 60% | 75.73% | 77.12% | 85.57% |
+| 50% | 70.80% | 72.47% | 82.59% |
+| 40% | 63.41% | 65.50% | 78.11% |
+| 30% | 51.10% | 53.87% | 70.65% |
+
+The sharpest reading of that table is not the top row, it is a vertical
+slice through it: at 90% solvent recovery — the rate a real distillation
+actually achieves — only **25 of the 388** decided reactions are still
+decided at *any* enzymatic conversion, and those 25 need conversions of
+85.3% (minimum), 93.3% (median), up to 100.0% (maximum) to stay decided.
+The other **363 lose their verdict at 90% recovery however well the enzyme
+performs.** RHEA:12560, the beta-arbutin calibration case (see
+"Calibration" below), is one of the 363: its threshold is 85.87%, below
+90%, so its `min_enzymatic_yield` is `None` — no enzyme, however efficient,
+saves that verdict at a recovery rate a real plant achieves.
+
 ## What the shipped class actually found
 
 Screening all 406 reactions in Rhea that consume UDP-glucose or its
@@ -174,6 +240,17 @@ Helferich/BF₃ procedure of Cepanec & Litvić (ARKIVOC 2008):
 | minimum | 85.58% |
 | median | 86.42% |
 | maximum | 91.54% |
+
+These three are the top row of the frontier above — the enzyme held at 100%
+conversion — and therefore upper bounds. Read them with "Enzymatic
+conversion is the other half of that same asymmetry" in hand: at the 90%
+recovery a real plant achieves, 363 of these 388 have no verdict left at
+any conversion.
+
+These figures assume a perfect enzyme (`enzymatic_yield=1.0`), so they are
+an upper bound on the recovery a plant would actually need — see
+"Enzymatic conversion is the other half of that same asymmetry" above for
+how the threshold moves once that assumption is relaxed.
 
 **None of the 388 decided reactions survives 99% solvent recovery**, and the
 whole distribution sits at or below the 90–95% a real plant achieves. The
@@ -232,6 +309,19 @@ carbonroute screen \
   --bounds   data/reaction-classes/udp-glucosyltransferase.bounds.yaml \
   --assumptions-from examples/case-studies/beta-arbutin-chemical-vs-enzymatic/ledger.yaml \
   -o screen-report.md
+
+# 3. Price a real enzyme instead of a perfect one, and sweep the
+#    conversion axis to get the break-even frontier rather than one
+#    threshold. --reference-recovery sets the plant the minimum-conversion
+#    figures are evaluated against; it defaults to 0.90.
+carbonroute screen \
+  --template data/reaction-classes/udp-glucosyltransferase.yaml \
+  --bounds   data/reaction-classes/udp-glucosyltransferase.bounds.yaml \
+  --assumptions-from examples/case-studies/beta-arbutin-chemical-vs-enzymatic/ledger.yaml \
+  --enzymatic-yield 0.5 \
+  --reference-recovery 0.90 \
+  --frontier \
+  -o screen-frontier.md
 ```
 
 Screening needs RDKit — it is what turns Rhea's molar stoichiometry into the
@@ -271,6 +361,14 @@ pip install -e ".[chem]"
    project.
 3. Reduce it to amounts per mole of product, and mark anything you had to
    extend beyond that paper as `generalised`, with the extension stated.
+   **State the paper's own overall yield in the template's header while you
+   are doing it**, and say which steps it multiplies. Reducing to a
+   per-mole-of-product basis silently folds that yield into every amount,
+   which is correct — but it also means the chemical side of the comparison
+   arrives pre-discounted for real losses while the enzymatic side does not,
+   unless someone passes `--enzymatic-yield`. That asymmetry always favours
+   the enzyme, it is invisible in the numbers once folded in, and writing
+   the yield down is what keeps the next class from reintroducing it.
 4. Set `reaction_class.expected_mass_delta`: the mass (g/mol) a genuine
    member of the class adds to the acceptor — +14.03 for a methylation,
    +42.04 for an acetylation, +162.14 for a hexosylation, computed from the

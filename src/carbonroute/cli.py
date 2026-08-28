@@ -431,6 +431,36 @@ def lock(ledger_path: str, factor_paths: tuple[str, ...], synonym_paths: tuple[s
     required=True,
     help="A ledger whose assumptions block the screen should adopt.",
 )
+@click.option(
+    "--enzymatic-yield",
+    "enzymatic_yield",
+    type=click.FloatRange(min=0.0, max=1.0, min_open=True),
+    default=1.0,
+    show_default=True,
+    help=(
+        "The enzymatic route's conversion to product. Divides the cofactor "
+        "demand. The 1.0 default flatters the enzyme: a template's chemical "
+        "amounts already carry its source paper's real yield."
+    ),
+)
+@click.option(
+    "--reference-recovery",
+    "reference_recovery",
+    type=click.FloatRange(min=0.0, max=1.0, max_open=True),
+    default=0.90,
+    show_default=True,
+    help="Solvent recovery at which the minimum-conversion figures are evaluated.",
+)
+@click.option(
+    "--frontier",
+    "frontier",
+    is_flag=True,
+    default=False,
+    help=(
+        "Also sweep enzymatic conversion and print the class's break-even "
+        "curve on the (conversion, solvent recovery) plane."
+    ),
+)
 @_FACTORS_OPTION
 @_SYNONYMS_OPTION
 @click.option("-o", "--output", "output_path", type=click.Path(dir_okay=False), default=None)
@@ -440,6 +470,9 @@ def screen(
     template_path: str,
     bounds_path: str,
     assumptions_path: str,
+    enzymatic_yield: float,
+    reference_recovery: float,
+    frontier: bool,
     factor_paths: tuple[str, ...],
     synonym_paths: tuple[str, ...],
     output_path: str | None,
@@ -455,6 +488,7 @@ def screen(
     from .report import render_screen
     from .screen import (
         ScreenError,
+        break_even_frontier,
         load_reactions,
         load_structures,
         load_template,
@@ -474,8 +508,55 @@ def screen(
     except BoundsError as exc:
         _fail(str(exc))
 
-    run = screen_all(reactions, template, structures, table, ledger.assumptions, bounds)
-    _write_output(render_screen(run, reactions_path), output_path)
+    run = screen_all(
+        reactions,
+        template,
+        structures,
+        table,
+        ledger.assumptions,
+        bounds,
+        enzymatic_yield=enzymatic_yield,
+        reference_recovery=reference_recovery,
+    )
+    report = render_screen(run, reactions_path)
+    if frontier:
+        curve = break_even_frontier(
+            reactions, template, structures, table, ledger.assumptions, bounds
+        )
+        report += "\n" + _render_frontier(curve)
+    _write_output(report, output_path)
+
+
+def _render_frontier(curve: list) -> str:
+    """The class's verdict boundary, swept over enzymatic conversion.
+
+    A single recovery threshold fixes conversion at 100% and hides that it
+    was a choice. This shows what the enzymatic route gives up in
+    solvent-recovery headroom for every point of conversion it loses.
+    """
+    lines = [
+        "## Break-even frontier: conversion versus solvent recovery",
+        "",
+        "Each row re-screens the whole class at a different enzymatic "
+        "conversion. The thresholds are the solvent recovery rates at which "
+        "the verdict stops holding, so reading down the table shows how fast "
+        "the enzymatic advantage erodes as the reactor gets more realistic.",
+        "",
+        "| enzymatic conversion | decided | min threshold | median | max |",
+        "|---|---|---|---|---|",
+    ]
+
+    def pct(v: float | None) -> str:
+        return f"{v * 100:.2f}%" if v is not None else "—"
+
+    for p in curve:
+        lines.append(
+            f"| {p.enzymatic_yield * 100:.0f}% | {p.decided} | "
+            f"{pct(p.min_threshold)} | {pct(p.median_threshold)} | "
+            f"{pct(p.max_threshold)} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
 
 
 if __name__ == "__main__":  # pragma: no cover

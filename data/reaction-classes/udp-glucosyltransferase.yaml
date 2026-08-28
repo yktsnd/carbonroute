@@ -67,6 +67,15 @@ chemical_counterpart:
     isolates (1 kg = 3.6731 mol, MW 272.253), and is reproduced in
     examples/case-studies/beta-arbutin-chemical-vs-enzymatic/SOURCES.md.
 
+  # 0.62 glycosylation x 0.85 deprotection. Already folded into every amount
+  # above, because those are stated per mole of *product* -- so this field
+  # is never multiplied in again. It is here to be read next to the
+  # enzymatic conversion a screen is run at: the chemical side of this
+  # comparison arrives discounted for real losses, and an enzymatic side
+  # billed at bare stoichiometry does not. The screen prints both so the
+  # asymmetry cannot hide.
+  source_overall_yield: 0.527
+
   assumptions_note: >
     Two simplifications, both stated because both push the result in a
     direction a reader should know about.

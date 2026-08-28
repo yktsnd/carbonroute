@@ -15,6 +15,7 @@ from carbonroute.resolve import (
 )
 from carbonroute.screen import (
     ScreenError,
+    break_even_frontier,
     count_protectable_groups,
     load_reactions,
     load_structures,
@@ -142,7 +143,7 @@ def test_shipped_template_loads_and_labels_every_generalisation():
 
 
 @pytest.fixture(scope="module")
-def screened():
+def inputs():
     reactions, _ = load_reactions(RHEA / "reactions.tsv")
     structures = load_structures(RHEA / "participants.csv")
     template = load_template(CLASSES / "udp-glucosyltransferase.yaml")
@@ -151,7 +152,12 @@ def screened():
     for syn in default_synonym_paths(ROOT):
         table.load_synonyms(syn)
     assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
-    return screen_all(reactions, template, structures, table, assumptions, bounds)
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def screened(inputs):
+    return screen_all(*inputs)
 
 
 def test_the_class_matches_the_expected_number_of_reactions(screened):
@@ -264,6 +270,110 @@ def test_screens_a_udp_galactose_reaction_using_the_same_class(screened):
     assert "UDP-alpha-D-galactose" in r.equation
     assert r.decided
     assert r.acceptor_name == "sucrose"
+
+
+# --- enzymatic conversion: the axis that was missing ------------------------
+
+
+@pytest.fixture(scope="module")
+def screened_at_half(inputs):
+    return screen_all(*inputs, enzymatic_yield=0.5)
+
+
+def test_the_template_declares_the_yield_its_chemical_side_already_carries():
+    """The asymmetry is only auditable if both sides state their conversion.
+
+    The amounts are per mole of product, so this yield is already folded into
+    them and must never be applied again -- it is declared so a reader can see
+    52.7% sitting next to whatever the enzymatic side was billed at.
+    """
+    t = load_template(CLASSES / "udp-glucosyltransferase.yaml")
+    assert t.source_overall_yield == pytest.approx(0.527)
+
+
+def test_template_rejects_an_out_of_range_source_yield(tmp_path):
+    p = tmp_path / "t.yaml"
+    p.write_text(
+        "reaction_class:\n"
+        "  id: t\n  name: T\n  cofactor_chebi: 'CHEBI:58885'\n"
+        "  expected_mass_delta: 162.14\n"
+        "chemical_counterpart:\n"
+        "  name: C\n  source: S\n  source_overall_yield: 1.4\n  materials:\n"
+        "    - {name: x, kg_per_mol_product: 1.0, basis: sourced, note: n}\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ScreenError, match="source_overall_yield"):
+        load_template(p)
+
+
+def test_a_half_converting_enzyme_pays_twice_the_cofactor(screened, screened_at_half):
+    """The asymmetry this axis exists to remove.
+
+    A template's chemical amounts are stated per mole of *product*, so they
+    already carry the source paper's real yield (62% x 85% = 52.7% for the
+    shipped class). Billing the enzymatic side at bare stoichiometry gave the
+    enzyme a free pass the chemistry never got. Halving conversion must
+    double the cofactor bill, because half the acceptor never becomes product.
+    """
+    full = next(r for r in screened.decided if r.rhea_id == "RHEA:12560")
+    half = next(r for r in screened_at_half.results if r.rhea_id == "RHEA:12560")
+    assert half.cofactor_kg_per_fu == pytest.approx(2 * full.cofactor_kg_per_fu)
+    assert half.enzymatic_yield == 0.5
+
+
+def test_a_worse_enzyme_buys_the_chemical_route_headroom(screened, screened_at_half):
+    """Every threshold must fall, and none may rise: a less efficient enzyme
+    cannot make the enzymatic route harder to beat."""
+    full = {r.rhea_id: r.recovery_threshold for r in screened.decided}
+    for r in screened_at_half.decided:
+        if full.get(r.rhea_id) is not None and r.recovery_threshold is not None:
+            assert r.recovery_threshold < full[r.rhea_id]
+
+
+def test_the_class_does_not_survive_an_industrial_solvent_loop_at_any_conversion(screened):
+    """The finding that the conversion axis exposed, and the sharpest one here.
+
+    The recovery thresholds sit at 85.58-91.54%, and a real plant distils back
+    90%. So for the overwhelming majority of this class the verdict is already
+    gone at a realistic solvent loop -- not because the enzyme converts badly,
+    but before conversion is even asked about. Only the tail is still decided
+    there, and it needs a near-quantitative enzyme to stay that way.
+    """
+    needs = [r.min_enzymatic_yield for r in screened.decided]
+    still_decided = [y for y in needs if y is not None]
+    assert len(still_decided) == 25
+    assert len(needs) - len(still_decided) == 363
+    # And those 25 are not comfortable: the median one needs 93% conversion.
+    still_decided.sort()
+    assert min(still_decided) == pytest.approx(0.853, abs=0.005)
+    assert still_decided[len(still_decided) // 2] == pytest.approx(0.933, abs=0.005)
+
+
+def test_the_calibration_case_loses_its_verdict_before_conversion_matters(screened):
+    """RHEA:12560's threshold is 85.87%, below the 90% reference recovery, so
+    there is no conversion at which its verdict survives that plant -- and the
+    screen must report `None` rather than invent a requirement."""
+    r = next(x for x in screened.results if x.rhea_id == "RHEA:12560")
+    assert r.recovery_threshold == pytest.approx(0.8587, abs=0.002)
+    assert r.reference_recovery == 0.90
+    assert r.min_enzymatic_yield is None
+
+
+def test_the_break_even_frontier_slopes_the_only_way_it_can(inputs):
+    """The 2-D boundary, sampled. Losing conversion can only cost the
+    enzymatic route solvent-recovery headroom, so every summary statistic
+    must decrease monotonically down the curve."""
+    curve = break_even_frontier(*inputs, yields=(1.0, 0.7, 0.5))
+    assert [p.enzymatic_yield for p in curve] == [1.0, 0.7, 0.5]
+    assert all(p.decided == 388 for p in curve)
+    for a, b in zip(curve, curve[1:]):
+        assert b.min_threshold < a.min_threshold
+        assert b.median_threshold < a.median_threshold
+        assert b.max_threshold < a.max_threshold
+    # The size of the effect is the point, not just its sign: a coin-flip
+    # enzyme costs the class ~14 points of the median threshold.
+    assert curve[0].median_threshold == pytest.approx(0.8642, abs=0.002)
+    assert curve[-1].median_threshold == pytest.approx(0.7247, abs=0.002)
 
 
 def test_mass_delta_check_tolerates_chebis_own_charge_state_bookkeeping(screened):

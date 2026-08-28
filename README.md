@@ -97,51 +97,74 @@ Here is each question, what it needs, and where it stands.
 | Question | What it needs | Status |
 |---|---|---|
 | **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Partial.** One class, 406 reactions, screened (2.2% of Rhea). Within-class ranking works; no cross-class metric is defined yet |
-| **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **One axis only.** Solvent recovery is done. Enzymatic yield is not modelled — see the known bias below |
+| **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
-### The known bias in Q2: today's numbers favour the enzyme
+### Q2, answered: the break-even frontier
 
-This is a correction to the numbers currently published below, not a future
-work item. On the chemical side, the shipped template's quantities are
-carried through the source paper's own real yields — 62% glycosylation ×
-85% deprotection = **52.7% overall**. The chemical route correctly pays the
-penalty of having to charge nearly twice the material to obtain 1 kg of
-product. **The enzymatic side, by contrast, is billed at pure stoichiometry
-— an implicit 100% yield** (`cofactor_kg = mol_per_fu * cofactor_coeff *
-cofactor_mw / 1000` in `screen.py`).
+The bias this section used to describe has been removed, and removing it
+changed the conclusion.
 
-Real enzymatic glycosylations rarely go quantitatively, and the cofactor
-bill scales with the reciprocal of conversion. The solvent-recovery
-thresholds reported below (85.58%–91.54%) are therefore **upper bounds**;
-the true values are lower. Adding this axis is not a precision refinement —
-it can move the direction of the conclusion. That is why it is first on the
-roadmap.
+The asymmetry was this. On the chemical side, the shipped template's
+quantities are carried through the source paper's own real yields — 62%
+glycosylation × 85% deprotection = **52.7% overall** — so the chemical route
+pays the penalty of charging nearly twice the material to obtain 1 kg of
+product. The enzymatic side was billed at pure stoichiometry: an implicit
+100% conversion, and no equivalent penalty. Enzymatic conversion is now a
+declared variable that divides the cofactor demand, because a reaction
+converting half its acceptor consumes twice the cofactor per kg of product.
+
+Sweeping it gives the verdict's real boundary — a curve, not a number.
+Every row below re-screens all 388 decided reactions at a different
+conversion:
+
+| enzymatic conversion | min threshold | median | max |
+|---|---|---|---|
+| 100% | 85.58% | 86.42% | 91.54% |
+| 90% | 83.94% | 84.87% | 90.54% |
+| 80% | 81.89% | 82.94% | 89.30% |
+| 70% | 79.25% | 80.44% | 87.70% |
+| 60% | 75.73% | 77.12% | 85.57% |
+| 50% | 70.80% | 72.47% | 82.59% |
+| 40% | 63.41% | 65.50% | 78.11% |
+| 30% | 51.10% | 53.87% | 70.65% |
+
+A coin-flip enzyme costs the class about 14 points of median threshold. But
+the sharper finding is on the other axis. Industrial distillation recovers
+about 90%, and at that recovery **only 25 of the 388 reactions are still
+decided at all — the other 363 lose their verdict however well the enzyme
+performs.** The 25 that survive need conversions of 85.3% at minimum, 93.3%
+at the median, and 100% at the worst. The calibration case itself
+(RHEA:12560, β-arbutin) is one of the 363: its threshold is 85.87%, below
+the plant's 90%.
+
+So the honest answer to Q2 is that in this class, at a realistic solvent
+loop, the enzymatic advantage mostly is not there — and where it is, it
+demands a near-quantitative enzyme. Run it yourself:
+
+```bash
+carbonroute screen --template ... --bounds ... --assumptions-from ... \
+  --enzymatic-yield 0.5 --frontier
+```
 
 ### The road from here
 
-1. **Make enzymatic yield a first-class variable** (Q2, highest priority).
-   Remove the asymmetry above and widen the output from a one-dimensional
-   threshold to a **break-even curve** on the `(enzymatic yield, solvent
-   recovery)` plane. The practically useful question becomes: *assuming the
-   industrially standard 90% solvent recovery, what is the minimum
-   conversion at which the enzyme still wins?*
-2. **Define a cross-class comparable metric** (Q1). The solvent-recovery
+1. **Define a cross-class comparable metric** (Q1). The solvent-recovery
    threshold depends on a template's solvent load, so it cannot be compared
    between classes. Compute Δ kg CO₂e per kg of product at a standardised
    operating point (say 90% recovery) as an interval, and rank on that.
    Intervals induce only a partial order, so the output is a Pareto ranking,
    not a fabricated total order.
-3. **Add classes** (Q1 coverage). The largest EC-3 groups — 1.1.1 (526
+2. **Add classes** (Q1 coverage). The largest EC-3 groups — 1.1.1 (526
    reactions), 2.1.1 (500), 2.3.1 (382) — bring the cumulative total to
    1,808 reactions: 9.7% of Rhea, 23.7% of the 7,635 that carry an EC
    number. Each needs one real published chemical procedure, and that step
    does not get faster.
-4. **Locate the commercial processes** (Q3). Map already-commercialised
+3. **Locate the commercial processes** (Q3). Map already-commercialised
    enzymatic reactions — human-milk-oligosaccharide fucosylation
    (RHEA:14257 and others), anthocyanin glucosylation (RHEA:20093),
    β-arbutin (RHEA:12560) — onto Rhea ids and report their percentile in
-   the ranking from step 2.
+   the ranking from step 1.
 
 The ceiling on "comprehensive" is worth stating plainly too. Only 7,635 of
 Rhea's 18,558 reactions (41.1%) carry an EC number at all, and templating
@@ -170,10 +193,11 @@ real published chemical procedure:
 | median | 86.42% |
 | maximum | 91.54% |
 
-> These three figures are **upper bounds**: the enzymatic side is currently
-> billed at an implicit 100% yield while the chemical side carries its source
-> paper's real 52.7%. See
-> ["The known bias in Q2"](#the-known-bias-in-q2-todays-numbers-favour-the-enzyme).
+> These three figures are **upper bounds**, computed with the enzyme held at
+> 100% conversion. Pricing a real conversion pushes them lower, and at the
+> 90% solvent recovery a plant achieves, 363 of the 388 lose their verdict
+> outright. See
+> ["Q2, answered: the break-even frontier"](#q2-answered-the-break-even-frontier).
 
 That threshold is the honest headline, not a win count. It is the
 chemical-route solvent recovery rate at which each reaction's verdict

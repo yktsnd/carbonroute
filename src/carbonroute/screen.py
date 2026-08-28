@@ -72,6 +72,7 @@ from __future__ import annotations
 
 import csv
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -313,6 +314,13 @@ class ClassTemplate:
     expected_mass_delta: float
     mass_delta_tolerance: float = 1.0
     assumptions_note: str = ""
+    #: The source procedure's own overall yield, if it reported one. Never
+    #: applied to anything: the materials are already stated per mole of
+    #: *product*, so this yield is folded into each of them and multiplying
+    #: it in again would double-count. It is carried so a report can print
+    #: it beside the enzymatic conversion the screen was run at, which is
+    #: the only place the asymmetry between the two sides is visible.
+    source_overall_yield: float | None = None
 
     def matches(self, rxn: RheaReaction) -> bool:
         """True when this template's cofactor is consumed by `rxn`.
@@ -330,6 +338,25 @@ class ClassTemplate:
         to reject those; `matches` alone only narrows the field.
         """
         return any(p.chebi in self.cofactor_chebi for p in rxn.left)
+
+
+def _source_yield(chem: dict, path: str | Path) -> float | None:
+    """Read and range-check the source procedure's own overall yield."""
+    raw = chem.get("source_overall_yield")
+    if raw is None:
+        return None
+    try:
+        y = float(raw)
+    except (TypeError, ValueError):
+        raise ScreenError(
+            f"{path}: chemical_counterpart.source_overall_yield must be a number"
+        ) from None
+    if not 0.0 < y <= 1.0:
+        raise ScreenError(
+            f"{path}: chemical_counterpart.source_overall_yield must be in (0, 1], "
+            f"got {y}"
+        )
+    return y
 
 
 def load_template(path: str | Path) -> ClassTemplate:
@@ -411,6 +438,7 @@ def load_template(path: str | Path) -> ClassTemplate:
         expected_mass_delta=expected_mass_delta,
         mass_delta_tolerance=mass_delta_tolerance,
         assumptions_note=chem.get("assumptions_note", ""),
+        source_overall_yield=_source_yield(chem, path),
     )
 
 
@@ -433,6 +461,18 @@ class ScreenResult:
     #: holding. This, not the verdict at zero recovery, is the number worth
     #: reading -- see `solvent_recovery_threshold`.
     recovery_threshold: float | None = None
+    #: The enzymatic conversion this row was screened at. Declared, never
+    #: implicit: the chemical side of a template already carries its source
+    #: paper's real yield, so leaving the enzymatic side at pure
+    #: stoichiometry silently favours the enzyme. See `screen_reaction`.
+    enzymatic_yield: float = 1.0
+    #: The lowest enzymatic conversion at which the verdict still holds, with
+    #: the chemical plant recovering `reference_recovery` of its solvent.
+    #: ``0.0`` means no conversion requirement -- the verdict holds however
+    #: badly the enzyme performs. See `minimum_enzymatic_yield`.
+    min_enzymatic_yield: float | None = None
+    #: The solvent recovery rate `min_enzymatic_yield` was computed at.
+    reference_recovery: float = 0.90
     skipped_reason: str = ""
 
     @property
@@ -480,8 +520,24 @@ def screen_reaction(
     table: FactorTable,
     assumptions: Assumptions,
     bounds: dict[str, Bound],
+    *,
+    enzymatic_yield: float = 1.0,
+    reference_recovery: float = 0.90,
 ) -> ScreenResult:
-    """Build the enzymatic-vs-chemical delta for one reaction and decide it."""
+    """Build the enzymatic-vs-chemical delta for one reaction and decide it.
+
+    ``enzymatic_yield`` is the enzymatic route's conversion to product. It
+    divides the cofactor demand, because a reaction that only converts half
+    its acceptor consumes twice the cofactor per kg of product. The default
+    of 1.0 reproduces the historical behaviour, and is deliberately *stated*
+    rather than assumed: see the comment on ``cofactor_kg_stoich`` for why
+    an unstated 1.0 systematically favours the enzymatic route.
+
+    ``reference_recovery`` is the solvent recovery rate at which
+    ``min_enzymatic_yield`` is evaluated. It defaults to the 90% a real
+    plant achieves by distillation, which is the operating point at which
+    the question "how good does the enzyme have to be?" is worth asking.
+    """
     blank = ScreenResult(
         rhea_id=rxn.rhea_id,
         equation=rxn.equation,
@@ -574,23 +630,38 @@ def screen_reaction(
     cofactor_mw = molecular_weight(cofactor_smiles) if cofactor_smiles else None
     if not cofactor_mw:
         return ScreenResult(**{**blank.__dict__, "skipped_reason": "no usable cofactor structure"})
-    cofactor_kg = mol_per_fu * cofactor_coeff * cofactor_mw / 1000.0
+    # Stoichiometric cofactor demand: what a *perfect* enzyme would consume.
+    # Nothing is screened at this figure unless `enzymatic_yield` is 1.0,
+    # which is a declared assumption rather than the silent default it used
+    # to be. The asymmetry it papers over is real and it favours the enzyme:
+    # a template's chemical amounts are stated per mole of *product*, so they
+    # already carry the source paper's own yield (62% glycosylation x 85%
+    # deprotection = 52.7% overall, for the shipped UDP-hexosyltransferase
+    # class), while an enzymatic route billed at pure stoichiometry pays no
+    # such penalty. Real glycosyltransferase conversions are not
+    # quantitative, and the cofactor bill scales with 1/yield.
+    cofactor_kg_stoich = mol_per_fu * cofactor_coeff * cofactor_mw / 1000.0
 
-    def diff_at(solvent_recovery: float) -> DiffResult:
+    def diff_at(solvent_recovery: float, yield_: float) -> DiffResult:
         return _build_diff(
             rxn,
             template,
             table,
             mol_per_fu,
             n_masked,
-            cofactor_kg,
+            cofactor_kg_stoich / yield_,
             cofactor_coeff,
             solvent_recovery,
             cofactor_chebi,
         )
 
-    verdict = bounded_verdict(diff_at(0.0), assumptions, bounds)
-    threshold = solvent_recovery_threshold(diff_at, assumptions, bounds, verdict)
+    verdict = bounded_verdict(diff_at(0.0, enzymatic_yield), assumptions, bounds)
+    threshold = solvent_recovery_threshold(
+        lambda r: diff_at(r, enzymatic_yield), assumptions, bounds, verdict
+    )
+    min_yield = minimum_enzymatic_yield(
+        lambda y: diff_at(reference_recovery, y), assumptions, bounds
+    )
 
     return ScreenResult(
         rhea_id=rxn.rhea_id,
@@ -601,9 +672,12 @@ def screen_reaction(
         product_mw=product_mw,
         acceptor_name=acceptor.name,
         protectable_groups=n_protect,
-        cofactor_kg_per_fu=cofactor_kg,
+        cofactor_kg_per_fu=cofactor_kg_stoich / enzymatic_yield,
         verdict=verdict,
         recovery_threshold=threshold,
+        enzymatic_yield=enzymatic_yield,
+        min_enzymatic_yield=min_yield,
+        reference_recovery=reference_recovery,
     )
 
 
@@ -743,6 +817,55 @@ def solvent_recovery_threshold(
     return hi
 
 
+def minimum_enzymatic_yield(
+    diff_at_yield,
+    assumptions: Assumptions,
+    bounds: dict[str, Bound],
+    *,
+    steps: int = 34,
+) -> float | None:
+    """How good the enzyme has to be for its verdict to survive.
+
+    The mirror image of `solvent_recovery_threshold`, and the half of the
+    picture that was missing. A template's chemical amounts are stated per
+    mole of product, so they already carry the source paper's real yield;
+    the enzymatic side, billed at stoichiometry, carries none. That
+    asymmetry is worth what an enzymatic route's own losses are worth, and
+    it always points the same way -- towards the enzyme.
+
+    This answers the question that removes it: *at the solvent recovery a
+    real plant achieves, what is the lowest conversion at which the
+    enzymatic route still wins?* A reaction needing 20% is one whose
+    advantage is structural. One needing 95% is one that wins on paper and
+    would lose in a reactor.
+
+    Returns that conversion, ``0.0`` if the verdict holds at any conversion
+    tested, or ``None`` if the comparison was never decided at full
+    conversion in the first place.
+    """
+    at_full = bounded_verdict(diff_at_yield(1.0), assumptions, bounds)
+    if not at_full.decisive:
+        return None
+    target = at_full.verdict
+
+    def holds(y: float) -> bool:
+        return bounded_verdict(diff_at_yield(y), assumptions, bounds).verdict == target
+
+    # Lower conversion only ever costs the enzymatic route more cofactor, so
+    # `holds` is monotone in y and a bisection is exact to its step count.
+    floor = 0.000001
+    if holds(floor):
+        return 0.0
+    lo, hi = floor, 1.0  # holds(hi) is true, holds(lo) is false
+    for _ in range(steps):
+        mid = (lo + hi) / 2.0
+        if holds(mid):
+            hi = mid
+        else:
+            lo = mid
+    return hi
+
+
 def _cofactor_display(rxn: RheaReaction, template: ClassTemplate) -> str:
     for p in rxn.left:
         if p.chebi in template.cofactor_chebi:
@@ -770,6 +893,10 @@ class ScreenRun:
     results: list[ScreenResult] = field(default_factory=list)
     matched: int = 0
     skipped_unparsed: int = 0
+    #: The enzymatic conversion every row in this run was screened at, and
+    #: the solvent recovery its `min_enzymatic_yield` figures assume.
+    enzymatic_yield: float = 1.0
+    reference_recovery: float = 0.90
 
     @property
     def decided(self) -> list[ScreenResult]:
@@ -791,13 +918,95 @@ def screen_all(
     table: FactorTable,
     assumptions: Assumptions,
     bounds: dict[str, Bound],
+    *,
+    enzymatic_yield: float = 1.0,
+    reference_recovery: float = 0.90,
 ) -> ScreenRun:
-    run = ScreenRun(template=template)
+    run = ScreenRun(
+        template=template,
+        enzymatic_yield=enzymatic_yield,
+        reference_recovery=reference_recovery,
+    )
     for rxn in reactions:
         if not template.matches(rxn):
             continue
         run.matched += 1
         run.results.append(
-            screen_reaction(rxn, template, structures, table, assumptions, bounds)
+            screen_reaction(
+                rxn,
+                template,
+                structures,
+                table,
+                assumptions,
+                bounds,
+                enzymatic_yield=enzymatic_yield,
+                reference_recovery=reference_recovery,
+            )
         )
     return run
+
+
+@dataclass(frozen=True)
+class FrontierPoint:
+    """One point on a class's break-even curve."""
+
+    enzymatic_yield: float
+    decided: int
+    min_threshold: float | None
+    median_threshold: float | None
+    max_threshold: float | None
+
+
+def break_even_frontier(
+    reactions: list[RheaReaction],
+    template: ClassTemplate,
+    structures: dict[str, str],
+    table: FactorTable,
+    assumptions: Assumptions,
+    bounds: dict[str, Bound],
+    *,
+    yields: Sequence[float] = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3),
+) -> list[FrontierPoint]:
+    """A class's verdict boundary on the (conversion, solvent recovery) plane.
+
+    A verdict is not a point, it is a region, and two numbers the screen
+    cannot know decide where its edge lies: how much solvent the chemical
+    plant recovers, and how well the enzyme converts. Reporting a single
+    recovery threshold fixes the second at 100% and hides that it was a
+    choice -- one that always flatters the enzyme, because the chemical side
+    of a template already carries its source paper's real yield.
+
+    This sweeps the hidden axis and returns the boundary itself. Reading
+    down the list shows exactly how much solvent-recovery headroom the
+    enzymatic route surrenders for each point of conversion it loses.
+    """
+    return [
+        _summarise_frontier(
+            y,
+            screen_all(
+                reactions,
+                template,
+                structures,
+                table,
+                assumptions,
+                bounds,
+                enzymatic_yield=y,
+            ),
+        )
+        for y in yields
+    ]
+
+
+def _summarise_frontier(y: float, run: ScreenRun) -> FrontierPoint:
+    thresholds = sorted(
+        r.recovery_threshold for r in run.decided if r.recovery_threshold is not None
+    )
+    if not thresholds:
+        return FrontierPoint(y, len(run.decided), None, None, None)
+    return FrontierPoint(
+        enzymatic_yield=y,
+        decided=len(run.decided),
+        min_threshold=thresholds[0],
+        median_threshold=thresholds[len(thresholds) // 2],
+        max_threshold=thresholds[-1],
+    )

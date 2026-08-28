@@ -797,7 +797,24 @@ def render_screen(run: "ScreenRun", reaction_source: str) -> str:
     lines.append("")
     lines.append(f"Reactions: `{reaction_source}`")
     lines.append(f"Class template: `{t.id}`")
+    lines.append(f"Enzymatic conversion assumed: **{run.enzymatic_yield * 100:.0f}%**")
+    if t.source_overall_yield is not None:
+        lines.append(
+            f"Chemical conversion, from the source procedure: "
+            f"**{t.source_overall_yield * 100:.1f}%** (already folded into the "
+            "template's per-mole-of-product amounts)"
+        )
     lines.append("")
+    if run.enzymatic_yield >= 1.0:
+        lines.append(
+            "> **The enzymatic side is billed at 100% conversion, and that "
+            "favours it.** This template's chemical amounts are stated per mole "
+            "of *product*, so they already carry the source paper's own yield; "
+            "an enzymatic route charged pure stoichiometry pays no equivalent "
+            "penalty. Every threshold below is therefore an upper bound. Re-run "
+            "with `--enzymatic-yield` to price a real conversion."
+        )
+        lines.append("")
     lines.append(f"**Chemical counterpart modelled:** {t.chemical_name}")
     lines.append("")
     lines.append(f"> {t.chemical_source.strip()}")
@@ -859,6 +876,49 @@ def render_screen(run: "ScreenRun", reaction_source: str) -> str:
         "substantially from the bench procedure's solvent handling rather than from "
         "the enzyme."
     )
+    lines.append("")
+
+    lines.append(
+        f"## How good the enzyme has to be, at {run.reference_recovery * 100:.0f}% "
+        "solvent recovery"
+    )
+    lines.append("")
+    lines.append(
+        "The threshold above sweeps the chemical plant's solvent recovery at one "
+        "fixed enzymatic conversion. This sweeps the other axis instead, and it "
+        "sweeps the whole of it — from a perfect enzyme downwards, independent "
+        "of the conversion the rest of this report was run at. With the plant "
+        f"recovering the {run.reference_recovery * 100:.0f}% a real distillation "
+        "achieves, what is the lowest conversion at which the enzymatic verdict "
+        "still holds?"
+    )
+    lines.append("")
+    needs = sorted(
+        r.min_enzymatic_yield for r in run.decided if r.min_enzymatic_yield is not None
+    )
+    stranded = len(run.decided) - len(needs)
+    if not needs:
+        lines.append(
+            f"**No reaction in this class holds its verdict at "
+            f"{run.reference_recovery * 100:.0f}% solvent recovery, at any "
+            "conversion.** The advantage this class shows at zero recovery does "
+            "not survive an industrial solvent loop, so there is no conversion "
+            "requirement to report — the question stops being about the enzyme."
+        )
+    else:
+        lines.append("| statistic | minimum conversion required |")
+        lines.append("|---|---|")
+        for label, q in (("minimum", 0.0), ("median", 0.5), ("maximum", 1.0)):
+            idx = min(int(q * (len(needs) - 1)), len(needs) - 1)
+            lines.append(f"| {label} | {needs[idx] * 100:.1f}% |")
+        lines.append("")
+        lines.append(
+            f"**{len(needs)} of {len(run.decided)} decided reactions are still "
+            f"decided at {run.reference_recovery * 100:.0f}% recovery**, and they "
+            f"need the conversions above to stay that way. The other {stranded} "
+            "lose their verdict at this recovery rate however well the enzyme "
+            "performs."
+        )
     lines.append("")
 
     lines.append("## Most robust in this class")
