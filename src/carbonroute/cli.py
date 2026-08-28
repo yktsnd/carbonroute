@@ -294,6 +294,17 @@ def coverage(
 @click.option("--iterations", type=int, default=None, help="Override assumptions.monte_carlo.iterations.")
 @click.option("--seed", type=int, default=None, help="Override assumptions.monte_carlo.seed.")
 @click.option("--no-thresholds", is_flag=True, help="Skip the reversal-threshold scan (faster).")
+@click.option(
+    "--bounds",
+    "bounds_path",
+    type=click.Path(exists=True, dir_okay=False),
+    default=None,
+    help=(
+        "Bounds file asserting where each unresolved material's factor cannot be. "
+        "Adds a section asking whether the ranking holds everywhere inside those "
+        "bounds. Bounds are never treated as factors and never change coverage."
+    ),
+)
 @click.option("--fetch", is_flag=True, help="Not implemented in v0; always errors.")
 @click.option("-o", "--output", "output_path", type=click.Path(dir_okay=False), default=None)
 def compare(
@@ -306,6 +317,7 @@ def compare(
     iterations: int | None,
     seed: int | None,
     no_thresholds: bool,
+    bounds_path: str | None,
     fetch: bool,
     output_path: str | None,
 ) -> None:
@@ -336,7 +348,17 @@ def compare(
 
         thresholds = reversal_thresholds(ledger, a_name, b_name, table, model)
 
-    _write_output(render_report(comparison, thresholds, ledger_path), output_path)
+    bounded = None
+    if bounds_path:
+        from .bounds import BoundsError, bounded_verdict, load_bounds
+
+        try:
+            bounds = load_bounds(bounds_path)
+        except BoundsError as exc:
+            _fail(str(exc))
+        bounded = bounded_verdict(comparison.diff, comparison.assumptions, bounds)
+
+    _write_output(render_report(comparison, thresholds, ledger_path, bounded), output_path)
 
 
 @main.command()

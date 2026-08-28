@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any
 import yaml
 
 if TYPE_CHECKING:  # pragma: no cover - type checking only, no runtime import
+    from .bounds import BoundedVerdict
     from .compute import Comparison, RouteResult
     from .ledger import AdjustedRoute
     from .resolve import FactorTable, Resolution
@@ -370,7 +371,12 @@ def _thresholds_section(thresholds: "list[Threshold] | None") -> list[str]:
     return lines
 
 
-def render_report(comparison: "Comparison", thresholds: "list[Threshold] | None", ledger_path: str) -> str:
+def render_report(
+    comparison: "Comparison",
+    thresholds: "list[Threshold] | None",
+    ledger_path: str,
+    bounded: "BoundedVerdict | None" = None,
+) -> str:
     """Render the full Markdown comparison report (spec section 9).
 
     Section order is binding: (1) the not-ISO-14067 notice, (2) the full
@@ -409,8 +415,100 @@ def render_report(comparison: "Comparison", thresholds: "list[Threshold] | None"
     lines.extend(_route_body(b))
     lines.extend(_delta_table(comparison))
     lines.extend(_thresholds_section(thresholds))
+    lines.extend(render_bounded_verdict(bounded))
 
     return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def render_bounded_verdict(verdict: "BoundedVerdict | None") -> list[str]:
+    """Render the bounds section: can the ranking be settled without values?
+
+    Kept visually and textually separate from the Monte Carlo conclusion
+    above it, because it answers a different question on different evidence.
+    Nothing here is a factor; see `carbonroute.bounds` and `docs/bounds.md`.
+    """
+    if verdict is None:
+        return []
+
+    lines = ["## Verdict from bounds", ""]
+    lines.append(
+        "This section asks a different question from the conclusion above: not "
+        "*what* the missing factors are, but whether the ranking is the same "
+        "everywhere they could be. Bounds are assertions about where a value "
+        "cannot be. **They are not factors** — none of them entered the Monte "
+        "Carlo, contributed to any total, or changed the coverage figure."
+    )
+    lines.append("")
+
+    if verdict.decisive:
+        lower = verdict.b_name if verdict.verdict == "b_lower" else verdict.a_name
+        higher = verdict.a_name if verdict.verdict == "b_lower" else verdict.b_name
+        lines.append(
+            f"**Decided: `{lower}` is lower than `{higher}` everywhere in the "
+            "asserted bounds.**"
+        )
+    else:
+        lines.append("**Not decided:** the difference changes sign inside the asserted bounds.")
+    lines.append("")
+    lines.append(verdict.note)
+    lines.append("")
+    lines.append(
+        f"Resolved part of the difference: {_fmt(verdict.resolved_delta_kgCO2e)} kgCO2e/FU. "
+        f"Bounded materials: {len(verdict.bounded_keys)}; "
+        f"unbounded above: {len(verdict.unbounded_above_keys)}; "
+        f"no bound supplied: {len(verdict.missing_bound_keys)}."
+    )
+    lines.append("")
+
+    lines.append("### What each unresolved material would have to be")
+    lines.append("")
+    lines.append(
+        "Each row holds every *other* unresolved material at its least "
+        "favourable admissible value, so a material that clears its own "
+        "threshold settles the comparison on its own."
+    )
+    lines.append("")
+    lines.append("| material | delta_mass kg/FU | needs to be | asserted bound | clears it |")
+    lines.append("|---|---|---|---|---|")
+    for c in verdict.critical:
+        if c.status == "always":
+            needs = "any value — cannot flip it"
+        elif c.status == "unbounded":
+            needs = "not computable (another material has no ceiling)"
+        else:
+            assert c.threshold_kgCO2e_per_kg is not None
+            needs = f"{c.direction} {_fmt(c.threshold_kgCO2e_per_kg)} kgCO2e/kg"
+        if c.bound is None:
+            bound_txt = "—"
+        else:
+            hi = "unbounded" if c.bound.high is None else _fmt(c.bound.high)
+            bound_txt = f"[{_fmt(c.bound.low)}, {hi}]"
+        clears = {True: "yes", False: "**no**", None: "—"}[c.cleared_by_bound]
+        lines.append(
+            f"| {c.name} | {_fmt(c.delta_mass_kg)} | {needs} | {bound_txt} | {clears} |"
+        )
+    lines.append("")
+
+    bounded_with_sources = [c for c in verdict.critical if c.bound is not None]
+    if bounded_with_sources:
+        lines.append("### Where each bound comes from")
+        lines.append("")
+        for c in bounded_with_sources:
+            assert c.bound is not None
+            lines.append(f"**{c.name}** (`{c.key}`)")
+            lines.append("")
+            lines.append(f"- {c.bound.rationale}")
+            for src in c.bound.sources:
+                lines.append(f"- Source: {src}")
+            lines.append("")
+
+    lines.append(
+        "> A result from bounds is conditional on the bounds. If you disagree "
+        "with one, the threshold column above is the whole argument: change the "
+        "bound, and the verdict follows from the same arithmetic."
+    )
+    lines.append("")
+    return lines
 
 
 def render_resolution_table(routes: "dict[str, RouteResult]", table: "FactorTable", show_missing: bool) -> str:

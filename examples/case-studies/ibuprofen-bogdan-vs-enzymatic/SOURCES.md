@@ -205,3 +205,108 @@ recorded here so a future session does not repeat the same dead ends:
 absence of public data. The paper's own methodology section states its
 background inventory came from GaBi + ecoinvent 3.6 — the same commercial
 databases this project cannot access — for exactly these materials.
+
+## Deciding it anyway: the verdict from bounds
+
+The gap above is real and was not closed. But it turned out not to need
+closing, because the comparison does not actually depend on it.
+
+Running the same ledger with `--bounds bounds.yaml` (see `docs/bounds.md`
+for the method, and `bounds.yaml` in this directory for every interval and
+its justification):
+
+```
+carbonroute compare examples/case-studies/ibuprofen-bogdan-vs-enzymatic/ledger.yaml \
+  --a bogdan --b enzymatic \
+  --bounds examples/case-studies/ibuprofen-bogdan-vs-enzymatic/bounds.yaml
+```
+
+**Decided: `bogdan` is lower than `enzymatic` everywhere in the asserted
+bounds.** `GWP_A - GWP_B` never rises above **-15.01 kgCO2e/FU** anywhere in
+the box.
+
+Coverage is still 52.9%. No bound was used as a factor, nothing entered the
+Monte Carlo, and no unresolved material became resolved. What changed is the
+question asked: not *what* the missing factors are, but whether the ranking
+is the same everywhere they could be.
+
+The structure of the answer is the interesting part:
+
+| material | delta kg/FU | what it would have to be to matter |
+|---|---|---|
+| [BMIM][PF6] | -8.412 | **above 1.715 kgCO2e/kg** — the only live question |
+| potassium hydroxide | +2.371 | not computable (other ceilings open); irrelevant at any sane value |
+| the other seven | -4.13 total | **any value at all — none of them can flip it** |
+
+So nine unresolved materials collapse to **one inequality about one
+substance**: is a two-step fluorinated ionic liquid's cradle-to-gate
+footprint above 1.715 kgCO2e/kg? The two published estimates for its closest
+studied analogue — the ones that disagree with each other by a factor of
+eight, 3.5 and 27.3 — clear that bar by 2.0x and 15.9x respectively. They
+cannot agree on the value. They agree unanimously on the verdict.
+
+## What the bounds result then exposed about this ledger
+
+Getting a decisive answer made it worth checking hard, and the check found a
+real defect in this case study's first version.
+
+The ionic liquid was originally entered as `role: auxiliary`. In this tool
+only `role: solvent` is eligible for `assumptions.solvent_recovery` (see
+`ledger._recovery_for`), so that classification pinned all 8.41 kg/FU of it
+as fresh make-up, permanently, with no way for any sensitivity scan to
+question it.
+
+That is not what the process does, and not what the paper claims. The paper
+models **50% and 100% recycling scenarios explicitly**, and states:
+
+> "The production of IL takes in fact a significant share of the impact in
+> the modified Bogdan scenario and can only be justified when the system
+> achieves a high efficiency of recycling."
+
+and, on this exact pairing:
+
+> "the synthesis proposed in this paper can improve the Bogdan process
+> substantially, **provided that the enzyme recycling is of a high
+> standard**."
+
+The role is now `solvent`, which is what it is — the reaction medium.
+`solvent_recovery_default` stays at `0.0`, because this project does not
+assume recovery it has not been told about; the difference is that the
+question is now askable.
+
+Asking it, with the same bounds and recovery applied only to the ionic
+liquid:
+
+| IL recovery | verdict |
+|---|---|
+| 0% | `bogdan` lower — decided |
+| 50% | `bogdan` lower — decided |
+| **51.0%** | **crossover** |
+| 55% and above | not decided by these bounds |
+
+**The crossover is at 51.0% recovery of the ionic liquid.**
+
+The paper's own two scenarios are **50% and 100%**. At 50% it reports mixed
+results; only near 100% does it claim the enzymatic route wins across the
+board. This project, using nothing but public factor data for two materials,
+one bounded interval for a third, and the paper's own mass inventory,
+independently lands the tipping point in the same place the paper's full
+ecoinvent-and-GaBi LCA puts the boundary between "mixed" and "the enzymatic
+route wins".
+
+Stated precisely, because the convergence is easy to overclaim: the paper's
+50%/100% figures cover recycling across the production system and are
+reported over many impact categories against the BHC process, while the 51.0%
+here is recovery of the ionic liquid alone, on GWP alone, for Bogdan against
+enzymatic. These are not the same measurement. What is reproduced is the
+paper's central finding — that this comparison turns on recycling efficiency,
+and turns over at roughly half — from a fraction of the data.
+
+## What this case study is evidence for
+
+That the coverage gate, taken alone, was too blunt. 52.9% coverage sounds
+like a dead end and is not one: the missing half was mostly incapable of
+changing the answer, and the part that could was answerable from bounds far
+looser than a factor. The honest conclusion for this pair was never
+"indeterminate" — it was "decided, conditional on one inequality and one
+recycling rate, both of which are stated."

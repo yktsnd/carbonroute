@@ -1,0 +1,167 @@
+# Bounds for the unresolved materials in the ibuprofen comparison.
+#
+# A bound is NOT a factor. Nothing here enters the Monte Carlo, contributes
+# to a total, or turns an unresolved material into a resolved one -- see
+# docs/bounds.md and src/carbonroute/bounds.py. Each interval is only an
+# assertion about where a value cannot be, used to ask whether the ranking
+# is the same everywhere inside it.
+#
+# Each `low` below is chosen to be defensible on grounds a reader can check
+# without any database: a mass-balance argument, an already-held factor for
+# a simpler relative, or the empirical floor of the loaded tables. Where a
+# ceiling could not be defended, `high` is omitted rather than invented --
+# "at least X, ceiling unknown" is an honest bound and is often all the
+# question needs.
+#
+# The load-bearing entry is the ionic liquid. Everything else is either
+# small enough not to matter or bounded so generously that it argues
+# against the conclusion rather than for it.
+
+bounds:
+
+  # ---- The one that decides the comparison -------------------------------
+  "cas:174501-64-5":
+    low: 3.5
+    # No ceiling asserted: the source below establishes that [BMIM][PF6] is
+    # HIGHER-impact than [BMIM][BF4], so the highest published BF4 figure
+    # (27.3) is not a valid ceiling for PF6. Leaving it open costs nothing
+    # here -- a larger value only reinforces the verdict this case reaches.
+    high: null
+    rationale: >
+      Lower bound taken from the LOWER of two independent published
+      estimates for [BMIM][BF4] -- the closest studied analogue, sharing the
+      same cation and the same two-step synthesis, differing only in the
+      anion salt used in the metathesis step. The two estimates disagree by
+      a factor of 8 (3.5 vs 27.3 kgCO2e/kg), which is exactly why neither is
+      used as a point value; the interval starting at the lower of them is
+      defensible precisely because it is wide enough to contain the
+      disagreement. Baaqel et al. additionally state, of these two salts,
+      that "the production of [BMIM][BF4] presents lower environmental
+      impacts than [BMIM][PF6] in all damage areas" and that "since both
+      ionic liquids are produced using the same process and share the same
+      cation, these differences are attributed to the different anions used
+      and their respective production trees" -- so applying the BF4 floor to
+      PF6 is conservative in the direction that matters. Note that the
+      quoted comparison is over ReCiPe end-point damage categories, not over
+      GWP specifically; treating it as indicative for GWP is an assumption,
+      and it is stated here rather than buried.
+    sources:
+      - >
+        Baaqel, Bernardi, Hallett, Guillen-Gosalbez & Chachuat, "Global
+        Sensitivity Analysis in Life-Cycle Assessment of Early-Stage
+        Technology using Detailed Process Simulation: Application to
+        Dialkylimidazolium Ionic Liquid Production", ACS Sustainable Chem.
+        Eng. 2023, 11, 7157-7169. DOI 10.1021/acssuschemeng.3c00547.
+        Open access via PMC10170515. Reports 27.3 kgCO2e/kg for
+        [BMIM][BF4] (Aspen-HYSYS process simulation + ecoinvent 3.5
+        background, ReCiPe 2016).
+      - >
+        Zhang et al., as reported and cited directly in the body text of
+        the Baaqel et al. paper above: 3.5 kgCO2e/kg for [BMIM][BF4]. Used
+        here as the low end. (Quoted verbatim from Baaqel et al.: "the
+        predicted global warming impact (27.3 kgCO2-eq kg-1 [BMIM][BF4] ...)
+        is an order of magnitude higher than the impact reported by Zhang
+        et al. (3.5 kgCO2-eq kg-1 [BMIM][BF4])".)
+
+  # ---- Bounded by mass balance, not by estimate ---------------------------
+  "name:phosphate buffer solution, 0.05 m":
+    low: 0.55
+    high: 2.0
+    rationale: >
+      A 0.05 M aqueous phosphate buffer is over 99% water by mass (0.05 mol
+      of a ~140 g/mol phosphate salt is ~7 g in ~1000 g of solution). Its
+      cradle-to-gate footprint is therefore bounded below by its water
+      content alone: 0.993 x 0.571 = 0.567 kgCO2e/kg, using the distilled-
+      water factor already held in data/factors/probas_gemis.csv. 0.55 is
+      that figure rounded down. This is a mass-balance floor, not an
+      estimate -- every other component of the mixture can only add to it.
+      The 2.0 ceiling is generous for a mixture that is >99% water.
+    sources:
+      - "data/factors/probas_gemis.csv: Water (distilled), 0.571 kgCO2e/kg, ProBas / UBA-GEMIS."
+
+  # ---- Bounded adversarially: this one argues AGAINST the verdict ---------
+  "cas:1310-58-3":
+    low: 0.3
+    high: 3.0
+    rationale: >
+      Potassium hydroxide is the one unresolved material the Bogdan route
+      uses MORE of, so a HIGH value for it pushes against the conclusion
+      this case study reaches. The ceiling is therefore the load-bearing
+      end, and it is set deliberately generously: 3.0 kgCO2e/kg is roughly
+      6.5x the sodium hydroxide factor already held (0.458, ADEME Base
+      Carbone), for what is the same chlor-alkali electrolysis chemistry
+      with a different alkali metal. If the true KOH figure is anywhere near
+      its sodium analogue, this bound is handing the opposing case several
+      times more than it deserves.
+    sources:
+      - "data/factors/ademe_base_carbone.csv: Sodium hydroxide, 0.458 kgCO2e/kg, ADEME Base Carbone element id 20667."
+
+  # ---- Small masses, floored at the empirical minimum of the tables ------
+  # Each of the six below contributes under 1.7 kg/FU to the delta, and each
+  # is floored at 0.27 kgCO2e/kg: the lowest cradle-to-gate factor carried by
+  # ANY organic substance in any loaded table (MTBE, 0.2684, itself a derived
+  # lower bound). Asserting that a multi-step specialty reagent is not
+  # cleaner to make than the cleanest organic the tables know of is about as
+  # weak a claim as can be made while still being a claim. No ceilings are
+  # asserted for the ones that reinforce the verdict.
+  "cas:149-73-5":
+    low: 0.27
+    high: null
+    rationale: >
+      Trimethyl orthoformate, floored at the empirical organic minimum of
+      the loaded tables (see the note above). A methanol-derived C4
+      specialty; the held methanol factor alone is 0.521, and roughly 0.9 kg
+      of methanol is needed per kg of product, so the true floor is likely
+      near 0.47 -- 0.27 is deliberately well below even that.
+    sources:
+      - "data/factors/derived.csv: MTBE, 0.2684 kgCO2e/kg (lowest organic in any loaded table)."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg."
+  "cas:1493-13-6":
+    low: 0.27
+    high: null
+    rationale: >
+      Trifluoromethanesulfonic acid, floored at the empirical organic
+      minimum. Industrially made by electrochemical fluorination of
+      methanesulfonic acid, a notably energy-intensive route, so this floor
+      is very conservative; no public cradle-to-gate figure was found (see
+      SOURCES.md).
+    sources:
+      - "data/factors/derived.csv: MTBE, 0.2684 kgCO2e/kg (lowest organic in any loaded table)."
+  "cas:3240-34-4":
+    low: 0.27
+    high: null
+    rationale: >
+      Iodobenzene diacetate, floored at the empirical organic minimum. A
+      hypervalent-iodine reagent; iodine extraction alone makes this floor
+      conservative.
+    sources:
+      - "data/factors/derived.csv: MTBE, 0.2684 kgCO2e/kg (lowest organic in any loaded table)."
+  "cas:538-93-2":
+    low: 0.27
+    high: null
+    rationale: >
+      Isobutylbenzene, floored at the empirical organic minimum. A bulk
+      alkylbenzene; the held hexane (0.313) and toluene factors suggest a
+      true value above this floor.
+    sources:
+      - "data/factors/derived.csv: MTBE, 0.2684 kgCO2e/kg (lowest organic in any loaded table)."
+  "cas:79-09-4":
+    low: 0.27
+    high: null
+    rationale: >
+      Propionic acid, floored at the empirical organic minimum. A bulk
+      carboxylic acid; the derived acetic acid floor (1.313) suggests a true
+      value several times this bound.
+    sources:
+      - "data/factors/derived.csv: MTBE, 0.2684 kgCO2e/kg (lowest organic in any loaded table)."
+      - "data/factors/derived.csv: acetic acid, derived interval [0.9285, 1.857]."
+  "name:amano lipase from pseudomonas fluorescens":
+    low: 0.27
+    high: null
+    rationale: >
+      Fermentation-derived enzyme preparation, floored at the empirical
+      organic minimum. Industrial enzyme production is energy- and
+      feedstock-intensive per kilogram of protein, so this floor is very
+      conservative; it contributes 0.12 kg/FU to the delta either way.
+    sources:
+      - "data/factors/derived.csv: MTBE, 0.2684 kgCO2e/kg (lowest organic in any loaded table)."

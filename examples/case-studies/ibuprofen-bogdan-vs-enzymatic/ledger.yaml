@@ -114,7 +114,20 @@ routes:
           # in an ionic-liquid / aqueous-buffer medium, replacing the Bogdan
           # route's KOH/methanol saponification at this same step.
           - {name: water, cas: "7732-18-5", mass_kg: 0.309937, role: solvent}
-          - {name: "1-butyl-3-methylimidazolium hexafluorophosphate", cas: "174501-64-5", mass_kg: 8.411710, role: auxiliary}
+          # role: solvent, not auxiliary. This ionic liquid IS the reaction
+          # medium for the biotransformation (the paper: "the IL selected ...
+          # was chosen due to its hydrophobicity"), and the paper's own
+          # conclusion turns on how much of it is recycled -- it models 50%
+          # and 100% recovery scenarios explicitly and states the IL "can
+          # only be justified when the system achieves a high efficiency of
+          # recycling". Only `role: solvent` is eligible for
+          # assumptions.solvent_recovery in this tool (see
+          # ledger._recovery_for), so classifying it `auxiliary` would pin it
+          # at 100% fresh make-up forever and silently hide the single
+          # parameter the whole comparison turns on. The ledger still declares
+          # solvent_recovery_default: 0.0 -- no recovery is assumed unless
+          # stated -- but the sensitivity scan can now find the crossover.
+          - {name: "1-butyl-3-methylimidazolium hexafluorophosphate", cas: "174501-64-5", mass_kg: 8.411710, role: solvent}
           - {name: "Amano lipase from Pseudomonas fluorescens", cas: null, mass_kg: 0.116088, role: catalyst}
           - {name: "phosphate buffer solution, 0.05 M", cas: null, mass_kg: 1.615811, role: auxiliary}
         electricity_kWh: 0.0

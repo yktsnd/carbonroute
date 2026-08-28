@@ -20,17 +20,26 @@ the gap with an invented number.
 delta mass (kg per functional unit) that resolves to a public factor.
 `verdict` is what `carbonroute compare` actually prints for that pair.
 
-| Case study | Paper | Coverage | Verdict |
-|---|---|---|---|
-| [`benchmarks/letermovir`](../../benchmarks/letermovir/) (featured in README) | Yang et al., *Org. Process Res. Dev.* 2025 (CC BY) | 75.5% | `indeterminate` |
-| [`ibuprofen-bogdan-vs-enzymatic`](ibuprofen-bogdan-vs-enzymatic/) | Grimaldi et al., *ACS Sustainable Chem. Eng.* 2021 | 52.9% | `indeterminate` |
-| [`zif8-dmf-vs-glycerol-carbonate`](zif8-dmf-vs-glycerol-carbonate/) | Sessa et al., *ChemSusChem* 2025 (CC BY) | 6.8% | (below `min_delta_coverage`, no ranking attempted) |
+| Case study | Paper | Coverage | Verdict from factors | Verdict from bounds |
+|---|---|---|---|---|
+| [`ibuprofen-bogdan-vs-enzymatic`](ibuprofen-bogdan-vs-enzymatic/) | Grimaldi et al., *ACS Sustainable Chem. Eng.* 2021 | 52.9% | `indeterminate` | **decided** — `bogdan` lower, below 51% IL recycling |
+| [`benchmarks/letermovir`](../../benchmarks/letermovir/) | Sorgenfrei et al., *J. Am. Chem. Soc.* 2025 (CC BY) | 75.5% | `indeterminate` | not attempted |
+| [`zif8-dmf-vs-glycerol-carbonate`](zif8-dmf-vs-glycerol-carbonate/) | Sessa et al., *ChemSusChem* 2025 (CC BY) | 6.8% | (below `min_delta_coverage`, no ranking attempted) | not attempted |
 
-Letermovir has the highest coverage of the three and is the one featured
-in the top-level README's demo, since it best shows carbonroute
-narrowing a real comparison as far as public data allows. The other two
-are kept here as independent checks, each with its own `SOURCES.md`
-documenting exactly how every ledger value was derived from the paper.
+Letermovir has the highest coverage and is the demo in the top-level
+README, since it best shows carbonroute narrowing a comparison as far as
+public data allows.
+
+**Ibuprofen is the one that gets decided.** It has the *worst* coverage of
+the two, and it is nonetheless the case that ends in an answer — because
+`--bounds` (see [`docs/bounds.md`](../../docs/bounds.md)) asks whether the
+ranking is the same everywhere the missing factors could be, rather than
+what they are. Seven of its nine unresolved materials turn out to be
+incapable of changing the answer at any value; the whole comparison
+reduces to one inequality about one ionic liquid, and to one recycling
+rate. That case study's `SOURCES.md` is the fullest worked example in the
+repository, and it also records the ledger defect that getting a decisive
+answer exposed.
 
 ## Reproducing a case study
 
