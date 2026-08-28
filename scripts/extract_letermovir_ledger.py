@@ -558,7 +558,16 @@ def emit_ledger_yaml(routes: dict[str, list[ParsedStep]], cas_of: dict[str, str 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("workbook", type=Path, help="path to ja5c14470_si_002.xlsx")
+    ap.add_argument(
+        "workbook",
+        type=Path,
+        nargs="?",
+        default=Path(__file__).resolve().parents[1]
+        / "benchmarks" / "letermovir" / "source-material" / "ja5c14470_si_002.xlsx",
+        help="path to ja5c14470_si_002.xlsx (default: the CC BY licensed copy "
+        "committed at benchmarks/letermovir/source-material/, so a plain re-run "
+        "needs no argument and no network fetch of the workbook itself)",
+    )
     ap.add_argument("--out", type=Path, required=True, help="output ledger.yaml path")
     ap.add_argument(
         "--cas-cache",

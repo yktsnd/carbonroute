@@ -240,8 +240,7 @@ construction) rather than an uncited placeholder value.
 Method: PubChem PUG REST, `compound/name/<name>/cids/JSON` then
 `compound/cid/<cid>/synonyms/JSON`, first CAS-shaped synonym
 (`\d{2,7}-\d{2}-\d`) validated against `carbonroute.schema.cas_checksum_ok`.
-Rate-limited to ≤5 req/s. Cached locally (scratchpad only, not committed —
-see script `--cas-cache`). A name is **never** sent to PubChem, and is
+Rate-limited to ≤5 req/s. Cached durably at `data/raw/letermovir_cas_cache.json` (committed to the repo; the extraction script defaults `--cas-cache` to this path, so a plain re-run with `--offline` and no other flags replays every resolution in this log with no network access at all — see `docs/reproducibility.md`). A name is **never** sent to PubChem, and is
 recorded as `cas: null` directly, when it is a bare compound number/label
 used by the workbook to refer to a carried-over intermediate (e.g. `"15"`,
 `"11a"`, `"8a (8)"`) or the sheet's own bespoke placeholder catalyst name

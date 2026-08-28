@@ -74,6 +74,32 @@ double-check, and an HTTP reachability probe of each citation URL), neither of
 which can change the values themselves. There is nothing to freeze because the
 values were never live-fetched in the first place.
 
+## The letermovir benchmark's primary source is also committed
+
+Unlike the API-fetched factor tables, `benchmarks/letermovir/ledger.yaml`'s
+entire empirical basis is one small (224 KB) Excel workbook, confirmed
+**CC BY** licensed via Europe PMC's own record metadata — an explicit
+redistribution grant, not an assumption. It is committed at
+`benchmarks/letermovir/source-material/`, and
+`scripts/extract_letermovir_ledger.py` defaults to reading it from there, so:
+
+```bash
+PYTHONPATH=src python3 scripts/extract_letermovir_ledger.py --offline
+```
+
+with **no arguments and no network access at all** reproduces
+`benchmarks/letermovir/ledger.yaml` byte-for-byte, using only files already in
+this repository.
+
+This is deliberately not the general policy for every citation in this
+project. `data/processes/*.yaml` and `data/factors/published_pcf.csv` cite
+BREFs, IPCC reports and PlasticsEurope/Nobian documents by stable URL rather
+than embedding them, because most of those carry weaker or more ambiguous
+redistribution terms ("free to download and use", "for reference/citation
+use") than the letermovir paper's confirmed CC BY. Embedding a document here
+is the exception, made only when the redistribution grant is as unambiguous
+as this one.
+
 ## Known gap: USLCI
 
 `scripts/ingest_uslci.py` was retrofitted identically to the others, but

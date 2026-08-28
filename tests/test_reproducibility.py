@@ -109,3 +109,38 @@ def test_letermovir_cas_cache_is_populated_and_matches_the_committed_ledger():
     for name in named_with_cas:
         assert name in cache, f"{name!r} has a CAS in the ledger but no entry in the frozen cache"
         assert cache[name]["cas"], f"{name!r}: cached entry has no CAS, but the ledger does"
+
+
+def test_letermovir_source_material_is_committed():
+    """The benchmark's entire empirical basis must survive this session ending."""
+    src_dir = ROOT / "benchmarks" / "letermovir" / "source-material"
+    workbook = src_dir / "ja5c14470_si_002.xlsx"
+    assert workbook.exists(), "the CC BY licensed SI workbook is not committed"
+    assert workbook.stat().st_size > 100_000, "workbook looks truncated"
+    assert (src_dir / "README.md").exists(), "source-material/README.md (attribution) is missing"
+
+
+def test_ledger_reproduces_with_zero_arguments_and_zero_network(tmp_path):
+    """The strongest reproducibility claim this repo makes, checked directly.
+
+    No workbook path, no --cas-cache path, nothing but --offline and --out:
+    everything else must come from files already committed to the repo.
+    """
+    import subprocess
+    import sys
+
+    out = tmp_path / "ledger.yaml"
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "extract_letermovir_ledger.py"),
+         "--out", str(out), "--offline"],
+        cwd=ROOT,
+        env={"PYTHONPATH": str(ROOT / "src"), "PATH": "/usr/bin:/bin"},
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, result.stderr
+    committed = (ROOT / "benchmarks" / "letermovir" / "ledger.yaml").read_text()
+    assert out.read_text() == committed, (
+        "zero-argument --offline extraction no longer reproduces the committed ledger"
+    )
