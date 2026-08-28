@@ -25,6 +25,7 @@ if TYPE_CHECKING:  # pragma: no cover - type checking only, no runtime import
     from .ledger import AdjustedRoute
     from .resolve import FactorTable, Resolution
     from .schema import Ledger
+    from .screen import ScreenRun
     from .sensitivity import Threshold
 
 _NOT_ISO_NOTICE = (
@@ -769,3 +770,113 @@ def render_conflicts(conflicts) -> list[str]:
         )
     lines.append("")
     return lines
+
+
+def render_screen(run: "ScreenRun", reaction_source: str) -> str:
+    """Render a database screen: a ranked shortlist, not a set of verdicts.
+
+    The headline is deliberately not "how many reactions the enzyme wins".
+    A class template is instantiated from a published bench procedure, and
+    bench procedures discard their solvent, so a zero-recovery verdict is
+    mostly a statement about laboratory glassware. The number that survives
+    that objection -- and therefore the number this report leads with -- is
+    the solvent recovery rate at which each verdict stops holding.
+    """
+    t = run.template
+    lines: list[str] = [f"# carbonroute screen: {t.name}", ""]
+    lines.append(f"> {_NOT_ISO_NOTICE}")
+    lines.append("")
+    lines.append(
+        "> **This is a screen, not a comparison.** Each row pairs one curated "
+        "enzymatic reaction against a *class template*: a single real published "
+        "chemical procedure applied to every substrate in the class. That "
+        "extrapolation is the method's central assumption. Read the output as a "
+        "ranked shortlist of reactions worth spending a real `carbonroute "
+        "compare` on — never as a verdict about any individual reaction."
+    )
+    lines.append("")
+    lines.append(f"Reactions: `{reaction_source}`")
+    lines.append(f"Class template: `{t.id}`")
+    lines.append("")
+    lines.append(f"**Chemical counterpart modelled:** {t.chemical_name}")
+    lines.append("")
+    lines.append(f"> {t.chemical_source.strip()}")
+    lines.append("")
+    if t.assumptions_note:
+        lines.append("**Stated simplifications**")
+        lines.append("")
+        lines.append(f"> {t.assumptions_note.strip()}")
+        lines.append("")
+
+    sourced = sum(1 for m in t.materials if m.basis == "sourced")
+    generalised = sum(1 for m in t.materials if m.basis == "generalised")
+    lines.append(
+        f"Template materials: {len(t.materials)} "
+        f"({sourced} sourced from the cited paper, {generalised} generalised beyond it)."
+    )
+    lines.append("")
+
+    lines.append("## What was screened")
+    lines.append("")
+    lines.append(f"- Reactions matching this class: **{run.matched}**")
+    lines.append(f"- Screened to a verdict: **{len(run.decided) + len(run.undecided)}**")
+    lines.append(f"- Could not be screened: **{len(run.unscreened)}**")
+    if run.unscreened:
+        reasons: dict[str, int] = defaultdict(int)
+        for r in run.unscreened:
+            reasons[r.skipped_reason] += 1
+        for reason, n in sorted(reasons.items(), key=lambda kv: -kv[1]):
+            lines.append(f"  - {n} — {reason}")
+    lines.append("")
+
+    thresholds = sorted(
+        r.recovery_threshold for r in run.decided if r.recovery_threshold is not None
+    )
+    lines.append("## The number that matters: solvent recovery threshold")
+    lines.append("")
+    if not thresholds:
+        lines.append("No reaction in this class was decided, so there is no threshold to report.")
+        lines.append("")
+        return "\n".join(lines).rstrip("\n") + "\n"
+
+    lines.append(
+        "At what chemical-route solvent recovery rate does each verdict stop "
+        "holding? Below its threshold the enzymatic route is lower everywhere "
+        "in the asserted bounds; above it, the comparison is no longer decided."
+    )
+    lines.append("")
+    lines.append("| statistic | recovery threshold |")
+    lines.append("|---|---|")
+    for label, q in (("minimum", 0.0), ("25th pct", 0.25), ("median", 0.5), ("75th pct", 0.75), ("maximum", 1.0)):
+        idx = min(int(q * (len(thresholds) - 1)), len(thresholds) - 1)
+        lines.append(f"| {label} | {thresholds[idx] * 100:.2f}% |")
+    lines.append("")
+    robust = [r for r in run.results if r.robust]
+    lines.append(
+        f"**{len(robust)} of {len(run.decided)} decided reactions survive 99% solvent "
+        "recovery.** Industrial distillation routinely recovers 90–95%, so a class "
+        "whose thresholds sit below that is one where the modelled advantage comes "
+        "substantially from the bench procedure's solvent handling rather than from "
+        "the enzyme."
+    )
+    lines.append("")
+
+    lines.append("## Most robust in this class")
+    lines.append("")
+    lines.append(
+        "Ranked by recovery threshold. A higher threshold means the enzymatic "
+        "advantage survives more solvent recycling on the chemical side. "
+        "`groups` is the count of protectable groups on the acceptor — the sites "
+        "a chemical route must mask and an enzyme does not."
+    )
+    lines.append("")
+    lines.append("| rhea | threshold | groups | product |")
+    lines.append("|---|---|---|---|")
+    ranked = sorted(run.decided, key=lambda r: -(r.recovery_threshold or 0.0))
+    for r in ranked[:20]:
+        lines.append(
+            f"| `{r.rhea_id}` | {(r.recovery_threshold or 0) * 100:.2f}% | "
+            f"{r.protectable_groups} | {r.product_name[:70]} |"
+        )
+    lines.append("")
+    return "\n".join(lines).rstrip("\n") + "\n"

@@ -393,5 +393,90 @@ def lock(ledger_path: str, factor_paths: tuple[str, ...], synonym_paths: tuple[s
     _write_output(dump_lock_json(payload), output_path)
 
 
+@main.command()
+@click.option(
+    "--reactions",
+    "reactions_path",
+    type=click.Path(exists=True, dir_okay=False),
+    default="data/rhea/reactions.tsv",
+    show_default=True,
+    help="Reaction database written by scripts/ingest_rhea.py.",
+)
+@click.option(
+    "--structures",
+    "structures_path",
+    type=click.Path(exists=True, dir_okay=False),
+    default="data/rhea/participants.csv",
+    show_default=True,
+    help="Participant structures (SMILES), written by the same script.",
+)
+@click.option(
+    "--template",
+    "template_path",
+    type=click.Path(exists=True, dir_okay=False),
+    required=True,
+    help="Reaction-class template: the chemical counterpart to screen against.",
+)
+@click.option(
+    "--bounds",
+    "bounds_path",
+    type=click.Path(exists=True, dir_okay=False),
+    required=True,
+    help="Bounds for the materials the screen cannot resolve to a public factor.",
+)
+@click.option(
+    "--assumptions-from",
+    "assumptions_path",
+    type=click.Path(exists=True, dir_okay=False),
+    required=True,
+    help="A ledger whose assumptions block the screen should adopt.",
+)
+@_FACTORS_OPTION
+@_SYNONYMS_OPTION
+@click.option("-o", "--output", "output_path", type=click.Path(dir_okay=False), default=None)
+def screen(
+    reactions_path: str,
+    structures_path: str,
+    template_path: str,
+    bounds_path: str,
+    assumptions_path: str,
+    factor_paths: tuple[str, ...],
+    synonym_paths: tuple[str, ...],
+    output_path: str | None,
+) -> None:
+    """Screen a whole reaction database against one chemical-route template.
+
+    Answers, for every enzymatic reaction in a class, how much solvent a
+    chemical plant would have to recover before the enzyme stops winning.
+    The output is a ranked shortlist of candidates for a real `compare`,
+    not a set of verdicts -- see docs/screening.md.
+    """
+    from .bounds import BoundsError, load_bounds
+    from .report import render_screen
+    from .screen import (
+        ScreenError,
+        load_reactions,
+        load_structures,
+        load_template,
+        screen_all,
+    )
+
+    ledger = _load_ledger_or_exit(assumptions_path)
+    table = _load_factors_or_exit(factor_paths, synonym_paths)
+    try:
+        reactions, _ = load_reactions(reactions_path)
+        structures = load_structures(structures_path)
+        template = load_template(template_path)
+    except ScreenError as exc:
+        _fail(str(exc))
+    try:
+        bounds = load_bounds(bounds_path)
+    except BoundsError as exc:
+        _fail(str(exc))
+
+    run = screen_all(reactions, template, structures, table, ledger.assumptions, bounds)
+    _write_output(render_screen(run, reactions_path), output_path)
+
+
 if __name__ == "__main__":  # pragma: no cover
     main()

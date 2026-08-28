@@ -1,0 +1,195 @@
+# Reaction class: UDP-glucose-dependent O-glycosylation
+#
+# Covers every Rhea reaction consuming UDP-alpha-D-glucose (CHEBI:58885) as a
+# reactant -- 273 reactions in the snapshot under data/rhea/. All of them are
+# the same transformation: an enzyme transfers a glucosyl group from the
+# nucleotide sugar onto an acceptor's hydroxyl.
+#
+# The chemical counterpart below is NOT a hypothetical. It is one real,
+# fully-quantified published procedure -- the Helferich/BF3 glycosylation of
+# Cepanec & Litvic (ARKIVOC 2008) -- reduced to amounts per mole of product,
+# so it can be instantiated against any acceptor in the class. That paper is
+# the same source the hand-built case study in
+# examples/case-studies/beta-arbutin-chemical-vs-enzymatic/ uses, and the
+# reaction it describes (RHEA:12560) is a member of this class, which is what
+# lets the screen be calibrated against a fully-sourced ledger rather than
+# only against itself.
+#
+# WHAT IS ASSUMED, PLAINLY: that a chemical route to any other acceptor in
+# this class looks like this procedure. That is the screening assumption, and
+# it is the reason the output of a screen is a ranked shortlist of candidates
+# for a real `carbonroute compare`, not a verdict about any individual
+# reaction. Every material below declares whether its amount is `sourced`
+# (read from that paper) or `generalised` (extended beyond what the paper
+# itself did), and says how in its note.
+
+reaction_class:
+  id: udp-glucosyltransferase
+  name: "UDP-glucose-dependent O-glycosylation"
+  description: >
+    Enzymatic transfer of glucose from UDP-alpha-D-glucose onto an acceptor
+    hydroxyl, releasing UDP. In Rhea this is EC 2.4.1.x; matching is done on
+    the cofactor rather than the EC number, because many Rhea reactions carry
+    no EC annotation at all while every member of this class necessarily
+    consumes the cofactor.
+  cofactor_chebi: "CHEBI:58885"
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Helferich glycosylation of a peracetylated donor, with BF3.Et2O, then saponification"
+  source: >
+    Cepanec, I.; Litvic, M. "Simple and efficient synthesis of arbutin."
+    ARKIVOC 2008 (ii), 19-24. https://www.arkat-usa.org/get-file/22982/
+    Full PDF fetched and read directly. Reported yields: donor preparation
+    99.2%, glycosylation 62% (limiting reagent: the peracetylated sugar),
+    deprotection 85%. Every `sourced` amount below is that paper's own
+    charged quantity, divided by the moles of beta-arbutin the same procedure
+    isolates (1 kg = 3.6731 mol, MW 272.253), and is reproduced in
+    examples/case-studies/beta-arbutin-chemical-vs-enzymatic/SOURCES.md.
+
+  assumptions_note: >
+    Two simplifications, both stated because both push the result in a
+    direction a reader should know about.
+    (1) The deprotection stage's reagents are held FIXED per mole of product
+    rather than scaling with the number of acetyl groups actually removed.
+    The paper's substrate carries six (five on the sugar, one on the
+    acceptor); an acceptor needing more masking would carry more, and its
+    real deprotection burden would be higher than modelled here. This makes
+    the chemical route look BETTER than it is for polyol acceptors -- i.e. it
+    is conservative against the "the enzyme wins" conclusion a screen is
+    looking for.
+    (2) The acceptor-protection stage is scaled by the acceptor's own count
+    of protectable groups minus one (the position the reaction is meant to
+    modify), counted from the acceptor's SMILES. The paper protected exactly
+    one group, so its own amounts correspond to a scale of 1.
+
+  materials:
+
+    # --- Stage 1: mask the acceptor's other reactive groups -----------------
+    # These scale with how many groups the acceptor has that a non-selective
+    # chemical reagent would also attack. The enzyme masks nothing.
+    - name: acetic anhydride
+      cas: "108-24-7"
+      role: reagent
+      kg_per_mol_product: 0.102089
+      per_protected_group: true
+      basis: generalised
+      note: >
+        One equivalent per group masked (MW 102.089, verified via RDKit from
+        SMILES CC(=O)OC(C)=O; CAS confirmed live against PubChem CID 7918).
+        The source paper did NOT use acetic anhydride: it exploited a
+        transesterification between hydroquinone and hydroquinone diacetate,
+        a trick available only because its acceptor is a symmetric diol.
+        Acetic anhydride at one equivalent is the standard general reagent
+        for the same job and is substituted here so the template can apply to
+        acceptors that are not symmetric diols. This is the single largest
+        generalisation in this template.
+    - name: toluene
+      cas: "108-88-3"
+      role: solvent
+      kg_per_mol_product: 2.98514
+      per_protected_group: true
+      basis: generalised
+      note: >
+        Amount is sourced (60 mL reaction + 60 mL dilution of toluene per
+        0.1 mol basis, density 0.867, = 10.9647 kg per kg of product); the
+        per-masked-group scaling is the generalisation.
+    - name: sulfuric acid
+      cas: "7664-93-9"
+      role: reagent
+      kg_per_mol_product: 0.005347
+      per_protected_group: true
+      basis: generalised
+      note: >
+        Catalytic acid for the protection stage, 2 mol% (0.1 mL, 184 mg,
+        1.9 mmol per 0.1 mol basis). Amount sourced; per-group scaling
+        generalised.
+    - name: water
+      cas: "7732-18-5"
+      role: solvent
+      kg_per_mol_product: 4.30383
+      per_protected_group: true
+      basis: generalised
+      note: >
+        Aqueous wash after the protection stage (3 x 50 mL per 0.1 mol
+        basis). Amount sourced; per-group scaling generalised.
+
+    # --- Stage 2: the glycosylation itself ---------------------------------
+    # Fixed per mole of product: this is the bond-forming step the enzyme
+    # also performs, and its reagents do not depend on the acceptor.
+    - name: 1,2,3,4,6-penta-O-acetyl-beta-D-glucopyranose
+      cas: "604-69-3"
+      role: reactant
+      kg_per_mol_product: 0.740680
+      basis: sourced
+      note: >
+        The protected sugar donor -- the chemical counterpart of the enzyme's
+        UDP-glucose. 3.90 g (10 mmol) charged per 10 mmol basis, carried
+        through the paper's 62% glycosylation and 85% deprotection yields
+        (1.897 mol per mol of product, MW 390.34).
+    - name: boron trifluoride diethyl etherate
+      cas: "6681-36-3"
+      role: catalyst
+      kg_per_mol_product: 0.269310
+      basis: sourced
+      note: >
+        Lewis-acid activator, 1.0 equivalent relative to the donor (50%
+        solution, 2.5 mL, 10 mmol per 10 mmol basis). Stoichiometric, not
+        catalytic in practice, which is one of the structural differences
+        from the enzymatic route.
+    - name: dichloromethane
+      cas: "75-09-2"
+      role: solvent
+      kg_per_mol_product: 12.570990
+      basis: sourced
+      note: >
+        Anhydrous reaction solvent for the glycosylation (50 mL per 10 mmol
+        basis, density 1.325). The enzymatic route runs in water.
+
+    # --- Stage 3: remove every acetyl group --------------------------------
+    # Held fixed per mole of product -- see assumptions_note (1).
+    - name: potassium carbonate
+      cas: "584-08-7"
+      role: reagent
+      kg_per_mol_product: 2.435270
+      basis: sourced
+      note: >
+        Saponification base, 15 equivalents per mole of peracetylated
+        intermediate (2.07 g, 15 mmol per 1 mmol basis).
+    - name: methanol
+      cas: "67-56-1"
+      role: solvent
+      kg_per_mol_product: 46.587650
+      basis: sourced
+      note: "Deprotection solvent (50 mL per 1 mmol basis, density 0.792)."
+    - name: ethyl acetate
+      cas: "141-78-6"
+      role: solvent
+      kg_per_mol_product: 159.174480
+      basis: sourced
+      note: >
+        Product extraction (3 x 50 mL boiling EtOAc per 1 mmol basis, density
+        0.902). This is the largest single mass in the template and reflects
+        a bench-scale isolation; a plant would recover most of it, which is
+        why solvent recovery is the first thing to sweep on any reaction this
+        screen returns as decided.
+
+    # Water and sulfuric acid appear in stage 1 as well; the engine sums
+    # entries that share a material key, so these add to the amounts above
+    # rather than replacing them. They are listed separately because they
+    # carry a different scaling: fixed per mole of product, not per masked
+    # group.
+    - name: water
+      cas: "7732-18-5"
+      role: solvent
+      kg_per_mol_product: 11.764560
+      basis: sourced
+      note: "Aqueous co-solvent for the deprotection (10 mL per 1 mmol basis)."
+    - name: sulfuric acid
+      cas: "7664-93-9"
+      role: reagent
+      kg_per_mol_product: 0.870570
+      basis: sourced
+      note: >
+        Quench of the saponification base (0.4 mL, 0.74 g, 7.5 mmol per
+        1 mmol basis).

@@ -1,0 +1,17 @@
+{
+  "48e30a1da85cbfbcb6b975489d1022e3ff79fc84c284167c0879ac84bb176e1d": {
+    "first_retrieved": "2026-08-28T08:01:56.767025+00:00",
+    "last_retrieved": "2026-08-28T08:01:56.767025+00:00",
+    "url": "https://www.rhea-db.org/rhea?query=*&columns=rhea-id,equation,chebi-id,ec&format=tsv&limit=100000"
+  },
+  "8deeb5bb20a6e584450e1aa88eb7a8e4bbcba642018fd144be7256c2904bf9fd": {
+    "first_retrieved": "2026-08-28T08:01:58.133331+00:00",
+    "last_retrieved": "2026-08-28T08:01:58.133331+00:00",
+    "url": "https://ftp.expasy.org/databases/rhea/tsv/chebiId_name.tsv"
+  },
+  "c01fd09dc25f181dc38f0b59da570089f1bc2a29fbad77e9fb3cb0ba49e0d8f8": {
+    "first_retrieved": "2026-08-28T08:01:59.403605+00:00",
+    "last_retrieved": "2026-08-28T08:01:59.403605+00:00",
+    "url": "https://ftp.expasy.org/databases/rhea/tsv/rhea-chebi-smiles.tsv"
+  }
+}

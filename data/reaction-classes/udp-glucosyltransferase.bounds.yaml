@@ -1,0 +1,81 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+#
+# Only five materials in this template are unresolved. Four of them sit on
+# the chemical side, where a LOW bound is what matters (it is the floor of
+# what the chemical route costs). The fifth -- UDP-glucose -- is the entire
+# enzymatic side, so its HIGH bound is the load-bearing one: it is what the
+# enzyme has to pay, and the verdict turns on it.
+
+bounds:
+
+  # ---- The enzymatic side, in one substance ------------------------------
+  "name:chebi:58885":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      UDP-alpha-D-glucose is the whole cost of the enzymatic route in this
+      class, so this interval is where the screen's verdict actually lives.
+      No public cradle-to-gate factor for it was found. The interval is set
+      deliberately wide -- from below methanol (0.521, the cheapest bulk
+      organic in the loaded tables) up to 100 kgCO2e/kg, well above the
+      highest figure any source consulted in this project reports for a
+      complex specialty (the highest is 27.3 for an ionic liquid, from
+      Baaqel et al. 2023) -- precisely because it is not known. A screen that
+      returns "decided" across an interval this wide is saying the verdict
+      does not depend on the number; one that returns "undecided" is
+      correctly saying this is the measurement worth buying. Every result
+      this class produces should be read as conditional on this interval, and
+      the per-material threshold column in the report gives the exact value
+      at which each reaction turns over.
+    sources:
+      - "No public cradle-to-gate GWP for UDP-glucose was found; see data/rhea/README.md."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+
+  # ---- The chemical side --------------------------------------------------
+  "cas:604-69-3":
+    low: 0.5
+    high: null
+    rationale: >
+      1,2,3,4,6-penta-O-acetyl-beta-D-glucopyranose: glucose with all five
+      hydroxyls acetylated. Its cradle-to-gate footprint is bounded below by
+      its own glucose content plus five acetylations; 0.5 kgCO2e/kg is below
+      even the cheapest bulk organic in the loaded tables (methanol, 0.521)
+      and so is a conservative floor for a five-fold-derivatised sugar. No
+      ceiling asserted: a higher value only strengthens the chemical route's
+      disadvantage, which is the direction this screen is testing.
+    sources:
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg."
+  "cas:6681-36-3":
+    low: 0.5
+    high: null
+    rationale: >
+      Boron trifluoride diethyl etherate. Made from boron trifluoride, itself
+      produced from fluorspar and a boron source under strongly acidic
+      conditions -- fluorine chemistry is energy-intensive, so 0.5 kgCO2e/kg
+      is a very conservative floor. No ceiling asserted, same reasoning as
+      above.
+    sources:
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (floor anchor)."
+  "cas:584-08-7":
+    low: 0.3
+    high: null
+    rationale: >
+      Potassium carbonate, a bulk inorganic. Floored just below the sodium
+      hydroxide factor already held (0.458, ADEME Base Carbone) as the
+      nearest bulk alkali the tables cover. No ceiling asserted.
+    sources:
+      - "data/factors/ademe_base_carbone.csv: Sodium hydroxide, 0.458 kgCO2e/kg, element id 20667."
+  "cas:108-24-7":
+    low: 0.5
+    high: null
+    rationale: >
+      Acetic anhydride, made industrially from acetic acid via ketene. The
+      acetic acid factor derived in this repository is an interval
+      [0.9285, 1.857] kgCO2e/kg, and roughly 1.2 kg of acetic acid is needed
+      per kg of anhydride, so a floor of 0.5 is well under a mass-balance
+      bound. No ceiling asserted.
+    sources:
+      - "data/factors/derived.csv: acetic acid, derived interval [0.9285, 1.857] kgCO2e/kg."
