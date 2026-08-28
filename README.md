@@ -240,6 +240,91 @@ Full method in [`docs/bounds.md`](docs/bounds.md); every bound and its
 justification in
 [`examples/case-studies/ibuprofen-bogdan-vs-enzymatic/`](examples/case-studies/ibuprofen-bogdan-vs-enzymatic/).
 
+## Screening a whole database: 18,500 reactions at once
+
+Everything above compares two routes someone published. `carbonroute
+screen` asks a narrower question across an entire reaction database:
+**for each enzymatic reaction, how much solvent would a chemical plant have
+to recover before the enzyme stopped winning?**
+
+### Why that is affordable
+
+Not a shortcut — the same cancellation that makes `compare` work. When two
+routes make the same product, everything common to both drops out of the
+diff, and for enzyme-versus-chemistry the part that drops out is exactly
+the part that would be expensive to look up: the substrate and product,
+different in every reaction. What is left over is small and repetitive:
+
+| side | what survives the diff |
+|---|---|
+| enzymatic | the **cofactor** — UDP-glucose, NADPH, SAM, acetyl-CoA |
+| chemical | the **protecting groups, activator, base and solvents** |
+
+That is a claim about data, so it is measured rather than asserted. Across
+[Rhea](https://www.rhea-db.org/)'s 18,558 curated reactions there are
+14,251 distinct participants — but only **63 appear in 100 reactions or
+more, and 12 in over a thousand**, and the top 30 cover 47.8% of every
+participant slot in the database. They are the cofactor list a biochemist
+would recite from memory. The long tail those 30 miss is precisely the
+per-reaction substrate and product, which cancel.
+
+So the emission-factor work is bounded by that vocabulary — tens of
+substances — not by the number of reactions. Every reaction after that
+costs one arithmetic evaluation. A 263-reaction class screens in about a
+second.
+
+### What it reports, and why not a verdict
+
+A screen pairs each curated enzymatic reaction against a **class
+template**: one real published chemical procedure applied to every
+substrate in the class. That extrapolation is the method's central
+assumption, so the output is a ranked shortlist of reactions worth
+spending a real `compare` on — never a verdict about any one of them.
+
+The headline number is deliberately not "how often the enzyme wins".
+Class templates come from published *bench* procedures, and bench
+procedures throw their solvent away — the shipped one charges over 800 kg
+of solvent per kg of product. A plant does not. So the reported figure is
+the **solvent recovery threshold** at which each verdict stops holding,
+which has an external yardstick: industrial distillation recovers 90–95%.
+
+### The result for all 263 UDP-glucosyltransferase reactions
+
+Screened against the Helferich/BF₃ glycosylation of Cepanec & Litvić
+(*ARKIVOC* 2008):
+
+| statistic | recovery threshold |
+|---|---|
+| minimum | 85.58% |
+| median | 85.87% |
+| maximum | 91.43% |
+
+**None of the 256 decided reactions survives 99% solvent recovery**, and
+the whole distribution sits at or below what a real plant achieves. The
+honest reading is not "enzymes win 256 times" but: *in this class, as
+modelled from this bench procedure, the enzymatic advantage is real but
+bounded, and it does not survive industrial solvent recycling.* That is
+falsifiable, and more useful than a win count.
+
+The mechanism the screen exists to measure shows up in the spread. The
+threshold **rises with the number of groups on the substrate a chemical
+route would have to mask** — 85.58% where there is one or none, 91.43% for
+a 33-group oligosaccharide — because an enzyme's regioselectivity is worth
+more the more sites chemistry has to protect and unprotect. That is the
+enzymatic advantage, quantified from structure alone.
+
+### Calibration
+
+RHEA:12560 — hydroquinone + UDP-α-D-glucose → β-arbutin — is both a member
+of that class and the subject of a fully hand-sourced ledger in
+[`examples/case-studies/beta-arbutin-chemical-vs-enzymatic/`](examples/case-studies/beta-arbutin-chemical-vs-enzymatic/).
+The screen reproduces its product mass, acceptor, cofactor charge and
+direction, and a test asserts it. Without that, the other 262 rows would
+only be reporting on their own template.
+
+Full method in [`docs/screening.md`](docs/screening.md); the measured
+cofactor vocabulary in [`data/rhea/README.md`](data/rhea/README.md).
+
 ## Install
 
 Python 3.11 or later.
@@ -322,6 +407,7 @@ live. There is no other configuration surface for them.
 | `carbonroute coverage route.yaml --a A --b B` | How much of the A-vs-B differing mass the loaded tables can actually reach, by count and by mass. Exits 3 if anything is unresolved. |
 | `carbonroute compare route.yaml --a A --b B -o report.md` | The full comparison: diff, Monte Carlo ranking, reversal thresholds. Writes the report. |
 | `carbonroute bootstrap --processes data/processes -o out.csv` | Derives factors for substances no open database covers, from production recipes — see [`docs/bootstrap.md`](docs/bootstrap.md). |
+| `carbonroute screen --template CLASS.yaml --bounds B.yaml` | Screens a whole reaction database against one chemical-route template, reporting the solvent recovery threshold per reaction — see [`docs/screening.md`](docs/screening.md). |
 | `carbonroute lock route.yaml -o route.lock.json` | Pins the factor table versions, every resolved value and its provenance, and the RNG seed, so someone else can reproduce the exact numbers later. |
 
 `resolve`, `coverage`, `compare`, `lock` and `bootstrap` accept
@@ -503,6 +589,10 @@ both exist because this benchmark ran first and failed.
   a table you can cite.
 - [`docs/bootstrap.md`](docs/bootstrap.md) — deriving factors from
   production recipes when no database has them.
+- [`docs/bounds.md`](docs/bounds.md) — deciding a ranking from bounds when
+  the factors themselves are missing.
+- [`docs/screening.md`](docs/screening.md) — screening a whole reaction
+  database, and why that costs less than it sounds.
 - [`docs/uncertainty.md`](docs/uncertainty.md) — how the Monte Carlo model
   works and the status of its parameters.
 - [`docs/convergence.md`](docs/convergence.md) — how many Monte Carlo
