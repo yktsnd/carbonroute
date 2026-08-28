@@ -1,0 +1,77 @@
+# Case study: ZIF-8 solvothermal synthesis, DMF vs glycerol carbonate (GlyC).
+#
+# Source: Sessa, Rossi, Prete, Passarini, Itatani, Rossi, Lagzi et al.,
+# "Life Cycle Assessment of Solvothermal Zeolitic Imidazolate Framework-8
+# Synthesis: Is the Substitution of N,N-Dimethylformamide with Glycerol
+# Carbonate Environmentally Sustainable?", ChemSusChem 2025, 18(24), e202502019.
+# doi:10.1002/cssc.202502019, PMC12703451. Open access, CC BY 4.0.
+# See SOURCES.md for the exact SI table and cell each number below came from.
+#
+# The paper's own functional unit is already 1 g of ZIF-8 (its Table S2.1.1/
+# S2.1.2), so every mass below is already normalized -- exactly like the
+# letermovir benchmark, every step here uses yield: 1.0 to avoid re-applying
+# a functional-unit conversion the source data already carries.
+#
+# electricity_kWh sums every energy line the SI reports for that scenario
+# (synthesis + centrifugation + drying/ultrasonic, and for Z-GlyC-base the
+# upstream in-house synthesis of the solvent itself). This is the one case
+# study so far where the source paper reports real energy figures at all.
+schema_version: "0.1"
+
+assumptions:
+  functional_unit: {mass_kg: 1.0, basis: product}
+  boundary: cradle-to-gate
+  grid_factor:
+    id: FR-2020-ADEME
+    value_kgCO2e_per_kWh: 0.0599
+    source: >
+      ADEME Base Carbone, element id 28333, "Grid electricity" France
+      continentale 2020, retrieved via the ADEME data-fair API (Licence
+      Ouverte). The source paper's own SI cites a global-average grid mix
+      ("Electricity, medium voltage {GLO}| market group for | APOS, U"),
+      not France specifically -- no citable public GLO grid factor was
+      found, so this ledger substitutes a real, verified, but different
+      geography. The electricity contribution in any report built from
+      this ledger reflects the French grid, not the paper's own boundary.
+    uncertainty_class: literature
+  gwp_method: {name: IPCC-AR6, horizon_years: 100, feedbacks: false}
+  solvent_recovery_default: 0.0
+  waste_treatment: excluded
+  monte_carlo: {iterations: 10000, seed: 20240101}
+  indeterminate_band: {low: 0.4, high: 0.6}
+
+routes:
+  z_dmf:
+    label: "Z-DMF (DMF-based synthesis)"
+    steps:
+      - id: 1
+        yield: 1.0
+        inputs:
+          # Table S2.1.1, LCI of DMF-based Scenario (Z-DMF)
+          - {name: "zinc nitrate hexahydrate", cas: "10196-18-6", mass_kg: 0.00328, role: reactant}
+          - {name: "2-methylimidazole", cas: "693-98-1", mass_kg: 0.00724, role: reactant}
+          - {name: "N,N-dimethylformamide", cas: "68-12-2", mass_kg: 0.051, role: solvent}
+          - {name: "methanol", cas: "67-56-1", mass_kg: 0.020, role: solvent}
+        # 10.25 (ZIF-8 synthesis) + 0.30 (centrifugation) + 0.08 (drying) kWh
+        electricity_kWh: 10.63
+  z_glyc_base:
+    label: "Z-GlyC-base (glycerol carbonate-based synthesis)"
+    steps:
+      - id: 1
+        yield: 1.0
+        inputs:
+          # Table S2.1.2, LCI of GlyC_baseline Scenario (Z-GlyC-base).
+          # Glycerol and DMC are charged to make glycerol carbonate in-house,
+          # inside this route's own cradle-to-gate boundary -- DMF, by
+          # contrast, is bought as a finished market chemical. That asymmetry
+          # is the paper's own system-boundary choice, not something this
+          # ledger has smoothed over.
+          - {name: "glycerol", cas: "56-81-5", mass_kg: 0.17607, role: reactant}
+          - {name: "dimethyl carbonate", cas: "616-38-6", mass_kg: 0.51707, role: reactant}
+          - {name: "sodium carbonate", cas: "497-19-8", mass_kg: 0.00061, role: catalyst}
+          - {name: "zinc nitrate hexahydrate", cas: "10196-18-6", mass_kg: 0.00182, role: reactant}
+          - {name: "2-methylimidazole", cas: "693-98-1", mass_kg: 0.00136, role: reactant}
+          - {name: "methanol", cas: "67-56-1", mass_kg: 0.020, role: solvent}
+        # 0.33 (GlyC synthesis) + 2.75 (GlyC distillation) + 5.71 (ZIF-8
+        # synthesis) + 0.15 (ultrasonic) + 0.30 (centrifugation) kWh
+        electricity_kWh: 9.24

@@ -1,0 +1,120 @@
+# Case study: ibuprofen, the Bogdan continuous-flow route vs. its enzymatic
+# variant (last step swapped from a KOH/methanol saponification to a lipase-
+# catalysed hydrolysis in an ionic-liquid medium).
+#
+# Source: Grimaldi, Tran, Sarafraz, Lettieri, Morales-Gonzalez, Hessel,
+# "Life Cycle Assessment of an Enzymatic Ibuprofen Production Process with
+# Automatic Recycling and Purification", ACS Sustainable Chem. Eng. 2021,
+# 9, 39, 13157-13166. doi:10.1021/acssuschemeng.1c02309.
+# (c) 2021 American Chemical Society -- NOT open access / not CC BY, so
+# unlike the letermovir and ZIF-8 case studies, no source PDF is committed
+# alongside this ledger; every number here is a citation to the published
+# Table 6 and Table 8 (Aspen Plus process-simulation inventory), not a
+# redistribution of the document itself. See SOURCES.md.
+#
+# The paper reports absolute mass flows (g/day) at a shared 500 g/day pilot
+# scale, not separately normalized per route. Because the two routes'
+# simulated ibuprofen output differs slightly (495.7 vs 541.4 g/day), this
+# ledger's own arithmetic -- not the paper's -- divides every charged mass by
+# that route's own daily ibuprofen output, to put both routes on the "per 1 kg
+# ibuprofen" functional unit this schema expects. yield: 1.0 throughout, since
+# the source data already reflects whatever real yield losses occurred in the
+# simulated plant; re-applying carbonroute's own yield-conversion on top would
+# double-count them. See SOURCES.md for the exact division and every cited
+# cell.
+#
+# The paper's own tables list only what is CHARGED to each reactor (its
+# "Input" column); a component that leaves a reactor unreacted in the same
+# amount it entered (e.g. triflic acid, used and fully recovered within a
+# single simulated pass) is still charged at that full input mass here,
+# matching this project's own definition of mass_kg ("what was actually
+# charged in that step"). Intermediates carried from one reactor to the next
+# within the same route (4-isobutylpropiophenone, methyl
+# 2-(4-isobutylphenyl)propanoate) are excluded as ledger inputs, the same
+# convention used for the letermovir benchmark's carried-over intermediates.
+schema_version: "0.1"
+
+assumptions:
+  functional_unit: {mass_kg: 1.0, basis: product}
+  boundary: cradle-to-gate
+  grid_factor:
+    id: none-charged
+    value_kgCO2e_per_kWh: 0.0
+    source: >
+      The source paper reports equipment heat duties (kW) for both routes
+      (Tables 7 and 9) but not a usable electrical-energy-per-functional-unit
+      figure (heat duty x an unstated operating-time basis would be needed,
+      which the paper does not state cleanly enough to cite a number from).
+      No electricity is charged in this ledger as a result; the comparison
+      below is a materials-only comparison. See SOURCES.md.
+    uncertainty_class: assumption
+  gwp_method: {name: IPCC-AR6, horizon_years: 100, feedbacks: false}
+  solvent_recovery_default: 0.0
+  waste_treatment: excluded
+  monte_carlo: {iterations: 10000, seed: 20240101}
+  indeterminate_band: {low: 0.4, high: 0.6}
+
+routes:
+  bogdan:
+    label: "Bogdan route (KOH/methanol saponification)"
+    steps:
+      - id: 1
+        yield: 1.0
+        inputs:
+          # Table 6, Friedel-Crafts Acylation (Reactor 1)
+          - {name: isobutylbenzene, cas: "538-93-2", mass_kg: 0.558806, role: reactant}
+          - {name: propionic acid, cas: "79-09-4", mass_kg: 0.308453, role: reactant}
+          - {name: trifluoromethanesulfonic acid, cas: "1493-13-6", mass_kg: 0.624975, role: reagent}
+        electricity_kWh: 0.0
+      - id: 2
+        yield: 1.0
+        inputs:
+          # Table 6, "Hydrogenation" (Reactor 2) -- actually the
+          # diacetoxyiodobenzene-mediated 1,2-aryl migration per the article
+          # text, despite the table's own heading.
+          - {name: trimethyl orthoformate, cas: "149-73-5", mass_kg: 0.441799, role: reagent}
+          - {name: methanol, cas: "67-56-1", mass_kg: 3.559007, role: solvent}
+          - {name: trifluoromethanesulfonic acid, cas: "1493-13-6", mass_kg: 3.418802, role: reagent}
+          - {name: iodobenzene diacetate, cas: "3240-34-4", mass_kg: 1.120839, role: reagent}
+        electricity_kWh: 0.0
+      - id: 3
+        yield: 1.0
+        inputs:
+          # Table 6, Carbonylation (Reactor 3) -- saponification then
+          # acidification per the article text.
+          - {name: potassium hydroxide, cas: "1310-58-3", mass_kg: 2.370789, role: reagent}
+          - {name: methanol, cas: "67-56-1", mass_kg: 12.889046, role: solvent}
+          - {name: water, cas: "7732-18-5", mass_kg: 2.589873, role: solvent}
+        electricity_kWh: 0.0
+  enzymatic:
+    label: "Enzymatic route (Amano lipase, ionic-liquid medium)"
+    steps:
+      - id: 1
+        yield: 1.0
+        inputs:
+          # Table 8, Friedel-Crafts Acylation (Reactor 1)
+          - {name: isobutylbenzene, cas: "538-93-2", mass_kg: 0.724418, role: reactant}
+          - {name: propionic acid, cas: "79-09-4", mass_kg: 0.399760, role: reactant}
+          - {name: trifluoromethanesulfonic acid, cas: "1493-13-6", mass_kg: 0.810011, role: reagent}
+        electricity_kWh: 0.0
+      - id: 2
+        yield: 1.0
+        inputs:
+          # Table 8, "Hydrogenation" (Reactor 2), same caveat on the label
+          # as the Bogdan route above.
+          - {name: trimethyl orthoformate, cas: "149-73-5", mass_kg: 2.108053, role: reagent}
+          - {name: methanol, cas: "67-56-1", mass_kg: 1.838197, role: solvent}
+          - {name: trifluoromethanesulfonic acid, cas: "1493-13-6", mass_kg: 3.726081, role: reagent}
+          - {name: iodobenzene diacetate, cas: "3240-34-4", mass_kg: 1.221463, role: reagent}
+        electricity_kWh: 0.0
+      - id: 3
+        yield: 1.0
+        inputs:
+          # Table 8, Carbonylation (Reactor 3) -- lipase-catalysed hydrolysis
+          # in an ionic-liquid / aqueous-buffer medium, replacing the Bogdan
+          # route's KOH/methanol saponification at this same step.
+          - {name: water, cas: "7732-18-5", mass_kg: 0.309937, role: solvent}
+          - {name: "1-butyl-3-methylimidazolium hexafluorophosphate", cas: "174501-64-5", mass_kg: 8.411710, role: auxiliary}
+          - {name: "Amano lipase from Pseudomonas fluorescens", cas: null, mass_kg: 0.116088, role: catalyst}
+          - {name: "phosphate buffer solution, 0.05 M", cas: null, mass_kg: 1.615811, role: auxiliary}
+        electricity_kWh: 0.0

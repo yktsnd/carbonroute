@@ -165,6 +165,15 @@ against, instead of a false sense of certainty. Full story, including why
 this benchmark exists and what it caught, in
 [`benchmarks/README.md`](benchmarks/README.md).
 
+Letermovir isn't a cherry-picked example. Two more real, peer-reviewed
+route comparisons — ibuprofen (52.9% coverage) and a ZIF-8 metal-organic
+framework (6.8% coverage) — were run through the same pipeline and hit the
+same wall: public factor coverage for specialty solvents is thin, so the
+tool declines to rank rather than guess. See
+[`examples/case-studies/`](examples/case-studies/) for both, including one
+candidate paper that was investigated and rejected because its own
+underlying data was AI/ML-modeled rather than measured.
+
 ## Install
 
 Python 3.11 or later.
