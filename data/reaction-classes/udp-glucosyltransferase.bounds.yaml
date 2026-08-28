@@ -92,3 +92,29 @@ bounds:
       bound. No ceiling asserted.
     sources:
       - "data/factors/derived.csv: acetic acid, derived interval [0.9285, 1.857] kgCO2e/kg."
+
+  # ---- The co-substrate that pays for cofactor regeneration --------------
+  # Only charged when a screen is run with cofactor_recycling > 0. It sits on
+  # the ENZYMATIC side, so -- like the cofactors above and unlike the
+  # chemical-side entries -- its HIGH bound is the load-bearing one.
+  "name:chebi:17992":
+    low: 0.1
+    high: 10.0
+    rationale: >
+      Sucrose, consumed one-per-turnover by the sucrose synthase system that
+      regenerates UDP-glucose (see cofactor_regeneration in the template).
+      No public cradle-to-gate factor for it is held in data/factors. Unlike
+      UDP-glucose this is a bulk agricultural commodity rather than a
+      specialty, so the interval is set narrower but still deliberately wide
+      and deliberately generous at the top: 10 kgCO2e/kg is about seven times
+      the highest bulk commodity in the loaded tables (triethylamine, 1.480)
+      and roughly nine times ethanol (1.13), so a verdict that survives it is
+      not surviving on an optimistic sugar number. The low end sits below
+      every bulk organic in those tables. As with the cofactors, a screen
+      that returns "decided" across this interval is saying the verdict does
+      not depend on sucrose's true value; one that returns "undecided" is
+      saying this is a measurement worth buying.
+    sources:
+      - "No public cradle-to-gate GWP for sucrose is held in data/factors/."
+      - "data/factors/probas_gemis.csv: Ethanol (high purity), 1.13 kgCO2e/kg."
+      - "data/factors/derived.csv: triethylamine, 1.480 kgCO2e/kg (the high anchor among bulk organics)."

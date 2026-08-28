@@ -279,6 +279,53 @@ the top ten carry 20 to 34 protectable groups, led by an N-glycan at
 +4.15 kg CO₂e per kg — because sparing a chemical route that much masking
 and unmasking is precisely what an enzyme's regioselectivity is worth.
 
+## The fair fight: both routes have an effort dial, and only one was ever turned
+
+Every result above this section sweeps the chemical route's solvent recovery
+while the enzymatic route pays fresh cofactor on every cycle. That is not a
+comparison of two technologies. It is a comparison of a chemical process
+someone optimised against an enzymatic process nobody did, and it flatters
+whichever side is being swept.
+
+The asymmetry was easy to miss because the two routes do not have the same
+dial. A chemical plant's lever is solvent: distil it back and charge only the
+make-up. A biocatalytic plant's lever is not solvent — it already runs in
+water — it is the **cofactor**, regenerated in situ so that one charge of it
+turns over many times. Recovering 90% of solvent and regenerating 90% of
+cofactor are the same amount of engineering ambition pointed at each route's
+own dominant burden.
+
+So the selection rule this repository now works to is: **compare a chemical
+route that is as serious about solvent as anyone knows how to be against an
+enzymatic route that is as serious about cofactor as anyone knows how to be.**
+Not a lazy one against an optimised one, in either direction.
+
+`cofactor_recycling` is that second dial, and `fair_fight_frontier` moves
+both together. Recycling is not free and the code refuses to let it look
+free: a template may not be credited with any recycling unless it declares a
+`cofactor_regeneration` block naming what drives the turnover, and that
+co-substrate is then charged **in full, every cycle**. The shipped class
+declares sucrose synthase, with the one-sucrose-per-turnover stoichiometry
+read from Rhea's own curated RHEA:55092 rather than asserted.
+
+Run that way, the enzymatic route stays ahead on all 388 reactions at every
+effort from 0% to 99%. **That result is not yet worth much, and the report
+says so on the same page it prints it.** The template's largest term is
+159 kg of ethyl acetate per mole of product — a bench isolation of 150 mL per
+millimole — and it dominates the chemical side at every effort. Recovery only
+ever divides that number; it cannot un-choose it.
+
+Which is the real lesson, and it is a limit on the method rather than a
+finding about enzymes: **solvent recovery and solvent avoidance are different
+levers.** A chemical process that were itself serious about solvent would not
+recover 99% of a bench isolation, it would replace the isolation —
+crystallise, use an antisolvent, run the extraction continuously. The fair
+fight as currently instrumented puts a genuinely solvent-lean enzymatic route
+against a chemical route that is merely tidying up after a wasteful one. The
+table is therefore an upper bound on the enzymatic advantage, and the class
+needs a template built from a solvent-lean published procedure before it is
+anything more.
+
 ## The confound that decides whether a cross-class ranking means anything
 
 Ranking two classes against each other compares two *templates*, and a

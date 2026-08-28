@@ -18,6 +18,7 @@ from carbonroute.screen import (
     ScreenResult,
     break_even_frontier,
     count_protectable_groups,
+    fair_fight_frontier,
     count_substructure,
     load_reactions,
     load_structures,
@@ -378,6 +379,82 @@ def test_the_break_even_frontier_slopes_the_only_way_it_can(inputs):
     # enzyme costs the class ~14 points of the median threshold.
     assert curve[0].median_threshold == pytest.approx(0.8642, abs=0.002)
     assert curve[-1].median_threshold == pytest.approx(0.7247, abs=0.002)
+
+
+# --- the enzymatic route's own effort dial -----------------------------------
+
+
+def test_recycling_is_refused_without_a_declared_regeneration_system(inputs, tmp_path):
+    """A turnover number with nothing driving it is a free lunch.
+
+    Regenerating a cofactor consumes a co-substrate every cycle. A template
+    that does not say what regenerates its cofactor may not be credited with
+    recycling it, because dividing the cofactor by a turnover number while
+    charging nothing for the driver makes the enzymatic route look better
+    than any real one is.
+    """
+    reactions, template, structures, table, assumptions, bounds = inputs
+    bare = load_template(_acetyl_template(tmp_path, bond=False, ec=False))
+    assert bare.regeneration is None
+    rxn = next(r for r in reactions if r.rhea_id == "RHEA:12560")
+    with pytest.raises(ScreenError, match="cofactor_regeneration"):
+        screen_reaction(
+            rxn, bare, structures, table, assumptions, bounds, cofactor_recycling=0.9
+        )
+
+
+def test_the_shipped_class_declares_what_regenerates_its_cofactor():
+    """Sucrose synthase, with the 1:1 stoichiometry read from Rhea's own
+    curated equation RHEA:55092 rather than asserted."""
+    t = load_template(CLASSES / "udp-glucosyltransferase.yaml")
+    assert t.regeneration is not None
+    assert t.regeneration.co_substrate == "sucrose"
+    assert t.regeneration.co_substrate_chebi == "CHEBI:17992"
+    # 342.297 g/mol, RDKit from Rhea's own SMILES for CHEBI:17992.
+    assert t.regeneration.kg_per_mol_product == pytest.approx(0.342297)
+    # Theoretical demand, not a charged amount from a cited SuSy procedure.
+    assert t.regeneration.basis == "generalised"
+    assert "UNDERSTATES" in t.regeneration.note
+
+
+def test_recycling_buys_down_the_cofactor_but_pays_a_co_substrate(inputs):
+    """The whole point of the block. Recycling must reduce the cofactor and
+    add its driver, not reduce the cofactor for free."""
+    reactions, template, structures, table, assumptions, bounds = inputs
+    rxn = next(r for r in reactions if r.rhea_id == "RHEA:12560")
+    plain = screen_reaction(rxn, template, structures, table, assumptions, bounds)
+    recycled = screen_reaction(
+        rxn, template, structures, table, assumptions, bounds, cofactor_recycling=0.9
+    )
+    # The cofactor charge falls by exactly the recycling factor...
+    assert recycled.cofactor_kg_per_fu == pytest.approx(0.1 * plain.cofactor_kg_per_fu)
+    # ...and the enzymatic side is no longer a single line: sucrose is on it,
+    # at one turnover per product molecule.
+    assert recycled.advantage_min_kgCO2e is not None
+
+
+def test_the_fair_fight_moves_both_dials_together(inputs):
+    """Sweeping solvent recovery against a fixed single-use cofactor compares
+    an optimised chemical process with an unoptimised enzymatic one. This
+    sweeps both, and on the shipped class the enzymatic route stays ahead at
+    every effort -- a result the report is required to qualify, because the
+    template's 159 kg/mol ethyl-acetate isolation dominates it."""
+    curve = fair_fight_frontier(*inputs, efforts=(0.0, 0.9, 0.99))
+    assert [p.effort for p in curve] == [0.0, 0.9, 0.99]
+    assert all(p.enzyme_wins == 388 for p in curve)
+    assert all(p.chemistry_wins == 0 for p in curve)
+
+
+def test_the_fair_fight_report_names_what_actually_decides_it(inputs):
+    """A table saying the enzyme wins 388-0 at 99% effort is worthless without
+    the reason. The dominant solvent term is a bench isolation, and recovery
+    can only divide it -- it cannot un-choose it."""
+    from carbonroute.report import render_fair_fight
+
+    text = render_fair_fight(fair_fight_frontier(*inputs, efforts=(0.0, 0.9)), inputs[1])
+    assert "ethyl acetate" in text
+    assert "159.2 kg per mole" in text
+    assert "upper bound on the enzymatic advantage" in text
 
 
 # --- what bond was formed, which the mass delta cannot see -------------------

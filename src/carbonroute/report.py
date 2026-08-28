@@ -772,6 +772,58 @@ def render_conflicts(conflicts) -> list[str]:
     return lines
 
 
+def render_fair_fight(curve: list, template) -> str:
+    """Both routes' effort dials moved together, and the caveat that decides it.
+
+    Sweeping the chemical route's solvent recovery against an enzymatic route
+    stuck at single-use cofactor compares an optimised process with an
+    unoptimised one. This moves both: at each effort the chemical side
+    recovers that share of its solvent and the enzymatic side regenerates
+    that share of its cofactor, paying its regeneration co-substrate in full.
+    """
+    lines = [
+        "## Fair fight: both routes optimised to the same degree",
+        "",
+        "At each effort the chemical route recovers that share of its solvent "
+        "and the enzymatic route regenerates that share of its cofactor — the "
+        "same engineering ambition pointed at each route's own dominant "
+        "burden. The regeneration co-substrate is charged in full at every "
+        "turnover, so recycling is not a free lunch.",
+        "",
+        "| effort | cofactor turnovers | enzyme lower | chemistry lower | undecided |",
+        "|---|---|---|---|---|",
+    ]
+    for p in curve:
+        ttn = "1" if p.effort >= 1.0 or p.effort == 0.0 else f"{1 / (1 - p.effort):.0f}"
+        lines.append(
+            f"| {p.effort * 100:.0f}% | {ttn} | {p.enzyme_wins} | "
+            f"{p.chemistry_wins} | {p.undecided} |"
+        )
+    lines.append("")
+
+    solvents = [m for m in template.materials if m.role == "solvent"]
+    if solvents:
+        worst = max(solvents, key=lambda m: m.kg_per_mol_product)
+        lines.append(
+            f"**Read this against the template's largest solvent term.** "
+            f"{worst.name} is charged at {worst.kg_per_mol_product:.1f} kg per "
+            "mole of product, and it dominates the chemical side at every "
+            "effort above. Recovery only ever divides that number; it cannot "
+            "un-choose it. A chemical process that were *itself* serious about "
+            "solvent would not recover 99% of a bench isolation, it would "
+            "replace the isolation — crystallise, use an antisolvent, run the "
+            "extraction continuously. Solvent recovery and solvent avoidance "
+            "are different levers and this template can only model the first, "
+            "so a sweep like the one above puts a genuinely solvent-lean "
+            "enzymatic route against a chemical route that is merely tidying "
+            "up after a wasteful one. Until the class carries a template built "
+            "from a solvent-lean published procedure, read the table as an "
+            "upper bound on the enzymatic advantage, not as a fair fight."
+        )
+        lines.append("")
+    return "\n".join(lines)
+
+
 def _render_ranking(run: "ScreenRun") -> list[str]:
     """Rank reactions on the one quantity that means the same in every class.
 

@@ -452,6 +452,30 @@ def lock(ledger_path: str, factor_paths: tuple[str, ...], synonym_paths: tuple[s
     help="Solvent recovery at which the minimum-conversion figures are evaluated.",
 )
 @click.option(
+    "--cofactor-recycling",
+    "cofactor_recycling",
+    type=click.FloatRange(min=0.0, max=1.0, max_open=True),
+    default=0.0,
+    show_default=True,
+    help=(
+        "Share of cofactor regenerated rather than discarded -- the enzymatic "
+        "route's counterpart of solvent recovery. Requires the template to "
+        "declare a cofactor_regeneration block, whose co-substrate is then "
+        "charged every turnover."
+    ),
+)
+@click.option(
+    "--fair-fight",
+    "fair_fight",
+    is_flag=True,
+    default=False,
+    help=(
+        "Sweep BOTH effort dials together -- chemical solvent recovery and "
+        "enzymatic cofactor regeneration at the same rate -- and report who "
+        "wins when neither side is the only one optimised."
+    ),
+)
+@click.option(
     "--frontier",
     "frontier",
     is_flag=True,
@@ -472,6 +496,8 @@ def screen(
     assumptions_path: str,
     enzymatic_yield: float,
     reference_recovery: float,
+    cofactor_recycling: float,
+    fair_fight: bool,
     frontier: bool,
     factor_paths: tuple[str, ...],
     synonym_paths: tuple[str, ...],
@@ -485,10 +511,11 @@ def screen(
     not a set of verdicts -- see docs/screening.md.
     """
     from .bounds import BoundsError, load_bounds
-    from .report import render_screen
+    from .report import render_fair_fight, render_screen
     from .screen import (
         ScreenError,
         break_even_frontier,
+        fair_fight_frontier,
         load_reactions,
         load_structures,
         load_template,
@@ -517,8 +544,16 @@ def screen(
         bounds,
         enzymatic_yield=enzymatic_yield,
         reference_recovery=reference_recovery,
+        cofactor_recycling=cofactor_recycling,
     )
     report = render_screen(run, reactions_path)
+    if fair_fight:
+        report += "\n" + render_fair_fight(
+            fair_fight_frontier(
+                reactions, template, structures, table, ledger.assumptions, bounds
+            ),
+            template,
+        )
     if frontier:
         curve = break_even_frontier(
             reactions, template, structures, table, ledger.assumptions, bounds

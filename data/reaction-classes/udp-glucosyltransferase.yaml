@@ -230,3 +230,45 @@ chemical_counterpart:
       note: >
         Quench of the saponification base (0.4 mL, 0.74 g, 7.5 mmol per
         1 mmol basis).
+
+# --- How the cofactor is regenerated, and what that costs ------------------
+#
+# The enzymatic route's own effort dial. A chemical plant's lever is solvent
+# recovery; a biocatalytic plant's is not solvent (it already runs in water)
+# but the cofactor -- regenerated in situ so one charge of it turns over many
+# times. Screening the chemical side at 90% solvent recovery while the
+# enzymatic side pays fresh cofactor every cycle compares an optimised
+# process against an unoptimised one.
+#
+# It is not free, and this block exists so that it cannot be treated as
+# though it were. `screen_reaction` refuses any cofactor_recycling > 0 unless
+# a template declares this, because dividing the cofactor by a turnover
+# number while charging nothing for the co-substrate that drives the turnover
+# is the easiest way to make an enzymatic route look better than any real one.
+cofactor_regeneration:
+  name: "Sucrose synthase (SuSy), run in the UDP-glucose-forming direction"
+  source: >
+    Stoichiometry taken from Rhea's own curated equation RHEA:55092
+    (EC 2.4.1.13, sucrose synthase): D-fructose + UDP-alpha-D-glucose =
+    sucrose + UDP + H(+). Regeneration runs this equation right-to-left, so
+    each turnover consumes one sucrose and releases one D-fructose while
+    returning UDP to UDP-alpha-D-glucose. The 1:1 ratio is therefore read
+    from the same curated database this screen already uses for every other
+    reaction, not from an uncited assertion.
+  co_substrate: sucrose
+  co_substrate_chebi: "CHEBI:17992"
+  # 342.297 g/mol, computed by RDKit from the SMILES Rhea ships for
+  # CHEBI:17992 -- the same route every other molecular weight here takes.
+  # One turnover per group transferred, so one sucrose per mole of product.
+  kg_per_mol_product: 0.342297
+  basis: generalised
+  note: >
+    The 1:1 stoichiometry is sourced (RHEA:55092) but the AMOUNT is
+    generalised: this is the theoretical demand of one sucrose per turnover,
+    not a charged quantity read from a specific published SuSy process. A
+    real regeneration system charges sucrose in excess to drive the
+    equilibrium, so this figure UNDERSTATES the co-substrate burden and
+    therefore still flatters the enzymatic route -- less than crediting
+    recycling for free would, but it is not neutral. Replacing it with a
+    charged amount from a real cited SuSy procedure is the next piece of
+    primary-source work this class needs.

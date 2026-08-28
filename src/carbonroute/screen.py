@@ -308,6 +308,39 @@ class TemplateMaterial:
 
 
 @dataclass(frozen=True)
+class RegenerationSystem:
+    """What actually pays for recycling a cofactor.
+
+    Cofactor regeneration is not free and modelling it as a discount on the
+    cofactor alone is the single easiest way to make an enzymatic route look
+    better than it is. Regenerating UDP-glucose with sucrose synthase
+    consumes a molecule of sucrose per turnover; NAD(P)H regeneration with
+    formate or glucose dehydrogenase consumes formate or glucose per
+    turnover. The cofactor is charged once and divided by the turnover
+    number, but the co-substrate is charged *every cycle* and does not
+    cancel out of the diff.
+
+    So a template may not claim recycling without saying what drives it, on
+    the same evidential terms as every other amount here: a real cited
+    procedure, and `sourced` or `generalised` stated per figure.
+    """
+
+    #: The enzyme system, e.g. "sucrose synthase (UDP-glucose regeneration)".
+    name: str
+    source: str
+    co_substrate: str
+    co_substrate_cas: str | None
+    #: Consumed per mole of product, once per turnover -- not divided by the
+    #: turnover number, which is the whole point.
+    kg_per_mol_product: float
+    basis: str
+    note: str
+    #: ChEBI id, when the co-substrate is a Rhea participant. Used as the
+    #: resolution key so it lines up with how cofactors are keyed.
+    co_substrate_chebi: str | None = None
+
+
+@dataclass(frozen=True)
 class ClassTemplate:
     id: str
     name: str
@@ -358,6 +391,11 @@ class ClassTemplate:
     #: it beside the enzymatic conversion the screen was run at, which is
     #: the only place the asymmetry between the two sides is visible.
     source_overall_yield: float | None = None
+    #: How this class's cofactor is regenerated, if it can be. Required
+    #: before any screen may credit the enzymatic route with recycling: a
+    #: turnover number asserted without naming what drives it is exactly the
+    #: kind of free lunch this tool exists to refuse.
+    regeneration: RegenerationSystem | None = None
 
     def matches(self, rxn: RheaReaction) -> bool:
         """True when this template's cofactor is consumed by `rxn`.
@@ -403,6 +441,41 @@ def _source_yield(chem: dict, path: str | Path) -> float | None:
             f"got {y}"
         )
     return y
+
+
+def _regeneration(raw, path) -> RegenerationSystem | None:
+    """Read the optional cofactor_regeneration block, on the usual terms."""
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise ScreenError(f"{path}: cofactor_regeneration must be a mapping")
+    missing = [
+        k
+        for k in ("name", "source", "co_substrate", "kg_per_mol_product", "basis", "note")
+        if not raw.get(k)
+    ]
+    if missing:
+        raise ScreenError(
+            f"{path}: cofactor_regeneration is missing {', '.join(missing)}. "
+            "Recycling a cofactor costs a co-substrate every turnover, and "
+            "claiming the recycling without costing the co-substrate is the "
+            "easiest way to make an enzymatic route look better than it is."
+        )
+    if raw["basis"] not in ("sourced", "generalised"):
+        raise ScreenError(
+            f"{path}: cofactor_regeneration.basis must be 'sourced' or "
+            f"'generalised', got {raw['basis']!r}"
+        )
+    return RegenerationSystem(
+        name=raw["name"],
+        source=raw["source"],
+        co_substrate=raw["co_substrate"],
+        co_substrate_cas=raw.get("co_substrate_cas"),
+        co_substrate_chebi=raw.get("co_substrate_chebi"),
+        kg_per_mol_product=float(raw["kg_per_mol_product"]),
+        basis=raw["basis"],
+        note=raw["note"],
+    )
 
 
 def load_template(path: str | Path) -> ClassTemplate:
@@ -487,6 +560,7 @@ def load_template(path: str | Path) -> ClassTemplate:
         source_overall_yield=_source_yield(chem, path),
         transferred_bond_smarts=cls.get("transferred_bond_smarts"),
         ec_prefix=cls.get("ec_prefix"),
+        regeneration=_regeneration(raw.get("cofactor_regeneration"), p),
     )
 
 
@@ -522,6 +596,11 @@ class ScreenResult:
     #: The solvent recovery rate `min_enzymatic_yield` was computed at, and
     #: the standard operating point the advantage interval below is taken at.
     reference_recovery: float = 0.90
+    #: The enzymatic route's effort dial: the share of cofactor regenerated
+    #: rather than discarded. 0.0 is single-use cofactor. The counterpart of
+    #: the chemical route's solvent recovery, and the axis whose absence made
+    #: every earlier result here a comparison of unequal effort.
+    cofactor_recycling: float = 0.0
     #: How much lower the enzymatic route's footprint is, in kg CO2e per kg
     #: of product, evaluated at the standard operating point -- an interval,
     #: because the cofactor's factor is one. Positive means the enzyme saves
@@ -590,8 +669,28 @@ def screen_reaction(
     *,
     enzymatic_yield: float = 1.0,
     reference_recovery: float = 0.90,
+    cofactor_recycling: float = 0.0,
 ) -> ScreenResult:
     """Build the enzymatic-vs-chemical delta for one reaction and decide it.
+
+    Claiming recycling requires the template to declare a
+    ``cofactor_regeneration`` block; without one this raises. A turnover
+    number asserted with nothing driving it is a free lunch, and the
+    co-substrate that actually drives it is charged every cycle.
+
+    ``cofactor_recycling`` is the enzymatic route's effort dial, and the exact
+    counterpart of the chemical route's ``solvent_recovery``. A cofactor that
+    is regenerated in situ -- sucrose synthase driving UDP-glucose,
+    formate or glucose dehydrogenase driving NAD(P)H -- is charged once and
+    used many times, so the bill is the stoichiometric demand times
+    ``1 - cofactor_recycling``, the same shape the solvent bill takes. A
+    recycling rate of 0.99 is a total turnover number of 100.
+
+    It defaults to 0.0, which is single-use cofactor: the worst enzymatic
+    process anyone would actually run. Sweeping solvent recovery against a
+    fixed 0.0 here compares an optimised chemical route with an unoptimised
+    enzymatic one, and every earlier result in this repository did exactly
+    that. `fair_fight_frontier` moves both dials together instead.
 
     ``enzymatic_yield`` is the enzymatic route's conversion to product. It
     divides the cofactor demand, because a reaction that only converts half
@@ -605,6 +704,16 @@ def screen_reaction(
     plant achieves by distillation, which is the operating point at which
     the question "how good does the enzyme have to be?" is worth asking.
     """
+    if cofactor_recycling > 0.0 and template.regeneration is None:
+        raise ScreenError(
+            f"{template.id}: cofactor_recycling={cofactor_recycling} was asked "
+            "for, but this template declares no cofactor_regeneration block. "
+            "Regenerating a cofactor consumes a co-substrate every turnover "
+            "-- sucrose for sucrose synthase, formate or glucose for a "
+            "dehydrogenase -- and that co-substrate does not cancel out of "
+            "the diff. Crediting the recycling without charging it would make "
+            "the enzymatic route look better than any real one is."
+        )
     blank = ScreenResult(
         rhea_id=rxn.rhea_id,
         equation=rxn.equation,
@@ -737,17 +846,21 @@ def screen_reaction(
     # quantitative, and the cofactor bill scales with 1/yield.
     cofactor_kg_stoich = mol_per_fu * cofactor_coeff * cofactor_mw / 1000.0
 
-    def diff_at(solvent_recovery: float, yield_: float) -> DiffResult:
+    def diff_at(
+        solvent_recovery: float, yield_: float, recycling: float = cofactor_recycling
+    ) -> DiffResult:
         return _build_diff(
             rxn,
             template,
             table,
             mol_per_fu,
             n_masked,
-            cofactor_kg_stoich / yield_,
+            cofactor_kg_stoich / yield_ * (1.0 - recycling),
             cofactor_coeff,
             solvent_recovery,
             cofactor_chebi,
+            template.regeneration if recycling > 0.0 else None,
+            mol_per_fu * cofactor_coeff / yield_,
         )
 
     verdict = bounded_verdict(diff_at(0.0, enzymatic_yield), assumptions, bounds)
@@ -776,12 +889,16 @@ def screen_reaction(
         product_mw=product_mw,
         acceptor_name=acceptor.name,
         protectable_groups=n_protect,
-        cofactor_kg_per_fu=cofactor_kg_stoich / enzymatic_yield,
+        # What is actually charged, recycling included -- not the
+        # stoichiometric demand. A reported figure that ignored the recycling
+        # the run was given would disagree with the diff it came from.
+        cofactor_kg_per_fu=cofactor_kg_stoich / enzymatic_yield * (1.0 - cofactor_recycling),
         verdict=verdict,
         recovery_threshold=threshold,
         enzymatic_yield=enzymatic_yield,
         min_enzymatic_yield=min_yield,
         reference_recovery=reference_recovery,
+        cofactor_recycling=cofactor_recycling,
         advantage_min_kgCO2e=standard.delta_min_kgCO2e,
         advantage_max_kgCO2e=standard.delta_max_kgCO2e,
     )
@@ -797,14 +914,24 @@ def _build_diff(
     cofactor_coeff: float,
     solvent_recovery: float,
     cofactor_chebi: str,
+    regeneration: RegenerationSystem | None = None,
+    turnovers_per_fu: float = 0.0,
 ) -> DiffResult:
     """The enzymatic-vs-chemical delta set, at a given chemical solvent recovery.
 
     ``solvent_recovery`` reduces the chemical route's ``role: solvent`` masses
     to their make-up quantity, exactly as `assumptions.solvent_recovery_default`
     does for a real ledger. It is applied to the chemical side only, because
-    the enzymatic side of this delta carries no organic solvent to recover --
-    that asymmetry is the point of the comparison, not an oversight.
+    the enzymatic side of this delta carries no organic solvent to recover.
+
+    That is not the whole story, and reading it as one used to bias every
+    number here. Solvent recovery is the chemical route's effort dial, and
+    sweeping it while the enzymatic side stays at bare stoichiometry compares
+    a chemical process someone optimised against an enzymatic process nobody
+    did. The enzymatic route has its own dial and it is not solvent: it is
+    how many times the cofactor turns over before it is discarded. Its
+    equivalent of recovering solvent is regenerating cofactor, and
+    `cofactor_recycling` is where that enters -- see `screen_reaction`.
 
     ``cofactor_coeff`` is how many groups the reaction transfers per molecule
     of product -- 2 for a bis-glucoside, and so on. The template's amounts are
@@ -829,6 +956,23 @@ def _build_diff(
 
     enz_key = f"name:{cofactor_chebi.lower()}"
     enz = {enz_key: (_cofactor_display(rxn, template), template.cofactor_role, cofactor_kg)}
+    # Regeneration buys down the cofactor above, but its co-substrate is
+    # consumed once per turnover and so is charged in full here. This is the
+    # term that stops "recycle the cofactor" from being a free lunch.
+    if regeneration is not None:
+        if regeneration.co_substrate_cas:
+            key = f"cas:{regeneration.co_substrate_cas}"
+        elif regeneration.co_substrate_chebi:
+            key = f"name:{regeneration.co_substrate_chebi.lower()}"
+        else:
+            key = f"name:{regeneration.co_substrate.lower()}"
+        kg = turnovers_per_fu * regeneration.kg_per_mol_product
+        prev = enz.get(key)
+        enz[key] = (
+            regeneration.co_substrate,
+            "reagent",
+            (prev[2] if prev else 0.0) + kg,
+        )
 
     all_keys = set(chem) | set(enz)
     materials = [
@@ -1061,10 +1205,12 @@ class ScreenRun:
     results: list[ScreenResult] = field(default_factory=list)
     matched: int = 0
     skipped_unparsed: int = 0
-    #: The enzymatic conversion every row in this run was screened at, and
-    #: the solvent recovery its `min_enzymatic_yield` figures assume.
+    #: The enzymatic conversion every row in this run was screened at, the
+    #: solvent recovery its `min_enzymatic_yield` figures assume, and the
+    #: cofactor regeneration the enzymatic side was credited with.
     enzymatic_yield: float = 1.0
     reference_recovery: float = 0.90
+    cofactor_recycling: float = 0.0
 
     @property
     def decided(self) -> list[ScreenResult]:
@@ -1089,11 +1235,13 @@ def screen_all(
     *,
     enzymatic_yield: float = 1.0,
     reference_recovery: float = 0.90,
+    cofactor_recycling: float = 0.0,
 ) -> ScreenRun:
     run = ScreenRun(
         template=template,
         enzymatic_yield=enzymatic_yield,
         reference_recovery=reference_recovery,
+        cofactor_recycling=cofactor_recycling,
     )
     for rxn in reactions:
         if not template.matches(rxn):
@@ -1109,6 +1257,7 @@ def screen_all(
                 bounds,
                 enzymatic_yield=enzymatic_yield,
                 reference_recovery=reference_recovery,
+                cofactor_recycling=cofactor_recycling,
             )
         )
     return run
@@ -1163,6 +1312,88 @@ def break_even_frontier(
         )
         for y in yields
     ]
+
+
+@dataclass(frozen=True)
+class FairFightPoint:
+    """Both routes optimised to the same degree, and who wins there."""
+
+    effort: float
+    decided: int
+    enzyme_wins: int
+    chemistry_wins: int
+    undecided: int
+
+
+def fair_fight_frontier(
+    reactions: list[RheaReaction],
+    template: ClassTemplate,
+    structures: dict[str, str],
+    table: FactorTable,
+    assumptions: Assumptions,
+    bounds: dict[str, Bound],
+    *,
+    efforts: Sequence[float] = (0.0, 0.5, 0.8, 0.9, 0.95, 0.99),
+    enzymatic_yield: float = 1.0,
+) -> list[FairFightPoint]:
+    """Move both routes' effort dials together, and see who wins.
+
+    Every result in this repository before this function swept the chemical
+    route's solvent recovery while the enzymatic route stayed at bare
+    stoichiometric cofactor. That is not a comparison of two technologies,
+    it is a comparison of a process someone optimised against a process
+    nobody did, and it flatters whichever side is being swept.
+
+    The two routes do not have the same dial, which is why the asymmetry was
+    easy to miss. A chemical plant's lever is solvent: distil it back and
+    charge only the make-up. A biocatalytic plant's lever is not solvent --
+    it already runs in water -- it is the cofactor, regenerated in situ so
+    that one charge of it turns over many times. Recovering 90% of solvent
+    and regenerating 90% of cofactor are the same amount of engineering
+    ambition pointed at each route's own dominant burden.
+
+    So this sweeps them together: at each `effort`, the chemical side
+    recovers that share of its solvent and the enzymatic side regenerates
+    that share of its cofactor. The diagonal is the fair fight, and reading
+    down it says which technology wins when both are pushed equally hard,
+    rather than which one the analyst happened to optimise.
+    """
+    points: list[FairFightPoint] = []
+    for e in efforts:
+        run = screen_all(
+            reactions,
+            template,
+            structures,
+            table,
+            assumptions,
+            bounds,
+            enzymatic_yield=enzymatic_yield,
+            cofactor_recycling=e,
+            reference_recovery=e,
+        )
+        enzyme = chemistry = undecided = 0
+        for r in run.results:
+            if r.verdict is None:
+                continue
+            at_effort = r.advantage_min_kgCO2e, r.advantage_max_kgCO2e
+            lo = float("-inf") if at_effort[0] is None else at_effort[0]
+            hi = float("inf") if at_effort[1] is None else at_effort[1]
+            if lo > 0.0:
+                enzyme += 1
+            elif hi < 0.0:
+                chemistry += 1
+            else:
+                undecided += 1
+        points.append(
+            FairFightPoint(
+                effort=e,
+                decided=enzyme + chemistry,
+                enzyme_wins=enzyme,
+                chemistry_wins=chemistry,
+                undecided=undecided,
+            )
+        )
+    return points
 
 
 def _summarise_frontier(y: float, run: ScreenRun) -> FrontierPoint:
