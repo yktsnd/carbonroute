@@ -174,6 +174,63 @@ tool declines to rank rather than guess. See
 candidate paper that was investigated and rejected because its own
 underlying data was AI/ML-modeled rather than measured.
 
+## When "not enough data" turns out to be wrong
+
+Everything above is the tool refusing to answer. Here is it answering —
+on the case with the *worst* coverage of the three.
+
+Ranking two routes is an easier question than measuring either one, and it
+stays easier when the data is bad. You often don't need to know what a
+missing factor **is**. You need to know enough about where it **can't be**
+for the answer to stop depending on it.
+
+The ibuprofen comparison ([Grimaldi et al., *ACS Sustainable Chem. Eng.*
+**2021**](https://doi.org/10.1021/acssuschemeng.1c02309)) resolves 52.9% of
+its differing mass and has nine unresolved materials. Give each one an
+interval its factor is asserted to lie in — not a value, a *bound* — and ask
+whether the ranking is the same everywhere inside:
+
+> **Decided: `bogdan` is lower than `enzymatic` everywhere in the asserted bounds.**
+
+| material | delta_mass kg/FU | needs to be | asserted bound | clears it |
+|---|---|---|---|---|
+| 1-butyl-3-methylimidazolium hexafluorophosphate | -8.412 | above 1.715 kgCO2e/kg | [3.5, unbounded] | yes |
+| trimethyl orthoformate | -1.666 | any value — cannot flip it | [0.27, unbounded] | yes |
+| phosphate buffer solution, 0.05 M | -1.616 | any value — cannot flip it | [0.55, 2] | yes |
+| *…5 more, every one of them* | | *any value — cannot flip it* | | *yes* |
+
+Seven of the nine unresolved materials **cannot change the answer at any
+value**. The entire comparison collapses to one inequality about one ionic
+liquid. And the two published estimates for its closest studied analogue —
+which disagree *with each other by a factor of eight*, 3.5 and 27.3 — clear
+that bar by 2.0× and 15.9×. They can't agree on the value. They agree
+unanimously on the verdict.
+
+That's the point: **the bar for "good enough to bound with" is far lower
+than for "good enough to compute with"**, and for a comparison the lower bar
+is often all you need. Coverage is still reported as 52.9%; no bound ever
+becomes a factor, enters the Monte Carlo, or touches a total.
+
+Then the tool turned the same question on its own input, and found the real
+answer wasn't a chemical at all:
+
+| ionic liquid recycled | verdict |
+|---|---|
+| 0% → 50% | `bogdan` lower — decided |
+| **51.0%** | **crossover** |
+| 55%+ | not decided |
+
+The paper's own two scenarios are **50% and 100%**, and it says its route
+wins "provided that the enzyme recycling is of a high standard." Using
+public data for two materials, one bounded interval for a third, and the
+paper's mass inventory, `carbonroute` independently lands the tipping point
+where the paper's full ecoinvent-and-GaBi LCA puts it.
+
+Full method in [`docs/bounds.md`](docs/bounds.md); every bound and its
+justification in
+[`examples/case-studies/ibuprofen-bogdan-vs-enzymatic/`](examples/case-studies/ibuprofen-bogdan-vs-enzymatic/),
+including the ledger defect that getting a decisive answer exposed.
+
 ## Install
 
 Python 3.11 or later.
