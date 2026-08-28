@@ -27,6 +27,130 @@ carbonroute compare route.yaml --a routeA --b routeB
 
 ---
 
+## Background: why nobody has answered "are enzymes actually greener?" at scale
+
+Environmental awareness is rising worldwide, and countries are pursuing
+carbon neutrality across every industry. In chemical manufacturing, that
+attention has landed on **biomanufacturing** — using enzymatic reactions in
+place of organic-chemical ones. Enzymes generally work in aqueous solvent at
+ambient temperature and pressure, and they are stereo-, regio- and
+enantioselective, so the route is expected to waste less energy and generate
+less waste.
+
+The number that quantifies environmental burden is **LCA (Life Cycle
+Assessment)**: the method (ISO 14040/14044) that inventories the resources,
+energy and emissions of every life-cycle stage of a product — raw-material
+extraction, manufacture, transport, use, disposal — and converts them into
+environmental impact. Restricted to greenhouse gases and expressed per unit
+of product in kg CO₂-equivalent, it is the **carbon footprint** (ISO 14067).
+
+Yet there is very little research that compares enzymatic against
+conventional organic-chemical routes quantitatively *and* comprehensively on
+an LCA basis. The cause is structural: **LCA is designed to accumulate
+absolute values.** Computing one product's footprint requires a background
+emission factor for every single input — each of which is itself the output
+of another LCA. Most of those live behind paid commercial databases, and for
+the substances that dominate the enzymatic side — the cofactors UDP-glucose,
+NADPH, S-adenosyl-L-methionine, acetyl-CoA — there is effectively **no
+openly licensed cradle-to-gate factor at all**. One comparison therefore
+costs days to weeks of primary-literature work, which puts database-scale
+coverage out of reach in principle. **The bottleneck is not compute, it is
+the cost of acquiring data.**
+
+This work starts from the observation that **you do not need absolute values
+to answer "which one is lower."** The approach is to accumulate only the
+**delta set** between two routes, and to carry missing factors not as point
+estimates but as **bounded intervals**. The tool built on it, `carbonroute`,
+computes the *relative* carbon burden of an enzymatic versus an
+organic-chemical route, and the **critical condition at which that verdict
+flips**. When two routes make the same product, everything common to both
+cancels out of the difference. What cancels is precisely the expensive part
+— the substrate and product, different in every reaction. What survives is
+the cofactor on the enzymatic side and the protecting groups, activator,
+base and solvents on the chemical side: two closed vocabularies of a few
+dozen substances each. So the primary-research effort is bounded by the size
+of the vocabulary, not by the number of reactions.
+
+`carbonroute` has three defining properties. **(1) It invents no numbers** —
+missing data enters as an interval, and if interval arithmetic does not
+settle the comparison it prints "indeterminate" and stops. **(2) Its output
+is a critical value, not a winner** — not "the enzyme wins" but "at what
+solvent recovery rate does that conclusion stop holding." **(3) It scales
+per reaction class** — template one real published chemical procedure for a
+class, and every reaction in that class costs one arithmetic evaluation.
+That makes it useful for **choosing biomanufacturing targets** — deciding
+which enzymatic reactions deserve scarce research budget — and for
+**auditing claims of environmental advantage**.
+
+Applying it, we set out to compare enzymatic and organic-chemical routes
+comprehensively: which enzymatic reactions contribute most to emissions
+reduction; where the advantage lies once enzymatic yield and solvent
+recycling rate are accounted for; and where the emission-reduction effect of
+today's commercialised biomanufacturing ranks among all enzymatic reactions.
+
+## Where this actually stands — and what is still aspirational
+
+**The no-invented-numbers rule applies to our own progress too.** The
+paragraph above states the goal of this repository; only part of it is done.
+Here is each question, what it needs, and where it stands.
+
+| Question | What it needs | Status |
+|---|---|---|
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Partial.** One class, 406 reactions, screened (2.2% of Rhea). Within-class ranking works; no cross-class metric is defined yet |
+| **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **One axis only.** Solvent recovery is done. Enzymatic yield is not modelled — see the known bias below |
+| **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
+
+### The known bias in Q2: today's numbers favour the enzyme
+
+This is a correction to the numbers currently published below, not a future
+work item. On the chemical side, the shipped template's quantities are
+carried through the source paper's own real yields — 62% glycosylation ×
+85% deprotection = **52.7% overall**. The chemical route correctly pays the
+penalty of having to charge nearly twice the material to obtain 1 kg of
+product. **The enzymatic side, by contrast, is billed at pure stoichiometry
+— an implicit 100% yield** (`cofactor_kg = mol_per_fu * cofactor_coeff *
+cofactor_mw / 1000` in `screen.py`).
+
+Real enzymatic glycosylations rarely go quantitatively, and the cofactor
+bill scales with the reciprocal of conversion. The solvent-recovery
+thresholds reported below (85.58%–91.54%) are therefore **upper bounds**;
+the true values are lower. Adding this axis is not a precision refinement —
+it can move the direction of the conclusion. That is why it is first on the
+roadmap.
+
+### The road from here
+
+1. **Make enzymatic yield a first-class variable** (Q2, highest priority).
+   Remove the asymmetry above and widen the output from a one-dimensional
+   threshold to a **break-even curve** on the `(enzymatic yield, solvent
+   recovery)` plane. The practically useful question becomes: *assuming the
+   industrially standard 90% solvent recovery, what is the minimum
+   conversion at which the enzyme still wins?*
+2. **Define a cross-class comparable metric** (Q1). The solvent-recovery
+   threshold depends on a template's solvent load, so it cannot be compared
+   between classes. Compute Δ kg CO₂e per kg of product at a standardised
+   operating point (say 90% recovery) as an interval, and rank on that.
+   Intervals induce only a partial order, so the output is a Pareto ranking,
+   not a fabricated total order.
+3. **Add classes** (Q1 coverage). The largest EC-3 groups — 1.1.1 (526
+   reactions), 2.1.1 (500), 2.3.1 (382) — bring the cumulative total to
+   1,808 reactions: 9.7% of Rhea, 23.7% of the 7,635 that carry an EC
+   number. Each needs one real published chemical procedure, and that step
+   does not get faster.
+4. **Locate the commercial processes** (Q3). Map already-commercialised
+   enzymatic reactions — human-milk-oligosaccharide fucosylation
+   (RHEA:14257 and others), anthocyanin glucosylation (RHEA:20093),
+   β-arbutin (RHEA:12560) — onto Rhea ids and report their percentile in
+   the ranking from step 2.
+
+The ceiling on "comprehensive" is worth stating plainly too. Only 7,635 of
+Rhea's 18,558 reactions (41.1%) carry an EC number at all, and templating
+the top *ten* EC-3 groups would still reach only 3,130 reactions (16.9%).
+The goal is not a census of the whole database — it is **enough coverage to
+decide which reaction classes are worth investing in**.
+
+---
+
 ## 18,558 real enzymatic reactions. About one second. Zero invented numbers.
 
 Most comparative-LCA tooling answers one question about one pair of
@@ -45,6 +169,11 @@ real published chemical procedure:
 | minimum | 85.58% |
 | median | 86.42% |
 | maximum | 91.54% |
+
+> These three figures are **upper bounds**: the enzymatic side is currently
+> billed at an implicit 100% yield while the chemical side carries its source
+> paper's real 52.7%. See
+> ["The known bias in Q2"](#the-known-bias-in-q2-todays-numbers-favour-the-enzyme).
 
 That threshold is the honest headline, not a win count. It is the
 chemical-route solvent recovery rate at which each reaction's verdict
