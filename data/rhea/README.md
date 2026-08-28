@@ -77,8 +77,9 @@ The ~36% of slots the top 300 do *not* cover is the long tail of
 one-reaction substrates and products — the part that cancels. So the factor
 work a database-wide screen actually requires is bounded by the size of
 those vocabularies, in the tens of substances, and each additional reaction
-after that costs one arithmetic evaluation. Screening all 263 reactions of
-the UDP-glucosyltransferase class takes about a second.
+after that costs one arithmetic evaluation. Screening all 406 reactions of
+the UDP-hexosyltransferase class (UDP-glucose and its diastereomer
+UDP-galactose) takes about a second.
 
 ## What is not here
 

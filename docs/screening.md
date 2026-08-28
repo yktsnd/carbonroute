@@ -34,7 +34,7 @@ cancels.
 
 So the factor work is bounded by the vocabulary, in the tens of substances,
 not by the number of reactions. After that each reaction costs one
-arithmetic evaluation — the whole 263-reaction UDP-glucosyltransferase class
+arithmetic evaluation — the whole 406-reaction UDP-hexosyltransferase class
 screens in about a second.
 
 **That "about a second" is the cost of screening reactions against a class
@@ -58,6 +58,70 @@ reactions) covers O-, N- and C-methylations that don't share one clean
 `expected_mass_delta` check below, which is what actually decides whether a
 given reaction belongs in a class, checked from molecular structure rather
 than assumed from which cofactor is present.
+
+## Picking the next class: EC number, not raw frequency
+
+Raw participant frequency (`data/rhea/participants.csv`, sorted by
+`n_reactions`) is the wrong axis for choosing what to build next. It ranks
+UDP-glucose around 20th, well behind CoA (1,649 reactions) and SAM (954) —
+but those two are exactly the cofactors "Nor does bounded vocabulary..."
+above shows are chemically mixed. A cofactor's total reaction count is a
+population figure, not a homogeneity figure; picking the biggest one first
+would have meant building a template for a class that is not actually one
+transformation.
+
+The EC (Enzyme Commission) number is the field's own answer to "what
+transformation does this enzyme perform" — a classification maintained
+since the 1960s specifically to separate reactions like these. Grouping
+Rhea's reactions at the **third EC level** (`2.4.1`, not the full
+`2.4.1.218`) gives 252 groups from the 41.1% of reactions that carry an EC
+annotation at all (7,635 of 18,558) — fine enough to mean something
+chemically, coarse enough that the biggest groups are worth building
+against. The four largest:
+
+| EC group | reactions | dominant participant | mass-delta clusters (top bins) | coverage |
+|---|---|---|---|---|
+| 1.1.1 | 526 | NAD(+) / NADP(+) | −2.0 (loses 2H: an oxidation) | 100% of 283 resolvable |
+| 2.1.1 | 500 | SAM | +14.0, +15.0, +28.1, +42.1 (mono/di/tri-methylation, ±1 proton) | 99.5% of 431 |
+| 2.3.1 | 382 | acetyl-CoA | +41.0, +42.0 (acetylation, ±1 proton) | 99.3% of 134 |
+| 2.4.1 | 400 | UDP-glucose | +162.1, +163.1, +324.3 (hexosylation, ±1 proton, bis-transfer) | 100% of 131 |
+
+Every one of these clusters tightly into 2–4 bins that are exact multiples
+or ±1-proton offsets of one signature mass — the same pattern
+`expected_mass_delta` already polices for UDP-glucose, reproduced
+independently in three more groups. That is the mechanism this table
+exists to demonstrate: restricting to an EC-3-level group turns "shares a
+cofactor" into "shares a cofactor *and* a transformation," which raw
+cofactor frequency cannot do — grouping by CoA alone (no EC restriction)
+mixes exactly the acetylation and Claisen-condensation chemistry the
+paragraph above warns about, but CoA reactions restricted to EC 2.3.1
+*and* to its dominant participant, acetyl-CoA specifically, land in two
+bins covering 99.3%.
+
+**What this does and does not prove.** It confirms the `expected_mass_delta`
+check will do its job on these groups — a new template's homogeneity
+assumption is checkable in advance, from data already in this repository,
+before spending research time on it. It does **not** mean one published
+procedure is automatically the right chemical counterpart for a whole EC
+group: EC 2.1.1's +14.0 cluster contains O-, N- and C-methylations alike,
+which share a mass delta but not a bench procedure (different methylating
+agent, different protecting-group strategy by site). Confirming mass-delta
+homogeneity is step 1 of building a class, not a replacement for step 2 —
+finding and reading one real paper for the transformation actually being
+templated.
+
+**The concrete result applied so far:** UDP-alpha-D-galactose (CHEBI:66914,
+143 reactions) was added to the shipped class alongside UDP-glucose,
+because it is glucose's C4 epimer — identical molecular formula, identical
+MW (564.29), so identical 162.14 anhydrohexosyl mass delta, verified by
+RDKit rather than assumed from the name. That is a genuinely free
+extension: no new chemical procedure needed, because the existing one's
+mass arithmetic already applies unchanged. UDP-N-acetylglucosamine
+(CHEBI:57705, 41 reactions, the third-most-common EC 2.4.1 cofactor) was
+deliberately **not** added the same way — it carries an extra acetamido
+group, so its expected_mass_delta is not 162.14, and folding it into this
+class without checking would have silently mis-templated 41 reactions. It
+is a candidate for its *own* class, not a free line in this one.
 
 ## What a screen is, and is not
 
@@ -101,42 +165,45 @@ which each verdict stops holding. Industrial distillation routinely recovers
 
 ## What the shipped class actually found
 
-Screening all 263 reactions in Rhea that consume UDP-glucose, against the
+Screening all 406 reactions in Rhea that consume UDP-glucose or its
+diastereomer UDP-galactose (see "Picking the next class" above), against the
 Helferich/BF₃ procedure of Cepanec & Litvić (ARKIVOC 2008):
 
 | statistic | recovery threshold |
 |---|---|
 | minimum | 85.58% |
-| median | 85.87% |
-| maximum | 91.43% |
+| median | 86.42% |
+| maximum | 91.54% |
 
-**None of the 250 decided reactions survives 99% solvent recovery**, and the
+**None of the 388 decided reactions survives 99% solvent recovery**, and the
 whole distribution sits at or below the 90–95% a real plant achieves. The
-honest reading is not "enzymes win 250 times" but: *in this class, as
+honest reading is not "enzymes win 388 times" but: *in this class, as
 modelled from this bench procedure, the enzymatic advantage is real but
 bounded, and it does not survive industrial solvent recycling.* That is a
 falsifiable claim, and a much more useful one.
 
-Not all 263 are glycosylations, and the screen does not pretend they are.
-13 are excluded before a verdict is computed: 7 where the acceptor and
-product could not be identified from Rhea's equation text, and 6 that
-consume UDP-glucose for a genuinely different transformation — the
-cofactor's own hydrolysis, or a sugar-nucleotide exchange, neither of
-which transfers a glucosyl group onto an external acceptor at all. That
-exclusion is enforced by the `expected_mass_delta` check below, not by
-hand-picking: a real member of this class adds one anhydroglucosyl unit
-(162.14 g/mol, times how many the reaction transfers) to the acceptor,
-allowing ±1 proton for ChEBI's own inconsistent charge-state bookkeeping
-between an acceptor and its product (a carboxylate acceptor paired with a
-neutral ester product shows up as exactly this, in 45 of the 263 — real
-glycosylations, not exclusions, once that's accounted for). A reaction
-that adds a different mass is not this transformation, whatever else it
+Not all 406 are glycosylations, and the screen does not pretend they are.
+18 are excluded before a verdict is computed: 9 where the acceptor and
+product could not be identified from Rhea's equation text, and 9 that
+consume a class cofactor for a genuinely different transformation — the
+cofactor's own hydrolysis, a sugar-nucleotide exchange, a hexose-1-phosphate
+transfer onto a lipid carrier (undecaprenyl phosphate) rather than a
+hydroxyl, or oxidation of the sugar-nucleotide itself — none of which
+transfers a hexosyl group onto an external acceptor. That exclusion is
+enforced by the `expected_mass_delta` check below, not by hand-picking: a
+real member of this class adds one anhydrohexosyl unit (162.14 g/mol, times
+how many the reaction transfers) to the acceptor, allowing ±1 proton for
+ChEBI's own inconsistent charge-state bookkeeping between an acceptor and
+its product (a carboxylate acceptor paired with a neutral ester product
+shows up as exactly this, in 55 of the 406 — real glycosylations, not
+exclusions, once that's accounted for). A reaction that adds a different
+mass is not this transformation, whatever else it
 shares with one.
 
 The mechanism the screen exists to measure does show up cleanly in the
 spread. The threshold rises with the number of protectable groups on the
-acceptor — 85.58% where the acceptor has one group or none, 91.43% for a
-33-group oligosaccharide — because an enzyme's regioselectivity is worth
+acceptor — 85.58% where the acceptor has one group or none, 91.54% for a
+34-group oligosaccharide — because an enzyme's regioselectivity is worth
 more the more sites a chemical route would have to mask and unmask. That is
 the enzymatic advantage, quantified, and it is computed from the acceptor's
 own structure.
@@ -150,7 +217,7 @@ in
 The screen reproduces that case's product mass, acceptor, cofactor charge
 and direction, and a test asserts it. A screen that disagreed with the one
 case it was derived from would be reporting on its own template rather than
-on chemistry, so that test is what gives the other 249 rows any standing.
+on chemistry, so that test is what gives the other 387 rows any standing.
 
 ## Running one
 
@@ -177,14 +244,25 @@ pip install -e ".[chem]"
 
 ## Adding a class
 
-1. Pick a cofactor that recurs in `data/rhea/participants.csv`. Its
-   `n_reactions` column is an upper bound on how many reactions one
-   template could serve — not a promise that it will. Check a sample of
-   those reactions' equations by hand first: if the cofactor is shared by
-   several unrelated transformations (as CoA and SAM both are — see "Why
-   it is affordable" above), decide now whether the class needs a tighter
-   scope than "consumes this cofactor," because step 6 will find every
-   case you didn't.
+1. Pick by **EC-3-level group, not raw cofactor frequency** — see "Picking
+   the next class" above for why (CoA and SAM outrank UDP-glucose in raw
+   `n_reactions` but are chemically mixed). Group `data/rhea/reactions.tsv`
+   by the first three EC fields, find the group's dominant participant, and
+   check the group's mass-delta homogeneity before writing anything: pull
+   every reaction whose left side contains that participant, identify
+   acceptor/product positionally the way `_identify` does, and look at
+   how `product_mw - acceptor_mw` clusters. A group where that clusters
+   into 2-4 bins that are exact multiples or ±1-proton offsets of one
+   signature mass (as all four largest EC-3 groups do) is a real candidate;
+   one that scatters is not, whatever its raw reaction count.
+   **Check first whether an existing template's cofactor list can simply
+   grow** instead of writing a new class: if the dominant participant is a
+   diastereomer of a cofactor a template already uses (same molecular
+   formula, verified by RDKit, not assumed from the name — UDP-galactose
+   next to UDP-glucose is the shipped example), its reactions are a free
+   addition to `cofactor_chebi`, no new research required. A participant
+   that adds a *different* group (a different formula, therefore a
+   different `expected_mass_delta`) needs its own class.
 2. Find **one real, fully quantified published chemical procedure** for the
    same transformation. Every `sourced` amount in the template must come
    from a document actually retrieved and read — the same bar
@@ -207,8 +285,9 @@ pip install -e ".[chem]"
    ChEBI recording an acceptor and its product at different, arbitrary
    protonation states, which is bookkeeping, not chemistry.
 5. Write bounds for whatever the template consumes that no public factor
-   covers — including the cofactor, which is the entire enzymatic side and
-   therefore where the verdict lives.
+   covers — including every cofactor in `cofactor_chebi` (it accepts a
+   single ChEBI id or a list of interchangeable ones), which is the entire
+   enzymatic side and therefore where the verdict lives.
 6. Calibrate: if any reaction in the new class already has a hand-built
    ledger, assert the screen agrees with it. Then look at what
    `expected_mass_delta` actually excluded — every exclusion bucket should

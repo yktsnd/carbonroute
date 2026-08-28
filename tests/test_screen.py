@@ -128,7 +128,7 @@ def test_template_rejects_a_material_with_no_note(tmp_path):
 
 def test_shipped_template_loads_and_labels_every_generalisation():
     t = load_template(CLASSES / "udp-glucosyltransferase.yaml")
-    assert t.cofactor_chebi == "CHEBI:58885"
+    assert t.cofactor_chebi == ("CHEBI:58885", "CHEBI:66914")
     assert all(m.basis in ("sourced", "generalised") for m in t.materials)
     assert all(m.note.strip() for m in t.materials)
     # The acetic anhydride substitution is the template's largest extrapolation
@@ -155,14 +155,19 @@ def screened():
 
 
 def test_the_class_matches_the_expected_number_of_reactions(screened):
-    assert screened.matched == 263
-    # 13 of the 263 are excluded by the mass-delta check, not silently
-    # templated as glycosylations: 7 where an acceptor/product pair could
-    # not be identified, and 6 that consume UDP-glucose for a genuinely
-    # different transformation (its own hydrolysis, a sugar-nucleotide
-    # exchange) -- verified by hand for every exclusion bucket; see
+    # 263 consume UDP-glucose, 143 consume UDP-galactose (its diastereomer,
+    # added because it shares the same 162.14 mass-delta signature -- see
+    # the template's file header).
+    assert screened.matched == 406
+    # 18 of the 406 are excluded by the mass-delta check, not silently
+    # templated as glycosylations: 9 where an acceptor/product pair could
+    # not be identified, and 9 that consume a class cofactor for a
+    # genuinely different transformation -- the cofactor's own hydrolysis, a
+    # sugar-nucleotide exchange, a hexose-1-phosphate transfer onto a lipid
+    # carrier (undecaprenyl phosphate), or oxidation of the sugar-nucleotide
+    # itself -- verified by hand for every exclusion bucket; see
     # screen_reaction's comment on the check.
-    assert len(screened.decided) == 250
+    assert len(screened.decided) == 388
 
 
 def test_screen_reproduces_the_hand_built_case(screened):
@@ -171,7 +176,7 @@ def test_screen_reproduces_the_hand_built_case(screened):
 
     A screen that disagreed with the one case it was derived from would be
     reporting on its own template rather than on chemistry, so this is the
-    test that gives the other 249 rows any standing at all.
+    test that gives the other 387 rows any standing at all.
     """
     r = next(x for x in screened.results if x.rhea_id == "RHEA:12560")
     assert r.acceptor_name == "hydroquinone"
@@ -191,7 +196,7 @@ def test_no_reaction_in_this_class_survives_industrial_solvent_recovery(screened
 
     Every verdict here is decided at zero solvent recovery, but the template
     comes from a bench procedure that discards over 800 kg of solvent per kg
-    of product. None of the 250 survives 99% recovery, and the whole
+    of product. None of the 388 survives 99% recovery, and the whole
     distribution sits below the 90-95% a real plant achieves by distillation.
     If this ever starts passing, the class's advantage has stopped being an
     artefact of glassware and the claim can be made much more strongly.
@@ -199,7 +204,7 @@ def test_no_reaction_in_this_class_survives_industrial_solvent_recovery(screened
     assert all(not r.robust for r in screened.results)
     thresholds = [r.recovery_threshold for r in screened.decided]
     assert min(thresholds) == pytest.approx(0.8558, abs=0.002)
-    assert max(thresholds) == pytest.approx(0.9143, abs=0.002)
+    assert max(thresholds) == pytest.approx(0.9154, abs=0.002)
 
 
 def test_more_groups_to_mask_means_a_bigger_enzymatic_advantage(screened):
@@ -234,12 +239,31 @@ def test_mass_delta_check_excludes_reactions_that_are_not_this_transformation(sc
     external acceptor -- `_identify` mistakes water for the acceptor, and the
     mass-delta check is what actually catches it. RHEA:13989 is a sugar-
     nucleotide exchange (galactose 1-phosphate + UDP-glucose -> glucose
-    1-phosphate + UDP-galactose) where nothing is added at all. Both consume
-    the cofactor; neither belongs in a glycosylation class."""
-    for rhea_id in ("RHEA:29555", "RHEA:13989"):
+    1-phosphate + UDP-galactose) where nothing is added at all. RHEA:28126
+    transfers glucosyl-1-phosphate (162.14 + a phosphate group, 242.12 total)
+    onto a lipid carrier (undecaprenyl phosphate), not a hydroxyl -- a real
+    but different biosynthetic mechanism that only became reachable once
+    UDP-galactose reactions widened the field this check has to police.
+    RHEA:35755 oxidises UDP-glucose itself (an NAD+-dependent step) rather
+    than transferring it anywhere. All four consume a class cofactor; none
+    belongs in a glycosylation class."""
+    for rhea_id in ("RHEA:29555", "RHEA:13989", "RHEA:28126", "RHEA:35755"):
         r = next(x for x in screened.results if x.rhea_id == rhea_id)
         assert not r.decided
         assert "does not match this class's expected" in r.skipped_reason
+
+
+def test_screens_a_udp_galactose_reaction_using_the_same_class(screened):
+    """UDP-galactose (CHEBI:66914) is the second cofactor this class matches
+    on -- its diastereomer relationship to UDP-glucose is the reason one
+    template covers both (see the template's file header). RHEA:10088
+    (sucrose + UDP-galactose -> 6-alpha-D-galactosylsucrose + UDP + H+) is a
+    genuine member: the transferred mass is the same 162.14 anhydrohexosyl
+    unit, and it must be screened and decided like any glucose-donor row."""
+    r = next(x for x in screened.results if x.rhea_id == "RHEA:10088")
+    assert "UDP-alpha-D-galactose" in r.equation
+    assert r.decided
+    assert r.acceptor_name == "sucrose"
 
 
 def test_mass_delta_check_tolerates_chebis_own_charge_state_bookkeeping(screened):

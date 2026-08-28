@@ -3,15 +3,16 @@
 # importantly, what it is not: nothing here is a factor, none of it enters a
 # Monte Carlo or a total, and coverage is reported unchanged.
 #
-# Only five materials in this template are unresolved. Four of them sit on
-# the chemical side, where a LOW bound is what matters (it is the floor of
-# what the chemical route costs). The fifth -- UDP-glucose -- is the entire
-# enzymatic side, so its HIGH bound is the load-bearing one: it is what the
-# enzyme has to pay, and the verdict turns on it.
+# Six materials in this template are unresolved. Four of them sit on the
+# chemical side, where a LOW bound is what matters (it is the floor of what
+# the chemical route costs). The other two -- UDP-glucose and UDP-galactose,
+# this class's two interchangeable cofactors -- are the entire enzymatic
+# side, so their HIGH bound is the load-bearing one: it is what the enzyme
+# has to pay, and the verdict turns on it.
 
 bounds:
 
-  # ---- The enzymatic side, in one substance ------------------------------
+  # ---- The enzymatic side, in two interchangeable substances -------------
   "name:chebi:58885":
     low: 0.5
     high: 100.0
@@ -32,6 +33,18 @@ bounds:
       at which each reaction turns over.
     sources:
       - "No public cradle-to-gate GWP for UDP-glucose was found; see data/rhea/README.md."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+  "name:chebi:66914":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      UDP-alpha-D-galactose: the C4 epimer of UDP-glucose, same synthesis
+      complexity (a nucleotide-diphosphate sugar), same absence of a public
+      cradle-to-gate factor. No chemical basis to assign it a different
+      interval from UDP-glucose's, so it carries the identical bound and the
+      identical reasoning -- see "name:chebi:58885" above.
+    sources:
+      - "No public cradle-to-gate GWP for UDP-galactose was found; see data/rhea/README.md."
       - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
 
   # ---- The chemical side --------------------------------------------------

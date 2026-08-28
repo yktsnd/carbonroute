@@ -35,38 +35,44 @@ day of work. `carbonroute screen` answers the same question — enzyme or
 chemistry? — across an entire curated reaction database, and does it fast
 enough that the database stops being the bottleneck.
 
-Run against all 263 UDP-glucose-dependent glycosylation reactions in
-[Rhea](https://www.rhea-db.org/), screened in about one second against a
+Run against all 406 UDP-hexose-dependent glycosylation reactions in
+[Rhea](https://www.rhea-db.org/) — every reaction that consumes UDP-glucose
+or its diastereomer UDP-galactose — screened in about one second against a
 real published chemical procedure:
 
 | statistic | solvent recovery threshold |
 |---|---|
 | minimum | 85.58% |
-| median | 85.87% |
-| maximum | 91.43% |
+| median | 86.42% |
+| maximum | 91.54% |
 
 That threshold is the honest headline, not a win count. It is the
 chemical-route solvent recovery rate at which each reaction's verdict
-stops holding — and **none of the 250 decided reactions survives 99%
+stops holding — and **none of the 388 decided reactions survives 99%
 recovery**, against the 90–95% real industrial distillation achieves. The
-finding is not "enzymes win 250 times." It is: *in this class, the
+finding is not "enzymes win 388 times." It is: *in this class, the
 enzymatic advantage is real but bounded, and does not survive industrial
 solvent recycling* — a falsifiable claim, not a marketing number.
 
 **What "about one second" does and doesn't cover.** That's the runtime of
-scoring 263 reactions against a class template that already exists — pure
+scoring 406 reactions against a class template that already exists — pure
 arithmetic, no lookup. It is not the cost of producing that template. A
 template starts from one real, fully-quantified published chemical
 procedure, found and verified by actually reading the paper — the same
 discipline every row of `data/factors/` is held to, and no faster than it.
 Screening scales for free with the number of *reactions*; it does not make
-the next *class* free to add. See "Why 18,558 reactions is a bounded
-problem" below for what does scale, and why.
+the next *class* free to add — except when it does: UDP-galactose is 143 of
+those 406 reactions added to this same class for **zero new research**,
+because it is glucose's C4 epimer (identical formula, identical mass
+delta), verified by RDKit rather than assumed from the name. Picking which
+cofactor deserves that check next isn't guesswork either — see "Picking the
+next class by EC number" below for the method and the reactions across
+Rhea it already screens as tractable.
 
 The mechanism the screen exists to measure shows up directly in the
 spread: the threshold **rises with the number of groups on the substrate a
 chemical route would have to mask** — 85.58% where there is one or none,
-91.43% for a 33-group oligosaccharide. That is an enzyme's regioselectivity,
+91.54% for a 34-group oligosaccharide. That is an enzyme's regioselectivity,
 quantified from molecular structure alone, at database scale.
 
 ### Why 18,558 reactions is a bounded problem, not an unbounded one
@@ -95,6 +101,43 @@ So the emission-factor work needed is bounded by that vocabulary — tens of
 substances — not by the reaction count. Every reaction after that costs
 one arithmetic evaluation.
 
+### Picking the next class by EC number, not by which cofactor is most common
+
+The obvious next move — pick whichever cofactor has the most reactions —
+is wrong. By raw frequency, CoA (1,649 reactions) and SAM (954) both beat
+UDP-glucose. Both are also chemically mixed: CoA covers acetylations *and*
+Claisen condensations *and* redox steps that share nothing structurally,
+and a template built for one would be silently misapplied to the rest.
+Frequency measures population, not homogeneity.
+
+The **EC (Enzyme Commission) number** is the fix, because it is already the
+field's own 60-year-old classification for "what transformation does this
+enzyme perform." Grouping Rhea's reactions at the third EC level (`2.4.1`,
+not the full `2.4.1.218`) gives 252 tractable groups, and the four largest
+were checked directly — for each, does the mass a reaction adds to its
+acceptor actually cluster, the way UDP-glucose's does?
+
+| EC group | reactions | dominant cofactor | mass-delta clusters | coverage |
+|---|---|---|---|---|
+| 1.1.1 (oxidoreductases) | 526 | NAD(+)/NADP(+) | −2.0 (an oxidation) | 100% |
+| 2.1.1 (methyltransferases) | 500 | SAM | +14, +15, +28, +42 (mono/di/tri-methylation) | 99.5% |
+| 2.3.1 (acyltransferases) | 382 | acetyl-CoA | +41, +42 (acetylation) | 99.3% |
+| 2.4.1 (glycosyltransferases) | 400 | UDP-glucose | +162, +163, +324 (hexosylation) | 100% |
+
+Every group collapses into 2–4 tight bins — the same signature-mass pattern
+the shipped class's `expected_mass_delta` check already polices,
+reproduced independently three more times. Restricting to an EC group is
+what turns "shares a cofactor" into "shares a cofactor *and* a
+transformation": CoA reactions in general are mixed, but CoA reactions
+restricted to EC 2.3.1 and its dominant participant land in two bins
+covering 99.3%. This is what made UDP-galactose a checkable, zero-research
+addition to the shipped class rather than a guess — and it is a concrete,
+reproducible answer for which class to build next, not just this one.
+It does not replace finding a real published procedure for a new class —
+mass-delta homogeneity confirms the check will work, not that a template
+exists yet — but it does mean that step no longer starts from a guess.
+Full data and method in [`docs/screening.md`](docs/screening.md#picking-the-next-class-ec-number-not-raw-frequency).
+
 ### Proof this isn't a fantasy: calibration against a hand-built case
 
 A screen pairs each curated enzymatic reaction against a **class
@@ -109,7 +152,7 @@ independently built ledger in
 [`examples/case-studies/beta-arbutin-chemical-vs-enzymatic/`](examples/case-studies/beta-arbutin-chemical-vs-enzymatic/).
 The screen reproduces that ledger's product mass, acceptor, cofactor
 charge and verdict direction exactly, and a test asserts it. Without that
-agreement, the other 249 rows would only be reporting on their own
+agreement, the other 387 rows would only be reporting on their own
 template — with it, the template has been checked against real,
 independently sourced chemistry.
 

@@ -290,7 +290,15 @@ class ClassTemplate:
     id: str
     name: str
     description: str
-    cofactor_chebi: str
+    #: One or more ChEBI ids that are interchangeable for this class: the same
+    #: transferred group, so the same `expected_mass_delta`. UDP-alpha-D-
+    #: glucose and UDP-alpha-D-galactose are diastereomers -- identical
+    #: molecular formula, identical MW (564.29), identical anhydrohexosyl
+    #: mass delta -- so a hexosylation class can match either without a
+    #: second template. A cofactor that transfers a *different* group (e.g.
+    #: UDP-N-acetylglucosamine, which adds an extra acetamido group) needs
+    #: its own class, because its expected_mass_delta is not this one.
+    cofactor_chebi: tuple[str, ...]
     cofactor_role: Role
     chemical_name: str
     chemical_source: str
@@ -321,7 +329,7 @@ class ClassTemplate:
         `screen_reaction` applies the `expected_mass_delta` check afterward
         to reject those; `matches` alone only narrows the field.
         """
-        return any(p.chebi == self.cofactor_chebi for p in rxn.left)
+        return any(p.chebi in self.cofactor_chebi for p in rxn.left)
 
 
 def load_template(path: str | Path) -> ClassTemplate:
@@ -378,11 +386,24 @@ def load_template(path: str | Path) -> ClassTemplate:
     if not materials:
         raise ScreenError(f"{p}: template has no chemical-counterpart materials")
 
+    raw_cofactor = cls["cofactor_chebi"]
+    if isinstance(raw_cofactor, str):
+        cofactor_chebi = (raw_cofactor,)
+    elif isinstance(raw_cofactor, list) and raw_cofactor and all(
+        isinstance(x, str) for x in raw_cofactor
+    ):
+        cofactor_chebi = tuple(raw_cofactor)
+    else:
+        raise ScreenError(
+            f"{p}: reaction_class.cofactor_chebi must be a ChEBI id, or a list "
+            "of ChEBI ids that all share this class's expected_mass_delta"
+        )
+
     return ClassTemplate(
         id=cls["id"],
         name=cls["name"],
         description=cls.get("description", ""),
-        cofactor_chebi=cls["cofactor_chebi"],
+        cofactor_chebi=cofactor_chebi,
         cofactor_role=cls.get("cofactor_role", "reagent"),
         chemical_name=chem["name"],
         chemical_source=chem["source"],
@@ -437,7 +458,7 @@ def _identify(rxn: RheaReaction, template: ClassTemplate) -> tuple[Participant, 
     group. Both are identified positionally from Rhea's own curated equation,
     not inferred from names.
     """
-    others_left = [p for p in rxn.left if p.chebi != template.cofactor_chebi]
+    others_left = [p for p in rxn.left if p.chebi not in template.cofactor_chebi]
     if len(others_left) != 1:
         return None
     acceptor = others_left[0]
@@ -492,8 +513,12 @@ def screen_reaction(
     if not acceptor_mw:
         return ScreenResult(**{**blank.__dict__, "skipped_reason": "acceptor structure would not parse"})
 
+    # Which of this class's (possibly several) interchangeable cofactors this
+    # particular reaction actually consumes -- its own SMILES, MW and bound
+    # key, not necessarily the first one listed in the template.
+    cofactor_chebi = next(p.chebi for p in rxn.left if p.chebi in template.cofactor_chebi)
     cofactor_coeff = next(
-        p.coefficient for p in rxn.left if p.chebi == template.cofactor_chebi
+        p.coefficient for p in rxn.left if p.chebi == cofactor_chebi
     )
 
     # The class-defining check: does this reaction actually add the group this
@@ -545,7 +570,7 @@ def screen_reaction(
     # Functional unit: 1 kg of product => this many moles of product.
     mol_per_fu = 1000.0 / product_mw
 
-    cofactor_smiles = structures.get(template.cofactor_chebi)
+    cofactor_smiles = structures.get(cofactor_chebi)
     cofactor_mw = molecular_weight(cofactor_smiles) if cofactor_smiles else None
     if not cofactor_mw:
         return ScreenResult(**{**blank.__dict__, "skipped_reason": "no usable cofactor structure"})
@@ -561,6 +586,7 @@ def screen_reaction(
             cofactor_kg,
             cofactor_coeff,
             solvent_recovery,
+            cofactor_chebi,
         )
 
     verdict = bounded_verdict(diff_at(0.0), assumptions, bounds)
@@ -590,6 +616,7 @@ def _build_diff(
     cofactor_kg: float,
     cofactor_coeff: float,
     solvent_recovery: float,
+    cofactor_chebi: str,
 ) -> DiffResult:
     """The enzymatic-vs-chemical delta set, at a given chemical solvent recovery.
 
@@ -620,7 +647,7 @@ def _build_diff(
         prev = chem.get(key)
         chem[key] = (m.name, m.role, (prev[2] if prev else 0.0) + kg)
 
-    enz_key = f"name:{template.cofactor_chebi.lower()}"
+    enz_key = f"name:{cofactor_chebi.lower()}"
     enz = {enz_key: (_cofactor_display(rxn, template), template.cofactor_role, cofactor_kg)}
 
     all_keys = set(chem) | set(enz)
@@ -718,9 +745,9 @@ def solvent_recovery_threshold(
 
 def _cofactor_display(rxn: RheaReaction, template: ClassTemplate) -> str:
     for p in rxn.left:
-        if p.chebi == template.cofactor_chebi:
+        if p.chebi in template.cofactor_chebi:
             return p.name
-    return template.cofactor_chebi
+    return "/".join(template.cofactor_chebi)
 
 
 @dataclass(frozen=True)

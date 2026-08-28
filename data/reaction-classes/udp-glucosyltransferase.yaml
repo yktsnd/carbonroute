@@ -1,9 +1,13 @@
-# Reaction class: UDP-glucose-dependent O-glycosylation
+# Reaction class: UDP-hexose-dependent O-glycosylation
 #
-# Covers every Rhea reaction consuming UDP-alpha-D-glucose (CHEBI:58885) as a
-# reactant -- 273 reactions in the snapshot under data/rhea/. All of them are
-# the same transformation: an enzyme transfers a glucosyl group from the
-# nucleotide sugar onto an acceptor's hydroxyl.
+# Covers every Rhea reaction consuming UDP-alpha-D-glucose (CHEBI:58885) OR
+# UDP-alpha-D-galactose (CHEBI:66914) as a reactant. The two donors are
+# diastereomers -- same molecular formula (C15H24N2O17P2), same MW (564.29),
+# same anhydrohexosyl unit transferred -- so one template covers both without
+# a second piece of research. See "why galactose is free" below.
+#
+# All of these reactions are the same transformation: an enzyme transfers a
+# hexose from a UDP-sugar onto an acceptor's hydroxyl.
 #
 # The chemical counterpart below is NOT a hypothetical. It is one real,
 # fully-quantified published procedure -- the Helferich/BF3 glycosylation of
@@ -25,23 +29,30 @@
 
 reaction_class:
   id: udp-glucosyltransferase
-  name: "UDP-glucose-dependent O-glycosylation"
+  name: "UDP-hexose-dependent O-glycosylation"
   description: >
-    Enzymatic transfer of glucose from UDP-alpha-D-glucose onto an acceptor
-    hydroxyl, releasing UDP. In Rhea this is EC 2.4.1.x; matching is done on
-    the cofactor rather than the EC number, because many Rhea reactions carry
-    no EC annotation at all while every member of this class necessarily
-    consumes the cofactor.
-  # A genuine hexosylation adds one anhydroglucosyl unit (C6H10O5) to the
+    Enzymatic transfer of a hexose (glucose or galactose) from a UDP-sugar
+    onto an acceptor hydroxyl, releasing UDP. In Rhea this is EC 2.4.1.x;
+    matching is done on the cofactor rather than the EC number, because many
+    Rhea reactions carry no EC annotation at all while every member of this
+    class necessarily consumes one of the cofactors below.
+  # A genuine hexosylation adds one anhydrohexosyl unit (C6H10O5) to the
   # acceptor: 6*12.011 + 10*1.008 + 5*15.999 = 162.14 g/mol, verified via
-  # RDKit against hydroquinone -> beta-arbutin (162.141 observed). Reactions
-  # that consume UDP-glucose without adding this mass -- there are a
+  # RDKit against hydroquinone -> beta-arbutin (162.141 observed) for the
+  # glucose donor. Galactose is its C4 epimer -- same molecular formula, so
+  # the identical 162.14 -- verified the same way via RDKit. Reactions that
+  # consume a class cofactor without adding this mass -- there are a
   # handful, e.g. isomerisations or reactions this parser mis-identifies
   # the acceptor/product for -- are excluded rather than mis-templated;
   # see screen.py's ClassTemplate.matches for why this check exists at all.
   expected_mass_delta: 162.14
   mass_delta_tolerance: 1.0
-  cofactor_chebi: "CHEBI:58885"
+  # UDP-alpha-D-glucose and UDP-alpha-D-galactose: interchangeable for this
+  # class (see the file header). A donor that transfers a *different* group
+  # -- UDP-N-acetylglucosamine, say, which adds an extra acetamido group --
+  # is deliberately not listed here: its expected_mass_delta would not be
+  # 162.14, so it needs its own class, not a third entry in this list.
+  cofactor_chebi: ["CHEBI:58885", "CHEBI:66914"]
   cofactor_role: reagent
 
 chemical_counterpart:
@@ -135,7 +146,15 @@ chemical_counterpart:
         The protected sugar donor -- the chemical counterpart of the enzyme's
         UDP-glucose. 3.90 g (10 mmol) charged per 10 mmol basis, carried
         through the paper's 62% glycosylation and 85% deprotection yields
-        (1.897 mol per mol of product, MW 390.34).
+        (1.897 mol per mol of product, MW 390.34). For a UDP-galactose-
+        consuming reaction this same entry stands in for the penta-O-acetyl-
+        beta-D-galactopyranose donor (a different CAS, 25878-95-7), which the
+        source paper did not itself use: this is `generalised`, not
+        `sourced`, for those rows. The mass and mole count are unaffected --
+        glucose and galactose peracetates share the same molecular formula
+        and MW (390.34) -- and no published factor distinguishes them in the
+        tables this project loads, so the bound in
+        udp-glucosyltransferase.bounds.yaml applies to either.
     - name: boron trifluoride diethyl etherate
       cas: "6681-36-3"
       role: catalyst
