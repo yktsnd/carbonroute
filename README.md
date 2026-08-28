@@ -178,11 +178,19 @@ measures the same thing the threshold did.
 
 ### The road from here
 
-1. **Add classes** (Q1 coverage). The largest EC-3 groups — 1.1.1 (526
-   reactions), 2.1.1 (500), 2.3.1 (382) — bring the cumulative total to
-   1,808 reactions: 9.7% of Rhea, 23.7% of the 7,635 that carry an EC
-   number. Each needs one real published chemical procedure, and that step
-   does not get faster.
+1. **Settle the template-selection rule, then add classes** (Q1 coverage).
+   The largest EC-3 groups — 1.1.1 (526 reactions), 2.1.1 (500), 2.3.1
+   (382) — would bring the total to 1,808: 9.7% of Rhea, 23.7% of the 7,635
+   that carry an EC number. But attempting the second class surfaced a
+   confound that has to be fixed first. A template is one paper someone
+   chose, and for acetylation the literature offers both classical
+   Ac₂O-in-pyridine and deliberately green water-based procedures. Pairing
+   the classical glycosylation template with a green acetylation one would
+   report a difference between *authors' solvent ambitions*, not between
+   enzymes. Cross-class comparability needs template vintage held constant,
+   stated as a rule and applied identically everywhere — see
+   [`docs/screening.md`](docs/screening.md). Only then is the
+   one-real-published-procedure-per-class research worth starting.
 2. **Locate the commercial processes** (Q3). Map already-commercialised
    enzymatic reactions — human-milk-oligosaccharide fucosylation
    (RHEA:14257 and others), anthocyanin glucosylation (RHEA:20093),

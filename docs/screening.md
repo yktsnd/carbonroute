@@ -279,6 +279,40 @@ the top ten carry 20 to 34 protectable groups, led by an N-glycan at
 +4.15 kg CO₂e per kg — because sparing a chemical route that much masking
 and unmasking is precisely what an enzyme's regioselectivity is worth.
 
+## The confound that decides whether a cross-class ranking means anything
+
+Ranking two classes against each other compares two *templates*, and a
+template is one paper someone chose. That choice is a free parameter, and
+searching for the second class's source made it obvious how large a one.
+
+The shipped glycosylation template comes from a classical bench procedure
+that discards over 800 kg of solvent per kg of product. Searching for an
+acetylation counterpart turns up procedures spanning the full range: the
+same classical Ac₂O-in-pyridine at 8-10 mL of pyridine per small-scale run,
+and also deliberately green ones — acetylation in water with sodium
+bicarbonate, or catalysed solvent-free. Both are real, published, fully
+quantified chemistry for the same transformation.
+
+Pair the 2008 classical glycosylation with a 2013 green acetylation and the
+ranking will report that acetylation's enzymatic advantage is smaller. That
+would be true of those two papers and false of the chemistry: what the
+number would actually be measuring is how hard each set of authors tried to
+cut solvent. A cross-class saving is only comparable if the templates are
+comparable, and "same operating point" — the thing `reference_recovery`
+fixes — does not give that on its own.
+
+So a second class needs a stated selection rule before it needs a paper.
+The defensible one is to hold template vintage and intent constant: take the
+procedure a synthetic chemist would have run for that transformation without
+setting out to minimise solvent, which is what the glycosylation template
+is, and record the alternative green procedure separately as a scenario
+rather than folding it into the class. The rule has to be written down and
+applied the same way in every class, because the ranking is only as
+comparable as the least principled template choice in it.
+
+Until that is settled, this repository ships one class. That is a real
+limit on Q1 and it is not one more screening effort fixes.
+
 ## What the shipped class actually found
 
 Screening all 406 reactions in Rhea that consume UDP-glucose or its
