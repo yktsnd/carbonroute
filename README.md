@@ -5,16 +5,14 @@
 
 **Which of these two ways to make the same product has the lower carbon footprint — and how sure are we?**
 
-`carbonroute` answers that question, and only that question. It does not try
-to tell you the absolute carbon footprint of a synthesis — that needs
-background data for every single input, most of which nobody can get for
-free. It only needs data for what's *different* between two routes, because
-everything the routes share cancels out. That is a much smaller, much
-cheaper problem, and it is one public data can actually solve.
-
-The answer always comes back as **a ranking and a probability** — "Route B is
-very likely lower (P = 0.94)" — never a bare number, and never a guess when
-the evidence doesn't support one.
+`carbonroute` answers that question for one comparison at a time, or for an
+entire reaction database at once. It never tells you the absolute carbon
+footprint of a synthesis — that needs background data for every single
+input, most of which nobody can get for free. It only needs data for
+what's *different* between two routes, because everything they share
+cancels out. That is a much smaller, much cheaper problem, and it is one
+public data can actually solve — at a scale most LCA tooling never
+attempts.
 
 > This is v0, and it is a screening tool, not a certification: its output is
 > **not** an ISO 14067-conformant carbon footprint. See
@@ -22,17 +20,211 @@ the evidence doesn't support one.
 > [`docs/limitations.md`](docs/limitations.md) before relying on it for
 > anything.
 
-```
+```bash
 pip install -e .
 carbonroute compare route.yaml --a routeA --b routeB
 ```
 
 ---
 
-## See it work — the 30-second version
+## 18,558 real enzymatic reactions. About one second. Zero invented numbers.
 
-Two invented routes to the same invented product, so you can run this
-yourself right now with nothing but what's already in this repository:
+Most comparative-LCA tooling answers one question about one pair of
+routes, because building the background data for even one comparison is a
+day of work. `carbonroute screen` answers the same question — enzyme or
+chemistry? — across an entire curated reaction database, and does it fast
+enough that the database stops being the bottleneck.
+
+Run against all 263 UDP-glucose-dependent glycosylation reactions in
+[Rhea](https://www.rhea-db.org/), screened in about one second against a
+real published chemical procedure:
+
+| statistic | solvent recovery threshold |
+|---|---|
+| minimum | 85.58% |
+| median | 85.87% |
+| maximum | 91.43% |
+
+That threshold is the honest headline, not a win count. It is the
+chemical-route solvent recovery rate at which each reaction's verdict
+stops holding — and **none of the 256 decided reactions survives 99%
+recovery**, against the 90–95% real industrial distillation achieves. The
+finding is not "enzymes win 256 times." It is: *in this class, the
+enzymatic advantage is real but bounded, and does not survive industrial
+solvent recycling* — a falsifiable claim, not a marketing number.
+
+The mechanism the screen exists to measure shows up directly in the
+spread: the threshold **rises with the number of groups on the substrate a
+chemical route would have to mask** — 85.58% where there is one or none,
+91.43% for a 33-group oligosaccharide. That is an enzyme's regioselectivity,
+quantified from molecular structure alone, at database scale.
+
+### Why 18,558 reactions is a bounded problem, not an unbounded one
+
+Not a shortcut — the same cancellation that makes a single `compare`
+work, applied to a whole database. When two routes make the same product,
+everything they share cancels out of the difference. For enzyme-versus-
+chemistry, what cancels is exactly the expensive part to look up: the
+substrate and product, different in every reaction. What survives is
+small and repetitive:
+
+| side | what survives the diff |
+|---|---|
+| enzymatic | the **cofactor** — UDP-glucose, NADPH, SAM, acetyl-CoA |
+| chemical | the **protecting groups, activator, base and solvents** |
+
+That is a claim about data, so it was measured, not asserted. Rhea's
+18,558 curated reactions involve 14,251 distinct chemical participants —
+but only **63 appear in 100 reactions or more, and 12 in over a
+thousand**, and the top 30 alone cover 47.8% of every participant slot in
+the database. They are the cofactor list a biochemist would recite from
+memory. The long tail those 30 miss is precisely the per-reaction
+substrate and product — the part that cancels.
+
+So the emission-factor work needed is bounded by that vocabulary — tens of
+substances — not by the reaction count. Every reaction after that costs
+one arithmetic evaluation.
+
+### Proof this isn't a fantasy: calibration against a hand-built case
+
+A screen pairs each curated enzymatic reaction against a **class
+template**: one real published chemical procedure, applied to every
+substrate in the class. That extrapolation is the method's central
+assumption, so a screen's output is a ranked shortlist of reactions worth
+a real `compare` — never a verdict about any one of them on its own.
+
+One reaction in the screened class, RHEA:12560 (hydroquinone +
+UDP-α-D-glucose → β-arbutin), is also the subject of a fully hand-sourced,
+independently built ledger in
+[`examples/case-studies/beta-arbutin-chemical-vs-enzymatic/`](examples/case-studies/beta-arbutin-chemical-vs-enzymatic/).
+The screen reproduces that ledger's product mass, acceptor, cofactor
+charge and verdict direction exactly, and a test asserts it. Without that
+agreement, the other 262 rows would only be reporting on their own
+template — with it, the template has been checked against real,
+independently sourced chemistry.
+
+Full method in [`docs/screening.md`](docs/screening.md); the measured
+cofactor vocabulary in [`data/rhea/README.md`](data/rhea/README.md).
+
+## The building block: one comparison, decided despite the worst data of any case tried
+
+Everything above rests on being able to decide a single comparison
+correctly even when the public data is thin. Here is that ability, on its
+own, on the case with the *worst* factor coverage this project has tried.
+
+[Grimaldi et al., *ACS Sustainable Chem. Eng.* **2021**](https://doi.org/10.1021/acssuschemeng.1c02309)
+compares two ibuprofen syntheses: a flow-chemistry route (`bogdan`) and a
+variant with one step replaced by an enzyme (`enzymatic`). Public factors
+resolve only **52.9%** of the differing mass — nine materials stay
+unresolved, which would normally force an automatic `indeterminate`.
+
+Ranking two routes, though, is an easier problem than measuring either
+one: you don't need to know what a missing factor *is*, only whether it's
+large enough to possibly flip which route is lower.
+`carbonroute compare --bounds bounds.yaml` supplies each unresolved
+material with a defensible interval instead of a value — a mass-balance
+argument, an already-held factor for a close relative, two disagreeing
+published estimates used as a floor and a ceiling — and checks whether the
+sign of `GWP_A − GWP_B` holds across *every* combination those intervals
+allow:
+
+> **Decided: `bogdan` is lower than `enzymatic` everywhere in the asserted bounds.**
+
+| material | delta_mass kg/FU | needs to be | asserted bound | clears it |
+|---|---|---|---|---|
+| 1-butyl-3-methylimidazolium hexafluorophosphate | -8.412 | above 1.715 kgCO2e/kg | [3.5, unbounded] | yes |
+| trimethyl orthoformate | -1.666 | any value — cannot flip it | [0.27, unbounded] | yes |
+| phosphate buffer solution, 0.05 M | -1.616 | any value — cannot flip it | [0.55, 2] | yes |
+| *…5 more, every one of them* | | *any value — cannot flip it* | | *yes* |
+
+Seven of the nine unresolved materials cannot change the outcome at any
+admissible value. The whole comparison reduces to one inequality about one
+ionic liquid — is its factor above 1.715 kgCO2e/kg? Two published
+estimates for the closest studied analogue disagree with *each other* by a
+factor of eight, and both still clear that threshold, by margins of 2.0×
+and 15.9×. The estimates don't agree on a value. They agree on the
+verdict, which is all a ranking needs.
+
+That ionic liquid is a recoverable reaction solvent, so the result is
+conditional on recycling: it holds up to **51.0%** recovery. The source
+paper reports its own results at 50% and 100% recycling scenarios and
+reaches the same qualitative conclusion — this project's number falls
+where the paper's does, from a fraction of the data and none of the
+commercial database the paper relies on.
+
+A bound is never treated as a factor: it never enters the Monte Carlo, never
+contributes to a reported total, and never changes the coverage
+percentage. Full method in [`docs/bounds.md`](docs/bounds.md); every bound
+and its justification in
+[`examples/case-studies/ibuprofen-bogdan-vs-enzymatic/`](examples/case-studies/ibuprofen-bogdan-vs-enzymatic/).
+
+## And when there really isn't enough data, it says so
+
+The other half of being trustworthy is refusing to answer when the
+evidence doesn't support one — on the case above, `carbonroute` could have
+guessed and been wrong. Here it is doing exactly that, correctly, on a
+different real paper.
+
+[Sorgenfrei et al., *J. Am. Chem. Soc.* **2025**, 147, 40944](https://doi.org/10.1021/jacs.5c14470)
+(open access) computed the cradle-to-gate footprint of two real routes to
+the antiviral **letermovir** — Merck's industrial route and a novel route
+the authors designed — using **ecoinvent**, a commercial database this
+project cannot redistribute. They reported Merck at 382 kgCO₂e/kg and the
+new route at 369, a 3% gap in the new route's favor.
+
+`carbonroute` can't see ecoinvent — only what's openly licensed, which is
+the situation almost anyone doing this work actually starts from. Watch
+what happens on the exact same two routes as public sources are added to
+the factor table:
+
+<p align="center">
+  <img src="docs/img/coverage-growth.png" width="640" alt="Bar chart showing the share of the two routes' differing mass resolved to an emission factor rising from 8.9% to 75.5% across four stages of adding public data sources">
+</p>
+
+At the first stage the tool would have been *wrong* — with only 8.9% of
+the differing mass resolved, the visible numbers leaned toward Merck being
+lower, the opposite of the published result. `carbonroute` refused to say so:
+
+```
+## Conclusion
+
+**The comparison is undecided**, because only 8.9% of the differing mass
+(2 of 43 materials) resolved to a factor, below the declared minimum of 80%.
+No ranking is reported.
+```
+
+As real, citable sources were added — and as the tool learned to *derive*
+factors for chemicals no database had, from published production recipes
+(see [`docs/bootstrap.md`](docs/bootstrap.md)) — coverage climbed to
+**75.5%**, and the evidence flipped to agree with the paper. The verdict
+stays `indeterminate`, because 75.5% is still short of the 80% the tool
+requires before committing to a ranking:
+
+```
+Resolved part of the difference: 50.28 kgCO2e/FU.
+Unresolved differing mass: -4.205 kg/FU (signed).
+
+The ranking reverses if the 4.205 kg/FU of unresolved material averages
+more than 11.96 kgCO2e/kg. Compare that against the factors you do have
+before treating the ranking as settled.
+```
+
+That's the tool stating exactly how wrong the missing 24.5% would have to
+be to change the answer — a number you can check your intuition against,
+instead of a false sense of certainty. Full story in
+[`benchmarks/README.md`](benchmarks/README.md).
+
+A third real paper — a ZIF-8 metal-organic framework route (6.8%
+coverage) — hit the same wall for the same reason: public factor data for
+specialty solvents is thin, so the tool declines to rank rather than
+guess. See [`examples/case-studies/`](examples/case-studies/), including
+one candidate paper investigated and rejected because its own underlying
+data was AI/ML-modeled rather than measured.
+
+## Try it yourself in 30 seconds
+
+Two invented routes to the same invented product — nothing here but what's
+already in this repository:
 
 ```bash
 carbonroute compare examples/route.yaml \
@@ -49,18 +241,19 @@ Delta (Published route - New route): median 126.4 kgCO2e/FU,
 90% interval [70.94, 237.3], 10000 draws, seed 20240101.
 ```
 
-Every one of those 10,000 draws is a full Monte Carlo simulation of "if the
-real emission factors are anywhere in their plausible range, which route
-wins this time?" Here, all 10,000 agree:
+Every one of those 10,000 draws is a full Monte Carlo simulation of "if
+the real emission factors are anywhere in their plausible range, which
+route wins this time?" Here, all 10,000 agree:
 
 <p align="center">
   <img src="docs/img/hello-world-distribution.png" width="640" alt="Histogram of 10,000 Monte Carlo draws of the emissions difference between the two example routes, entirely on the side favoring the new route">
 </p>
 
-Nothing here is production data — every factor in `examples/factors_illustrative.csv`
-is an obviously fake round number, which the tool itself flags loudly in the
-full report. It exists so you can see the whole pipeline run before you've
-sourced a single real number of your own.
+Nothing here is production data — every factor in
+`examples/factors_illustrative.csv` is an obviously fake round number,
+which the tool itself flags loudly in the full report. It exists so you
+can see the whole pipeline run before you've sourced a single real number
+of your own.
 
 ## How it works
 
@@ -71,14 +264,14 @@ flowchart LR
     R --> D["diff<br/>shared materials cancel"]
     D --> M["Monte Carlo<br/>10,000 draws"]
     M --> G{"coverage of the<br/>differing mass ≥ 80%?"}
-    G -->|no| I["indeterminate<br/>+ how far off it could still be"]
+    G -->|no| I["indeterminate<br/>or decided from --bounds"]
     G -->|yes| O["ranking + P(A &lt; B)"]
 ```
 
-The step that matters most is **diff**. Two routes to the same product
-usually share a lot — the same solvent, the same reagent, sometimes the same
-catalyst. None of that needs a citable emission factor at all, because it's
-identical on both sides of the subtraction:
+Every result above is built from the same **diff** step. Two routes to the
+same product usually share a lot — the same solvent, the same reagent,
+sometimes the same catalyst — and none of it needs a citable emission
+factor, because it's identical on both sides of the subtraction:
 
 ```mermaid
 flowchart LR
@@ -101,229 +294,15 @@ flowchart LR
 ```
 
 (This is the idea behind [DeltaLCA](https://arxiv.org/abs/2311.09611),
-applied here to synthetic routes instead of electronics hardware.)
+applied here to synthetic routes instead of electronics hardware — and,
+via `screen`, to a whole reaction class at a time instead of one pair of
+routes.)
 
 Everything a human has to decide — the electricity grid to assume, how much
 solvent gets recovered, the GWP time horizon, what counts as a statistical
 tie — lives in one place, the ledger's `assumptions:` block. Every step after
 that is deterministic: the same ledger and the same factor tables always
 produce the same numbers, down to the last decimal.
-
-## See it prove itself — a real published comparison
-
-The example above uses invented data. Here is what happens with a route
-comparison from a real, peer-reviewed paper.
-
-[Sorgenfrei et al., *J. Am. Chem. Soc.* **2025**, 147, 40944](https://doi.org/10.1021/jacs.5c14470)
-(open access) computed the cradle-to-gate footprint of two real routes to the
-antiviral **letermovir** — the industrial route used by Merck, and a novel
-route the authors designed — using **ecoinvent**, a commercial database this
-project cannot redistribute. They reported Merck at 382 kgCO₂e/kg and the new
-route at 369, a **3% gap** in the new route's favor.
-
-`carbonroute` can't see ecoinvent. It can only see what's openly licensed —
-and that's the honest situation almost anyone doing this work actually
-starts from. Watch what happens as more public sources get added to the
-factor table, on the exact same two routes:
-
-<p align="center">
-  <img src="docs/img/coverage-growth.png" width="640" alt="Bar chart showing the share of the two routes' differing mass resolved to an emission factor rising from 8.9% to 75.5% across four stages of adding public data sources">
-</p>
-
-At the first stage, the tool would have been *wrong* — with only 8.9% of the
-differing mass resolved, the numbers it could see leaned toward Merck being
-lower, opposite the published result. `carbonroute` refused to say so:
-
-```
-## Conclusion
-
-**The comparison is undecided**, because only 8.9% of the differing mass
-(2 of 43 materials) resolved to a factor, below the declared minimum of 80%.
-No ranking is reported.
-```
-
-As real, citable public sources were added — and as the tool learned to
-*derive* factors for chemicals no database had, from published production
-recipes (see [`docs/bootstrap.md`](docs/bootstrap.md)) — coverage climbed to
-**75.5%**, and the direction the evidence points flipped to agree with the
-published paper. The verdict is still `indeterminate`, because 75.5% is
-still short of the 80% the tool requires before it will commit to a ranking —
-and that refusal is the point, not a shortcoming:
-
-```
-Resolved part of the difference: 50.28 kgCO2e/FU.
-Unresolved differing mass: -4.205 kg/FU (signed).
-
-The ranking reverses if the 4.205 kg/FU of unresolved material averages
-more than 11.96 kgCO2e/kg. Compare that against the factors you do have
-before treating the ranking as settled.
-```
-
-That's the tool telling you exactly how wrong the missing 24.5% would have
-to be to change the answer — a number you can actually check your intuition
-against, instead of a false sense of certainty. Full story, including why
-this benchmark exists and what it caught, in
-[`benchmarks/README.md`](benchmarks/README.md).
-
-Letermovir isn't a cherry-picked example. Two more real, peer-reviewed
-route comparisons — ibuprofen (52.9% coverage) and a ZIF-8 metal-organic
-framework (6.8% coverage) — were run through the same pipeline and hit the
-same wall: public factor coverage for specialty solvents is thin, so the
-tool declines to rank rather than guess. See
-[`examples/case-studies/`](examples/case-studies/) for both, including one
-candidate paper that was investigated and rejected because its own
-underlying data was AI/ML-modeled rather than measured.
-
-## Ranking without knowing every value: bounds
-
-Above 80% coverage is a high bar, and most real comparisons won't clear it
-on public data alone. But **ranking two routes is an easier problem than
-measuring either one** — you don't need to know what a missing factor *is*,
-only whether it's large enough to possibly change which route comes out
-lower. `carbonroute compare --bounds bounds.yaml` makes that distinction
-usable.
-
-For each material with no known factor, you supply an interval — "this
-factor lies somewhere between X and Y" — with a stated reason (a
-mass-balance argument, an already-held factor for a close relative, two
-disagreeing published estimates used as a floor and a ceiling). The tool
-then checks whether `GWP_A − GWP_B` keeps the same sign across *every*
-combination of values the intervals allow. Because the difference is linear
-in each factor, this only takes two evaluations — the largest and smallest
-the difference could possibly be — not a search. If the sign never changes,
-the ranking is proven for any true value consistent with the bounds you
-gave, which is a stronger guarantee than a single point estimate: it
-doesn't depend on that estimate being *right*, only on the interval being
-wide enough to contain it. If the sign does change, the tool instead
-reports the exact value each material would need to cross to settle the
-case.
-
-A bound is never treated as a factor: it never enters the Monte Carlo
-simulation, never contributes to a reported total, and never changes the
-coverage percentage.
-
-### Worked example: 52.9% coverage, decided anyway
-
-[Grimaldi et al., *ACS Sustainable Chem. Eng.* **2021**](https://doi.org/10.1021/acssuschemeng.1c02309)
-compares two ibuprofen syntheses — a flow-chemistry route (`bogdan`) and a
-variant of it with one step replaced by an enzyme (`enzymatic`). Public
-factors resolve only 52.9% of the differing mass, leaving nine materials
-unresolved — normally an automatic `indeterminate`. With bounds supplied for
-those nine:
-
-> **Decided: `bogdan` is lower than `enzymatic` everywhere in the asserted bounds.**
-
-| material | delta_mass kg/FU | needs to be | asserted bound | clears it |
-|---|---|---|---|---|
-| 1-butyl-3-methylimidazolium hexafluorophosphate | -8.412 | above 1.715 kgCO2e/kg | [3.5, unbounded] | yes |
-| trimethyl orthoformate | -1.666 | any value — cannot flip it | [0.27, unbounded] | yes |
-| phosphate buffer solution, 0.05 M | -1.616 | any value — cannot flip it | [0.55, 2] | yes |
-| *…5 more, every one of them* | | *any value — cannot flip it* | | *yes* |
-
-Seven of the nine unresolved materials cannot change the outcome at any
-value their bounds allow. The whole comparison reduces to one inequality
-about one ionic liquid: is its factor above 1.715 kgCO2e/kg? Two published
-estimates for the closest studied analogue — which disagree with *each
-other* by a factor of eight — both clear that threshold, by margins of 2.0×
-and 15.9×. The estimates don't agree on a value. They agree on the verdict,
-and that's all this needs.
-
-The ionic liquid is the reaction solvent and is recoverable between
-batches, so the result is conditional on how much of it is actually
-recycled: it holds up to **51.0%** recycling, and is undecided above that.
-The source paper reports its own results under 50% and 100% recycling
-scenarios and reaches the same qualitative conclusion — this project's
-number falls where the paper's does, from a fraction of the data and none
-of the commercial database it relies on.
-
-Full method in [`docs/bounds.md`](docs/bounds.md); every bound and its
-justification in
-[`examples/case-studies/ibuprofen-bogdan-vs-enzymatic/`](examples/case-studies/ibuprofen-bogdan-vs-enzymatic/).
-
-## Screening a whole database: 18,500 reactions at once
-
-Everything above compares two routes someone published. `carbonroute
-screen` asks a narrower question across an entire reaction database:
-**for each enzymatic reaction, how much solvent would a chemical plant have
-to recover before the enzyme stopped winning?**
-
-### Why that is affordable
-
-Not a shortcut — the same cancellation that makes `compare` work. When two
-routes make the same product, everything common to both drops out of the
-diff, and for enzyme-versus-chemistry the part that drops out is exactly
-the part that would be expensive to look up: the substrate and product,
-different in every reaction. What is left over is small and repetitive:
-
-| side | what survives the diff |
-|---|---|
-| enzymatic | the **cofactor** — UDP-glucose, NADPH, SAM, acetyl-CoA |
-| chemical | the **protecting groups, activator, base and solvents** |
-
-That is a claim about data, so it is measured rather than asserted. Across
-[Rhea](https://www.rhea-db.org/)'s 18,558 curated reactions there are
-14,251 distinct participants — but only **63 appear in 100 reactions or
-more, and 12 in over a thousand**, and the top 30 cover 47.8% of every
-participant slot in the database. They are the cofactor list a biochemist
-would recite from memory. The long tail those 30 miss is precisely the
-per-reaction substrate and product, which cancel.
-
-So the emission-factor work is bounded by that vocabulary — tens of
-substances — not by the number of reactions. Every reaction after that
-costs one arithmetic evaluation. A 263-reaction class screens in about a
-second.
-
-### What it reports, and why not a verdict
-
-A screen pairs each curated enzymatic reaction against a **class
-template**: one real published chemical procedure applied to every
-substrate in the class. That extrapolation is the method's central
-assumption, so the output is a ranked shortlist of reactions worth
-spending a real `compare` on — never a verdict about any one of them.
-
-The headline number is deliberately not "how often the enzyme wins".
-Class templates come from published *bench* procedures, and bench
-procedures throw their solvent away — the shipped one charges over 800 kg
-of solvent per kg of product. A plant does not. So the reported figure is
-the **solvent recovery threshold** at which each verdict stops holding,
-which has an external yardstick: industrial distillation recovers 90–95%.
-
-### The result for all 263 UDP-glucosyltransferase reactions
-
-Screened against the Helferich/BF₃ glycosylation of Cepanec & Litvić
-(*ARKIVOC* 2008):
-
-| statistic | recovery threshold |
-|---|---|
-| minimum | 85.58% |
-| median | 85.87% |
-| maximum | 91.43% |
-
-**None of the 256 decided reactions survives 99% solvent recovery**, and
-the whole distribution sits at or below what a real plant achieves. The
-honest reading is not "enzymes win 256 times" but: *in this class, as
-modelled from this bench procedure, the enzymatic advantage is real but
-bounded, and it does not survive industrial solvent recycling.* That is
-falsifiable, and more useful than a win count.
-
-The mechanism the screen exists to measure shows up in the spread. The
-threshold **rises with the number of groups on the substrate a chemical
-route would have to mask** — 85.58% where there is one or none, 91.43% for
-a 33-group oligosaccharide — because an enzyme's regioselectivity is worth
-more the more sites chemistry has to protect and unprotect. That is the
-enzymatic advantage, quantified from structure alone.
-
-### Calibration
-
-RHEA:12560 — hydroquinone + UDP-α-D-glucose → β-arbutin — is both a member
-of that class and the subject of a fully hand-sourced ledger in
-[`examples/case-studies/beta-arbutin-chemical-vs-enzymatic/`](examples/case-studies/beta-arbutin-chemical-vs-enzymatic/).
-The screen reproduces its product mass, acceptor, cofactor charge and
-direction, and a test asserts it. Without that, the other 262 rows would
-only be reporting on their own template.
-
-Full method in [`docs/screening.md`](docs/screening.md); the measured
-cofactor vocabulary in [`data/rhea/README.md`](data/rhea/README.md).
 
 ## Install
 
@@ -334,8 +313,11 @@ pip install -e .
 ```
 
 Dependencies are limited to `pydantic`, `numpy`, `PyYAML`, and `click`.
-RDKit is an optional extra (`pip install -e ".[chem]"`) used only to assist
-material identification; it is never required to run the tool.
+RDKit is an optional extra (`pip install -e ".[chem]"`), needed only for
+material identification and for `carbonroute screen`'s structure-derived
+quantities (molecular weight, protectable-group count) — it is never
+required for `validate`, `resolve`, `coverage`, `compare`, `bootstrap` or
+`lock`.
 
 ## The ledger
 
@@ -393,7 +375,7 @@ Points worth knowing:
   treated as make-up rather than fresh input (spec section 7.2). The
   default is 0 — no recovery is assumed unless you say so.
 - `routes` must be linear step lists. v0 has no way to express a route
-  where two branches converge; see below.
+  where two branches converge.
 
 The complete route ledger is the only place assumptions are allowed to
 live. There is no other configuration surface for them.
@@ -405,7 +387,7 @@ live. There is no other configuration surface for them.
 | `carbonroute validate route.yaml` | Schema check only. No factor lookup, no computation. |
 | `carbonroute resolve route.yaml [--show-missing]` | Looks every material up in the factor table(s); reports what matched and what didn't. No emissions math. |
 | `carbonroute coverage route.yaml --a A --b B` | How much of the A-vs-B differing mass the loaded tables can actually reach, by count and by mass. Exits 3 if anything is unresolved. |
-| `carbonroute compare route.yaml --a A --b B -o report.md` | The full comparison: diff, Monte Carlo ranking, reversal thresholds. Writes the report. |
+| `carbonroute compare route.yaml --a A --b B [--bounds B.yaml] -o report.md` | The full comparison: diff, Monte Carlo ranking, reversal thresholds, and (with `--bounds`) a bounded verdict when factors alone don't reach 80% coverage. |
 | `carbonroute bootstrap --processes data/processes -o out.csv` | Derives factors for substances no open database covers, from production recipes — see [`docs/bootstrap.md`](docs/bootstrap.md). |
 | `carbonroute screen --template CLASS.yaml --bounds B.yaml` | Screens a whole reaction database against one chemical-route template, reporting the solvent recovery threshold per reaction — see [`docs/screening.md`](docs/screening.md). |
 | `carbonroute lock route.yaml -o route.lock.json` | Pins the factor table versions, every resolved value and its provenance, and the RNG seed, so someone else can reproduce the exact numbers later. |
@@ -470,10 +452,11 @@ v0 does not:
 - **Handle convergent routes.** Only linear step sequences are supported.
   A route where two synthesis branches merge into one cannot be expressed
   in the ledger schema at all.
-- **Extrapolate from lab scale to plant scale.** Inputs are taken at face
-  value from the ledger; there is no model for how solvent use, heating
-  efficiency, or yield change between a bench reaction and an industrial
-  process.
+- **Extrapolate from lab scale to plant scale on its own.** Inputs are
+  taken at face value from the ledger; there is no automatic model for how
+  solvent use, heating efficiency, or yield change between a bench
+  reaction and an industrial process. `--bounds` and `solvent_recovery`
+  let you test that sensitivity explicitly, but nothing is assumed for you.
 - **Model the use phase or end-of-life.** The boundary is fixed at
   cradle-to-gate. Nothing downstream of the product leaving the gate is in
   scope.
@@ -488,7 +471,8 @@ v0 does not:
   contained inaccurate or misleading content, with fabricated-citation
   rates up to 40% for some models).
 - **Generate routes by retrosynthesis.** `carbonroute` compares routes you
-  give it; it does not propose or search for candidate syntheses.
+  give it, or reactions a curated database already documents; it does not
+  propose or search for candidate syntheses of its own invention.
 
 And separately from the list above: **the output of this tool is not an
 ISO 14067-conformant product carbon footprint.** It is a screening
@@ -520,19 +504,19 @@ kgCO2e/kg by one source and 1.700 by another. Reports print every value in
 play. How far openly available data spreads for the same material is one
 of the things worth knowing here, not something to average away.
 
-**The coverage is still small relative to a real pharmaceutical route** —
-see the letermovir example above. Openly licensed, independently citable,
-per-kilogram cradle-to-gate factors for fine-chemical solvents and reagents
-are genuinely scarce; most of what the field uses day to day sits in
-commercial databases this project may not redistribute
-([`docs/what-others-do.md`](docs/what-others-do.md) covers who has them and
-why, and how to point `carbonroute` at a licensed table if you have one).
-`carbonroute coverage` tells you exactly how far your own comparison is from
-80%, so the gap is a number in front of you rather than a silent omission.
-Adding a source means writing another ingestion script — see
-[`docs/data.md`](docs/data.md) and
+**27 factors is deliberately not the ceiling on what this tool can decide.**
+`--bounds` and `screen`'s cofactor-vocabulary approach exist precisely
+because coverage this small still resolves real comparisons, as shown
+above. `carbonroute coverage` tells you exactly how far your own factors-only
+comparison is from 80%, so the gap is a number in front of you rather than
+a silent omission. Adding a source means writing another ingestion
+script — see [`docs/data.md`](docs/data.md) and
 [`docs/sources-investigated.md`](docs/sources-investigated.md), which
-records what was already checked and why it was or wasn't used.
+records what was already checked and why it was or wasn't used. Who else
+holds this kind of data and why most of it sits in commercial databases
+this project may not redistribute is covered in
+[`docs/what-others-do.md`](docs/what-others-do.md), including how to point
+`carbonroute` at a licensed table if you have one.
 
 Nothing here is estimated, interpolated, or recalled from memory. That is a
 consequence of the "public data only, nothing invented" rule (spec sections
@@ -549,11 +533,11 @@ exercising the commands above.
 
 `carbonroute` itself never touches a network — enforced by a test that parses
 its import graph, not just claimed in prose. The scripts that *built*
-`data/factors/` used to require one, though, and every one of ADEME's,
-PubChem's, ProBas's and the Federal LCA Commons' APIs is outside this
-project's control. Each ingestion script now has a `--offline` flag that
-replays from a durable, committed snapshot under `data/raw/` instead of
-touching the network — see
+`data/factors/` and `data/rhea/` used to require one, though, and every one
+of ADEME's, PubChem's, ProBas's, the Federal LCA Commons' and Rhea's APIs is
+outside this project's control. Each ingestion script now has a `--offline`
+flag that replays from a durable, committed snapshot under `data/raw/`
+instead of touching the network — see
 [`docs/reproducibility.md`](docs/reproducibility.md) for which snapshot
 covers which source, and its one known gap.
 
@@ -585,14 +569,14 @@ both exist because this benchmark ran first and failed.
 
 ## Further reading
 
+- [`docs/screening.md`](docs/screening.md) — screening a whole reaction
+  database, and why that costs less than it sounds.
+- [`docs/bounds.md`](docs/bounds.md) — deciding a ranking from bounds when
+  the factors themselves are missing.
 - [`docs/data.md`](docs/data.md) — the factor-table format and how to build
   a table you can cite.
 - [`docs/bootstrap.md`](docs/bootstrap.md) — deriving factors from
   production recipes when no database has them.
-- [`docs/bounds.md`](docs/bounds.md) — deciding a ranking from bounds when
-  the factors themselves are missing.
-- [`docs/screening.md`](docs/screening.md) — screening a whole reaction
-  database, and why that costs less than it sounds.
 - [`docs/uncertainty.md`](docs/uncertainty.md) — how the Monte Carlo model
   works and the status of its parameters.
 - [`docs/convergence.md`](docs/convergence.md) — how many Monte Carlo
