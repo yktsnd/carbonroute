@@ -1034,13 +1034,30 @@ def render_screen(run: "ScreenRun", reaction_source: str, bounds=None) -> str:
         )
     lines.append("")
     if run.enzymatic_yield >= 1.0:
+        chem_basis = (
+            "declared at process-model stage yields, which are stated "
+            "assumptions rather than a paper's real losses"
+            if run.use_process_model
+            else (
+                "stated per mole of *product*, so they already carry the "
+                "source paper's own yield"
+            )
+        )
         lines.append(
             "> **The enzymatic side is billed at 100% conversion, and that "
-            "favours it.** This template's chemical amounts are stated per mole "
-            "of *product*, so they already carry the source paper's own yield; "
+            f"favours it.** This template's chemical amounts are {chem_basis}; "
             "an enzymatic route charged pure stoichiometry pays no equivalent "
             "penalty. Every threshold below is therefore an upper bound. Re-run "
             "with `--enzymatic-yield` to price a real conversion."
+        )
+        lines.append("")
+    if run.use_process_model:
+        lines.append(
+            "> **Screened against the declared `process_model`, not a cited "
+            "paper.** Every chemical-side amount below is `generalised` by "
+            "construction: reagents at stated equivalents, solvent from a "
+            "stated reaction concentration. See docs/screening.md, \"A "
+            "declared process, instead of one paper's bench run\"."
         )
         lines.append("")
     lines.append(f"**Chemical counterpart modelled:** {t.chemical_name}")

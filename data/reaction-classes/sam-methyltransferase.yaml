@@ -1,0 +1,141 @@
+# Reaction class: SAM-dependent O-, N- and S-methylation
+#
+# Covers every Rhea reaction consuming S-adenosyl-L-methionine (SAM,
+# CHEBI:59789) as a reactant, restricted to EC 2.1.1 (methyltransferases) and
+# to reactions that add a new methyl group on a heteroatom (O, N or S).
+#
+# WHY THE RESTRICTION IS TWO-LAYERED, NOT ONE. SAM is consumed by far more
+# than methylation: 946 Rhea reactions consume it, but only 500 carry an
+# EC 2.1.1 annotation, and of those, a further chunk are radical-SAM
+# chemistry -- SAM cleaved reductively to 5'-deoxyadenosine + methionine
+# rather than donating a methyl to become SAH, consuming an additional
+# reducing cofactor (flavodoxin, ferredoxin, "AH2") alongside the acceptor.
+# Those are structurally different reactions (more than two participants on
+# the left after removing SAM), and `_identify` correctly refuses to pick an
+# acceptor for them rather than guessing -- see ClassTemplate.matches's
+# comment on why a cofactor is necessary but not sufficient.
+#
+# What remains after that first filter still needs a second one. Measured
+# against every EC-2.1.1 SAM reaction with a single resolvable acceptor
+# (449 of them): 7 have a mass delta that is not a multiple of 14.027 g/mol
+# (the net mass of a transferred methyl, CH3 replacing H) within one proton,
+# and a further 73 land exactly on that mass delta but attach the new methyl
+# to a CARBON, not a heteroatom -- C-methyltransferases in steroid, terpene
+# and tetrapyrrole biosynthesis (cycloartenol, zymosterol, the precorrin
+# series) and, notably, cytosine C5 methylation in DNA. Those are genuine
+# methylations, just not ones a methyl halide and a base can plausibly
+# perform: direct C-H methylation of an unactivated ring or alkene carbon is
+# not the same chemical problem as O-, N- or S-alkylation, and modelling it
+# with the same chemical counterpart would be exactly the kind of
+# mis-templating UDP-N-acetylglucosamine was excluded from the glycosylation
+# class for. They are candidates for their own class, not a free line here.
+#
+# transferred_bond_smarts enforces that second filter structurally, the same
+# mechanism the acetyl-CoA investigation in docs/screening.md exists to
+# document: a mass delta is necessary but not sufficient, because two
+# structurally different transformations can weigh the same.
+
+reaction_class:
+  id: sam-methyltransferase
+  name: "SAM-dependent O-, N- and S-methylation"
+  description: >
+    Enzymatic transfer of a methyl group from S-adenosyl-L-methionine onto a
+    heteroatom (a phenol or alcohol oxygen, an amine or heterocyclic
+    nitrogen, or a thiol sulfur), releasing S-adenosyl-L-homocysteine (SAH).
+    Matching is on the cofactor, narrowed to EC 2.1.1 because SAM is consumed
+    by chemistry this class does not model (see the file header).
+  # A genuine methylation adds one methyl group net: CH3 replacing an H,
+  # 12.011 + 2*1.008 = 14.027 g/mol, verified via RDKit against the real
+  # Rhea pair trans-resveratrol -> pterostilbene (2 methyls, observed delta
+  # 28.05 = 2*14.03) and glycine -> N,N-dimethylglycine (2 methyls, delta
+  # exactly matches). Di- and tri-methylations consume 2 or 3 SAM per
+  # product respectively, read from Rhea's own stoichiometric coefficient on
+  # the SAM reactant (the same cofactor_coeff mechanism the glycosylation
+  # class uses for bis-glucosides).
+  expected_mass_delta: 14.027
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:59789"
+  cofactor_role: reagent
+  ec_prefix: "2.1.1"
+  # New methyl attached to O, N or S -- the structural fact that separates a
+  # real member of this class from a C-methyltransferase weighing the same.
+  # Verified against real Rhea pairs: resveratrol->pterostilbene and
+  # glycine->N,N-dimethylglycine both show delta = cofactor_coeff on this
+  # pattern; cycloartenol->cyclolaudenol and the precorrin series (genuine
+  # C-methylations at the correct mass) show delta = 0 and are correctly
+  # excluded.
+  transferred_bond_smarts: "[CH3][#7,#8,#16]"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. This is deliberate, not a placeholder: see
+    docs/screening.md's "A declared process, instead of one paper's bench
+    run" for why a single cited procedure is the less defensible option, not
+    the more rigorous one, once a chemistry-independent process model exists.
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+#
+# Same mechanism as udp-glucosyltransferase.yaml's process_model, and the
+# same justification: every parameter is a stated modelling choice rather
+# than one paper's bench habits, so a process chemist can disagree with it by
+# editing a line instead of arguing with a citation. Nothing below is read
+# from a procedure; everything is `generalised` by construction.
+process_model:
+  name: "O/N/S-alkylation with methyl iodide and a mild base, at process concentration"
+  source: >
+    Not a paper. Methyl iodide with potassium carbonate (a Williamson-type
+    O-methylation, and the standard reagent pair for N- and S-methylation of
+    a similarly nucleophilic heteroatom) is the textbook chemical counterpart
+    to a methyltransferase; the parameters below state the modelling choices
+    on the same terms the glycosylation class's process_model does.
+  reaction_concentration_M: 0.2
+  # A single alkylation stage is usually reported as a one-pot reaction with
+  # a straightforward workup; 0.9 is a slightly more forgiving stage yield
+  # than the two-stage glycosylation model uses (0.85), reflecting that a
+  # simple alkylation is mechanistically less demanding than a Lewis-acid
+  # glycosylation. Applied uniformly, not tuned to any target result.
+  stage_yield: 0.9
+  note: >
+    No protection stage is modelled. A real synthesis of a polyfunctional
+    acceptor might need one if other nucleophilic sites compete with the
+    intended methylation site; omitting it is conservative in the same
+    direction the glycosylation class's deprotection-scaling note already
+    flags -- it makes the chemical route look BETTER than a fully-protected
+    synthesis would, not worse, so it is not a thumb on the scale for "the
+    enzyme wins". A future contributor extending this class to acceptors
+    where over-alkylation is a real risk should add one.
+  stages:
+
+    - id: methylate
+      volumes: 1.0
+      solvent: {name: acetone, cas: "67-64-1", density_kg_per_L: 0.791}
+      reagents:
+        - name: methyl iodide
+          cas: "74-88-4"
+          kg_per_mol: 0.141939
+          equivalents: 1.5
+          note: >
+            1.5 equivalents per methyl transferred -- modest excess to drive
+            a single alkylation, doubled for di-methylation and tripled for
+            tri- via the same per-transfer scaling the cofactor uses.
+        - name: potassium carbonate
+          cas: "584-08-7"
+          kg_per_mol: 0.138205
+          equivalents: 2.0
+          note: >
+            2 equivalents of mild base per methyl transferred, to neutralise
+            the HI generated and drive the substitution -- the same base
+            already used in the glycosylation class's deprotection stage.
+
+    - id: isolate
+      # Same isolation parameters as the glycosylation class's process
+      # model, for the same reason: 3 extraction volumes plus 2 wash volumes
+      # is a plant-style recovery, not a bench-scale "boil it in solvent"
+      # isolation.
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

@@ -770,8 +770,12 @@ def load_template(path: str | Path) -> ClassTemplate:
                 per_protected_group=bool(entry.get("per_protected_group", False)),
             )
         )
-    if not materials:
-        raise ScreenError(f"{p}: template has no chemical-counterpart materials")
+    if not materials and "process_model" not in raw:
+        raise ScreenError(
+            f"{p}: template has no chemical-counterpart materials and no "
+            "process_model -- it must declare a chemical route one way or "
+            "the other"
+        )
 
     raw_cofactor = cls["cofactor_chebi"]
     if isinstance(raw_cofactor, str):
@@ -959,6 +963,14 @@ def screen_reaction(
         raise ScreenError(
             f"{template.id}: --process-model was asked for, but this template "
             "declares no process_model block."
+        )
+    if not use_process_model and not template.materials:
+        raise ScreenError(
+            f"{template.id}: this template declares no chemical_counterpart "
+            "materials, only a process_model. Screen it with "
+            "--process-model -- without that flag the chemical side would "
+            "silently be empty, which is not 'the enzyme wins', it is 'the "
+            "chemical route was never priced'."
         )
     materials = (
         materials_from_process_model(template.process_model)
@@ -1596,6 +1608,11 @@ class ScreenRun:
     enzymatic_yield: float = 1.0
     reference_recovery: float = 0.90
     cofactor_recycling: float = 0.0
+    #: Whether the chemical side was charged from the template's declared
+    #: process_model rather than from chemical_counterpart.materials. Report
+    #: rendering needs this: the "already carries the source paper's yield"
+    #: framing is meaningless for a process model, which has no paper.
+    use_process_model: bool = False
 
     @property
     def decided(self) -> list[ScreenResult]:
@@ -1628,6 +1645,7 @@ def screen_all(
         enzymatic_yield=enzymatic_yield,
         reference_recovery=reference_recovery,
         cofactor_recycling=cofactor_recycling,
+        use_process_model=use_process_model,
     )
     for rxn in reactions:
         if not template.matches(rxn):

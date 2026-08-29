@@ -537,8 +537,25 @@ rather than folding it into the class. The rule has to be written down and
 applied the same way in every class, because the ranking is only as
 comparable as the least principled template choice in it.
 
-Until that is settled, this repository ships one class. That is a real
-limit on Q1 and it is not one more screening effort fixes.
+**This is what `process_model` actually resolves, not just what it was built
+for.** A declared process applies the identical rule — the same reaction
+concentration, the same isolation-volume multiplier, the same per-stage
+yield — to every class by construction, because those parameters are
+chemistry-independent. There is no "which paper did the second class use"
+question to answer, because there is no paper. `sam-methyltransferase.yaml`
+is the second class, screened only against its `process_model` for exactly
+this reason: pairing it with the glycosylation class's paper-sourced
+template would reintroduce the confound this section describes, and pairing
+it with the glycosylation class's *own* `process_model` run does not.
+
+That still leaves a real limit. The two classes' reagents (methyl iodide and
+acetic anhydride, say) are not modelled on the same evidential footing as
+each other — each is a declared equivalents figure, not derived from a
+shared physical constant the way the isolation-volume rule is — so a
+cross-class ranking built from them inherits whatever spread exists between
+"1.1 equivalents of acetic anhydride" and "1.5 equivalents of methyl
+iodide" as a genuine source of incomparability, smaller than the one this
+section opened with but not zero.
 
 ## What the shipped class actually found
 
@@ -606,6 +623,47 @@ The screen reproduces that case's product mass, acceptor, cofactor charge
 and direction, and a test asserts it. A screen that disagreed with the one
 case it was derived from would be reporting on its own template rather than
 on chemistry, so that test is what gives the other 387 rows any standing.
+
+## The second class: SAM-dependent methylation
+
+`data/reaction-classes/sam-methyltransferase.yaml` covers SAM-dependent
+O-, N- and S-methylation — EC 2.1.1, the second-largest EC-3 group in Rhea.
+It has no `chemical_counterpart.materials` at all; it ships with only a
+`process_model` and must be run with `--process-model`. That is not a
+placeholder — see "A declared process, instead of one paper's bench run"
+above for why.
+
+**Matching needed two filters, not one, and the second is worth naming
+because it repeats the acetyl-CoA/Claisen lesson in a new shape.** Of Rhea's
+18,558 reactions, 946 consume SAM at all; restricting to EC 2.1.1 and a
+single resolvable acceptor narrows that to 449. Checking `expected_mass_delta`
+(14.027 g/mol per methyl, CH₃ replacing H, times however many the reaction's
+own SAM stoichiometry says it transfers) excludes 6 more. What is left still
+contains 74 reactions that add *exactly* the right mass without being this
+class's chemistry: C-methyltransferases in steroid and terpene biosynthesis
+(cycloartenol → cyclolaudenol), tetrapyrrole biosynthesis (the precorrin
+series), and — notably — cytosine C5 methylation in DNA. All are genuine
+methylations; none is O-, N- or S-alkylation, because the new methyl lands on
+a ring or alkene carbon rather than a heteroatom, which a methyl halide and a
+mild base cannot plausibly reach. `transferred_bond_smarts` (`[CH3][#7,#8,#16]`,
+verified against real Rhea pairs: `trans-resveratrol → pterostilbene` and
+`glycine → N,N-dimethylglycine` both show a bond-count delta equal to their
+SAM stoichiometry; `cycloartenol → cyclolaudenol` shows zero) is what tells
+them apart. Without it those 74 would have been silently mis-templated as
+alkylations they are not.
+
+| statistic | value |
+|---|---|
+| SAM-consuming reactions in Rhea | 946 |
+| restricted to EC 2.1.1, single acceptor | 449 (`matched`) |
+| excluded — mass delta does not fit any multiple of 14.027 | 6 |
+| excluded — could not identify an acceptor/product pair | 18 |
+| excluded — right mass, wrong bond (C-methylation) | 74 |
+| **decided** | **351** |
+
+Every excluded reaction was checked by hand against its equation text before
+this table was written, the same discipline the glycosylation class's
+exclusion buckets follow.
 
 ## Running one
 

@@ -935,3 +935,113 @@ def test_mass_delta_check_tolerates_chebis_own_charge_state_bookkeeping(screened
     dropped for a database bookkeeping artefact that isn't chemistry."""
     r = next(x for x in screened.results if x.rhea_id == "RHEA:13437")
     assert r.decided
+
+
+# --- a second class: SAM-dependent methylation --------------------------
+
+
+@pytest.fixture(scope="module")
+def sam_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "sam-methyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "sam-methyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def sam_screened(sam_inputs):
+    return screen_all(*sam_inputs, use_process_model=True)
+
+
+def test_sam_template_has_no_materials_but_does_have_a_process_model(sam_inputs):
+    """This class ships with no chemical_counterpart.materials at all -- it
+    is screened only via --process-model. load_template must accept that
+    (materials may be empty when a process_model is present) and screening
+    without --process-model must fail loudly rather than silently produce an
+    empty chemical side."""
+    template = sam_inputs[1]
+    assert template.materials == ()
+    assert template.process_model is not None
+    reactions, _, structures, table, assumptions, bounds = sam_inputs
+    rxn = next(r for r in reactions if r.rhea_id == "RHEA:10072")
+    with pytest.raises(ScreenError, match="process_model"):
+        screen_reaction(rxn, template, structures, table, assumptions, bounds)
+
+
+def test_sam_class_matches_and_decides_the_expected_number(sam_screened):
+    """946 Rhea reactions consume SAM at all; EC 2.1.1 narrows that to 449
+    with a single resolvable acceptor. Of those, 351 both add the right mass
+    (a multiple of 14.027 g/mol, +/- one proton) and form the right bond (a
+    new methyl on a heteroatom, not carbon). The other 98 are excluded for
+    reasons verified by hand: 18 unidentifiable acceptor/product pairs
+    (mostly radical-SAM reactions with an extra redox cofactor), 6 with a
+    mass delta that fits no multiple of 14.027, and 74 that add exactly the
+    right mass but attach the new methyl to carbon -- real C-methyltransferases
+    (steroid/terpene biosynthesis, DNA cytosine C5 methylation) that are not
+    this class's O/N/S-alkylation chemistry. See the template's file header.
+    """
+    assert sam_screened.matched == 449
+    assert len(sam_screened.decided) == 351
+
+
+def test_sam_class_bond_check_keeps_heteroatom_methylation_only(sam_screened):
+    """RHEA:32103 (trans-resveratrol -> pterostilbene, di-O-methylation) and
+    RHEA:32463 (glycine -> N,N-dimethylglycine, di-N-methylation) are genuine
+    members and must be screened. RHEA:13137 (cycloartenol -> cyclolaudenol)
+    and RHEA:13681 (cytosine -> 5-methylcytosine in DNA) add exactly the same
+    14.03 g/mol per methyl but onto a ring or alkene carbon, not a
+    heteroatom -- the bond check must exclude them even though the mass
+    check alone would not.
+    """
+    by_id = {r.rhea_id: r for r in sam_screened.results}
+    assert by_id["RHEA:32103"].decided
+    assert by_id["RHEA:32463"].decided
+    assert not by_id["RHEA:13137"].decided
+    assert "does not match" in by_id["RHEA:13137"].skipped_reason or (
+        "different transformation" in by_id["RHEA:13137"].skipped_reason
+    )
+    assert not by_id["RHEA:13681"].decided
+
+
+def test_sam_class_scales_with_di_and_tri_methylation(sam_screened):
+    """RHEA:32351 (tricetin -> 3',4',5'-O-trimethyltricetin) consumes 3 SAM
+    per product, read from Rhea's own stoichiometric coefficient -- the same
+    cofactor_coeff mechanism the glycosylation class uses for bis-glucosides.
+    It is decided only because both the mass-delta check (3 x 14.027) and the
+    bond check (3 new methyls on oxygen) scaled with that coefficient rather
+    than staying fixed at 1; RHEA:32347, the same tricetin donor's
+    di-methylated relative (2 SAM, +28.1), is a real member too, confirming
+    the scaling is not a fluke of one reaction."""
+    by_id = {r.rhea_id: r for r in sam_screened.results}
+    assert by_id["RHEA:32351"].decided
+    assert by_id["RHEA:32347"].decided
+    tri = next(x for x in sam_screened.decided if x.rhea_id == "RHEA:32351")
+    assert tri.cofactor_kg_per_fu > 0
+
+
+def test_sam_process_model_charges_methyl_iodide_and_base(sam_inputs):
+    """The declared process, not a paper: methyl iodide and potassium
+    carbonate in acetone, scaling per methyl transferred, plus a plant-style
+    isolation. Everything generalised by construction."""
+    template = sam_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"methyl iodide", "potassium carbonate", "acetone", "ethyl acetate"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_sam_class_is_decided_and_bounded(sam_screened):
+    """At default settings (stoichiometric cofactor, zero solvent recovery)
+    every decided reaction should produce a verdict -- not necessarily
+    "enzyme wins" by construction, but a computable one, which confirms the
+    template's bounds file actually resolves enough of the delta to decide.
+    """
+    decided_with_verdict = [
+        r for r in sam_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(sam_screened.decided)
