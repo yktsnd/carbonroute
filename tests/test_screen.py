@@ -1035,6 +1035,88 @@ def test_sam_process_model_charges_methyl_iodide_and_base(sam_inputs):
     assert all(m.basis == "generalised" for m in materials)
 
 
+# --- a third class: NAD(P)+-dependent oxidation, and an honest non-result ---
+
+
+@pytest.fixture(scope="module")
+def nad_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "nad-oxidoreductase.yaml")
+    bounds = load_bounds(CLASSES / "nad-oxidoreductase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def nad_screened(nad_inputs):
+    return screen_all(*nad_inputs, use_process_model=True)
+
+
+def test_nad_class_matches_and_excludes_oxidative_decarboxylation(nad_screened):
+    """515 Rhea reactions consume NAD+ or NADP+ under EC 1.1.1. 492 resolve to
+    a single acceptor/product pair, and 466 of those (94.7%) land within one
+    proton of a clean 2H-loss (-2.016 g/mol, or -4.03 for a double oxidation).
+    The other 26 cluster tightly at -45.02 -- oxidative DEcarboxylation
+    (malate dehydrogenase, isocitrate dehydrogenase, 6-phosphogluconate
+    dehydrogenase and relatives: -2.016 for the 2H plus -43.99 for the CO2
+    that leaves with it), a genuinely different transformation that a
+    stoichiometric oxidant alone does not perform, and is correctly excluded
+    by the mass-delta check rather than folded in as noise.
+    """
+    assert nad_screened.matched == 515
+    by_id = {r.rhea_id: r for r in nad_screened.results}
+    assert "does not match" in by_id["RHEA:12653"].skipped_reason  # (S)-malate oxidative decarboxylation
+    assert not by_id["RHEA:12653"].decided
+
+
+def test_nad_class_has_no_bond_check_and_says_why(nad_inputs):
+    """Unlike the other two classes, this one ships no transferred_bond_smarts.
+    The natural check -- a new C=O appearing -- fails on reducing sugars
+    drawn in ChEBI's cyclic hemiketal form (D-mannitol -> D-fructose shows no
+    explicit carbonyl in either SMILES), which would silently exclude dozens
+    of genuine hexitol/pentitol dehydrogenase reactions for a drawing
+    convention rather than a chemical reason. The mass-delta check alone
+    already achieves 94.7% purity with one cleanly identified confound, so
+    it is sufficient here without a bond check that would do more harm than
+    good.
+    """
+    template = nad_inputs[1]
+    assert template.transferred_bond_smarts is None
+
+
+def test_nad_class_verdicts_are_honestly_indeterminate_at_current_bounds(nad_screened):
+    """Real coverage, and a real limitation, both reported rather than one
+    papered over to force the other.
+
+    515 reactions are structurally verified members of this class -- that is
+    genuine Q1 coverage, the same sense in which the other two classes'
+    matched counts are. But at the bounds this template currently declares,
+    every one of them comes back indeterminate: NAD+/NADP+ carries the same
+    wide, unevidenced [0.5, 100] ceiling the other classes' cofactors do, and
+    unlike glycosylation's paper-scale solvent burden or methylation's
+    stoichiometric alkylating agent, this class's process model is a small,
+    mostly catalytic oxidation with nothing bulky enough to guarantee the
+    chemical route costs more even at the cofactor's cheapest plausible
+    value. That is not a bug in the screen; it is what the bounds and the
+    process model, honestly evaluated together, actually say. Padding the
+    process model's reagent equivalents to force a decision would be exactly
+    the kind of thumb on the scale this project refuses everywhere else.
+    """
+    assert len(nad_screened.decided) == 0
+    verdicts = {r.rhea_id: r.verdict for r in nad_screened.results if r.skipped_reason == ""}
+    assert all(v is not None and not v.decisive for v in verdicts.values())
+    assert all(v.verdict == "indeterminate" for v in verdicts.values())
+    # The specific reason: the enzymatic side's worst case beats the
+    # chemical side's best case, because the cofactor ceiling is wide open
+    # and the chemical route is comparatively small.
+    r = next(x for x in nad_screened.results if x.rhea_id == "RHEA:10044")
+    assert r.verdict.delta_min_kgCO2e is not None and r.verdict.delta_min_kgCO2e < 0
+
+
 def test_sam_class_is_decided_and_bounded(sam_screened):
     """At default settings (stoichiometric cofactor, zero solvent recovery)
     every decided reaction should produce a verdict -- not necessarily

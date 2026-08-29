@@ -1,0 +1,120 @@
+# Reaction class: NAD(P)+-dependent alcohol oxidation
+#
+# Covers every Rhea reaction consuming NAD+ (CHEBI:57540) or NADP+
+# (CHEBI:58349) as a reactant, restricted to EC 1.1.1 (oxidoreductases
+# acting on the CH-OH group of donors). Direction matters here in a way it
+# does not for the other two shipped classes: matching on the OXIDIZED
+# cofactor forms (NAD+/NADP+) rather than the reduced ones (NADH/NADPH)
+# picks out only the oxidation direction (alcohol -> ketone/aldehyde,
+# losing 2 H), never its reverse. A class built the other way round --
+# matching NADH/NADPH -- would be a reduction class with the opposite
+# chemical counterpart (a hydride source, not an oxidant) and is not this
+# file.
+#
+# WHY NO transferred_bond_smarts, UNLIKE THE OTHER TWO CLASSES. The natural
+# structural check for an oxidation is "a new C=O appears" ([CX3]=[OX1]),
+# and it works cleanly on open-chain acceptors (cyclohexanol -> cyclohexanone,
+# a primary alcohol -> an aldehyde). It fails on a real and common case in
+# this class instead: ChEBI draws reducing sugars in their CYCLIC hemiketal
+# form (D-mannitol -> D-fructose, an aldose/ketose interconversion), so the
+# "new" carbonyl is masked as a ring C-OH and never shows up as an explicit
+# C=O in the SMILES. Applying the bond check as-is would silently exclude
+# dozens of genuine hexitol/pentitol dehydrogenase reactions for a drawing
+# convention, not a chemical reason -- exactly the kind of mistake this
+# project's own methodology exists to catch, not commit.
+#
+# The mass-delta check alone is sufficient here, and measurably so: of 492
+# reactions with a single resolvable acceptor, 466 (94.7%) land within one
+# proton of -2.016 g/mol (or -4.03 for a double oxidation) and the remaining
+# 26 are a single, cleanly identifiable and correctly excluded confound --
+# oxidative DEcarboxylation (malate dehydrogenase, isocitrate dehydrogenase,
+# 6-phosphogluconate dehydrogenase and relatives), which loses CO2 as well as
+# 2 H and lands near -45.02, a different transformation a stoichiometric
+# oxidant alone does not perform.
+
+reaction_class:
+  id: nad-oxidoreductase
+  name: "NAD(P)+-dependent oxidation of a CH-OH group"
+  description: >
+    Enzymatic oxidation of a primary or secondary alcohol (or an anomeric
+    hemiacetal, oxidised to a lactone) to the corresponding aldehyde, ketone
+    or lactone, releasing NAD(P)H. Matching is on the cofactor's oxidised
+    form specifically, narrowed to EC 1.1.1, because the reduced forms
+    (NADH/NADPH) mark the reverse reaction and a different chemical
+    counterpart entirely.
+  # A genuine 2H-loss oxidation removes 2.016 g/mol (2 x 1.008) net -- H2,
+  # not a transferred group, so the sign is negative: the product is
+  # LIGHTER than the acceptor. Verified via RDKit against real Rhea pairs:
+  # cyclohexanol -> cyclohexanone (observed -2.02) and a primary alcohol ->
+  # an aldehyde (observed -2.02). A double oxidation (two CH-OH sites
+  # oxidised by the same enzyme in one step) consumes 2 NAD(P)+, read from
+  # Rhea's own stoichiometric coefficient exactly as the other two classes
+  # read theirs for multi-transfer reactions.
+  expected_mass_delta: -2.016
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: ["CHEBI:57540", "CHEBI:58349"]
+  cofactor_role: reagent
+  ec_prefix: "1.1.1"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as sam-methyltransferase.yaml: see
+    docs/screening.md's "A declared process, instead of one paper's bench
+    run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+#
+# Same mechanism and justification as the other two classes' process models.
+process_model:
+  name: "TEMPO/NaOCl (Anelli-type) oxidation, at process concentration"
+  source: >
+    Not a paper. Catalytic TEMPO with stoichiometric sodium hypochlorite
+    (household-bleach-grade oxidant) and catalytic potassium bromide is the
+    standard, broadly applicable chemical counterpart to an NAD(P)+-linked
+    alcohol dehydrogenase: it oxidises primary alcohols to aldehydes and
+    secondary alcohols to ketones without a heavy-metal oxidant. Parameters
+    stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.9
+  note: >
+    No protection stage is modelled, for the same reason the methylation
+    class omits one: this is conservative in the direction that makes the
+    chemical route look better, not worse, so it is not a thumb on the
+    scale for "the enzyme wins". A real synthesis oxidising a polyol
+    selectively at one site would likely need one.
+  stages:
+
+    - id: oxidise
+      volumes: 1.0
+      solvent: {name: water, cas: "7732-18-5", density_kg_per_L: 1.0}
+      reagents:
+        - name: sodium hypochlorite
+          cas: "7681-52-9"
+          kg_per_mol: 0.074442
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the stoichiometric oxidant -- modest excess,
+            standard for an Anelli-type oxidation.
+        - name: potassium bromide
+          cas: "7758-02-3"
+          kg_per_mol: 0.119002
+          equivalents: 0.1
+          note: >
+            Catalytic co-catalyst, 10 mol%, that regenerates the active
+            brominating species in situ.
+        - name: TEMPO
+          cas: "2564-83-2"
+          kg_per_mol: 0.156252
+          equivalents: 0.05
+          note: >
+            Catalytic radical mediator, 5 mol% -- the reagent that actually
+            gives the reaction its chemoselectivity.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

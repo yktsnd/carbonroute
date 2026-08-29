@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Two classes now built — 855 of 18,558 reactions matched (4.6%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Three classes now built — 1,370 of 18,558 reactions matched (7.4%), 739 decided (4.0%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -190,12 +190,17 @@ measures the same thing the threshold did.
    new class supplies its reagents and inherits the process. That is what
    unblocked coverage: three rounds of literature search produced zero new
    paper-sourced templates, and the paper-per-class route does not scale.
-   The second class, `sam-methyltransferase.yaml` (EC 2.1.1, SAM-dependent
-   O/N/S-methylation), is built the same way: 449 reactions matched, 351
-   decided, no paper cited anywhere in it. Combined: **855 of 18,558
-   reactions matched (4.6%), 739 decided (4.0%)**, up from one class's 406 /
-   388. More classes are being added the same way — see the coverage ceiling
-   below for what that number can and cannot reach.
+   Two more classes are built the same way, no paper cited in either:
+   `sam-methyltransferase.yaml` (EC 2.1.1, SAM-dependent O/N/S-methylation —
+   449 matched, 351 decided) and `nad-oxidoreductase.yaml` (EC 1.1.1,
+   NAD(P)+-dependent oxidation, the *largest* EC-3 group — 515 matched, but
+   **0 decided**, honestly: its process model is too small relative to the
+   cofactor's wide, unevidenced bound to guarantee a verdict either way, and
+   that is reported rather than papered over with inflated reagent amounts.
+   Combined: **1,370 of 18,558 reactions matched (7.4%), 739 decided
+   (4.0%)**, up from one class's 406 / 388. More classes are being added the
+   same way — see the coverage ceiling below for what that number can and
+   cannot reach.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them

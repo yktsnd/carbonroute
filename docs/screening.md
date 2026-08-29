@@ -665,6 +665,65 @@ Every excluded reaction was checked by hand against its equation text before
 this table was written, the same discipline the glycosylation class's
 exclusion buckets follow.
 
+## The third class: NAD(P)+-dependent oxidation, and an honest non-result
+
+`data/reaction-classes/nad-oxidoreductase.yaml` covers NAD(P)+-dependent
+oxidation of a CH-OH group — EC 1.1.1, the *largest* EC-3 group in Rhea.
+Matching on the *oxidised* cofactor forms specifically (NAD+, NADP+, not
+NADH/NADPH) is what fixes the direction: those reactant ChEBI ids only
+appear on reactions written as oxidations, so `expected_mass_delta` can be a
+single signed number (−2.016 g/mol, H₂ lost) rather than needing to handle
+both signs.
+
+**515 reactions match; 492 resolve to a single acceptor; 466 of those
+(94.7%) land within one proton of a clean multiple of −2.016.** The other 26
+cluster tightly at −45.02 — oxidative *de*carboxylation (malate
+dehydrogenase, isocitrate dehydrogenase, 6-phosphogluconate dehydrogenase
+and relatives: −2.016 for the hydride loss plus −43.99 for the CO₂ that
+leaves with it), a genuinely different transformation a stoichiometric
+oxidant alone does not perform, and correctly excluded rather than folded
+in as noise.
+
+**This class ships no `transferred_bond_smarts`, and the reason is worth
+recording as a caution about the bond-check mechanism itself.** The natural
+structural signature of an oxidation is a new C=O appearing
+(`[CX3]=[OX1]`), and it works cleanly on open-chain acceptors — but it fails
+on a real and common case in this class: ChEBI draws reducing sugars in
+their *cyclic hemiketal* form, so `D-mannitol + NAD+ = D-fructose + NADH` shows
+zero carbonyl matches on either side of the equation, because the "new"
+ketone is masked as a ring C–OH. Applying the check as written would have
+silently excluded dozens of genuine hexitol/pentitol dehydrogenase
+reactions for a drawing convention, not a chemical reason — precisely the
+kind of mistake this project's own methodology exists to catch, not commit.
+The mass-delta check alone is sufficient here (94.7% purity, one cleanly
+identified confound), so a bond check that would do more harm than good is
+left out, and that decision is itself the finding worth keeping: **a
+structural check is a tool for a specific failure mode, not a reflex to
+apply everywhere.**
+
+**The verdict, honestly: all 515 matched reactions currently screen as
+indeterminate.** Not a bug — the same wide, unevidenced `[0.5, 100]`
+cofactor ceiling the other two classes carry for their own cofactors, paired
+here with a *process model* that is genuinely small (a mostly catalytic
+TEMPO/NaOCl oxidation has nothing like glycosylation's paper-scale solvent
+burden or methylation's stoichiometric alkylating agent). `explain_verdict`
+on any one reaction shows why directly: at the cofactor's cheapest
+plausible value the enzymatic route can still cost far more than this
+process model's chemical route, so the interval straddles zero for every
+member. Padding the process model's reagent equivalents to force a
+decision would be exactly the thumb-on-the-scale this project refuses
+elsewhere. The honest options are the ones already used elsewhere in this
+repository: narrow the cofactor bound with real evidence (the way sucrose's
+ceiling was narrowed from an unevidenced 10 to ADEME/Agribalyse's 0.754), or
+strengthen the process model with a stage this one omits. Neither has been
+done yet, so the class ships as matched-but-undecided rather than with a
+number invented to make it look otherwise.
+
+**Coverage across all three classes: 1,370 of 18,558 Rhea reactions matched
+(7.4%), 739 decided (4.0%).** The gap between those two figures is now
+itself informative — it is exactly this class's 515 reactions, all
+indeterminate.
+
 ## Running one
 
 ```bash
