@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage not.** Reactions now rank on kg CO₂e saved per kg of product, which means the same thing in any class. Still only one class built (2.2% of Rhea), so there is nothing to compare it against yet |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Two classes now built — 855 of 18,558 reactions matched (4.6%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -183,17 +183,19 @@ measures the same thing the threshold did.
 
 ### The road from here
 
-1. **Add classes, now that they are cheap** (Q1 coverage). A template may
-   now declare a `process_model` — reagents at stated equivalents, solvent
-   from a stated reaction concentration — instead of quoting one paper's
-   charged amounts. The parameters are chemistry-independent, so a new class
-   supplies its reagents and inherits the process. That is what unblocks
-   coverage: three rounds of literature search produced zero new
+1. ~~Add classes, now that they are cheap~~ **Done, and continuing.** A
+   template may declare a `process_model` — reagents at stated equivalents,
+   solvent from a stated reaction concentration — instead of quoting one
+   paper's charged amounts. The parameters are chemistry-independent, so a
+   new class supplies its reagents and inherits the process. That is what
+   unblocked coverage: three rounds of literature search produced zero new
    paper-sourced templates, and the paper-per-class route does not scale.
-   Screened both ways on the same 388 reactions, the modelled process cuts
-   the enzymatic advantage about six-fold **and leaves the verdict standing**
-   — 388 of 388 still have a guaranteed saving. The largest EC-3 groups are
-   1.1.1 (526 reactions), 2.1.1 (500) and 2.3.1 (382).
+   The second class, `sam-methyltransferase.yaml` (EC 2.1.1, SAM-dependent
+   O/N/S-methylation), is built the same way: 449 reactions matched, 351
+   decided, no paper cited anywhere in it. Combined: **855 of 18,558
+   reactions matched (4.6%), 739 decided (4.0%)**, up from one class's 406 /
+   388. More classes are being added the same way — see the coverage ceiling
+   below for what that number can and cannot reach.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -202,46 +204,71 @@ measures the same thing the threshold did.
    co-substrate, charged every cycle, never bought down by recycling) and
    `amortised` ones (**an immobilised enzyme and its carrier**, divided by
    the batches one purchase serves — the number immobilisation exists to
-   raise). The shipped class declares sucrose as `per_turnover` and **no
-   immobilisation measure at all**, because the enzyme loading, reuse cycles
-   and enzyme-production GWP are not held from a document this repository has
-   read — enzyme-production GWP and reuse cycles have since been sourced,
-   leaving only enzyme loading per mole of product. The co-substrate amount
-   is now what a published cascade actually charges (Liu et al. 2021, CC BY:
-   4.196 mol sucrose per mole of product), not the theoretical 1:1, which
-   understated it 4.2x in the enzyme's favour. **That correction changed a
-   result**: the enzymatic route used to win all 388 reactions at every
-   effort up to 99%, and at the real charged amount the 99% column collapses
-   to no verdict at all — the sweep was an artefact of undercharging the
-   enzyme. Screened instead at two published figures, Liu's 240 cofactor
-   turnovers and industrial distillation's 90% recovery, **all 388 reactions
-   have a guaranteed saving**. One number still dominates, though: the
-   template's 159 kg/mol ethyl-acetate isolation. Recovery divides that; it
-   cannot un-choose it. Run that way the enzyme stays ahead on all 388 reactions at
-   every effort up to 99%, but the result is carried by one number: the
-   template's 159 kg/mol ethyl-acetate isolation. Recovery divides that; it
-   cannot un-choose it. **Solvent recovery and solvent avoidance are
-   different levers**, and comparing a solvent-lean enzymatic route against a
-   chemical route merely tidying up after a wasteful one is not the fair
-   fight it looks like. The class needs a template from a procedure that is
-   itself solvent-lean.
-3. **Add paper-sourced classes where a source exists** (optional). The largest
-   EC-3 groups — 1.1.1 (526 reactions), 2.1.1 (500), 2.3.1 (382) — would
-   bring the total to 1,808: 9.7% of Rhea, 23.7% of the 7,635 that carry an
-   EC number. Each needs one real published procedure, chosen by the same
-   rule in every class, or the cross-class ranking measures how hard each
-   paper's authors tried rather than the chemistry.
+   raise). The shipped class declares sucrose as `per_turnover`, at the
+   amount a published cascade actually charges (Liu et al. 2021, CC BY:
+   4.196 mol sucrose per mole of product, not the theoretical 1:1, which
+   understated it 4.2x in the enzyme's favour) and **no immobilisation
+   measure**, because the bridge from enzyme-production GWP to enzyme mass
+   per mole of product is not held from a document this repository has read.
+   Screened at Liu's published 240 cofactor turnovers and industrial
+   distillation's 90% recovery, **all 388 reactions have a guaranteed
+   saving** — but one number still dominates: the template's 159 kg/mol
+   ethyl-acetate isolation. Recovery divides that; it cannot un-choose it.
+   **Solvent recovery and solvent avoidance are different levers**, and
+   comparing a solvent-lean enzymatic route against a chemical route merely
+   tidying up after a wasteful one is not the fair fight it looks like. The
+   `process_model` mechanism built for coverage is also the fix here — a
+   process-model isolation already charges 5 reaction volumes instead of the
+   paper's ~30 — and running the fair fight against it rather than the paper
+   is next.
+3. **Add paper-sourced classes where a source exists** (optional, and
+   secondary to `process_model` coverage). Each needs one real published
+   procedure, chosen by the same rule in every class, or the cross-class
+   ranking measures how hard each paper's authors tried rather than the
+   chemistry.
 4. **Locate the commercial processes** (Q3). Map already-commercialised
    enzymatic reactions — human-milk-oligosaccharide fucosylation
    (RHEA:14257 and others), anthocyanin glucosylation (RHEA:20093),
    β-arbutin (RHEA:12560) — onto Rhea ids and report their percentile in
    the guaranteed-floor ranking above.
 
-The ceiling on "comprehensive" is worth stating plainly too. Only 7,635 of
-Rhea's 18,558 reactions (41.1%) carry an EC number at all, and templating
-the top *ten* EC-3 groups would still reach only 3,130 reactions (16.9%).
-The goal is not a census of the whole database — it is **enough coverage to
-decide which reaction classes are worth investing in**.
+### How far coverage can actually go, and why not further
+
+Say this plainly, because the numbers above invite the question directly:
+**a class-template screen of Rhea cannot reach anywhere near comprehensive
+coverage, and that is a fact about the data, not about how much work gets
+done.**
+
+Matching requires a reaction to consume a recognisable cofactor as a
+reactant. Counting every reaction that consumes *any* of the sixteen most
+common cofactors in Rhea — CoA, acetyl-CoA, SAM, NAD(P)(H) in all four redox
+states, ATP, ADP, the UDP-sugars, FAD, FMN, O₂, H₂O₂ — with no further
+restriction at all, covers **8,073 of 18,558 reactions: 43.5%.** That is the
+ceiling for this method, full stop, before any class-purity filtering
+(EC restriction, mass-delta check, bond check) removes reactions that share a
+cofactor but are not the transformation a class template models — which the
+two shipped classes show removes a meaningful share (98 of 449 for SAM
+methylation, 18 of 406 for glycosylation). O₂ alone accounts for 15.8% of
+that ceiling and cannot be templated as a single class at all: it is consumed
+by oxidations, oxygenations and radical chemistry with no shared "chemical
+counterpart" whatsoever, the same heterogeneity problem CoA and SAM raised at
+the cofactor level in ["Why 18,558 reactions is a bounded problem"](#why-18558-reactions-is-a-bounded-problem-not-an-unbounded-one)
+above, one level worse.
+
+**80% coverage of Rhea is not a target this method can reach by working
+harder at it — the honest number to work toward is closer to 30–40%,** built
+from the EC-3 groups large enough to be worth templating and homogeneous
+enough to pass the mass-delta and bond checks. That is still a large,
+useful, and — unlike raw coverage — *comparable* fraction of the database:
+enough to rank which reaction classes are worth a real investigation, which
+was always the actual goal (see the closing paragraph of
+["Picking the next class"](#picking-the-next-class-by-ec-number-not-by-which-cofactor-is-most-common)).
+Reporting 80% would mean abandoning the cofactor-plus-structural-check
+methodology this project exists to demonstrate, in favour of matching on
+looser criteria that would silently mix chemistry the way raw cofactor
+frequency already warns against. That trade is refused here on the same
+terms every other number in this repository is: **an honestly bounded 35%
+is worth more than a fabricated 80%.**
 
 ---
 
