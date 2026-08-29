@@ -1,0 +1,132 @@
+# Reaction class: UDP-glucuronate-dependent O-glucuronidation
+#
+# Covers Rhea reactions consuming UDP-alpha-D-glucuronate (CHEBI:58052) as a
+# reactant. This is the UGT (UDP-glucuronosyltransferase) family -- the same
+# real-world drug-metabolism chemistry that conjugates phenols, alcohols and
+# carboxylic acids in the liver -- restricted by mass delta rather than EC
+# prefix, because the donor's chemistry alone (transfer of one glucuronosyl
+# unit) is specific enough to separate it from this cofactor's other,
+# genuinely different reactions (see below).
+#
+# A THIRD CHARGE-STATE SPLIT, THE SAME KIND OF FINDING AS THE ATP-KINASE AND
+# ACETYL-COA CLASSES. Real glucuronosylation reactions cluster at two mass
+# deltas exactly one proton apart, not one: verified directly against
+# RHEA:10568 (luteolin -> luteolin 7-O-beta-D-glucuronide: 460.347 - 285.231
+# = 175.116) and RHEA:28314 (baicalein -> baicalin: 445.356 - 269.232 =
+# 176.124). Both are real, structurally confirmed glucuronosylations -- the
+# difference is which of the acceptor's other hydroxyls ChEBI happens to draw
+# protonated vs. anionic in that particular entry, not a different
+# transformation. expected_mass_delta is set to the midpoint, 175.62, with
+# mass_delta_tolerance widened to 1.0 specifically to cover both real
+# clusters (each within 0.5 of the midpoint) without also catching this
+# cofactor's other, unrelated chemistry, which sits far outside that window
+# (see below).
+#
+# Structural verification (run through the actual screen): 102 reactions
+# consume UDP-glucuronate. 1 (RHEA:11404, UDP-glucuronate 4-epimerase --
+# UDP-glucuronate = UDP-galacturonate) has no separate acceptor at all, a
+# pure isomerisation, and correctly comes back "could not identify
+# acceptor/product". Of the 101 that do resolve to a single acceptor/product
+# pair, 95 (94.1%) land within tolerance -- 67 at the 175.12 cluster, 28 at
+# the 176.12 cluster -- and are decided, every one of them decisively
+# favouring the enzyme. The other 6 are genuinely different UDP-glucuronate
+# chemistry, not glucuronosylation gone wrong: 2 (RHEA:12528, RHEA:20908)
+# are hyaluronan/proteoglycan CHAIN ELONGATION, adding a glucuronosyl unit to
+# a growing polysaccharide written with Rhea's "(n)"/"(n+1)" notation, where
+# this project's acceptor/product resolver cannot form a real molecular-
+# weight comparison; 2 (RHEA:23916, RHEA:70523) are UDP-glucuronate
+# DECARBOXYLASE reactions (UDP-glucuronate -> UDP-xylose or UDP-apiose + CO2,
+# no separate acceptor at all -- UDP-glucuronate is both the "acceptor" and
+# whole substrate); 1 (RHEA:24702) is a further NAD+-dependent oxidative
+# decarboxylation of the same kind; 1 (RHEA:29559) is hydrolysis to
+# glucuronate 1-phosphate, not a transfer to a foreign acceptor. All are
+# correctly excluded by the mass-delta check rather than folded in as noise.
+# No transferred_bond_smarts is declared: the mass-delta check alone already
+# separates real glucuronosylation from this cofactor's other reactions by
+# at least two orders of magnitude in delta.
+
+reaction_class:
+  id: udp-glucuronosyltransferase
+  name: "UDP-glucuronate-dependent O-glucuronidation"
+  description: >
+    Enzymatic transfer of a glucuronosyl unit from UDP-glucuronate onto an
+    acceptor hydroxyl, releasing UDP -- the UGT family. Matched on
+    UDP-glucuronate specifically (EC 2.4.1.17 and related), separated from
+    this cofactor's chain-elongation and decarboxylase reactions by mass
+    delta.
+  expected_mass_delta: 175.62
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:58052"
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Koenigs-Knorr glucuronidation with a pre-formed bromide donor, then saponification"
+  source: >
+    Not a paper. Methyl 2,3,4-tri-O-acetyl-1-bromo-1-deoxy-alpha-D-
+    glucopyranuronate (CAS 21085-72-3) with silver carbonate is the
+    textbook Koenigs-Knorr route for glucuronidation -- the standard
+    laboratory method for a pre-formed glycosyl bromide donor (as opposed
+    to the Helferich/BF3 activation the glucose/galactose class's donor
+    uses, which is the method for an unactivated peracetylated sugar).
+    Saponification with sodium hydroxide then removes the three acetate
+    protecting groups and the donor's own methyl ester in one step, giving
+    the free-acid glucuronide the enzymatic product also is. Parameters
+    stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.8
+  note: >
+    No protection stage for the acceptor's own other reactive groups is
+    modelled, for the same conservative reason the other process-model
+    classes omit one -- it makes the chemical route look better than it is
+    for polyfunctional acceptors, not worse, so it is not a thumb on the
+    scale for "the enzyme wins".
+  stages:
+
+    - id: glycosylate
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: methyl acetobromoglucuronate
+          cas: "21085-72-3"
+          kg_per_mol: 0.397174
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the pre-formed glycosyl bromide donor --
+            modest excess, standard for this reaction.
+        - name: silver carbonate
+          cas: "534-16-7"
+          equivalents: 1.1
+          kg_per_mol: 0.275745
+          note: >
+            The Koenigs-Knorr promoter, activating the anomeric bromide for
+            substitution. 1.1 equivalents, standard loading.
+
+    - id: deprotect
+      volumes: 3.0
+      solvent: {name: methanol, cas: "67-56-1", density_kg_per_L: 0.792}
+      reagents:
+        - name: sodium hydroxide
+          cas: "1310-73-2"
+          kg_per_mol: 0.02
+          equivalents: 5.0
+          note: >
+            Saponification of the three sugar acetates and the donor's
+            methyl ester in one step -- 4 ester bonds cleaved, 5
+            equivalents of base for complete hydrolysis with a modest
+            excess.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

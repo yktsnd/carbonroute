@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Six classes now built — 1,764 of 18,558 reactions matched (9.5%), 978 decided (5.3%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Seven classes now built — 1,866 of 18,558 reactions matched (10.1%), 1,073 decided (5.8%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -190,7 +190,7 @@ measures the same thing the threshold did.
    new class supplies its reagents and inherits the process. That is what
    unblocked coverage: three rounds of literature search produced zero new
    paper-sourced templates, and the paper-per-class route does not scale.
-   Five more classes are built the same way, no paper cited in any:
+   Six more classes are built the same way, no paper cited in any:
    `sam-methyltransferase.yaml` (EC 2.1.1, SAM-dependent O/N/S-methylation —
    449 matched, 351 decided), `nad-oxidoreductase.yaml` (EC 1.1.1,
    NAD(P)+-dependent oxidation, the *largest* EC-3 group — 515 matched, but
@@ -212,10 +212,15 @@ measures the same thing the threshold did.
    second honest non-result: all 124 resolved reactions are indeterminate,
    for a reason related to but distinct from the NAD(P)+ class's — small
    acceptors mean a comparatively large cofactor cost per kilogram of
-   product even at acetyl-CoA's cheapest plausible value). Combined:
-   **1,764 of 18,558 reactions matched (9.5%), 978 decided (5.3%)**, up from
-   one class's 406 / 388. More classes are being added the same way — see
-   the coverage ceiling below for what that number can and cannot reach.
+   product even at acetyl-CoA's cheapest plausible value), and
+   `udp-glucuronosyltransferase.yaml` (UDP-glucuronate-dependent
+   glucuronidation — the real UGT drug-metabolism family — 102 matched, 95
+   decided, all decisive; a *third* charge-state split, one proton apart,
+   unified the same way as the other two). Combined:
+   **1,866 of 18,558 reactions matched (10.1%), 1,073 decided (5.8%)**, up
+   from one class's 406 / 388. More classes are being added the same way —
+   see the coverage ceiling below for what that number can and cannot
+   reach.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them

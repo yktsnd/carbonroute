@@ -1386,3 +1386,84 @@ def test_acoa_class_verdicts_are_honestly_indeterminate_at_current_bounds(acoa_s
     assert len(verdicts) == 124
     assert all(v is not None and not v.decisive for v in verdicts.values())
     assert all(v.verdict == "indeterminate" for v in verdicts.values())
+
+
+# --- a seventh class: UDP-glucuronate-dependent glucuronidation ------------
+
+
+@pytest.fixture(scope="module")
+def ugt_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "udp-glucuronosyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "udp-glucuronosyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def ugt_screened(ugt_inputs):
+    return screen_all(*ugt_inputs, use_process_model=True)
+
+
+def test_ugt_class_unifies_two_clusters_one_proton_apart(ugt_inputs):
+    """A third charge-state split, the same kind of finding as the
+    ATP-kinase and acetyl-CoA classes. RHEA:10568 (luteolin ->
+    luteolin 7-O-beta-D-glucuronide) gives 460.347 - 285.231 = 175.116;
+    RHEA:28314 (baicalein -> baicalin) gives 445.356 - 269.232 = 176.124 --
+    both real, structurally confirmed glucuronosylations, one proton apart
+    because of which of the acceptor's other hydroxyls ChEBI happens to
+    draw protonated in that entry. expected_mass_delta is the midpoint,
+    with tolerance widened to cover both real clusters."""
+    template = ugt_inputs[1]
+    assert template.expected_mass_delta == pytest.approx(175.62, abs=1e-6)
+    assert template.mass_delta_tolerance == pytest.approx(1.0, abs=1e-6)
+
+
+def test_ugt_class_matches_and_excludes_five_other_transformations(ugt_screened):
+    """102 Rhea reactions consume UDP-glucuronate. RHEA:11404 (UDP-
+    glucuronate 4-epimerase, a pure isomerisation with no separate acceptor)
+    cannot be resolved to an acceptor/product pair. Of the 101 that do
+    resolve, 95 (94.1%) land within tolerance and are decided -- every one
+    of them decisively favouring the enzyme. The other 6 are genuinely
+    different UDP-glucuronate chemistry (hyaluronan chain elongation,
+    UDP-glucuronate decarboxylase, oxidative decarboxylation, hydrolysis to
+    the 1-phosphate) and are correctly excluded by mass delta."""
+    assert ugt_screened.matched == 102
+    assert len(ugt_screened.decided) == 95
+    by_id = {r.rhea_id: r for r in ugt_screened.results}
+    assert by_id["RHEA:10568"].decided
+    assert by_id["RHEA:28314"].decided
+    assert "could not identify" in by_id["RHEA:11404"].skipped_reason
+    for rhea_id in ("RHEA:12528", "RHEA:20908", "RHEA:23916", "RHEA:24702", "RHEA:29559", "RHEA:70523"):
+        assert not by_id[rhea_id].decided
+        assert "does not match" in by_id[rhea_id].skipped_reason
+
+
+def test_ugt_process_model_charges_the_bromide_donor_and_promoter(ugt_inputs):
+    """The declared process, not a paper: a Koenigs-Knorr glucuronidation
+    with a pre-formed glycosyl bromide donor and a silver promoter, then
+    saponification and a plant-style isolation. Everything generalised by
+    construction."""
+    template = ugt_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"methyl acetobromoglucuronate", "silver carbonate", "sodium hydroxide"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_ugt_class_is_decided_and_decisively_favours_the_enzyme(ugt_screened):
+    """Every one of this class's 95 decided reactions reaches a decisive
+    verdict favouring the enzyme, the same shape as the ATP-kinase and
+    DMAPP-prenyltransferase classes: the process model's silver-promoted
+    Koenigs-Knorr coupling plus saponification is bulky enough to keep the
+    sign fixed even at UDP-glucuronate's most expensive assumed value
+    within its wide, unevidenced [0.5, 100] cofactor ceiling."""
+    decided_with_verdict = [
+        r for r in ugt_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(ugt_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

@@ -897,6 +897,59 @@ model with a stage this one omits. Neither has been done yet.
 two classes' worth of matched-but-indeterminate reactions (515 + 124 = 639)
 rather than one.
 
+## The seventh class: UDP-glucuronate-dependent glucuronidation, and a third charge-state split
+
+`data/reaction-classes/udp-glucuronosyltransferase.yaml` covers transfer of
+a glucuronosyl unit from UDP-glucuronate onto an acceptor hydroxyl,
+releasing UDP — the UGT (UDP-glucuronosyltransferase) family, the same
+real-world drug-metabolism chemistry that conjugates phenols, alcohols and
+carboxylic acids in the liver. Matching is on mass delta rather than EC
+prefix: the donor's chemistry alone is specific enough to separate real
+glucuronosylation from this cofactor's other reactions.
+
+**A third charge-state split, the same kind of finding as the ATP-kinase
+and acetyl-CoA classes.** Real glucuronosylation reactions cluster at two
+mass deltas exactly one proton apart, not one — verified directly against
+RHEA:10568 (luteolin → luteolin 7-O-β-D-glucuronide: 460.347 − 285.231 =
+175.116) and RHEA:28314 (baicalein → baicalin: 445.356 − 269.232 =
+176.124). Both are real, structurally confirmed glucuronosylations; the
+difference is which of the acceptor's *other* hydroxyls ChEBI happens to
+draw protonated versus anionic in that particular entry, not a different
+transformation. `expected_mass_delta` is set to the midpoint, 175.62, with
+`mass_delta_tolerance` widened to 1.0 to cover both real clusters without
+also catching this cofactor's genuinely different chemistry, which sits
+far outside that window.
+
+| outcome | reactions |
+|---|---:|
+| matched (UDP-glucuronate) | 102 |
+| excluded — could not identify an acceptor/product pair (pure isomerisation) | 1 |
+| excluded — right transfer count, wrong mass (5 other transformations) | 6 |
+| **decided** | **95** |
+
+The single unresolved reaction (RHEA:11404) is UDP-glucuronate
+4-epimerase — a pure isomerisation to UDP-galacturonate with no separate
+acceptor at all. The 6 mass-delta exclusions are genuinely different
+UDP-glucuronate chemistry, not glucuronosylation gone wrong: hyaluronan/
+proteoglycan chain elongation (2, written with Rhea's "(n)"/"(n+1)"
+polymer notation), UDP-glucuronate decarboxylase (2, no separate acceptor
+at all), a further NAD⁺-dependent oxidative decarboxylation (1), and
+hydrolysis to glucuronate 1-phosphate rather than transfer to a foreign
+acceptor (1) — all correctly excluded rather than folded in as noise.
+
+No `transferred_bond_smarts` is declared: the mass-delta check alone
+already separates real glucuronosylation from this cofactor's other
+chemistry by at least two orders of magnitude in delta. Like the
+ATP-kinase and DMAPP-prenyltransferase classes, every one of the 95
+decided reactions reaches a decisive verdict favouring the enzyme: the
+process model (a Koenigs-Knorr coupling with a pre-formed glycosyl bromide
+donor and a silver promoter, then saponification) is bulky enough to keep
+the sign fixed even at UDP-glucuronate's most expensive assumed value
+within its wide, unevidenced `[0.5, 100]` cofactor ceiling.
+
+**Coverage across all seven classes: 1,866 of 18,558 Rhea reactions
+matched (10.1%), 1,073 decided (5.8%).**
+
 ## Running one
 
 ```bash
