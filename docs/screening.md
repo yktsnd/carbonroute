@@ -724,6 +724,64 @@ number invented to make it look otherwise.
 itself informative — it is exactly this class's 515 reactions, all
 indeterminate.
 
+## The fourth class: ATP-dependent phosphorylation, and a charge-state fix
+
+`data/reaction-classes/atp-kinase.yaml` covers ATP-dependent transfer of the
+γ-phosphate onto an acceptor hydroxyl, releasing ADP — EC 2.7.1, matched on
+ATP specifically (not ADP or AMP, which mark different chemistry).
+
+**The textbook mass delta is wrong for this class, and finding out why is
+the interesting part.** A phosphate monoester, R-OH → R-O-PO₃H₂, adds HPO₃
+net: 79.980 g/mol in vacuo. Measured against real Rhea reactions, the
+observed delta clusters at 77.963 — short by almost exactly two protons.
+The reason is not a different transformation but ChEBI's own charge-state
+convention: it records the phosphorylated product as the **dianion**,
+R-O-PO₃²⁻, not the neutral diacid, so the structure carries two fewer
+explicit hydrogens than the textbook formula predicts. Verified directly
+against RHEA:10224 (pyridoxal → pyridoxal 5′-phosphate, observed delta
+77.963 exactly). This is the same phenomenon the glycosylation class
+documents for a minority of its members (a carboxylate acceptor paired with
+a neutral ester product, short by one proton) — here it is the *dominant*
+convention rather than an exception, so `expected_mass_delta` is set to
+what ChEBI actually records rather than the in-vacuo number.
+
+| outcome | reactions |
+|---|---:|
+| matched (ATP + EC 2.7.1) | 209 |
+| excluded — could not identify an acceptor/product pair | 4 |
+| excluded — right transfer count, wrong mass (donor/acceptor pairing collides) | 3 |
+| **decided** | **202** |
+
+The 3 mass-delta exclusions are not a different transformation the way SAM's
+C-methylations or NAD's oxidative decarboxylations are: RHEA:12260 (NADH
+kinase), RHEA:18245 (dephospho-CoA kinase), and RHEA:18629 (NAD⁺ kinase) are
+genuine single-phosphate transfers, but their donor and acceptor are both
+large, similarly-sized cofactor molecules, and the simple by-elimination
+pairing this project uses to identify "the acceptor" and "the product"
+locks onto the wrong pair for them. The mass-delta check correctly refuses
+to decide them rather than guessing — an honest limitation of the pairing
+heuristic, not of the chemistry.
+
+`transferred_bond_smarts: "[#15]"` (a new phosphorus atom) checks the class
+anyway, on a signature that is simple and robust because acceptors in this
+class carry zero phosphorus to start with. It excludes none of the 202
+mass-delta-clean reactions — the mass-delta check alone already separates
+the class, and the bond check confirms rather than does the discriminating
+work here, unlike SAM's class where it is load-bearing.
+
+**Unlike the NAD(P)+ class, every one of this class's 202 decided reactions
+reaches a decisive verdict, and every one favours the enzyme.** The process
+model (POCl₃/pyridine phosphorylation, pyridine doing double duty as both
+solvent and base) is stoichiometric and comparatively bulky, the same shape
+of chemical counterpart glycosylation and methylation have — not the small,
+mostly-catalytic route NAD-oxidoreductase's class carries. Even at ATP's
+most expensive assumed value within its unevidenced `[0.5, 100]` ceiling,
+the chemical route's reagent burden is enough to keep the sign fixed over
+the whole box of asserted bounds.
+
+**Coverage across all four classes: 1,579 of 18,558 Rhea reactions matched
+(8.5%), 941 decided (5.1%).**
+
 ## Running one
 
 ```bash

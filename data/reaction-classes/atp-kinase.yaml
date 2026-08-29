@@ -1,0 +1,116 @@
+# Reaction class: ATP-dependent phosphorylation
+#
+# Covers every Rhea reaction consuming ATP (CHEBI:30616) as a reactant,
+# restricted to EC 2.7.1 (phosphotransferases with an alcohol group as
+# acceptor -- kinases). Matching on ATP specifically (not ADP or AMP, which
+# mark different, unrelated chemistry) and EC 2.7.1 (not the other EC 2.7.x
+# subclasses, which phosphorylate other acceptor types) narrows to a single
+# clean transformation: transfer of the gamma-phosphate of ATP onto an
+# acceptor hydroxyl, releasing ADP.
+#
+# THE MASS DELTA IS NOT THE TEXTBOOK ONE, AND THAT IS WORTH RECORDING. A
+# phosphate monoester, R-OH -> R-O-PO3H2, adds HPO3 net: 1.008 + 30.974 +
+# 3*15.999 = 79.980 g/mol. Measured against the real, resolvable Rhea
+# reactions in this class, the observed delta clusters at 77.96 -- short by
+# almost exactly 2 protons. The reason is ChEBI's own charge-state
+# convention, not a different transformation: it records the phosphorylated
+# product as the DIANION, R-O-PO3(2-), not the neutral diacid, so the
+# structure carries two fewer explicit hydrogens than the textbook formula.
+# Verified directly against RHEA:10224 (pyridoxal -> pyridoxal 5'-phosphate,
+# observed delta 77.963 exactly). This is the same phenomenon the
+# glycosylation class documents for a minority of its members (a carboxylate
+# acceptor paired with a neutral ester product, short by one proton) --
+# here it is the DOMINANT convention rather than an exception, so the
+# expected value is set to what Rhea actually records rather than the
+# in-vacuo textbook number, with the usual +/-1-proton tolerance left in
+# place to catch the reactions recorded the other way.
+#
+# Structural verification (run through the actual screen, not a throwaway
+# script): 209 reactions match ATP + EC 2.7.1. 202 of them (96.7%) resolve
+# to a single acceptor/product pair within one proton of 77.963 (times
+# however many phosphates the reaction transfers) and are decided. Of the
+# 7 that are not: 4 (RHEA:22740, RHEA:24952, RHEA:63428, RHEA:73839) could
+# not be resolved to a single acceptor/product pair from Rhea's equation
+# text at all; 3 more (RHEA:12260, RHEA:18245,
+# RHEA:18629 -- NADH kinase, dephospho-CoA kinase, NAD+ kinase) genuinely
+# transfer one phosphate but pair a large donor/acceptor with an
+# equally-large product, and the simple by-elimination pairing this project
+# uses to identify "the acceptor" and "the product" locks onto the wrong
+# pair for them, producing a mass delta nowhere near 77.96; they are
+# correctly excluded by the mass-delta check rather than mis-decided.
+# transferred_bond_smarts checks for it anyway, on a simple and robust
+# signature: acceptors in this class carry zero phosphorus atoms, and a
+# genuine member gains exactly one phosphorus per transfer -- it excluded
+# none of the 202 decided reactions, confirming it is not doing the
+# discriminating work here; the mass-delta check alone already separates
+# the class.
+
+reaction_class:
+  id: atp-kinase
+  name: "ATP-dependent phosphorylation of a hydroxyl"
+  description: >
+    Enzymatic transfer of ATP's gamma-phosphate onto an acceptor hydroxyl,
+    releasing ADP. Matching is on ATP specifically, narrowed to EC 2.7.1
+    (kinases acting on an alcohol acceptor).
+  expected_mass_delta: 77.963
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:30616"
+  cofactor_role: reagent
+  ec_prefix: "2.7.1"
+  # New phosphorus atom per phosphate transferred. Acceptors in this class
+  # carry none; verified against all 174 resolvable members.
+  transferred_bond_smarts: "[#15]"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only classes:
+    see docs/screening.md's "A declared process, instead of one paper's
+    bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "POCl3/pyridine phosphorylation, then aqueous hydrolysis, at process concentration"
+  source: >
+    Not a paper. Phosphoryl chloride with pyridine as both base and
+    acid-chloride activator, followed by aqueous workup to hydrolyse the
+    remaining P-Cl bonds to the phosphate monoester, is the textbook
+    chemical counterpart to a kinase: it is the standard laboratory route
+    from an alcohol to its phosphate ester. Parameters stated on the same
+    terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other two process-model classes omit one -- it makes the chemical route
+    look better than it is for polyfunctional acceptors, not worse, so it is
+    not a thumb on the scale for "the enzyme wins".
+  stages:
+
+    - id: phosphorylate
+      volumes: 1.0
+      solvent: {name: pyridine, cas: "110-86-1", density_kg_per_L: 0.982}
+      reagents:
+        - name: phosphoryl chloride
+          cas: "10025-87-3"
+          kg_per_mol: 0.153332
+          equivalents: 1.2
+          note: >
+            1.2 equivalents of the phosphorylating agent per phosphate
+            transferred -- modest excess, standard for this reaction.
+        - name: pyridine
+          cas: "110-86-1"
+          role: reagent
+          kg_per_mol: 0.079102
+          equivalents: 3.0
+          note: >
+            3 equivalents beyond its role as solvent, to neutralise the HCl
+            generated across both substitution steps at phosphorus.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

@@ -1127,3 +1127,95 @@ def test_sam_class_is_decided_and_bounded(sam_screened):
         r for r in sam_screened.decided if r.verdict is not None and r.verdict.decisive
     ]
     assert len(decided_with_verdict) == len(sam_screened.decided)
+
+
+# --- a fourth class: ATP-dependent phosphorylation, and a charge-state fix -
+
+
+@pytest.fixture(scope="module")
+def atp_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "atp-kinase.yaml")
+    bounds = load_bounds(CLASSES / "atp-kinase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def atp_screened(atp_inputs):
+    return screen_all(*atp_inputs, use_process_model=True)
+
+
+def test_atp_class_uses_the_dianion_mass_delta_not_the_textbook_one(atp_inputs):
+    """A phosphate monoester adds HPO3 in vacuo (79.980 g/mol), but ChEBI
+    records this class's products as the phosphate DIANION, two protons
+    short of that. RHEA:10224 (pyridoxal -> pyridoxal 5'-phosphate) is the
+    reaction that pinned this down: its real, observed mass delta is
+    77.963, not 79.980, and the template's expected_mass_delta is set to
+    the observed value rather than the textbook one for exactly this
+    reason."""
+    template = atp_inputs[1]
+    assert template.expected_mass_delta == pytest.approx(77.963, abs=1e-6)
+
+
+def test_atp_class_matches_and_decides_the_expected_number(atp_screened):
+    """209 Rhea reactions consume ATP under EC 2.7.1. 202 of them (96.7%)
+    resolve to a single acceptor/product pair within one proton of the
+    dianion mass delta and are decided. Every one of the 7 that are not
+    decided is either an acceptor/product pairing this project's simple
+    by-elimination resolver cannot untangle (RHEA:22740, RHEA:24952,
+    RHEA:63428, RHEA:73839) or a real phosphorylation whose donor and
+    acceptor are both large enough (NADH kinase, dephospho-CoA kinase,
+    NAD+ kinase) that the resolver locks onto the wrong pair and the
+    mass-delta check correctly refuses to decide it rather than guessing.
+    """
+    assert atp_screened.matched == 209
+    assert len(atp_screened.decided) == 202
+    by_id = {r.rhea_id: r for r in atp_screened.results}
+    assert by_id["RHEA:10224"].decided
+    for rhea_id in ("RHEA:12260", "RHEA:18245", "RHEA:18629"):
+        assert not by_id[rhea_id].decided
+        assert "does not match" in by_id[rhea_id].skipped_reason
+
+
+def test_atp_class_bond_check_finds_no_further_exclusions(atp_screened):
+    """transferred_bond_smarts checks for exactly one new phosphorus atom
+    per phosphate transferred. It excludes none of the 202 mass-delta-clean
+    reactions -- the mass-delta check alone already separates this class,
+    and the bond check is a second, independent confirmation rather than
+    the thing doing the discriminating work (unlike the SAM class, where
+    the bond check is load-bearing against C-methylation)."""
+    for r in atp_screened.results:
+        assert "class's bond" not in r.skipped_reason
+
+
+def test_atp_process_model_charges_phosphoryl_chloride_and_pyridine(atp_inputs):
+    """The declared process, not a paper: POCl3 and pyridine (as both base
+    and solvent, under the existing key-summing behaviour that totals both
+    roles under one CAS), scaling per phosphate transferred, plus a
+    plant-style isolation. Everything generalised by construction."""
+    template = atp_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"phosphoryl chloride", "pyridine", "ethyl acetate"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_atp_class_is_decided_and_decisively_favours_the_enzyme(atp_screened):
+    """Unlike the NAD(P)+ class, this one reaches a decisive verdict for
+    every reaction it decides: ATP's wide, unevidenced [0.5, 100] cofactor
+    ceiling is still not enough to erase the gap once the chemical route's
+    POCl3/pyridine stoichiometry (well above the enzymatic side even at
+    the cofactor's most expensive assumed value) is counted -- so every
+    decided reaction resolves with the enzymatic route lower, over the
+    whole box of asserted bounds, without needing to assume where in
+    those intervals the true factors fall."""
+    decided_with_verdict = [
+        r for r in atp_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(atp_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
