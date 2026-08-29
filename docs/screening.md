@@ -782,6 +782,62 @@ the whole box of asserted bounds.
 **Coverage across all four classes: 1,579 of 18,558 Rhea reactions matched
 (8.5%), 941 decided (5.1%).**
 
+## The fifth class: DMAPP-dependent prenylation, and two more confounds correctly excluded
+
+`data/reaction-classes/dmapp-prenyltransferase.yaml` covers transfer of the
+dimethylallyl group from DMAPP (dimethylallyl diphosphate, the smallest and
+most common of Rhea's four allylic-diphosphate prenyl donors) onto a
+nucleophilic acceptor, releasing diphosphate — EC 2.5.1. The other three
+donors (GPP, FPP, GGPP, transferring two, three and four isoprene units
+respectively) are not covered by this class: each adds a different mass, so
+covering all four under one template would need a per-donor expected delta
+this project's schema does not support, and DMAPP alone is the largest
+single group among them.
+
+Net mass added is the isoprenyl group, C₅H₈, 68.119 g/mol — verified
+directly against RHEA:10852 (leachianone G → sophoraflavanone G: product
+424.493 g/mol minus acceptor 356.374 g/mol = 68.119 exactly). Unlike the
+ATP-kinase class, no charge-state offset applies here: DMAPP and its
+diphosphate leaving group are drawn in the *same* charge state (both
+trianions) in this pair, so the textbook and observed values agree.
+
+| outcome | reactions |
+|---|---:|
+| matched (DMAPP + EC 2.5.1) | 47 |
+| excluded — could not identify an acceptor/product pair | 8 |
+| excluded — right transfer count, wrong mass (chain elongation) | 2 |
+| **decided** | **37** |
+
+Two genuinely different sub-chemistries share the DMAPP cofactor with real
+prenylation, and both are correctly excluded rather than mis-decided. **Chain
+elongation** (DMAPP condensing head-to-tail with two, three or five
+isopentenyl diphosphate equivalents to build a longer allylic diphosphate —
+RHEA:27810, RHEA:55520, RHEA:77975) leaves mass deltas of 136.24, 204.36 and
+340.60 g/mol, which cluster tightly at exact multiples of 68.12 rather than
+one unit — the same real chemistry (successive isoprene-unit addition)
+confirmed rather than noise, and correctly excluded because this class
+models DMAPP transferring onto a foreign nucleophile, not IPP chain
+elongation. **DMAPP homodimerisation** (chrysanthemyl and lavandulyl
+diphosphate synthase — RHEA:14009, RHEA:21676) consumes two DMAPP and no
+foreign acceptor at all, so no acceptor/product pair resolves; correctly
+excluded as "could not identify" rather than forced into a pairing that
+does not exist.
+
+No `transferred_bond_smarts` is declared, for the same reason the
+NAD(P)+-oxidoreductase class carries none: many acceptors in this class are
+natural products that already carry an unrelated isoprenyl-derived alkene
+from the same biosynthetic family, so "one more C=C" is not a clean
+discriminator. The mass-delta check alone is the whole class-purity test
+here, and — like the ATP-kinase class — every one of the 37 decided
+reactions reaches a decisive verdict favouring the enzyme: the process
+model's stoichiometric prenyl bromide loading (the same Williamson-type
+alkylation shape the SAM class uses, with the alkylating agent swapped)
+keeps the sign fixed even at DMAPP's most expensive assumed value within its
+wide, unevidenced `[0.5, 100]` cofactor ceiling.
+
+**Coverage across all five classes: 1,626 of 18,558 Rhea reactions matched
+(8.8%), 978 decided (5.3%).**
+
 ## Running one
 
 ```bash

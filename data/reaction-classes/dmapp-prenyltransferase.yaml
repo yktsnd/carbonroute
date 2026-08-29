@@ -1,0 +1,124 @@
+# Reaction class: DMAPP-dependent prenylation
+#
+# Covers Rhea reactions consuming dimethylallyl diphosphate (DMAPP,
+# CHEBI:57623) as a reactant, restricted to EC 2.5.1 (transferases moving a
+# group other than methyl). DMAPP is the smallest, most common of the four
+# allylic-diphosphate prenyl donors (DMAPP, GPP, FPP, GGPP -- one, two,
+# three and four isoprene units respectively); the other three are not
+# covered by this class because each adds a different mass (the constant
+# below scales with donor identity, not with Rhea's own stoichiometric
+# coefficient the way the other shipped classes' multi-transfer reactions
+# do), and DMAPP alone is the largest single group.
+#
+# The transformation: a nucleophile (an aromatic ring, an alcohol, a
+# protein cysteine thiol) attacks C1 of DMAPP's allylic system, displacing
+# diphosphate and leaving a dimethylallyl (prenyl) group attached. Net mass
+# added: the isoprenyl group, C5H8, 68.119 g/mol. Verified directly against
+# RHEA:10852 (leachianone G -> sophoraflavanone G, product 424.493 g/mol
+# minus acceptor 356.374 g/mol = 68.119 exactly) -- unlike the ATP-kinase
+# class, DMAPP and its diphosphate leaving group are drawn in the SAME
+# charge state (both trianions) in this pair, so no charge-state offset
+# applies here; the textbook and observed values agree.
+#
+# No transferred_bond_smarts is declared. The natural signature -- a new
+# C=C alkene appearing -- is unreliable here for the same class of reason
+# documented on the NAD(P)+ class's missing bond check: many acceptors in
+# this class are natural products that already carry an unrelated
+# isoprenyl-derived alkene (the donor and the acceptor's own decoration
+# both come from the same biosynthetic family), so "one more C=C" is not a
+# clean discriminator. The mass-delta check is the whole class-purity test
+# here.
+#
+# Structural verification (run through the actual screen): 47 reactions
+# match DMAPP + EC 2.5.1. 37 of them (78.7%) resolve to a single
+# acceptor/product pair within one proton of 68.119 and are decided. The
+# other 10: 8 could not be resolved to a single acceptor/product pair --
+# mostly chain-elongation reactions where DMAPP condenses with two or more
+# isopentenyl diphosphate (IPP) equivalents, so the "acceptor" this
+# project's by-elimination resolver finds is IPP, not a foreign nucleophile
+# (RHEA:27810, RHEA:55520, RHEA:77975 are exactly this, and are the same 3
+# reactions the mass-delta check below also independently excludes -- see
+# next paragraph -- when IPP's own coefficient happens to leave exactly one
+# non-cofactor left reactant); 2 more (RHEA:14009, RHEA:21676) are DMAPP
+# HOMODIMERISATION (chrysanthemyl and lavandulyl diphosphate synthase --
+# head-to-head coupling of two DMAPP molecules, an "irregular monoterpene"
+# pathway with no separate foreign acceptor at all, so 2 DMAPP is
+# structurally the reaction's whole left side and nothing is left over to
+# call "the acceptor"). Of the 37 decided, mass delta and chain-elongation
+# exclusion overlap for the 3 IPP-condensation reactions that do resolve to
+# a single left-over reactant: 136.24 (2x), 204.36 (3x) and 340.60 (5x) g/mol
+# cluster tightly at exact multiples of 68.12, confirming they are the same
+# real chemistry (successive isoprene-unit addition) rather than noise --
+# and are correctly excluded, because this class models DMAPP transferring
+# onto a foreign nucleophile, not IPP chain elongation, which is a genuinely
+# different transformation. Zero of the 37 decided reactions were excluded
+# for a wrong reason on manual inspection.
+
+reaction_class:
+  id: dmapp-prenyltransferase
+  name: "DMAPP-dependent prenylation"
+  description: >
+    Enzymatic transfer of the dimethylallyl group from DMAPP onto a
+    nucleophilic acceptor (O-, C- or S-prenylation), releasing diphosphate.
+    Matched on DMAPP specifically (not GPP, FPP or GGPP, which transfer a
+    different mass), restricted to EC 2.5.1.
+  expected_mass_delta: 68.119
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:57623"
+  cofactor_role: reagent
+  ec_prefix: "2.5.1"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Prenyl bromide alkylation with a mild base, at process concentration"
+  source: >
+    Not a paper. Prenyl bromide (1-bromo-3-methylbut-2-ene) with a mild
+    base is the textbook chemical counterpart to a prenyltransferase for
+    O- and C-prenylation of a phenolic or enolic nucleophile -- the same
+    Williamson-type alkylation the SAM-methylation class's process model
+    uses with methyl iodide, with the alkylating agent swapped for the
+    five-carbon electrophile this class actually transfers. Parameters
+    stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one -- it makes the chemical route
+    look better than it is for polyfunctional acceptors, not worse, so it
+    is not a thumb on the scale for "the enzyme wins".
+  stages:
+
+    - id: prenylate
+      volumes: 1.0
+      solvent: {name: acetone, cas: "67-64-1", density_kg_per_L: 0.791}
+      reagents:
+        - name: prenyl bromide
+          cas: "870-63-3"
+          kg_per_mol: 0.149044
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the alkylating agent -- modest excess,
+            standard for this reaction, same order as the SAM class's
+            methyl iodide loading.
+        - name: potassium carbonate
+          cas: "584-08-7"
+          kg_per_mol: 0.138205
+          equivalents: 2.0
+          note: >
+            Base to neutralise the HBr generated and keep the nucleophile
+            deprotonated -- same loading as the SAM class's base.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

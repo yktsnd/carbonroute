@@ -1219,3 +1219,83 @@ def test_atp_class_is_decided_and_decisively_favours_the_enzyme(atp_screened):
     ]
     assert len(decided_with_verdict) == len(atp_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a fifth class: DMAPP-dependent prenylation -----------------------------
+
+
+@pytest.fixture(scope="module")
+def dmapp_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "dmapp-prenyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "dmapp-prenyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def dmapp_screened(dmapp_inputs):
+    return screen_all(*dmapp_inputs, use_process_model=True)
+
+
+def test_dmapp_class_matches_and_decides_the_expected_number(dmapp_screened):
+    """47 Rhea reactions consume DMAPP under EC 2.5.1. 37 (78.7%) resolve to
+    a single acceptor/product pair within one proton of 68.119 (the
+    isoprenyl group, C5H8) and are decided. RHEA:10852 (leachianone G ->
+    sophoraflavanone G) is the reaction that pinned the constant down:
+    424.493 - 356.374 = 68.119 exactly, with donor and leaving group drawn
+    in the same charge state so no dianion-style offset applies here."""
+    assert dmapp_screened.matched == 47
+    assert len(dmapp_screened.decided) == 37
+    by_id = {r.rhea_id: r for r in dmapp_screened.results}
+    assert by_id["RHEA:10852"].decided
+
+
+def test_dmapp_class_excludes_chain_elongation_and_homodimerisation(dmapp_screened):
+    """Two genuinely different EC 2.5.1 sub-chemistries share the DMAPP
+    cofactor with real prenylation and are correctly excluded rather than
+    mis-decided: chain elongation (DMAPP condensing with 2-5 isopentenyl
+    diphosphate equivalents to build a longer allylic diphosphate --
+    RHEA:27810, RHEA:55520, RHEA:77975, whose mass deltas cluster at exact
+    multiples of 68.12 rather than one unit) and DMAPP homodimerisation
+    (chrysanthemyl/lavandulyl diphosphate synthase, RHEA:14009 and
+    RHEA:21676, which consume 2 DMAPP and no foreign acceptor at all, so no
+    acceptor/product pair resolves)."""
+    by_id = {r.rhea_id: r for r in dmapp_screened.results}
+    for rhea_id in ("RHEA:27810", "RHEA:55520", "RHEA:77975"):
+        assert not by_id[rhea_id].decided
+        assert "does not match" in by_id[rhea_id].skipped_reason
+    for rhea_id in ("RHEA:14009", "RHEA:21676"):
+        assert not by_id[rhea_id].decided
+        assert "could not identify" in by_id[rhea_id].skipped_reason
+
+
+def test_dmapp_process_model_charges_prenyl_bromide_and_base(dmapp_inputs):
+    """The declared process, not a paper: prenyl bromide and potassium
+    carbonate in acetone, plus a plant-style isolation -- the same
+    Williamson-alkylation shape the SAM class uses, with the alkylating
+    agent swapped for the five-carbon electrophile this class transfers.
+    Everything generalised by construction."""
+    template = dmapp_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"prenyl bromide", "potassium carbonate", "acetone", "ethyl acetate"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_dmapp_class_is_decided_and_decisively_favours_the_enzyme(dmapp_screened):
+    """Every one of this class's 37 decided reactions reaches a decisive
+    verdict favouring the enzyme, the same shape as the ATP-kinase class
+    and unlike NAD(P)+-oxidoreductase: the process model's stoichiometric
+    prenyl bromide loading is bulky enough to keep the sign fixed even at
+    DMAPP's most expensive assumed value within its wide, unevidenced
+    [0.5, 100] cofactor ceiling."""
+    decided_with_verdict = [
+        r for r in dmapp_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(dmapp_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

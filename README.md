@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Four classes now built — 1,579 of 18,558 reactions matched (8.5%), 941 decided (5.1%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Five classes now built — 1,626 of 18,558 reactions matched (8.8%), 978 decided (5.3%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -197,14 +197,18 @@ measures the same thing the threshold did.
    **0 decided**, honestly: its process model is too small relative to the
    cofactor's wide, unevidenced bound to guarantee a verdict either way, and
    that is reported rather than papered over with inflated reagent amounts),
-   and `atp-kinase.yaml` (EC 2.7.1, ATP-dependent phosphorylation — 209
+   `atp-kinase.yaml` (EC 2.7.1, ATP-dependent phosphorylation — 209
    matched, 202 decided, all of them decisively favouring the enzyme; also
    where ChEBI's phosphate-dianion charge-state convention was pinned down,
    correcting the class's mass delta from the textbook 79.980 to the
-   observed 77.963). Combined: **1,579 of 18,558 reactions matched (8.5%),
-   941 decided (5.1%)**, up from one class's 406 / 388. More classes are
-   being added the same way — see the coverage ceiling below for what that
-   number can and cannot reach.
+   observed 77.963), and `dmapp-prenyltransferase.yaml` (EC 2.5.1,
+   DMAPP-dependent prenylation — 47 matched, 37 decided, again all
+   decisive; two more real confounds — chain elongation and DMAPP
+   homodimerisation, sharing the same cofactor but a different
+   transformation — correctly excluded rather than mis-decided). Combined:
+   **1,626 of 18,558 reactions matched (8.8%), 978 decided (5.3%)**, up from
+   one class's 406 / 388. More classes are being added the same way — see
+   the coverage ceiling below for what that number can and cannot reach.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
