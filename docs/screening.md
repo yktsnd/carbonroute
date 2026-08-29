@@ -34,7 +34,7 @@ cancels.
 
 So the factor work is bounded by the vocabulary, in the tens of substances,
 not by the number of reactions. After that each reaction costs one
-arithmetic evaluation — the whole 406-reaction UDP-hexosyltransferase class
+arithmetic evaluation — the whole 478-reaction UDP-hexosyltransferase class
 screens in about a second.
 
 **That "about a second" is the cost of screening reactions against a class
@@ -204,34 +204,34 @@ same two arguments. Two questions follow from making it explicit:
 `carbonroute screen --enzymatic-yield 0.5 --reference-recovery 0.90
 --frontier`.
 
-Running the frontier against the shipped class (406 matched, 388 decided at
+Running the frontier against the shipped class (478 matched, 451 decided at
 every point):
 
 | enzymatic conversion | min threshold | median | max |
 |---|---|---|---|
-| 100% | 85.58% | 86.42% | 91.54% |
-| 90% | 83.94% | 84.87% | 90.54% |
-| 80% | 81.89% | 82.94% | 89.30% |
-| 70% | 79.25% | 80.44% | 87.70% |
-| 60% | 75.73% | 77.12% | 85.57% |
-| 50% | 70.80% | 72.47% | 82.59% |
-| 40% | 63.41% | 65.50% | 78.11% |
-| 30% | 51.10% | 53.87% | 70.65% |
+| 100% | 84.56% | 86.42% | 91.54% |
+| 90% | 82.80% | 84.87% | 90.54% |
+| 80% | 80.61% | 82.94% | 89.30% |
+| 70% | 77.79% | 80.44% | 87.70% |
+| 60% | 74.02% | 77.12% | 85.57% |
+| 50% | 68.76% | 72.47% | 82.59% |
+| 40% | 60.86% | 65.50% | 78.11% |
+| 30% | 47.69% | 53.87% | 70.65% |
 
 The sharpest reading of that table is not the top row, it is a vertical
 slice through it: at 90% solvent recovery — the rate a real distillation
-actually achieves — only **25 of the 388** decided reactions are still
+actually achieves — only **25 of the 451** decided reactions are still
 decided at *any* enzymatic conversion, and those 25 need conversions of
 85.3% (minimum), 93.3% (median), up to 100.0% (maximum) to stay decided.
-The other **363 lose their verdict at 90% recovery however well the enzyme
+The other **426 lose their verdict at 90% recovery however well the enzyme
 performs.** RHEA:12560, the beta-arbutin calibration case (see
-"Calibration" below), is one of the 363: its threshold is 85.87%, below
+"Calibration" below), is one of the 426: its threshold is 85.87%, below
 90%, so its `min_enzymatic_yield` is `None` — no enzyme, however efficient,
 saves that verdict at a recovery rate a real plant achieves.
 
 ## A declared process, instead of one paper's bench run
 
-`explain_verdict` measured the problem: in all 388 decided reactions of the
+`explain_verdict` measured the problem: in all 451 decided reactions of the
 shipped class, at least half the delta comes from one number, the same one
 every time — the source paper's 150 mL of boiling ethyl acetate per
 millimole. Every verdict is, to first order, a statement about one author's
@@ -256,19 +256,19 @@ supplies its own reagents and inherits the process. That matters because three
 rounds of literature search produced zero new paper-sourced templates, so the
 paper-per-class route does not scale and is not going to.
 
-Put side by side on the same 388 reactions, at the same published operating
+Put side by side on the same 451 reactions, at the same published operating
 point, the two chemical models say this:
 
 | | paper template | declared process model |
 |---|---|---|
 | guaranteed saving, RHEA:12560 | 143.4 | **25.2** kg CO₂e/kg |
 | median concentration | 80% | **60%** |
-| reactions where ethyl acetate is the top term | 388 / 388 | **232 / 388** |
-| reactions with a guaranteed saving | 388 | **388** |
+| reactions where ethyl acetate is the top term | 451 / 451 | **266 / 451** |
+| reactions with a guaranteed saving | 451 | **451** |
 
 Two things are worth separating there. The enzymatic advantage **shrinks by
 about six-fold** — that is the size of the "which paper did you pick" effect,
-measured rather than argued about. And the verdict **does not move**: all 388
+measured rather than argued about. And the verdict **does not move**: all 451
 reactions still have a saving that holds everywhere inside the asserted
 bounds. A conclusion that survives having its own dominant assumption
 replaced is worth considerably more than one that was never tested that way,
@@ -304,7 +304,7 @@ interval is *least* favourable to the verdict, and labels each as
 Run over the shipped class at the published operating point, it says
 something the rest of this document had not:
 
-> **In 388 of 388 decided reactions, one single material carries at least
+> **In 451 of 451 decided reactions, one single material carries at least
 > half the delta — and it is the same material every time.** Median
 > concentration 80%; the material is ethyl acetate, the template's 159 kg/mol
 > bench isolation.
@@ -359,7 +359,7 @@ anywhere else.
 
 Run against the shipped class, that machinery reports something worth
 knowing about the *bounds*, not the chemistry. Every rank range comes back
-as 1–388, because four chemical-side materials — acetic anhydride,
+as 1–451, because four chemical-side materials — acetic anhydride,
 potassium carbonate, and two sugar reagents — are deliberately asserted with
 no upper ceiling (`high: null`, an honest refusal to invent one). An
 unbounded chemical side makes every enzymatic advantage unbounded above, and
@@ -370,14 +370,14 @@ actionable rather than mysterious.
 What is available meanwhile is the **guaranteed floor** — the saving that
 holds everywhere in the asserted bounds. Ordering on it is exact, because it
 is a computed bound rather than an estimate, but it ranks the floor and not
-the true saving. At 90% recovery only **25 of the 388** reactions have a
-floor above zero at all; for the other 363 the interval straddles zero,
+the true saving. At 90% recovery only **25 of the 451** reactions have a
+floor above zero at all; for the other 426 the interval straddles zero,
 which is an absent verdict rather than a small advantage.
 
 The floor ranking does reproduce the mechanism the screen exists to measure,
 which is the check that it is measuring the same thing the threshold was.
 The largest guaranteed savings all belong to heavily protected acceptors —
-the top ten carry 20 to 34 protectable groups, led by an N-glycan at
+the top ten carry 27 to 34 protectable groups, led by an N-glycan at
 +4.15 kg CO₂e per kg — because sparing a chemical route that much masking
 and unmasking is precisely what an enzyme's regioselectivity is worth.
 
@@ -488,7 +488,7 @@ charge, so no measure is written and the enzyme stays absent from the diff —
 understating the enzymatic route, in the same direction as every other gap
 here, and left as a gap rather than filled.
 
-Run that way, the enzymatic route stays ahead on all 388 reactions at every
+Run that way, the enzymatic route stays ahead on all 451 reactions at every
 effort from 0% to 99%. **That result is not yet worth much, and the report
 says so on the same page it prints it.** The template's largest term is
 159 kg of ethyl acetate per mole of product — a bench isolation of 150 mL per
@@ -559,20 +559,22 @@ section opened with but not zero.
 
 ## What the shipped class actually found
 
-Screening all 406 reactions in Rhea that consume UDP-glucose or its
-diastereomer UDP-galactose (see "Picking the next class" above), against the
-Helferich/BF₃ procedure of Cepanec & Litvić (ARKIVOC 2008):
+Screening all 478 reactions in Rhea that consume UDP-glucose, UDP-galactose,
+or one of six sibling hexose-nucleotide donors (GDP-mannose, ADP-glucose,
+GDP-glucose, UDP-galactofuranose, dTDP-glucose, CDP-glucose — see "Picking
+the next class" above), against the Helferich/BF₃ procedure of Cepanec &
+Litvić (ARKIVOC 2008):
 
 | statistic | recovery threshold |
 |---|---|
-| minimum | 85.58% |
+| minimum | 84.56% |
 | median | 86.42% |
 | maximum | 91.54% |
 
 These three are the top row of the frontier above — the enzyme held at 100%
 conversion — and therefore upper bounds. Read them with "Enzymatic
 conversion is the other half of that same asymmetry" in hand: at the 90%
-recovery a real plant achieves, 363 of these 388 have no verdict left at
+recovery a real plant achieves, 426 of these 451 have no verdict left at
 any conversion.
 
 These figures assume a perfect enzyme (`enzymatic_yield=1.0`), so they are
@@ -580,29 +582,30 @@ an upper bound on the recovery a plant would actually need — see
 "Enzymatic conversion is the other half of that same asymmetry" above for
 how the threshold moves once that assumption is relaxed.
 
-**None of the 388 decided reactions survives 99% solvent recovery**, and the
+**None of the 451 decided reactions survives 99% solvent recovery**, and the
 whole distribution sits at or below the 90–95% a real plant achieves. The
-honest reading is not "enzymes win 388 times" but: *in this class, as
+honest reading is not "enzymes win 451 times" but: *in this class, as
 modelled from this bench procedure, the enzymatic advantage is real but
 bounded, and it does not survive industrial solvent recycling.* That is a
 falsifiable claim, and a much more useful one.
 
-Not all 406 are glycosylations, and the screen does not pretend they are.
-18 are excluded before a verdict is computed: 9 where the acceptor and
-product could not be identified from Rhea's equation text, and 9 that
+Not all 478 are glycosylations, and the screen does not pretend they are.
+27 are excluded before a verdict is computed: 13 where the acceptor and
+product could not be identified from Rhea's equation text, and 14 that
 consume a class cofactor for a genuinely different transformation — the
 cofactor's own hydrolysis, a sugar-nucleotide exchange, a hexose-1-phosphate
 transfer onto a lipid carrier (undecaprenyl phosphate) rather than a
-hydroxyl, or oxidation of the sugar-nucleotide itself — none of which
-transfers a hexosyl group onto an external acceptor. That exclusion is
-enforced by the `expected_mass_delta` check below, not by hand-picking: a
-real member of this class adds one anhydrohexosyl unit (162.14 g/mol, times
-how many the reaction transfers) to the acceptor, allowing ±1 proton for
-ChEBI's own inconsistent charge-state bookkeeping between an acceptor and
-its product (a carboxylate acceptor paired with a neutral ester product
-shows up as exactly this, in 55 of the 406 — real glycosylations, not
-exclusions, once that's accounted for). A reaction that adds a different
-mass is not this transformation, whatever else it
+hydroxyl, oxidation of the sugar-nucleotide itself, or (among the six
+sibling donors) chain elongation and isomerisation of the same kind — none
+of which transfers a hexosyl group onto an external acceptor. That
+exclusion is enforced by the `expected_mass_delta` check below, not by
+hand-picking: a real member of this class adds one anhydrohexosyl unit
+(162.14 g/mol, times how many the reaction transfers) to the acceptor,
+allowing ±1 proton for ChEBI's own inconsistent charge-state bookkeeping
+between an acceptor and its product (a carboxylate acceptor paired with a
+neutral ester product shows up as exactly this, in 57 of the 478 — real
+glycosylations, not exclusions, once that's accounted for). A reaction that
+adds a different mass is not this transformation, whatever else it
 shares with one.
 
 The mechanism the screen exists to measure does show up cleanly in the
@@ -719,8 +722,8 @@ strengthen the process model with a stage this one omits. Neither has been
 done yet, so the class ships as matched-but-undecided rather than with a
 number invented to make it look otherwise.
 
-**Coverage across all three classes: 1,370 of 18,558 Rhea reactions matched
-(7.4%), 739 decided (4.0%).** The gap between those two figures is now
+**Coverage across all three classes: 1,442 of 18,558 Rhea reactions matched
+(7.8%), 802 decided (4.3%).** The gap between those two figures is now
 itself informative — it is exactly this class's 515 reactions, all
 indeterminate.
 
@@ -779,8 +782,8 @@ most expensive assumed value within its unevidenced `[0.5, 100]` ceiling,
 the chemical route's reagent burden is enough to keep the sign fixed over
 the whole box of asserted bounds.
 
-**Coverage across all four classes: 1,579 of 18,558 Rhea reactions matched
-(8.5%), 941 decided (5.1%).**
+**Coverage across all four classes: 1,651 of 18,558 Rhea reactions matched
+(8.9%), 1,004 decided (5.4%).**
 
 ## The fifth class: DMAPP-dependent prenylation, and two more confounds correctly excluded
 
@@ -835,8 +838,8 @@ alkylation shape the SAM class uses, with the alkylating agent swapped)
 keeps the sign fixed even at DMAPP's most expensive assumed value within its
 wide, unevidenced `[0.5, 100]` cofactor ceiling.
 
-**Coverage across all five classes: 1,626 of 18,558 Rhea reactions matched
-(8.8%), 978 decided (5.3%).**
+**Coverage across all five classes: 1,698 of 18,558 Rhea reactions matched
+(9.2%), 1,041 decided (5.6%).**
 
 ## The sixth class: acetyl-CoA-dependent acetylation, and a second charge-state unification
 
@@ -892,8 +895,8 @@ honest options are the same ones already used for the NAD(P)+ class:
 narrow the cofactor bound with real evidence, or strengthen the process
 model with a stage this one omits. Neither has been done yet.
 
-**Coverage across all six classes: 1,764 of 18,558 Rhea reactions matched
-(9.5%), 978 decided (5.3%).** The gap between those two figures now spans
+**Coverage across all six classes: 1,836 of 18,558 Rhea reactions matched
+(9.9%), 1,041 decided (5.6%).** The gap between those two figures now spans
 two classes' worth of matched-but-indeterminate reactions (515 + 124 = 639)
 rather than one.
 
@@ -947,8 +950,8 @@ donor and a silver promoter, then saponification) is bulky enough to keep
 the sign fixed even at UDP-glucuronate's most expensive assumed value
 within its wide, unevidenced `[0.5, 100]` cofactor ceiling.
 
-**Coverage across all seven classes: 1,866 of 18,558 Rhea reactions
-matched (10.1%), 1,073 decided (5.8%).**
+**Coverage across all seven classes: 1,938 of 18,558 Rhea reactions
+matched (10.4%), 1,136 decided (6.1%).**
 
 ## Running one
 

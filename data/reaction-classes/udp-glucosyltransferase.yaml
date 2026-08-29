@@ -1,10 +1,36 @@
 # Reaction class: UDP-hexose-dependent O-glycosylation
 #
-# Covers every Rhea reaction consuming UDP-alpha-D-glucose (CHEBI:58885) OR
-# UDP-alpha-D-galactose (CHEBI:66914) as a reactant. The two donors are
-# diastereomers -- same molecular formula (C15H24N2O17P2), same MW (564.29),
-# same anhydrohexosyl unit transferred -- so one template covers both without
-# a second piece of research. See "why galactose is free" below.
+# Covers every Rhea reaction consuming UDP-alpha-D-glucose (CHEBI:58885),
+# UDP-alpha-D-galactose (CHEBI:66914), or one of six sibling hexose donors as
+# a reactant. All eight are hexoses -- glucose, galactose (its C4 epimer) or
+# mannose (its C2 epimer), each carried by a different nucleotide (UDP, GDP,
+# ADP, dTDP or CDP) -- so every one transfers the identical anhydrohexosyl
+# unit, 162.14 g/mol, and one template covers all of them without a second
+# piece of research. See "why galactose is free" below; the same reasoning
+# now covers six more donors for the same reason.
+#
+# THE SIX SIBLINGS, ADDED FOR FREE: GDP-alpha-D-mannose (CHEBI:57527, 55
+# reactions in Rhea -- mannose, glucose's C2 epimer), ADP-alpha-D-glucose
+# (CHEBI:57498, 11 -- the same glucose, carried by ADP), GDP-alpha-D-glucose
+# (CHEBI:62230, 8), UDP-alpha-D-galactofuranose (CHEBI:66915, 7 -- the
+# furanose ring form of UDP-galactose, same molecular formula), dTDP-
+# alpha-D-glucose (CHEBI:57477, 3) and CDP-alpha-D-glucose (CHEBI:137927, 1).
+# Run through the actual screen: 72 newly matched, 63 newly decided (87.5%).
+# The other 9: 4 could not be resolved to a single acceptor/product pair; 5
+# excluded by mass delta -- 3 at 240.10 g/mol (a different, larger group), 1
+# at 0.00 (an isomerisation, no real transfer) and 1 at -324.28 (twice
+# 162.14 with the sign flipped, an acceptor/product resolution artifact) --
+# none investigated further since the mass-delta check already does its job
+# of keeping them out of the decided set. Combined with the original two
+# donors: 478 matched (was 406), 451 decided (was 388).
+#
+# EVERY DOWNSTREAM FINDING IN README.md's Q1/Q2 SECTIONS WAS RE-DERIVED
+# AGAINST THIS EXTENDED SET, NOT ASSUMED TO CARRY OVER: the 388-of-388
+# "rests on ethyl acetate" finding reproduces exactly as 451-of-451 (median
+# concentration unchanged, 0.7967), the 25-reaction guaranteed-floor set is
+# IDENTICAL (same 25 RHEA ids, not just the same count), the calibration
+# reaction's own threshold (RHEA:12560, 85.87%) is unaffected, and the
+# break-even frontier was re-swept rather than rescaled by assumption.
 #
 # All of these reactions are the same transformation: an enzyme transfers a
 # hexose from a UDP-sugar onto an acceptor's hydroxyl.
@@ -31,28 +57,33 @@ reaction_class:
   id: udp-glucosyltransferase
   name: "UDP-hexose-dependent O-glycosylation"
   description: >
-    Enzymatic transfer of a hexose (glucose or galactose) from a UDP-sugar
-    onto an acceptor hydroxyl, releasing UDP. In Rhea this is EC 2.4.1.x;
-    matching is done on the cofactor rather than the EC number, because many
-    Rhea reactions carry no EC annotation at all while every member of this
-    class necessarily consumes one of the cofactors below.
+    Enzymatic transfer of a hexose (glucose, galactose or mannose) from a
+    nucleotide-diphosphate sugar onto an acceptor hydroxyl, releasing the
+    nucleotide-diphosphate. In Rhea this is EC 2.4.1.x; matching is done on
+    the cofactor rather than the EC number, because many Rhea reactions
+    carry no EC annotation at all while every member of this class
+    necessarily consumes one of the cofactors below.
   # A genuine hexosylation adds one anhydrohexosyl unit (C6H10O5) to the
   # acceptor: 6*12.011 + 10*1.008 + 5*15.999 = 162.14 g/mol, verified via
   # RDKit against hydroquinone -> beta-arbutin (162.141 observed) for the
-  # glucose donor. Galactose is its C4 epimer -- same molecular formula, so
-  # the identical 162.14 -- verified the same way via RDKit. Reactions that
-  # consume a class cofactor without adding this mass -- there are a
-  # handful, e.g. isomerisations or reactions this parser mis-identifies
-  # the acceptor/product for -- are excluded rather than mis-templated;
-  # see screen.py's ClassTemplate.matches for why this check exists at all.
+  # glucose donor. Galactose and mannose are its C4 and C2 epimers -- same
+  # molecular formula, so the identical 162.14 -- verified the same way via
+  # RDKit. Reactions that consume a class cofactor without adding this mass
+  # -- there are a handful, e.g. isomerisations or reactions this parser
+  # mis-identifies the acceptor/product for -- are excluded rather than
+  # mis-templated; see screen.py's ClassTemplate.matches for why this check
+  # exists at all.
   expected_mass_delta: 162.14
   mass_delta_tolerance: 1.0
-  # UDP-alpha-D-glucose and UDP-alpha-D-galactose: interchangeable for this
-  # class (see the file header). A donor that transfers a *different* group
-  # -- UDP-N-acetylglucosamine, say, which adds an extra acetamido group --
-  # is deliberately not listed here: its expected_mass_delta would not be
-  # 162.14, so it needs its own class, not a third entry in this list.
-  cofactor_chebi: ["CHEBI:58885", "CHEBI:66914"]
+  # Eight interchangeable hexose-nucleotide donors for this class (see the
+  # file header for which reaction count each contributes). A donor that
+  # transfers a *different* group -- UDP-N-acetylglucosamine, say, which
+  # adds an extra acetamido group, or UDP-xylose, a pentose -- is
+  # deliberately not listed here: its expected_mass_delta would not be
+  # 162.14, so it needs its own class, not another entry in this list.
+  cofactor_chebi:
+    ["CHEBI:58885", "CHEBI:66914", "CHEBI:57527", "CHEBI:57498",
+     "CHEBI:62230", "CHEBI:66915", "CHEBI:57477", "CHEBI:137927"]
   cofactor_role: reagent
 
 chemical_counterpart:

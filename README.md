@@ -77,7 +77,7 @@ settle the comparison it prints "indeterminate" and stops. **(1b) And it
 says which number the answer is made of** — provenance alone cannot, and
 this repository has withdrawn three published results to learn it: each time
 one term dominated the delta while its value came from an assumption. In the
-shipped class, **388 of 388 verdicts rest at least half on a single
+shipped class, **451 of 451 verdicts rest at least half on a single
 material**, the same one every time. **(2) Its output
 is a critical value, not a winner** — not "the enzyme wins" but "at what
 solvent recovery rate does that conclusion stop holding." **(3) It scales
@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Seven classes now built — 1,866 of 18,558 reactions matched (10.1%), 1,073 decided (5.8%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Seven classes now built — 1,938 of 18,558 reactions matched (10.4%), 1,136 decided (6.1%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -120,27 +120,27 @@ declared variable that divides the cofactor demand, because a reaction
 converting half its acceptor consumes twice the cofactor per kg of product.
 
 Sweeping it gives the verdict's real boundary — a curve, not a number.
-Every row below re-screens all 388 decided reactions at a different
+Every row below re-screens all 451 decided reactions at a different
 conversion:
 
 | enzymatic conversion | min threshold | median | max |
 |---|---|---|---|
-| 100% | 85.58% | 86.42% | 91.54% |
-| 90% | 83.94% | 84.87% | 90.54% |
-| 80% | 81.89% | 82.94% | 89.30% |
-| 70% | 79.25% | 80.44% | 87.70% |
-| 60% | 75.73% | 77.12% | 85.57% |
-| 50% | 70.80% | 72.47% | 82.59% |
-| 40% | 63.41% | 65.50% | 78.11% |
-| 30% | 51.10% | 53.87% | 70.65% |
+| 100% | 84.56% | 86.42% | 91.54% |
+| 90% | 82.80% | 84.87% | 90.54% |
+| 80% | 80.61% | 82.94% | 89.30% |
+| 70% | 77.79% | 80.44% | 87.70% |
+| 60% | 74.02% | 77.12% | 85.57% |
+| 50% | 68.76% | 72.47% | 82.59% |
+| 40% | 60.86% | 65.50% | 78.11% |
+| 30% | 47.69% | 53.87% | 70.65% |
 
 A coin-flip enzyme costs the class about 14 points of median threshold. But
 the sharper finding is on the other axis. Industrial distillation recovers
-about 90%, and at that recovery **only 25 of the 388 reactions are still
-decided at all — the other 363 lose their verdict however well the enzyme
+about 90%, and at that recovery **only 25 of the 451 reactions are still
+decided at all — the other 426 lose their verdict however well the enzyme
 performs.** The 25 that survive need conversions of 85.3% at minimum, 93.3%
 at the median, and 100% at the worst. The calibration case itself
-(RHEA:12560, β-arbutin) is one of the 363: its threshold is 85.87%, below
+(RHEA:12560, β-arbutin) is one of the 426: its threshold is 85.87%, below
 the plant's 90%.
 
 So the honest answer to Q2 is that in this class, at a realistic solvent
@@ -168,16 +168,16 @@ worst case still beats its best case. Sorting by midpoint and printing
 anywhere else.
 
 Run on the shipped class, that reports something about the **bounds** rather
-than the chemistry. Every rank range comes back 1–388, because four
+than the chemistry. Every rank range comes back 1–451, because four
 chemical-side materials are deliberately asserted with no upper ceiling — an
 honest refusal to invent one — and an unbounded chemical side makes every
 enzymatic advantage unbounded above. The report names those four, so the gap
 is actionable: put defensible ceilings on them and the ranking bites.
 
 What is available meanwhile is the **guaranteed floor**, the saving that
-holds everywhere in the asserted bounds. At 90% recovery only **25 of 388**
+holds everywhere in the asserted bounds. At 90% recovery only **25 of 451**
 reactions have a floor above zero. And it reproduces the mechanism the
-screen exists to measure — the top ten carry 20 to 34 protectable groups,
+screen exists to measure — the top ten carry 27 to 34 protectable groups,
 led by an N-glycan at **+4.15 kg CO₂e per kg** — which is the check that it
 measures the same thing the threshold did.
 
@@ -190,6 +190,14 @@ measures the same thing the threshold did.
    new class supplies its reagents and inherits the process. That is what
    unblocked coverage: three rounds of literature search produced zero new
    paper-sourced templates, and the paper-per-class route does not scale.
+   The shipped `udp-glucosyltransferase.yaml` class itself grew for free the
+   same way galactose originally did: six more hexose-nucleotide donors
+   (GDP-mannose, ADP-glucose, GDP-glucose, UDP-galactofuranose, dTDP-glucose,
+   CDP-glucose — each the same 162.14 g/mol hexose transfer, just carried by
+   a different nucleotide) added 72 more matched reactions and 63 more
+   decided, taking it from 406/388 to **478/451** with no new research —
+   every downstream Q1/Q2 finding below was re-derived against the larger
+   set, not assumed to carry over.
    Six more classes are built the same way, no paper cited in any:
    `sam-methyltransferase.yaml` (EC 2.1.1, SAM-dependent O/N/S-methylation —
    449 matched, 351 decided), `nad-oxidoreductase.yaml` (EC 1.1.1,
@@ -217,9 +225,10 @@ measures the same thing the threshold did.
    glucuronidation — the real UGT drug-metabolism family — 102 matched, 95
    decided, all decisive; a *third* charge-state split, one proton apart,
    unified the same way as the other two). Combined:
-   **1,866 of 18,558 reactions matched (10.1%), 1,073 decided (5.8%)**, up
-   from one class's 406 / 388. More classes are being added the same way —
-   see the coverage ceiling below for what that number can and cannot
+   **1,938 of 18,558 reactions matched (10.4%), 1,136 decided (6.1%)**, up
+   from one class's original 406 / 388. More classes are being added the
+   same way — see the coverage ceiling below for what that number can and
+   cannot
    reach.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
@@ -236,7 +245,7 @@ measures the same thing the threshold did.
    measure**, because the bridge from enzyme-production GWP to enzyme mass
    per mole of product is not held from a document this repository has read.
    Screened at Liu's published 240 cofactor turnovers and industrial
-   distillation's 90% recovery, **all 388 reactions have a guaranteed
+   distillation's 90% recovery, **all 451 reactions have a guaranteed
    saving** — but one number still dominates: the template's 159 kg/mol
    ethyl-acetate isolation. Recovery divides that; it cannot un-choose it.
    **Solvent recovery and solvent avoidance are different levers**, and
@@ -273,7 +282,7 @@ ceiling for this method, full stop, before any class-purity filtering
 (EC restriction, mass-delta check, bond check) removes reactions that share a
 cofactor but are not the transformation a class template models — which the
 two shipped classes show removes a meaningful share (98 of 449 for SAM
-methylation, 18 of 406 for glycosylation). O₂ alone accounts for 15.8% of
+methylation, 27 of 478 for glycosylation). O₂ alone accounts for 15.8% of
 that ceiling and cannot be templated as a single class at all: it is consumed
 by oxidations, oxygenations and radical chemistry with no shared "chemical
 counterpart" whatsoever, the same heterogeneity problem CoA and SAM raised at
@@ -305,42 +314,45 @@ day of work. `carbonroute screen` answers the same question — enzyme or
 chemistry? — across an entire curated reaction database, and does it fast
 enough that the database stops being the bottleneck.
 
-Run against all 406 UDP-hexose-dependent glycosylation reactions in
-[Rhea](https://www.rhea-db.org/) — every reaction that consumes UDP-glucose
-or its diastereomer UDP-galactose — screened in about one second against a
-real published chemical procedure:
+Run against all 478 UDP-hexose-dependent glycosylation reactions in
+[Rhea](https://www.rhea-db.org/) — every reaction that consumes UDP-glucose,
+its diastereomer UDP-galactose, or one of six sibling hexose-nucleotide
+donors — screened in about one second against a real published chemical
+procedure:
 
 | statistic | solvent recovery threshold |
 |---|---|
-| minimum | 85.58% |
+| minimum | 84.56% |
 | median | 86.42% |
 | maximum | 91.54% |
 
 > These three figures are **upper bounds**, computed with the enzyme held at
 > 100% conversion. Pricing a real conversion pushes them lower, and at the
-> 90% solvent recovery a plant achieves, 363 of the 388 lose their verdict
+> 90% solvent recovery a plant achieves, 426 of the 451 lose their verdict
 > outright. See
 > ["Q2, answered: the break-even frontier"](#q2-answered-the-break-even-frontier).
 
 That threshold is the honest headline, not a win count. It is the
 chemical-route solvent recovery rate at which each reaction's verdict
-stops holding — and **none of the 388 decided reactions survives 99%
+stops holding — and **none of the 451 decided reactions survives 99%
 recovery**, against the 90–95% real industrial distillation achieves. The
-finding is not "enzymes win 388 times." It is: *in this class, the
+finding is not "enzymes win 451 times." It is: *in this class, the
 enzymatic advantage is real but bounded, and does not survive industrial
 solvent recycling* — a falsifiable claim, not a marketing number.
 
 **What "about one second" does and doesn't cover.** That's the runtime of
-scoring 406 reactions against a class template that already exists — pure
+scoring 478 reactions against a class template that already exists — pure
 arithmetic, no lookup. It is not the cost of producing that template. A
 template starts from one real, fully-quantified published chemical
 procedure, found and verified by actually reading the paper — the same
 discipline every row of `data/factors/` is held to, and no faster than it.
 Screening scales for free with the number of *reactions*; it does not make
 the next *class* free to add — except when it does: UDP-galactose is 143 of
-those 406 reactions added to this same class for **zero new research**,
-because it is glucose's C4 epimer (identical formula, identical mass
-delta), verified by RDKit rather than assumed from the name. Picking which
+the original 406 reactions added to this same class for **zero new
+research**, because it is glucose's C4 epimer (identical formula, identical
+mass delta), verified by RDKit rather than assumed from the name — and the
+same trick added 72 more (55 mannose, carried by GDP; the rest the same
+glucose, carried by ADP, GDP, dTDP or CDP) later. Picking which
 cofactor deserves that check next isn't guesswork either — see "Picking the
 next class by EC number" below for the method and the reactions across
 Rhea it already screens as tractable.

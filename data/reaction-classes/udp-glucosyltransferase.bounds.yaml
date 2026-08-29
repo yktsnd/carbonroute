@@ -3,16 +3,17 @@
 # importantly, what it is not: nothing here is a factor, none of it enters a
 # Monte Carlo or a total, and coverage is reported unchanged.
 #
-# Six materials in this template are unresolved. Four of them sit on the
+# Twelve materials in this template are unresolved. Four of them sit on the
 # chemical side, where a LOW bound is what matters (it is the floor of what
-# the chemical route costs). The other two -- UDP-glucose and UDP-galactose,
-# this class's two interchangeable cofactors -- are the entire enzymatic
-# side, so their HIGH bound is the load-bearing one: it is what the enzyme
-# has to pay, and the verdict turns on it.
+# the chemical route costs). The other eight -- UDP-glucose, UDP-galactose
+# and six sibling hexose-nucleotide donors, this class's interchangeable
+# cofactors -- are the entire enzymatic side, so their HIGH bound is the
+# load-bearing one: it is what the enzyme has to pay, and the verdict turns
+# on it.
 
 bounds:
 
-  # ---- The enzymatic side, in two interchangeable substances -------------
+  # ---- The enzymatic side, in eight interchangeable substances -----------
   "name:chebi:58885":
     low: 0.5
     high: 100.0
@@ -58,6 +59,73 @@ bounds:
       identical reasoning -- see "name:chebi:58885" above.
     sources:
       - "No public cradle-to-gate GWP for UDP-galactose was found; see data/rhea/README.md."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+
+  # ---- The other hexose-nucleotide donors, added for free -----------------
+  # Same reasoning as UDP-galactose above: each of these is a
+  # nucleotide-diphosphate hexose (mannose or glucose itself, carried by a
+  # different nucleotide), same synthesis complexity class, same absence of
+  # a public cradle-to-gate factor, so each carries the identical bound.
+  "name:chebi:57527":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      GDP-alpha-D-mannose: mannose is glucose's C2 epimer, carried by GDP
+      instead of UDP. Same synthesis complexity, no chemical basis for a
+      different interval -- see "name:chebi:58885" above.
+    sources:
+      - "No public cradle-to-gate GWP for GDP-mannose was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+  "name:chebi:57498":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      ADP-alpha-D-glucose: the same glucose unit as UDP-glucose, carried by
+      ADP instead. Same synthesis complexity, no chemical basis for a
+      different interval -- see "name:chebi:58885" above.
+    sources:
+      - "No public cradle-to-gate GWP for ADP-glucose was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+  "name:chebi:62230":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      GDP-alpha-D-glucose: the same glucose unit as UDP-glucose, carried by
+      GDP instead. Same synthesis complexity, no chemical basis for a
+      different interval -- see "name:chebi:58885" above.
+    sources:
+      - "No public cradle-to-gate GWP for GDP-glucose was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+  "name:chebi:66915":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      UDP-alpha-D-galactofuranose: the furanose ring form of UDP-galactose --
+      same molecular formula, same anhydrohexosyl unit transferred, same
+      synthesis complexity. No chemical basis for a different interval --
+      see "name:chebi:58885" above.
+    sources:
+      - "No public cradle-to-gate GWP for UDP-galactofuranose was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+  "name:chebi:57477":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      dTDP-alpha-D-glucose: the same glucose unit as UDP-glucose, carried by
+      dTDP instead. Same synthesis complexity, no chemical basis for a
+      different interval -- see "name:chebi:58885" above.
+    sources:
+      - "No public cradle-to-gate GWP for dTDP-glucose was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
+  "name:chebi:137927":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      CDP-alpha-D-glucose: the same glucose unit as UDP-glucose, carried by
+      CDP instead. Same synthesis complexity, no chemical basis for a
+      different interval -- see "name:chebi:58885" above.
+    sources:
+      - "No public cradle-to-gate GWP for CDP-glucose was found."
       - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor)."
 
   # ---- The chemical side --------------------------------------------------

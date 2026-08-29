@@ -136,7 +136,10 @@ def test_template_rejects_a_material_with_no_note(tmp_path):
 
 def test_shipped_template_loads_and_labels_every_generalisation():
     t = load_template(CLASSES / "udp-glucosyltransferase.yaml")
-    assert t.cofactor_chebi == ("CHEBI:58885", "CHEBI:66914")
+    assert t.cofactor_chebi == (
+        "CHEBI:58885", "CHEBI:66914", "CHEBI:57527", "CHEBI:57498",
+        "CHEBI:62230", "CHEBI:66915", "CHEBI:57477", "CHEBI:137927",
+    )
     assert all(m.basis in ("sourced", "generalised") for m in t.materials)
     assert all(m.note.strip() for m in t.materials)
     # The acetic anhydride substitution is the template's largest extrapolation
@@ -177,17 +180,21 @@ def at_published_operating_point(inputs):
 def test_the_class_matches_the_expected_number_of_reactions(screened):
     # 263 consume UDP-glucose, 143 consume UDP-galactose (its diastereomer,
     # added because it shares the same 162.14 mass-delta signature -- see
-    # the template's file header).
-    assert screened.matched == 406
-    # 18 of the 406 are excluded by the mass-delta check, not silently
-    # templated as glycosylations: 9 where an acceptor/product pair could
-    # not be identified, and 9 that consume a class cofactor for a
+    # the template's file header) -- plus 72 more across six sibling
+    # hexose-nucleotide donors added the same way (GDP-mannose,
+    # ADP-glucose, GDP-glucose, UDP-galactofuranose, dTDP-glucose,
+    # CDP-glucose), for 478 total.
+    assert screened.matched == 478
+    # 27 of the 478 are excluded by the mass-delta check, not silently
+    # templated as glycosylations: 13 where an acceptor/product pair could
+    # not be identified, and 14 that consume a class cofactor for a
     # genuinely different transformation -- the cofactor's own hydrolysis, a
     # sugar-nucleotide exchange, a hexose-1-phosphate transfer onto a lipid
-    # carrier (undecaprenyl phosphate), or oxidation of the sugar-nucleotide
-    # itself -- verified by hand for every exclusion bucket; see
-    # screen_reaction's comment on the check.
-    assert len(screened.decided) == 388
+    # carrier (undecaprenyl phosphate), oxidation of the sugar-nucleotide
+    # itself, or (among the six sibling donors) chain elongation and
+    # isomerisation of the same kind -- verified by hand for every
+    # exclusion bucket; see screen_reaction's comment on the check.
+    assert len(screened.decided) == 451
 
 
 def test_screen_reproduces_the_hand_built_case(screened):
@@ -196,7 +203,7 @@ def test_screen_reproduces_the_hand_built_case(screened):
 
     A screen that disagreed with the one case it was derived from would be
     reporting on its own template rather than on chemistry, so this is the
-    test that gives the other 387 rows any standing at all.
+    test that gives the other 450 rows any standing at all.
     """
     r = next(x for x in screened.results if x.rhea_id == "RHEA:12560")
     assert r.acceptor_name == "hydroquinone"
@@ -216,14 +223,18 @@ def test_no_reaction_in_this_class_survives_industrial_solvent_recovery(screened
 
     Every verdict here is decided at zero solvent recovery, but the template
     comes from a bench procedure that discards over 800 kg of solvent per kg
-    of product. None of the 388 survives 99% recovery, and the whole
+    of product. None of the 451 survives 99% recovery, and the whole
     distribution sits below the 90-95% a real plant achieves by distillation.
     If this ever starts passing, the class's advantage has stopped being an
     artefact of glassware and the claim can be made much more strongly.
     """
     assert all(not r.robust for r in screened.results)
     thresholds = [r.recovery_threshold for r in screened.decided]
-    assert min(thresholds) == pytest.approx(0.8558, abs=0.002)
+    # The six sibling hexose donors added the same reactions the original
+    # two donors' template already models, so the ceiling (the hardest
+    # acceptor to mask) is unchanged; they only pull the floor down, adding
+    # reactions whose threshold is even lower than the original minimum.
+    assert min(thresholds) == pytest.approx(0.8456, abs=0.002)
     assert max(thresholds) == pytest.approx(0.9154, abs=0.002)
 
 
@@ -347,7 +358,7 @@ def test_a_worse_enzyme_buys_the_chemical_route_headroom(screened, screened_at_h
 def test_the_class_does_not_survive_an_industrial_solvent_loop_at_any_conversion(screened):
     """The finding that the conversion axis exposed, and the sharpest one here.
 
-    The recovery thresholds sit at 85.58-91.54%, and a real plant distils back
+    The recovery thresholds sit at 84.56-91.54%, and a real plant distils back
     90%. So for the overwhelming majority of this class the verdict is already
     gone at a realistic solvent loop -- not because the enzyme converts badly,
     but before conversion is even asked about. Only the tail is still decided
@@ -356,7 +367,7 @@ def test_the_class_does_not_survive_an_industrial_solvent_loop_at_any_conversion
     needs = [r.min_enzymatic_yield for r in screened.decided]
     still_decided = [y for y in needs if y is not None]
     assert len(still_decided) == 25
-    assert len(needs) - len(still_decided) == 363
+    assert len(needs) - len(still_decided) == 426
     # And those 25 are not comfortable: the median one needs 93% conversion.
     still_decided.sort()
     assert min(still_decided) == pytest.approx(0.853, abs=0.005)
@@ -379,7 +390,7 @@ def test_the_break_even_frontier_slopes_the_only_way_it_can(inputs):
     must decrease monotonically down the curve."""
     curve = break_even_frontier(*inputs, yields=(1.0, 0.7, 0.5))
     assert [p.enzymatic_yield for p in curve] == [1.0, 0.7, 0.5]
-    assert all(p.decided == 388 for p in curve)
+    assert all(p.decided == 451 for p in curve)
     for a, b in zip(curve, curve[1:]):
         assert b.min_threshold < a.min_threshold
         assert b.median_threshold < a.median_threshold
@@ -538,7 +549,7 @@ def test_the_fair_fight_holds_once_both_sides_are_evidenced(inputs):
     once both routes are pushed hard.
     """
     curve = fair_fight_frontier(*inputs, efforts=(0.0, 0.9, 0.99))
-    assert all(p.enzyme_wins == 388 for p in curve)
+    assert all(p.enzyme_wins == 451 for p in curve)
     assert all(p.chemistry_wins == 0 for p in curve)
 
 
@@ -571,11 +582,11 @@ def test_the_published_operating_point_is_decided_for_the_whole_class(inputs):
     """
     run = screen_all(*inputs, cofactor_recycling=1 - 1 / 240, reference_recovery=0.90)
     guaranteed = [r for r in run.decided if r.advantage_decided]
-    assert len(guaranteed) == len(run.decided) == 388
+    assert len(guaranteed) == len(run.decided) == 451
 
 
 def test_the_fair_fight_report_names_what_actually_decides_it(inputs):
-    """A table saying the enzyme wins 388-0 at 99% effort is worthless without
+    """A table saying the enzyme wins 451-0 at 99% effort is worthless without
     the reason. The dominant solvent term is a bench isolation, and recovery
     can only divide it -- it cannot un-choose it."""
     from carbonroute.report import render_fair_fight
@@ -680,7 +691,7 @@ def test_the_shipped_glycosylation_class_declares_no_bond_check(screened):
     """
     assert screened.template.transferred_bond_smarts is None
     assert screened.template.ec_prefix is None
-    assert screened.matched == 406
+    assert screened.matched == 478
 
 
 # --- a declared process instead of one paper's bench run ---------------------
@@ -744,7 +755,7 @@ def test_the_verdict_survives_being_modelled_instead_of_quoted(
     Screened against a competent process rather than one paper's bench run,
     the enzymatic advantage shrinks by roughly six-fold -- that is the size of
     the "which paper did you pick" effect, measured rather than argued. What
-    matters is that the conclusion does not move with it: all 388 reactions
+    matters is that the conclusion does not move with it: all 451 reactions
     still have a guaranteed saving. A finding that survives its own dominant
     assumption being replaced is worth more than one that was never tested.
     """
@@ -754,7 +765,7 @@ def test_the_verdict_survives_being_modelled_instead_of_quoted(
     modelled = next(x for x in by_process_model.decided if x.rhea_id == "RHEA:12560")
     assert modelled.advantage_min_kgCO2e < paper.advantage_min_kgCO2e / 4
     assert modelled.advantage_min_kgCO2e > 0
-    assert len([x for x in by_process_model.decided if x.advantage_decided]) == 388
+    assert len([x for x in by_process_model.decided if x.advantage_decided]) == 451
 
 
 def test_modelling_the_process_loosens_the_grip_of_one_material(
@@ -763,7 +774,7 @@ def test_modelling_the_process_loosens_the_grip_of_one_material(
     """And it does what it was for: the verdicts stop being about one number.
 
     Under the paper template a single material carries a median 80% of every
-    delta and is the top term in all 388 reactions. Under the model that falls
+    delta and is the top term in all 451 reactions. Under the model that falls
     to 60%, and it is no longer the top term in a substantial minority.
     """
     bounds = inputs[5]
@@ -776,7 +787,7 @@ def test_modelling_the_process_loosens_the_grip_of_one_material(
 
     paper_conc, paper_etoac = profile(at_published_operating_point)
     model_conc, model_etoac = profile(by_process_model)
-    assert paper_etoac == 388
+    assert paper_etoac == 451
     assert model_etoac < 300
     assert model_conc < paper_conc - 0.1
 
@@ -807,7 +818,7 @@ def test_every_verdict_in_this_class_rests_on_one_material(at_published_operatin
     """The finding this detector was built to surface, and it is not a
     comfortable one.
 
-    In all 388 decided reactions the single largest term carries at least
+    In all 451 decided reactions the single largest term carries at least
     half the delta, and it is the same material every time: ethyl acetate,
     the template's 159 kg/mol bench isolation. The verdicts are therefore
     mostly a statement about one paper's choice of extraction volume. That
@@ -912,7 +923,7 @@ def test_the_advantage_is_read_at_the_industrial_operating_point(screened):
     assert all(r.reference_recovery == 0.90 for r in decided)
     guaranteed = [r for r in decided if r.advantage_decided]
     assert len(guaranteed) == 25
-    # The 363 others straddle zero at 90% recovery: no verdict, not a small one.
+    # The 426 others straddle zero at 90% recovery: no verdict, not a small one.
     assert all(r.advantage_min_kgCO2e <= 0.0 for r in decided if not r.advantage_decided)
 
 
