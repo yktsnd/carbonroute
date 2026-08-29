@@ -256,44 +256,90 @@ enzymatic_process:
       role: reagent
       charge: per_turnover
       enables_recycling: true
-      # 342.297 g/mol, computed by RDKit from the SMILES Rhea ships for
-      # CHEBI:17992 -- the same route every other molecular weight here
-      # takes. One turnover per group transferred, so one sucrose per mole
-      # of product, and it is NOT divided by the turnover number: that is
-      # the whole point of charging it.
-      kg_per_mol_product: 0.342297
+      # 4.196 mol of sucrose per mole of product, times 342.297 g/mol.
+      #
+      # This is the amount a real cascade CHARGES, not the 1:1 stoichiometry
+      # of the SuSy equation -- a regeneration system runs sucrose in large
+      # excess to drive the equilibrium. Derived from Liu et al.'s own stated
+      # concentrations, with the arithmetic shown so it can be checked:
+      #   charged   sucrose 500 mM, UDP 0.5 mM, phloretin (acceptor) 120 mM
+      #   product   nothofagin at ~52 g/L; MW 436.41 (phloretin 274.27 +
+      #             162.14 anhydrohexosyl, both via RDKit)
+      #             => 52 / 436.41 * 1000 = 119.2 mM product
+      #   so        500 / 119.2 = 4.196 mol sucrose per mol product
+      #             4.196 * 0.342297 = 1.4364 kg/mol product
+      #
+      # Two independent checks on that derivation, both from the paper's own
+      # numbers: 119.2 mM product against 120 mM acceptor is 99.3%
+      # conversion, and 0.5 mM UDP against 119.2 mM product implies a
+      # turnover number of 238, against the 240 the authors state. Neither
+      # was fitted; they agree because the derivation is right.
+      #
+      # The previous figure here was the theoretical one sucrose per
+      # turnover, 0.342297 kg/mol. It understated this by 4.2x, and in the
+      # direction that flatters the enzymatic route.
+      kg_per_mol_product: 1.4364
       basis: generalised
       source: >
-        Stoichiometry from Rhea's own curated equation RHEA:55092
-        (EC 2.4.1.13, sucrose synthase): D-fructose + UDP-alpha-D-glucose =
-        sucrose + UDP + H(+). Regeneration runs this right-to-left, so each
-        turnover consumes one sucrose and releases one D-fructose while
-        returning UDP to UDP-alpha-D-glucose. The 1:1 ratio is read from the
-        same curated database this screen already uses for every other
-        reaction, not from an uncited assertion.
+        Liu, H.; Tegl, G.; Nidetzky, B. "Glycosyltransferase
+        Co-Immobilization for Natural Product Glycosylation: Cascade
+        Biosynthesis of the C-Glucoside Nothofagin with Efficient Reuse of
+        Enzymes." Adv. Synth. Catal. 2021, 363(8), 2157-2169.
+        doi:10.1002/adsc.202001549. Open access, CC BY 4.0. Charged
+        concentrations (500 mM sucrose, 0.5 mM UDP, 120 mM phloretin), the
+        ~52 g/L product titre and the stated 240-fold UDP-glucose recycling
+        are all the paper's own figures; the per-mole-of-product conversion
+        above is arithmetic on them, set out in full in the comment.
+        The 1:1 SuSy stoichiometry it rests on is Rhea's curated RHEA:55092
+        (EC 2.4.1.13).
       note: >
-        The 1:1 stoichiometry is sourced (RHEA:55092) but the AMOUNT is
-        generalised: this is theoretical demand of one sucrose per turnover,
-        not a charged quantity from a specific published SuSy process. A real
-        regeneration system charges sucrose in excess to drive the
-        equilibrium, so this figure UNDERSTATES the co-substrate burden and
-        therefore still flatters the enzymatic route -- less than crediting
-        recycling for free would, but it is not neutral. Replacing it with a
-        charged amount from a real cited SuSy procedure is outstanding
-        primary-source work for this class.
+        `generalised`, for one specific reason that matters: Liu et al.
+        run a C-glycosyltransferase (OsCGT) cascade making a C-glucoside,
+        while this class is O-glycosylation. The sucrose/UDP regeneration
+        half is the same chemistry and is what is borrowed here; the
+        acceptor chemistry is not. An O-UGT cascade may charge differently,
+        and replacing this with charged amounts from an O-glycosylation
+        paper would upgrade it to `sourced`. Trobo-Maseda et al. 2020
+        (doi:10.1016/j.ijbiomac.2020.04.120) is the right O-glycosylation
+        system -- resveratrol glucoside, coimmobilised O-GT and SuSy, UDP
+        cycle TTN 91.7 over 10 batch cycles -- but its charged sucrose, UDP
+        loading, titre and reaction volume were not obtainable, so it cannot
+        replace this yet.
 
+# REFERENCE OPERATING POINT for --cofactor-recycling, from the same paper:
+#
+#   Liu et al. state the UDP-glucose was recycled 240 times, which is a
+#   cofactor_recycling of 1 - 1/240 = 0.99583. That is a real, published,
+#   immobilised cascade rather than a round number, and it is the value to
+#   use when asking what a serious enzymatic process achieves. Independently
+#   implied by their own concentrations as 238 (see the derivation above).
+#
+#   For contrast, Trobo-Maseda et al. 2020 report a UDP-cycle TTN of 91.7
+#   (recycling 0.9891) for a coimmobilised O-glycosyltransferase/SuSy system
+#   over 10 batch cycles. Both are experimental; they differ by enzyme,
+#   support, acceptor and conditions, so both are worth sweeping rather than
+#   averaging.
+
+# NOT DECLARED, AND THAT IS ITSELF A GAP:
 # NOT DECLARED, AND THAT IS ITSELF A GAP:
 #
 # An immobilised enzyme preparation and its carrier belong here as a second,
-# `charge: amortised` measure -- that is how a real process makes an enzyme
-# affordable, and it is what the `amortised` shape exists for. Writing one
-# needs three numbers this repository does not yet hold from a document it
-# has actually read: the enzyme loading (kg of preparation per mole of
-# product), the reuse_cycles a published immobilisation achieves, and a
-# cradle-to-gate GWP for producing the enzyme itself. The canonical source
-# for the last of those (Nielsen, Oxenboll & Wenzel, Int J LCA 12(6):432-438,
-# 2007, Novozymes cradle-to-gate enzyme LCA) is paywalled and was not read.
+# `charge: amortised` measure. Two of the three numbers that needs now exist:
 #
-# Until those exist the enzyme is absent from this diff, which understates
-# the enzymatic route -- the same direction as every other gap noted above.
-# It is left undeclared rather than filled with a plausible number.
+#   reuse_cycles  Yue et al. 2024 (doi:10.1021/acsami.4c14661) co-immobilise
+#                 UGT and SuSy on a NiCo metal-organic framework and report
+#                 10 cycles at 68.97% residual activity, with a loading of
+#                 115.9 mg enzyme per g of support. Trobo-Maseda et al. 2020
+#                 independently report up to 10 batch cycles.
+#   enzyme GWP    bounded in the .bounds.yaml alongside this file, from
+#                 Nielsen et al. 2007 and Gilpin & Andrae 2017.
+#
+# The one still missing is the bridge between them: enzyme mass per mole of
+# PRODUCT. Yue gives enzyme per gram of carrier and Liu gives product titre,
+# but neither states the enzyme loading on a per-product basis, and it cannot
+# be derived from what they do state. Without it there is no way to convert a
+# per-kg-enzyme GWP into a per-kg-product charge, so no measure is written.
+#
+# The enzyme is therefore still absent from this diff, which understates the
+# enzymatic route -- the same direction as every other gap noted above. It is
+# left undeclared rather than filled with a plausible number.

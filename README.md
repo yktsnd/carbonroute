@@ -189,8 +189,19 @@ measures the same thing the threshold did.
    raise). The shipped class declares sucrose as `per_turnover` and **no
    immobilisation measure at all**, because the enzyme loading, reuse cycles
    and enzyme-production GWP are not held from a document this repository has
-   read. The enzyme is therefore absent from the diff, which understates the
-   enzymatic route; it is left as a stated gap rather than a plausible number. Run that way the enzyme stays ahead on all 388 reactions at
+   read — enzyme-production GWP and reuse cycles have since been sourced,
+   leaving only enzyme loading per mole of product. The co-substrate amount
+   is now what a published cascade actually charges (Liu et al. 2021, CC BY:
+   4.196 mol sucrose per mole of product), not the theoretical 1:1, which
+   understated it 4.2x in the enzyme's favour. **That correction changed a
+   result**: the enzymatic route used to win all 388 reactions at every
+   effort up to 99%, and at the real charged amount the 99% column collapses
+   to no verdict at all — the sweep was an artefact of undercharging the
+   enzyme. Screened instead at two published figures, Liu's 240 cofactor
+   turnovers and industrial distillation's 90% recovery, **all 388 reactions
+   have a guaranteed saving**. One number still dominates, though: the
+   template's 159 kg/mol ethyl-acetate isolation. Recovery divides that; it
+   cannot un-choose it. Run that way the enzyme stays ahead on all 388 reactions at
    every effort up to 99%, but the result is carried by one number: the
    template's 159 kg/mol ethyl-acetate isolation. Recovery divides that; it
    cannot un-choose it. **Solvent recovery and solvent avoidance are

@@ -1,13 +1,29 @@
 # Open data gaps: a brief for deep research
 
-Four numbers this repository does not hold from a document it has actually
-read. Each one is named in the code or template where it is missing, and each
-is left as a stated gap rather than filled with a plausible value.
+Numbers this repository does not hold from a document it has actually read.
+Each is named in the code or template where it is missing, and each is left
+as a stated gap rather than filled with a plausible value.
 
-Paywalls closed several routes in-session: orgsyn.org and mdpi.com refuse
-automated access, and the canonical enzyme-production LCA is behind Springer.
-The prompt below is written to be pasted into a deep-research tool that can
-reach those.
+## What one round of this brief closed
+
+| gap | outcome |
+|---|---|
+| **A** enzyme production GWP | **CLOSED as a bound.** Nielsen et al. 2007: 1–10 kg CO2e per kg *final product*; Gilpin & Andrae 2017: 7.9 / 9.1 / 10.6 per kg *full broth*. Two different functional units, so it is bounded at [1, 10.6] rather than made a factor. Both paywalled: cited, not redistributed. |
+| **B** immobilisation reuse | **PARTLY CLOSED.** Yue et al. 2024: co-immobilised UGT + SuSy, 115.9 mg enzyme per g support, 10 cycles at 68.97% residual activity. Trobo-Maseda et al. 2020: up to 10 batch cycles. Still missing the bridge — enzyme mass per mole of *product* — so no measure is written. |
+| **C** regeneration charged amounts | **CLOSED, and it changed a result.** Liu, Tegl & Nidetzky 2021 (CC BY 4.0) charge 500 mM sucrose / 0.5 mM UDP against 120 mM acceptor for ~52 g/L product: 4.196 mol sucrose per mole of product, 4.2x the theoretical figure previously shipped. Their 240-fold UDP-glucose recycling is now the reference operating point. |
+| **D** solvent-lean chemistry | **STILL OPEN.** Solvent-free mechanochemical glycosylations exist (Tyagi 2013, Traboni 2020) but none reports its work-up, wash, extraction and chromatography volumes, which is the number actually needed. |
+| **E** sucrose GWP | **STILL OPEN.** A CC BY beet-sugar LCA is a near match but its figure is tabulated rather than in prose and its DOI was unverifiable. Sucrose stays bounded. |
+
+The two checks that gave the Gap C figures their standing are worth
+recording: 52 g/L at MW 436.41 is 119.2 mM against a 120 mM acceptor, or
+99.3% conversion; and 0.5 mM UDP against 119.2 mM product implies 238
+turnovers against the 240 the authors state. Neither was fitted.
+
+Paywalls closed several routes from inside this repository's own session:
+orgsyn.org and mdpi.com refuse automated access, and both enzyme-production
+LCAs are behind Springer. The prompt below is written to be pasted into a
+deep-research tool that can reach those, and is reusable for the gaps still
+open.
 
 **The prompt is in English deliberately** — the literature is, and search
 recall is materially better for it.

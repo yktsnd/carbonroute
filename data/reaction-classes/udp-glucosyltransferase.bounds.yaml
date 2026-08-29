@@ -118,3 +118,33 @@ bounds:
       - "No public cradle-to-gate GWP for sucrose is held in data/factors/."
       - "data/factors/probas_gemis.csv: Ethanol (high purity), 1.13 kgCO2e/kg."
       - "data/factors/derived.csv: triethylamine, 1.480 kgCO2e/kg (the high anchor among bulk organics)."
+
+  # ---- The enzyme itself, staged for when a loading figure exists --------
+  # Not yet charged by any measure in the template: converting a per-kg-enzyme
+  # GWP into a per-kg-product one needs an enzyme loading per mole of product,
+  # which no source consulted states. The bound is recorded now because the
+  # factor question IS settled and the loading question is not, and keeping
+  # them separate is what stops the missing half being filled by guesswork.
+  "name:enzyme preparation":
+    low: 1.0
+    high: 10.6
+    rationale: >
+      Cradle-to-gate GWP of industrially produced enzyme, spanning the two
+      published figures that could be verified. Nielsen, Oxenboll & Wenzel
+      (Int J LCA 12(6):432-438, 2007) state that contributions to global
+      warming range between one and ten kg CO2-equivalents per kg FINAL
+      PRODUCT for five Novozymes products; Gilpin & Andrae (Int J LCA
+      22:1034-1053, 2017) report 7.9, 9.1 and 10.6 kg CO2e per kg enzyme for
+      European cellulase produced from pre-treated softwood, sugar-cane
+      molasses and cornstarch glucose respectively, on a FULL BROTH basis.
+      Those two functional units are not the same thing, and neither is
+      purified protein -- which is exactly why this is a bound and not a
+      factor. The interval spans both because the basis ambiguity, not the
+      measurement, is the dominant uncertainty here, and a screen that stays
+      decided across it is saying the verdict does not turn on which basis
+      is meant. Both sources are paywalled, so the values are cited rather
+      than redistributed; nothing from them is shipped in data/factors/.
+    sources:
+      - "Nielsen, Oxenboll & Wenzel, Int J LCA 12(6):432-438 (2007), doi:10.1065/lca2006.08.265.1 -- 1 to 10 kg CO2e per kg final product."
+      - "Gilpin & Andrae, Int J LCA 22:1034-1053 (2017), doi:10.1007/s11367-016-1208-4 -- 7.9 / 9.1 / 10.6 kg CO2e per kg enzyme, full broth."
+      - "Hobusch et al., Bioresour Technol 400:130653 (2024), doi:10.1016/j.biortech.2024.130653 -- CC BY 4.0, functional unit 'one kg of rEnz recovered from batch fermentation'; its GWP values are tabulated rather than stated in prose and were not extracted."

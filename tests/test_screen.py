@@ -405,20 +405,27 @@ def test_recycling_is_refused_when_nothing_declared_drives_it(inputs, tmp_path):
         )
 
 
-def test_the_shipped_class_declares_what_drives_its_regeneration():
-    """Sucrose synthase, with the 1:1 stoichiometry read from Rhea's own
-    curated equation RHEA:55092 rather than asserted, and charged on every
-    turnover rather than divided by the turnover number."""
-    t = load_template(CLASSES / "udp-glucosyltransferase.yaml")
+def test_the_shipped_class_charges_what_a_real_cascade_charges(inputs):
+    """Not the 1:1 SuSy stoichiometry -- what a published system puts in.
+
+    A regeneration cascade runs sucrose in large excess to drive the
+    equilibrium, so the theoretical one-per-turnover figure this template
+    used to carry understated the co-substrate by 4.2x, in the direction
+    that flatters the enzymatic route. The figure now comes from Liu et al.
+    2021 (CC BY 4.0), whose stated 500 mM sucrose against a ~52 g/L
+    nothofagin titre works out at 4.196 mol per mole of product.
+    """
+    t = inputs[1]
     (sucrose,) = t.recycling_enablers
     assert sucrose.name == "sucrose"
     assert sucrose.chebi == "CHEBI:17992"
     assert sucrose.charge == "per_turnover"
-    # 342.297 g/mol, RDKit from Rhea's own SMILES for CHEBI:17992.
-    assert sucrose.kg_per_mol_product == pytest.approx(0.342297)
-    # Theoretical demand, not a charged amount from a cited SuSy procedure.
+    assert sucrose.kg_per_mol_product == pytest.approx(4.196 * 0.342297, rel=1e-3)
+    # Still generalised: Liu et al. run a C-glycosyltransferase cascade and
+    # this class is O-glycosylation. The regeneration half is what is
+    # borrowed; the acceptor chemistry is not.
     assert sucrose.basis == "generalised"
-    assert "UNDERSTATES" in sucrose.note
+    assert "10.1002/adsc.202001549" in sucrose.source
 
 
 def test_an_amortised_measure_divides_by_its_reuse_cycles(tmp_path):
@@ -505,16 +512,36 @@ def test_recycling_buys_down_the_cofactor_but_pays_a_co_substrate(inputs):
     assert recycled.advantage_min_kgCO2e is not None
 
 
-def test_the_fair_fight_moves_both_dials_together(inputs):
-    """Sweeping solvent recovery against a fixed single-use cofactor compares
-    an optimised chemical process with an unoptimised enzymatic one. This
-    sweeps both, and on the shipped class the enzymatic route stays ahead at
-    every effort -- a result the report is required to qualify, because the
-    template's 159 kg/mol ethyl-acetate isolation dominates it."""
+def test_the_fair_fight_stops_being_a_walkover_once_the_co_substrate_is_real(inputs):
+    """The correction that charging a real sucrose amount actually bought.
+
+    With the co-substrate at its theoretical one-per-turnover figure, the
+    enzymatic route won all 388 reactions at every effort including 99% --
+    a clean sweep that was an artefact of undercharging it. At the amount
+    Liu et al. actually charge, the 99% column collapses to no verdict at
+    all: pushed that hard, the chemical route's solvent falls far enough
+    that the enzymatic route's own consumables decide nothing. The enzyme
+    still wins comfortably at efforts a real plant reaches.
+    """
     curve = fair_fight_frontier(*inputs, efforts=(0.0, 0.9, 0.99))
-    assert [p.effort for p in curve] == [0.0, 0.9, 0.99]
-    assert all(p.enzyme_wins == 388 for p in curve)
-    assert all(p.chemistry_wins == 0 for p in curve)
+    at = {p.effort: p for p in curve}
+    assert at[0.0].enzyme_wins == 388 and at[0.0].chemistry_wins == 0
+    assert at[0.9].enzyme_wins == 388 and at[0.9].chemistry_wins == 0
+    assert at[0.99].enzyme_wins == 0 and at[0.99].undecided == 388
+
+
+def test_the_published_operating_point_is_decided_for_the_whole_class(inputs):
+    """The question the tool exists to answer, at real numbers on both sides.
+
+    Liu et al. report the UDP-glucose recycled 240 times, and industrial
+    distillation recovers about 90%. Screened at those two published figures
+    rather than at round numbers, every reaction in the class has a
+    guaranteed saving -- one that holds everywhere inside the asserted
+    bounds, sucrose's included.
+    """
+    run = screen_all(*inputs, cofactor_recycling=1 - 1 / 240, reference_recovery=0.90)
+    guaranteed = [r for r in run.decided if r.advantage_decided]
+    assert len(guaranteed) == len(run.decided) == 388
 
 
 def test_the_fair_fight_report_names_what_actually_decides_it(inputs):

@@ -322,20 +322,51 @@ exists to raise. A screen may claim no recycling at all unless some declared
 measure is marked `enables_recycling`; what wears that mark is the template's
 business, because it might be a co-substrate, an electrode or a whole cell.
 
-The shipped class declares one measure: sucrose, `per_turnover`, with the
-one-sucrose-per-turnover stoichiometry read from Rhea's own curated
-RHEA:55092 rather than asserted.
+The shipped class declares one measure: sucrose, `per_turnover`, at the
+amount a published cascade actually charges. That is not the 1:1 SuSy
+stoichiometry, and the difference matters. Liu, Tegl & Nidetzky
+(*Adv. Synth. Catal.* 2021, 363(8), 2157-2169, doi:10.1002/adsc.202001549,
+CC BY 4.0) charge 500 mM sucrose and 0.5 mM UDP against a 120 mM acceptor
+and reach ~52 g/L of product, which works out at **4.196 mol of sucrose per
+mole of product** — 4.2x the theoretical figure this template previously
+carried, in the direction that had been flattering the enzyme. Two checks on
+that arithmetic come out of the paper's own numbers: 52 g/L at MW 436.41 is
+119.2 mM against a 120 mM acceptor, or 99.3% conversion, and 0.5 mM UDP
+against 119.2 mM product implies 238 turnovers against the 240 the authors
+state.
+
+Correcting it changed a result. With the co-substrate at its theoretical
+amount the enzymatic route won all 388 reactions at every effort up to 99%.
+At the real charged amount the 99% column collapses to **no verdict at all**:
+pushed that hard, the chemical route's solvent falls far enough that the
+enzymatic route's own consumables settle nothing. That clean sweep was an
+artefact of undercharging the enzyme, and it is gone.
+
+What survives is a better answer, because both figures in it are published
+rather than round. Liu et al. report the UDP-glucose recycled **240 times**,
+and industrial distillation recovers about **90%**. Screened at those two
+numbers, **every one of the 388 reactions has a guaranteed saving** — one
+that holds everywhere inside the asserted bounds, sucrose's included.
 
 **It declares no immobilisation measure, and that omission is stated in the
-template rather than hidden.** Writing one needs three figures this
-repository does not hold from a document it has read: the enzyme loading per
-mole of product, the `reuse_cycles` a published immobilisation achieves, and
-a cradle-to-gate GWP for producing the enzyme itself. The canonical source
-for the last (Nielsen, Oxenboll & Wenzel, *Int J LCA* 12(6):432-438, 2007 —
-the Novozymes cradle-to-gate enzyme assessment) is paywalled and was not
-read. So the enzyme is currently absent from this diff entirely, which
-understates the enzymatic route — the same direction as every other gap here,
-and left as a gap rather than filled with a plausible number.
+template rather than hidden.** Two of the three figures such a measure needs
+now exist. `reuse_cycles`: Yue et al. (*ACS Appl. Mater. Interfaces* 2024,
+16(45), 61725-61738, doi:10.1021/acsami.4c14661) co-immobilise UGT and SuSy
+on a NiCo metal-organic framework and report 10 cycles at 68.97% residual
+activity, loading 115.9 mg of enzyme per gram of support; Trobo-Maseda et al.
+(2020, doi:10.1016/j.ijbiomac.2020.04.120) independently report up to 10
+batch cycles. Enzyme GWP: bounded in the bounds file at 1 to 10.6 kg CO2e per
+kg, spanning Nielsen et al. 2007 (1-10 per kg *final product*) and Gilpin &
+Andrae 2017 (7.9-10.6 per kg *full broth*) — two different functional units,
+which is precisely why it is a bound and not a factor.
+
+The one still missing is the bridge: enzyme mass per mole of **product**. Yue
+gives enzyme per gram of carrier and Liu gives a product titre, but neither
+states a loading on a per-product basis and it cannot be derived from what
+they do state. Without it a per-kg-enzyme GWP cannot become a per-kg-product
+charge, so no measure is written and the enzyme stays absent from the diff —
+understating the enzymatic route, in the same direction as every other gap
+here, and left as a gap rather than filled.
 
 Run that way, the enzymatic route stays ahead on all 388 reactions at every
 effort from 0% to 99%. **That result is not yet worth much, and the report
