@@ -512,22 +512,43 @@ def test_recycling_buys_down_the_cofactor_but_pays_a_co_substrate(inputs):
     assert recycled.advantage_min_kgCO2e is not None
 
 
-def test_the_fair_fight_stops_being_a_walkover_once_the_co_substrate_is_real(inputs):
-    """The correction that charging a real sucrose amount actually bought.
+def test_the_fair_fight_holds_once_both_sides_are_evidenced(inputs):
+    """Where two corrections in opposite directions left the answer.
 
-    With the co-substrate at its theoretical one-per-turnover figure, the
-    enzymatic route won all 388 reactions at every effort including 99% --
-    a clean sweep that was an artefact of undercharging it. At the amount
-    Liu et al. actually charge, the 99% column collapses to no verdict at
-    all: pushed that hard, the chemical route's solvent falls far enough
-    that the enzymatic route's own consumables decide nothing. The enzyme
-    still wins comfortably at efforts a real plant reaches.
+    Charging the real sucrose amount (4.2x the theoretical one) made the 99%
+    column collapse to no verdict. Replacing sucrose's ceiling -- an
+    unjustified 10 kgCO2e/kg -- with ADEME/Agribalyse evidence at 0.754
+    brought it back. The intermediate result was an artefact of the bound,
+    not of the chemistry, and both corrections were right.
+
+    What holds it up at 99% is not solvent. At that recovery the chemical
+    side is dominated by reagents that do not recover at all -- 8.9 kg of
+    potassium carbonate per kg of product, the peracetylated donor, sulfuric
+    acid -- while the enzymatic side's whole burden regenerates. That
+    asymmetry, not the isolation solvent, is what the class actually turns on
+    once both routes are pushed hard.
     """
     curve = fair_fight_frontier(*inputs, efforts=(0.0, 0.9, 0.99))
-    at = {p.effort: p for p in curve}
-    assert at[0.0].enzyme_wins == 388 and at[0.0].chemistry_wins == 0
-    assert at[0.9].enzyme_wins == 388 and at[0.9].chemistry_wins == 0
-    assert at[0.99].enzyme_wins == 0 and at[0.99].undecided == 388
+    assert all(p.enzyme_wins == 388 for p in curve)
+    assert all(p.chemistry_wins == 0 for p in curve)
+
+
+def test_sucrose_is_bounded_by_evidence_not_by_a_round_number(inputs):
+    """The dominant enzymatic term, and where its ceiling comes from.
+
+    Sucrose is charged 4.196 times per mole of product, which makes it larger
+    than the cofactor it regenerates. Its ceiling is ADEME Base Carbone's
+    Agribalyse figure for white sugar -- retail packaged, so an over-estimate
+    of bulk technical sucrose, which is exactly why it is a defensible
+    ceiling and not a factor.
+    """
+    bounds = inputs[5]
+    sucrose = bounds["name:chebi:17992"]
+    assert sucrose.high == pytest.approx(0.754)
+    assert any("Agribalyse" in s for s in sucrose.sources)
+    # It must stay a bound: the Agribalyse boundary is cradle-to-shelf with
+    # paper packaging, not the cradle-to-gate a bioreactor feed would carry.
+    assert "packag" in sucrose.rationale.lower()
 
 
 def test_the_published_operating_point_is_decided_for_the_whole_class(inputs):

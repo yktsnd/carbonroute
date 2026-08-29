@@ -99,25 +99,34 @@ bounds:
   # chemical-side entries -- its HIGH bound is the load-bearing one.
   "name:chebi:17992":
     low: 0.1
-    high: 10.0
+    high: 0.754
     rationale: >
-      Sucrose, consumed one-per-turnover by the sucrose synthase system that
-      regenerates UDP-glucose (see cofactor_regeneration in the template).
-      No public cradle-to-gate factor for it is held in data/factors. Unlike
-      UDP-glucose this is a bulk agricultural commodity rather than a
-      specialty, so the interval is set narrower but still deliberately wide
-      and deliberately generous at the top: 10 kgCO2e/kg is about seven times
-      the highest bulk commodity in the loaded tables (triethylamine, 1.480)
-      and roughly nine times ethanol (1.13), so a verdict that survives it is
-      not surviving on an optimistic sugar number. The low end sits below
-      every bulk organic in those tables. As with the cofactors, a screen
-      that returns "decided" across this interval is saying the verdict does
-      not depend on sucrose's true value; one that returns "undecided" is
-      saying this is a measurement worth buying.
+      Sucrose, consumed 4.196 times per mole of product by the sucrose
+      synthase regeneration this class's template declares -- which makes it
+      the largest single term on the enzymatic side, larger than the cofactor
+      it regenerates. So this interval, not UDP-glucose's, is now where the
+      enzymatic route's cost actually lives.
+      The ceiling comes from ADEME Base Carbone / Agribalyse 3.1, the same
+      openly licensed database several factors in data/factors/ already come
+      from: "Sucre blanc" (element 41382) is 0.614 kgCO2e/kg net weight, and
+      an older Agribalyse entry for the same product (element 34191) is
+      0.754. Neither is used as a factor, deliberately: both carry the
+      comment "Livraison : Ambiant (long) - Materiau d'emballage : Papier",
+      so they are RETAIL packaged sugar, cradle-to-shelf, not the bulk
+      technical sucrose a bioreactor is fed. That boundary mismatch is
+      exactly why this stays a bound. But it makes a good ceiling, because
+      stripping paper packaging and retail distribution can only reduce the
+      figure -- bulk sucrose cannot cost more than the same sugar in a bag.
+      The higher of the two entries is taken as that ceiling.
+      The floor is left at 0.1, well below either, because no lower figure
+      for bulk sucrose was found and inventing one would defeat the purpose.
+      This replaces an earlier [0.1, 10] interval that had no sugar-specific
+      evidence behind its ceiling at all; the 13x narrowing is the single
+      largest reduction in uncertainty on the enzymatic side so far.
     sources:
-      - "No public cradle-to-gate GWP for sucrose is held in data/factors/."
-      - "data/factors/probas_gemis.csv: Ethanol (high purity), 1.13 kgCO2e/kg."
-      - "data/factors/derived.csv: triethylamine, 1.480 kgCO2e/kg (the high anchor among bulk organics)."
+      - "ADEME Base Carbone / Agribalyse 3.1, element 41382 'Sucre blanc', 0.614 kgCO2e/kg de poids net, France continentale, retrieved live from https://data.ademe.fr/data-fair/api/v1/datasets/base-carboner. Licence Ouverte / Open Licence (Etalab)."
+      - "ADEME Base Carbone, element 34191 'Sucre blanc', 0.754 kgCO2e/kg de poids net -- the higher figure, taken as the ceiling."
+      - "Both elements carry perimeter comment 'Livraison : Ambiant (long) - Materiau d'emballage : Papier - Preparation : Pas de preparation', i.e. retail packaged sugar rather than bulk technical sucrose."
 
   # ---- The enzyme itself, staged for when a loading figure exists --------
   # Not yet charged by any measure in the template: converting a per-kg-enzyme

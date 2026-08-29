@@ -12,7 +12,7 @@ as a stated gap rather than filled with a plausible value.
 | **B** immobilisation reuse | **PARTLY CLOSED.** Yue et al. 2024: co-immobilised UGT + SuSy, 115.9 mg enzyme per g support, 10 cycles at 68.97% residual activity. Trobo-Maseda et al. 2020: up to 10 batch cycles. Still missing the bridge — enzyme mass per mole of *product* — so no measure is written. |
 | **C** regeneration charged amounts | **CLOSED, and it changed a result.** Liu, Tegl & Nidetzky 2021 (CC BY 4.0) charge 500 mM sucrose / 0.5 mM UDP against 120 mM acceptor for ~52 g/L product: 4.196 mol sucrose per mole of product, 4.2x the theoretical figure previously shipped. Their 240-fold UDP-glucose recycling is now the reference operating point. |
 | **D** solvent-lean chemistry | **STILL OPEN.** Solvent-free mechanochemical glycosylations exist (Tyagi 2013, Traboni 2020) but none reports its work-up, wash, extraction and chromatography volumes, which is the number actually needed. |
-| **E** sucrose GWP | **STILL OPEN.** A CC BY beet-sugar LCA is a near match but its figure is tabulated rather than in prose and its DOI was unverifiable. Sucrose stays bounded. |
+| **E** sucrose GWP | **CLOSED as a much tighter bound** — and not from the literature. ADEME Base Carbone, which this repository already uses under Licence Ouverte, carries Agribalyse 3.1 white sugar at 0.614 and 0.754 kg CO2e/kg. Both are retail packaged sugar ("Materiau d'emballage : Papier"), so they cap rather than measure bulk technical sucrose: the bound narrows from [0.1, 10] to [0.1, 0.754]. The deep-research round missed this because it searched the literature; the answer was in a database the repo was already licensed for. **Check your own sources first.** |
 
 The two checks that gave the Gap C figures their standing are worth
 recording: 52 g/L at MW 436.41 is 119.2 mM against a 120 mM acceptor, or
@@ -184,10 +184,12 @@ it from silence.
 
 ## Why each gap matters, for whoever reads the answer
 
-- **A and B together** are what put the enzyme itself into the comparison.
-  It is currently absent entirely, which understates the enzymatic route.
-  B's `reuse_cycles` is the number immobilisation exists to raise, and the
-  template's `amortised` charge shape already accepts it.
+- **A and B together** would put the enzyme itself into the comparison — but
+  the arithmetic now says that barely matters for this class. At a realistic
+  1-10 g of enzyme per kg of product, the enzyme contributes 0.001-0.11 kg
+  CO2e/kg against a decision margin of ~95; it would take about 89 g/kg to
+  move the verdict by 1%. Worth closing for completeness and for classes with
+  poorer biocatalysts, but it is not where the leverage is.
 - **C** replaces the theoretical one-sucrose-per-turnover figure — which
   understates the co-substrate burden, and so still flatters the enzyme —
   with what a real system charges.

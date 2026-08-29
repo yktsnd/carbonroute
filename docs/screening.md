@@ -335,18 +335,36 @@ that arithmetic come out of the paper's own numbers: 52 g/L at MW 436.41 is
 against 119.2 mM product implies 238 turnovers against the 240 the authors
 state.
 
-Correcting it changed a result. With the co-substrate at its theoretical
-amount the enzymatic route won all 388 reactions at every effort up to 99%.
-At the real charged amount the 99% column collapses to **no verdict at all**:
-pushed that hard, the chemical route's solvent falls far enough that the
-enzymatic route's own consumables settle nothing. That clean sweep was an
-artefact of undercharging the enzyme, and it is gone.
+Two corrections followed, in opposite directions, and the sequence is worth
+recording because it shows what each was actually measuring.
 
-What survives is a better answer, because both figures in it are published
-rather than round. Liu et al. report the UDP-glucose recycled **240 times**,
-and industrial distillation recovers about **90%**. Screened at those two
-numbers, **every one of the 388 reactions has a guaranteed saving** — one
-that holds everywhere inside the asserted bounds, sucrose's included.
+Charging the real amount first made the 99% column collapse to no verdict at
+all. But that turned out to be a statement about a **bound**, not about
+chemistry: sucrose's ceiling was an unevidenced 10 kg CO2e/kg. ADEME Base
+Carbone — the same openly licensed database several shipped factors come from
+— gives Agribalyse 3.1 figures for white sugar of 0.614 and 0.754 kg CO2e/kg.
+Neither is used as a factor, because both carry the perimeter comment
+"Livraison : Ambiant (long) - Materiau d'emballage : Papier": they are retail
+packaged sugar, not the bulk technical sucrose a bioreactor is fed. That
+mismatch is why it stays a bound — and why the higher of them makes a good
+*ceiling*, since stripping packaging and retail distribution can only reduce
+it. The interval narrows 13x, and the 99% verdict comes back.
+
+Both corrections were right and they cancelled. What holds the result up at
+99% is worth knowing, because it is **not solvent**. At that recovery the
+chemical side is dominated by reagents that do not recover at all — 8.9 kg of
+potassium carbonate per kg of product, the peracetylated donor, sulfuric acid
+— while essentially the whole enzymatic burden regenerates. The enzymatic
+delta is nearly fully recyclable and the chemical delta floors out at its
+stoichiometry. That asymmetry, not the isolation solvent, is what this class
+turns on once both routes are pushed hard.
+
+It also reprioritises the open gaps. At Liu's 240 turnovers the cofactor
+contributes 0.004-0.87 kg CO2e per kg of product and sucrose 0.53-3.98, while
+an enzyme at a realistic 1-10 g per kg of product would contribute 0.001-0.11
+against a decision margin of ~95. **The enzyme loading that was blocking an
+immobilisation measure turns out to be three orders of magnitude away from
+mattering here.**
 
 **It declares no immobilisation measure, and that omission is stated in the
 template rather than hidden.** Two of the three figures such a measure needs
