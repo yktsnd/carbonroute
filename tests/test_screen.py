@@ -20,6 +20,7 @@ from carbonroute.screen import (
     count_protectable_groups,
     fair_fight_frontier,
     count_substructure,
+    explain_verdict,
     load_reactions,
     load_structures,
     load_template,
@@ -163,6 +164,13 @@ def inputs():
 @pytest.fixture(scope="module")
 def screened(inputs):
     return screen_all(*inputs)
+
+
+@pytest.fixture(scope="module")
+def at_published_operating_point(inputs):
+    """Both sides at figures someone published: Liu et al.'s 240 cofactor
+    turnovers, and the ~90% an industrial distillation recovers."""
+    return screen_all(*inputs, cofactor_recycling=1 - 1 / 240, reference_recovery=0.90)
 
 
 def test_the_class_matches_the_expected_number_of_reactions(screened):
@@ -672,6 +680,71 @@ def test_the_shipped_glycosylation_class_declares_no_bond_check(screened):
     assert screened.template.transferred_bond_smarts is None
     assert screened.template.ec_prefix is None
     assert screened.matched == 406
+
+
+# --- what a verdict is actually made of --------------------------------------
+
+
+def test_explain_ranks_by_share_and_classes_the_evidence(at_published_operating_point, inputs):
+    """Provenance says where a number came from; this says how much of the
+    answer it carries. Shares are of the absolute delta and must total one."""
+    bounds = inputs[5]
+    r = next(
+        x for x in at_published_operating_point.decided if x.rhea_id == "RHEA:12560"
+    )
+    e = explain_verdict(r.standard_diff, bounds)
+    assert e.contributions == tuple(sorted(e.contributions, key=lambda c: -c.share))
+    assert sum(c.share for c in e.contributions) == pytest.approx(1.0)
+    assert e.measured_share + e.bounded_share + e.unbounded_share == pytest.approx(1.0)
+    assert {c.evidence for c in e.contributions} <= {"measured", "bounded", "unbounded"}
+    # Chemical-side materials are valued at their floor and enzymatic ones at
+    # their ceiling: the case least favourable to "the enzyme wins".
+    sucrose = next(c for c in e.contributions if c.key == "name:chebi:17992")
+    assert sucrose.side == "enzymatic"
+    assert sucrose.value_kgCO2e_per_kg == pytest.approx(bounds["name:chebi:17992"].high)
+
+
+def test_every_verdict_in_this_class_rests_on_one_material(at_published_operating_point, inputs):
+    """The finding this detector was built to surface, and it is not a
+    comfortable one.
+
+    In all 388 decided reactions the single largest term carries at least
+    half the delta, and it is the same material every time: ethyl acetate,
+    the template's 159 kg/mol bench isolation. The verdicts are therefore
+    mostly a statement about one paper's choice of extraction volume. That
+    does not make them wrong, but it makes them narrower than they look, and
+    nothing in a provenance discipline alone would have said so.
+    """
+    bounds = inputs[5]
+    explained = [
+        explain_verdict(r.standard_diff, bounds)
+        for r in at_published_operating_point.decided
+    ]
+    assert all(e.concentration >= 0.5 for e in explained)
+    assert all(e.top.name == "ethyl acetate" for e in explained)
+    median = sorted(e.concentration for e in explained)[len(explained) // 2]
+    assert median == pytest.approx(0.80, abs=0.03)
+
+
+def test_the_cofactor_carries_almost_none_of_the_verdict(at_published_operating_point, inputs):
+    """A claim this repository made about itself, checked and found false.
+
+    The bounds file described UDP-glucose as "the whole cost of the enzymatic
+    route" and "where the screen's verdict actually lives". Measured, it
+    carries under 1% of the delta -- and it is the second most heavily
+    documented entry in that file. Effort here has been close to inversely
+    correlated with leverage, which is precisely what a provenance-only
+    discipline cannot detect.
+    """
+    bounds = inputs[5]
+    r = next(
+        x for x in at_published_operating_point.decided if x.rhea_id == "RHEA:12560"
+    )
+    e = explain_verdict(r.standard_diff, bounds)
+    cofactor = next(c for c in e.contributions if c.key == "name:chebi:58885")
+    assert cofactor.share < 0.05
+    top = e.top
+    assert top.share > 15 * cofactor.share
 
 
 # --- ranking on a quantity that survives leaving the class ------------------

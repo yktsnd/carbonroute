@@ -546,7 +546,7 @@ def screen(
         reference_recovery=reference_recovery,
         cofactor_recycling=cofactor_recycling,
     )
-    report = render_screen(run, reactions_path)
+    report = render_screen(run, reactions_path, bounds)
     if fair_fight:
         report += "\n" + render_fair_fight(
             fair_fight_frontier(

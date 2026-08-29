@@ -17,9 +17,22 @@ bounds:
     low: 0.5
     high: 100.0
     rationale: >
-      UDP-alpha-D-glucose is the whole cost of the enzymatic route in this
-      class, so this interval is where the screen's verdict actually lives.
-      No public cradle-to-gate factor for it was found. The interval is set
+      UDP-alpha-D-glucose. This entry used to claim it was "the whole cost of
+      the enzymatic route" and "where the screen's verdict actually lives".
+      Measured, that is false: `explain_verdict` puts it at under 1% of the
+      delta at the published operating point, because cofactor regeneration
+      divides it by the turnover number while the co-substrate that drives
+      the regeneration is charged in full every cycle. Sucrose, not this, is
+      the enzymatic side's largest term -- and the whole enzymatic side is
+      dwarfed by the chemical template's isolation solvent. The claim was
+      written before there was any way to check it, and it stood as the
+      second most heavily documented entry in this file while carrying almost
+      none of the answer. It is corrected here rather than quietly deleted,
+      because the failure mode it illustrates -- effort tracking intuition
+      rather than leverage -- is the reason `explain_verdict` exists.
+      The interval below is unchanged and still worth having: it bounds a
+      substance with no public cradle-to-gate factor, and it would matter for
+      a class run without regeneration. The interval is set
       deliberately wide -- from below methanol (0.521, the cheapest bulk
       organic in the loaded tables) up to 100 kgCO2e/kg, well above the
       highest figure any source consulted in this project reports for a

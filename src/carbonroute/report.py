@@ -11,6 +11,8 @@ objects that look like their dataclasses.
 
 from __future__ import annotations
 
+from collections import Counter
+
 import hashlib
 import json
 from collections import defaultdict
@@ -824,6 +826,91 @@ def render_fair_fight(curve: list, template) -> str:
     return "\n".join(lines)
 
 
+def _render_what_it_rests_on(run: "ScreenRun", bounds) -> list[str]:
+    """Say which numbers the verdicts are actually made of.
+
+    This project is scrupulous about where every value came from and was,
+    until this section existed, silent about which of them the answer rests
+    on. Those are different questions, and the second is the one that has
+    repeatedly gone wrong here: every result this repository has had to
+    withdraw shared one signature -- a single term dominated the delta while
+    its value came from an assumption rather than a measurement.
+    """
+    from .screen import explain_verdict
+
+    lines = ["## What these verdicts are made of", ""]
+    explained = [
+        (r, explain_verdict(r.standard_diff, bounds))
+        for r in run.decided
+        if r.standard_diff is not None
+    ]
+    if not explained:
+        lines.append("No decided reaction carries a delta set to explain.")
+        lines.append("")
+        return lines
+
+    lines.append(
+        "Provenance says where a number came from. It cannot say how much of "
+        "the answer that number carries, and a heroically-sourced figure "
+        "worth 0.1% of the delta looks identical to a casually-looked-up one "
+        "worth 80%. This section separates them. Each material is valued at "
+        "whichever end of its interval is *least* favourable to the verdict, "
+        "the same convention the guaranteed saving uses."
+    )
+    lines.append("")
+
+    concentrations = sorted(e.concentration for _, e in explained)
+    med = concentrations[len(concentrations) // 2]
+    dominated = sum(1 for c in concentrations if c >= 0.5)
+    counter: Counter[str] = Counter()
+    for _, e in explained:
+        if e.top is not None:
+            counter[e.top.name] += 1
+    lines.append(
+        f"**In {dominated} of {len(explained)} decided reactions, one single "
+        f"material carries at least half the delta** (median concentration "
+        f"{med * 100:.0f}%). "
+        + (
+            "The same material is the largest term in "
+            f"{counter.most_common(1)[0][1]} of them: "
+            f"**{counter.most_common(1)[0][0]}**. "
+            if counter
+            else ""
+        )
+        + "A concentrated verdict is not wrong, but it means something "
+        "narrower than it looks: it is mostly a statement about one "
+        "material's quantity, and the template that sets that quantity."
+    )
+    lines.append("")
+
+    measured = sum(e.measured_share for _, e in explained) / len(explained)
+    bounded = sum(e.bounded_share for _, e in explained) / len(explained)
+    unbounded = sum(e.unbounded_share for _, e in explained) / len(explained)
+    lines.append(
+        f"Averaged over those reactions, {measured * 100:.0f}% of the delta "
+        f"rests on measured factors, {bounded * 100:.0f}% on asserted bounds "
+        f"and {unbounded * 100:.0f}% on materials with no ceiling asserted."
+    )
+    lines.append("")
+
+    ex, exp = max(explained, key=lambda pair: pair[1].concentration)
+    lines.append(
+        f"The most concentrated example is `{ex.rhea_id}` "
+        f"({exp.concentration * 100:.0f}% on one term):"
+    )
+    lines.append("")
+    lines.append("| material | side | kg/kg product | value used | share | evidence |")
+    lines.append("|---|---|---|---|---|---|")
+    for c in exp.contributions[:8]:
+        v = "—" if c.value_kgCO2e_per_kg is None else f"{c.value_kgCO2e_per_kg:.3f}"
+        lines.append(
+            f"| {c.name[:46]} | {c.side} | {c.mass_kg:.3f} | {v} | "
+            f"{c.share * 100:.1f}% | {c.evidence} |"
+        )
+    lines.append("")
+    return lines
+
+
 def _render_ranking(run: "ScreenRun") -> list[str]:
     """Rank reactions on the one quantity that means the same in every class.
 
@@ -913,7 +1000,7 @@ def _render_ranking(run: "ScreenRun") -> list[str]:
     return lines
 
 
-def render_screen(run: "ScreenRun", reaction_source: str) -> str:
+def render_screen(run: "ScreenRun", reaction_source: str, bounds=None) -> str:
     """Render a database screen: a ranked shortlist, not a set of verdicts.
 
     The headline is deliberately not "how many reactions the enzyme wins".
@@ -1062,6 +1149,7 @@ def render_screen(run: "ScreenRun", reaction_source: str) -> str:
         )
     lines.append("")
 
+    lines.extend(_render_what_it_rests_on(run, bounds))
     lines.extend(_render_ranking(run))
 
     lines.append("## Most robust in this class")

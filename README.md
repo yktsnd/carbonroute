@@ -71,9 +71,14 @@ base and solvents on the chemical side: two closed vocabularies of a few
 dozen substances each. So the primary-research effort is bounded by the size
 of the vocabulary, not by the number of reactions.
 
-`carbonroute` has three defining properties. **(1) It invents no numbers** —
+`carbonroute` has four defining properties. **(1) It invents no numbers** —
 missing data enters as an interval, and if interval arithmetic does not
-settle the comparison it prints "indeterminate" and stops. **(2) Its output
+settle the comparison it prints "indeterminate" and stops. **(1b) And it
+says which number the answer is made of** — provenance alone cannot, and
+this repository has withdrawn three published results to learn it: each time
+one term dominated the delta while its value came from an assumption. In the
+shipped class, **388 of 388 verdicts rest at least half on a single
+material**, the same one every time. **(2) Its output
 is a critical value, not a winner** — not "the enzyme wins" but "at what
 solvent recovery rate does that conclusion stop holding." **(3) It scales
 per reaction class** — template one real published chemical procedure for a

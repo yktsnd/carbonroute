@@ -682,6 +682,12 @@ class ScreenResult:
     #: unbounded above. See `rank_by_advantage`.
     advantage_min_kgCO2e: float | None = None
     advantage_max_kgCO2e: float | None = None
+    #: The delta set at the standard operating point, kept so a report can
+    #: say what the verdict is made of without recomputing it. This project
+    #: is scrupulous about where every number came from and, until this
+    #: existed, silent about which of them the answer actually rests on --
+    #: provenance without leverage. See `explain_verdict`.
+    standard_diff: DiffResult | None = None
     skipped_reason: str = ""
 
     @property
@@ -977,6 +983,7 @@ def screen_reaction(
         cofactor_recycling=cofactor_recycling,
         advantage_min_kgCO2e=standard.delta_min_kgCO2e,
         advantage_max_kgCO2e=standard.delta_max_kgCO2e,
+        standard_diff=diff_at(reference_recovery, enzymatic_yield),
     )
 
 
@@ -1217,6 +1224,125 @@ def _advantage_interval(r: ScreenResult) -> tuple[float, float]:
     return (
         float("-inf") if lo is None else lo,
         float("inf") if hi is None else hi,
+    )
+
+
+@dataclass(frozen=True)
+class Contribution:
+    """One material's share of what a verdict is actually made of."""
+
+    key: str
+    name: str
+    side: str  # "chemical" | "enzymatic"
+    mass_kg: float
+    #: The value this material takes in the case LEAST favourable to the
+    #: verdict: a chemical-side material at its floor, an enzymatic-side one
+    #: at its ceiling. Same convention `bounded_verdict` uses for delta_min.
+    value_kgCO2e_per_kg: float | None
+    contribution_kgCO2e: float
+    #: "measured" (a factor from a table), "bounded" (an asserted interval),
+    #: or "unbounded" (no ceiling asserted -- see the note in the bounds file).
+    evidence: str
+    share: float
+
+
+@dataclass(frozen=True)
+class VerdictExplanation:
+    """What a verdict rests on, ranked -- the complement of provenance.
+
+    "This tool invents no numbers" is a claim about where values come from.
+    It says nothing about which of them the answer is made of, and those are
+    different questions: a heroically-sourced figure carrying 0.1% of the
+    delta and a casually-looked-up one carrying 80% get identical ceremony
+    from a provenance discipline alone.
+
+    Every result this project has had to withdraw shared one signature: a
+    single term dominated the delta and its value came from an assumption
+    rather than a measurement. That is mechanically detectable, and this is
+    the detector.
+    """
+
+    contributions: tuple[Contribution, ...]
+    measured_share: float
+    bounded_share: float
+    unbounded_share: float
+
+    @property
+    def top(self) -> Contribution | None:
+        return self.contributions[0] if self.contributions else None
+
+    @property
+    def concentration(self) -> float:
+        """Share of the delta carried by the single largest term.
+
+        High concentration is not an error, but it changes what the verdict
+        means: at 0.8 the answer is mostly a statement about one material's
+        quantity, and should be read as one.
+        """
+        t = self.top
+        return t.share if t else 0.0
+
+
+def explain_verdict(
+    diff: DiffResult, bounds: dict[str, Bound]
+) -> VerdictExplanation:
+    """Rank a delta set by how much of the verdict each material carries."""
+    raw: list[tuple[str, str, str, float, float | None, float, str]] = []
+    for row in diff.rows:
+        b = bounds.get(row.key)
+        chemical = row.mass_a_kg > row.mass_b_kg
+        mass = row.mass_a_kg if chemical else row.mass_b_kg
+        if row.factor is not None:
+            value, evidence = row.factor.gwp_kgCO2e_per_kg, "measured"
+        elif b is None:
+            value, evidence = None, "unbounded"
+        elif chemical:
+            # Hostile to "the enzyme wins": the chemical route costs its floor.
+            value, evidence = b.low, "bounded"
+        elif b.bounded_above:
+            value, evidence = b.high, "bounded"
+        else:
+            value, evidence = None, "unbounded"
+        contribution = mass * (value or 0.0) * (1.0 if chemical else -1.0)
+        raw.append(
+            (
+                row.key,
+                row.name,
+                "chemical" if chemical else "enzymatic",
+                mass,
+                value,
+                contribution,
+                evidence,
+            )
+        )
+
+    total = sum(abs(r[5]) for r in raw)
+    contributions = tuple(
+        sorted(
+            (
+                Contribution(
+                    key=k,
+                    name=n,
+                    side=side,
+                    mass_kg=mass,
+                    value_kgCO2e_per_kg=value,
+                    contribution_kgCO2e=c,
+                    evidence=ev,
+                    share=(abs(c) / total if total else 0.0),
+                )
+                for k, n, side, mass, value, c, ev in raw
+            ),
+            key=lambda c: -c.share,
+        )
+    )
+    by = {"measured": 0.0, "bounded": 0.0, "unbounded": 0.0}
+    for c in contributions:
+        by[c.evidence] += c.share
+    return VerdictExplanation(
+        contributions=contributions,
+        measured_share=by["measured"],
+        bounded_share=by["bounded"],
+        unbounded_share=by["unbounded"],
     )
 
 

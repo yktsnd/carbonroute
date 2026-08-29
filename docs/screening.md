@@ -229,6 +229,58 @@ performs.** RHEA:12560, the beta-arbutin calibration case (see
 90%, so its `min_enzymatic_yield` is `None` — no enzyme, however efficient,
 saves that verdict at a recovery rate a real plant achieves.
 
+## What a verdict is made of, which provenance cannot tell you
+
+This project is scrupulous about where every number came from. Until
+`explain_verdict` existed it was entirely silent about which of them the
+answer rests on, and those are different questions. A heroically-sourced
+figure carrying 0.1% of the delta and a casually-looked-up one carrying 80%
+receive identical ceremony from a provenance discipline alone.
+
+That gap has cost this repository three published results. Each was
+withdrawn one step later, and each shared a signature: **one term dominated
+the delta while its value came from an assumption rather than a
+measurement.** The enzyme billed at 100% yield, the co-substrate charged at
+theoretical stoichiometry, sucrose capped at an unevidenced 10 kgCO2e/kg. All
+three were caught by hand, late, by looking. All three were mechanically
+detectable from the start.
+
+`explain_verdict` is that detector. It ranks a delta set by how much of the
+verdict each material carries, valuing every material at whichever end of its
+interval is *least* favourable to the verdict, and labels each as
+**measured** (a factor from a table), **bounded** (an asserted interval) or
+**unbounded** (no ceiling asserted).
+
+Run over the shipped class at the published operating point, it says
+something the rest of this document had not:
+
+> **In 388 of 388 decided reactions, one single material carries at least
+> half the delta — and it is the same material every time.** Median
+> concentration 80%; the material is ethyl acetate, the template's 159 kg/mol
+> bench isolation.
+
+So every verdict in this class is, to first order, a statement about one
+paper's choice of extraction volume. That does not make the verdicts wrong.
+It makes them narrower than they read, and it is the strongest argument yet
+for replacing a single-paper template with a declared process model.
+
+**The effort here has been close to inversely correlated with leverage**,
+which is the sharpest form of the same point. Measuring documentation length
+as a proxy for research effort, at the published operating point:
+
+| material | share of delta | characters written about it |
+|---|---|---|
+| ethyl acetate | 82.7% | 991 |
+| sucrose | 2.6% | 2,024 |
+| UDP-alpha-D-glucose | 0.6% | 1,082 |
+
+The bounds file described UDP-glucose as "where the screen's verdict actually
+lives". It carries 0.6%. That claim has been corrected in place rather than
+deleted, because the failure it illustrates is the reason this section
+exists: a rule that says *invent no numbers* is necessary and not
+sufficient. Its missing complement is *say which number the answer is made
+of*.
+
 ## Comparing across classes: the threshold cannot, a saving can
 
 A recovery threshold is stated against the solvent load of one template. The
