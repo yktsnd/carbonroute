@@ -229,6 +229,56 @@ performs.** RHEA:12560, the beta-arbutin calibration case (see
 90%, so its `min_enzymatic_yield` is `None` — no enzyme, however efficient,
 saves that verdict at a recovery rate a real plant achieves.
 
+## A declared process, instead of one paper's bench run
+
+`explain_verdict` measured the problem: in all 388 decided reactions of the
+shipped class, at least half the delta comes from one number, the same one
+every time — the source paper's 150 mL of boiling ethyl acetate per
+millimole. Every verdict is, to first order, a statement about one author's
+isolation habits.
+
+Choosing a different paper does not fix that. It substitutes a different
+author's habits with no principled way to pick between them. What fixes it is
+to stop claiming a paper and start declaring a model: reagents at stated
+equivalents, solvent from a stated reaction concentration, workup as stated
+multiples of that volume. A template may now carry a `process_model` block
+doing exactly that, and `--process-model` screens against it.
+
+**This is less precise about any one procedure and more honest about what the
+tool is doing**, because the alternative was arbitrariness wearing the costume
+of rigour. Every figure it produces is `generalised` by construction — nothing
+is read from a paper — and a process chemist who disagrees edits one line
+instead of arguing with a citation.
+
+It is also what makes coverage possible. The parameters are
+chemistry-independent: concentration, workup volumes, stage yield. A new class
+supplies its own reagents and inherits the process. That matters because three
+rounds of literature search produced zero new paper-sourced templates, so the
+paper-per-class route does not scale and is not going to.
+
+Put side by side on the same 388 reactions, at the same published operating
+point, the two chemical models say this:
+
+| | paper template | declared process model |
+|---|---|---|
+| guaranteed saving, RHEA:12560 | 143.4 | **25.2** kg CO₂e/kg |
+| median concentration | 80% | **60%** |
+| reactions where ethyl acetate is the top term | 388 / 388 | **232 / 388** |
+| reactions with a guaranteed saving | 388 | **388** |
+
+Two things are worth separating there. The enzymatic advantage **shrinks by
+about six-fold** — that is the size of the "which paper did you pick" effect,
+measured rather than argued about. And the verdict **does not move**: all 388
+reactions still have a saving that holds everywhere inside the asserted
+bounds. A conclusion that survives having its own dominant assumption
+replaced is worth considerably more than one that was never tested that way,
+and until the model existed there was no way to test it.
+
+Where the two disagree is instructive. The glycosyl donor agrees to within
+15% — that is real chemistry, and both routes have to charge it. The
+isolation solvent differs six-fold and the deprotection base differs
+six-fold. Those are the terms that were never chemistry in the first place.
+
 ## What a verdict is made of, which provenance cannot tell you
 
 This project is scrupulous about where every number came from. Until

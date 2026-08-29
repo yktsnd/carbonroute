@@ -465,6 +465,17 @@ def lock(ledger_path: str, factor_paths: tuple[str, ...], synonym_paths: tuple[s
     ),
 )
 @click.option(
+    "--process-model",
+    "use_process_model",
+    is_flag=True,
+    default=False,
+    help=(
+        "Charge the chemical route from the template's declared process_model "
+        "-- reagents at stated equivalents, solvent from a stated reaction "
+        "concentration -- instead of one paper's charged amounts."
+    ),
+)
+@click.option(
     "--fair-fight",
     "fair_fight",
     is_flag=True,
@@ -497,6 +508,7 @@ def screen(
     enzymatic_yield: float,
     reference_recovery: float,
     cofactor_recycling: float,
+    use_process_model: bool,
     fair_fight: bool,
     frontier: bool,
     factor_paths: tuple[str, ...],
@@ -545,6 +557,7 @@ def screen(
         enzymatic_yield=enzymatic_yield,
         reference_recovery=reference_recovery,
         cofactor_recycling=cofactor_recycling,
+        use_process_model=use_process_model,
     )
     report = render_screen(run, reactions_path, bounds)
     if fair_fight:

@@ -384,6 +384,112 @@ class ProcessMeasure:
 
 
 @dataclass(frozen=True)
+class ProcessReagent:
+    """A reagent charged in stoichiometric proportion to the product."""
+
+    name: str
+    cas: str | None
+    #: Molar mass, kg/mol. A physical constant, checkable against any table.
+    kg_per_mol: float
+    equivalents: float
+    note: str
+
+
+@dataclass(frozen=True)
+class ProcessStage:
+    """One operation, charged from the model's parameters rather than a paper."""
+
+    id: str
+    reagents: tuple[ProcessReagent, ...]
+    solvent_name: str
+    solvent_cas: str | None
+    solvent_density_kg_per_L: float
+    #: Reaction volumes this stage consumes. 1.0 is the reaction itself; an
+    #: isolation stage charges its extraction and wash volumes here.
+    volumes: float = 1.0
+    #: True when the stage is repeated once per group the acceptor must mask.
+    per_protected_group: bool = False
+
+
+@dataclass(frozen=True)
+class ProcessModel:
+    """A declared model of a competent process, instead of one paper's bench run.
+
+    A template built from a single published procedure inherits that paper's
+    idiosyncrasies along with its rigour, and `explain_verdict` showed what
+    that costs: in the shipped class every one of 388 verdicts rests at least
+    half on one number -- the source paper's 150 mL of boiling ethyl acetate
+    per millimole. The verdicts are, to first order, a statement about one
+    author's isolation habits.
+
+    Picking a different paper does not fix that; it substitutes a different
+    author's habits, with no principled way to choose between them. What does
+    fix it is to stop claiming a paper and start declaring a model: reagents
+    at stated equivalents, solvent from a stated reaction concentration, and
+    workup as stated multiples of the reaction volume.
+
+    That is *less* precise about any single procedure and *more* honest about
+    what the tool is doing, because the alternative was arbitrariness wearing
+    the costume of rigour. It is also what makes a class cheap: the parameters
+    below are chemistry-independent, so a new class supplies its reagents and
+    inherits the process.
+
+    Every parameter is `generalised` by construction -- none is read from a
+    paper -- and the model is calibrated by running it against the one
+    reaction this repository has a hand-built ledger for.
+    """
+
+    name: str
+    source: str
+    reaction_concentration_M: float
+    stage_yield: float
+    stages: tuple[ProcessStage, ...]
+    note: str
+
+
+def materials_from_process_model(model: ProcessModel) -> tuple[TemplateMaterial, ...]:
+    """Turn declared parameters into the same per-mole-of-product amounts a
+    paper-sourced template carries, so the rest of the screen cannot tell the
+    difference and the two can be compared directly."""
+    out: list[TemplateMaterial] = []
+    litres_per_mol = 1.0 / model.reaction_concentration_M
+    for i, stage in enumerate(model.stages):
+        # Downstream losses: material charged at stage i must survive every
+        # later stage, exactly as a paper's per-mole-of-product amounts do.
+        carry = model.stage_yield ** (len(model.stages) - i)
+        for r in stage.reagents:
+            out.append(
+                TemplateMaterial(
+                    name=r.name,
+                    cas=r.cas,
+                    role="reagent",
+                    kg_per_mol_product=r.equivalents * r.kg_per_mol / carry,
+                    basis="generalised",
+                    note=f"[process model, stage {stage.id}] {r.note}",
+                    per_protected_group=stage.per_protected_group,
+                )
+            )
+        out.append(
+            TemplateMaterial(
+                name=stage.solvent_name,
+                cas=stage.solvent_cas,
+                role="solvent",
+                kg_per_mol_product=(
+                    litres_per_mol * stage.volumes * stage.solvent_density_kg_per_L / carry
+                ),
+                basis="generalised",
+                note=(
+                    f"[process model, stage {stage.id}] {stage.volumes:g} reaction "
+                    f"volume(s) at {model.reaction_concentration_M:g} M, density "
+                    f"{stage.solvent_density_kg_per_L:g} kg/L."
+                ),
+                per_protected_group=stage.per_protected_group,
+            )
+        )
+    return tuple(out)
+
+
+@dataclass(frozen=True)
 class ClassTemplate:
     id: str
     name: str
@@ -440,6 +546,10 @@ class ClassTemplate:
     #: per-turnover co-substrate and an amortised immobilised preparation
     #: behave oppositely as the process is pushed harder.
     enzymatic_measures: tuple[ProcessMeasure, ...] = ()
+    #: An alternative to `materials`: a declared process rather than one
+    #: paper's charged amounts. See `ProcessModel` for why that is the more
+    #: honest option and not the less rigorous one.
+    process_model: ProcessModel | None = None
 
     @property
     def recycling_enablers(self) -> tuple[ProcessMeasure, ...]:
@@ -549,6 +659,66 @@ def _measures(raw, path) -> tuple[ProcessMeasure, ...]:
     return tuple(out)
 
 
+def _process_model(raw, path) -> ProcessModel | None:
+    """Read the optional process_model block. Everything in it is declared."""
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise ScreenError(f"{path}: process_model must be a mapping")
+    for k in ("name", "source", "reaction_concentration_M", "stage_yield", "stages", "note"):
+        if raw.get(k) in (None, "", []):
+            raise ScreenError(f"{path}: process_model is missing {k}")
+    conc = float(raw["reaction_concentration_M"])
+    if conc <= 0:
+        raise ScreenError(f"{path}: process_model.reaction_concentration_M must be > 0")
+    y = float(raw["stage_yield"])
+    if not 0.0 < y <= 1.0:
+        raise ScreenError(f"{path}: process_model.stage_yield must be in (0, 1]")
+    stages: list[ProcessStage] = []
+    for i, st in enumerate(raw["stages"]):
+        where = f"{path}: process_model.stages[{i}]"
+        for k in ("id", "solvent", "reagents"):
+            if k not in st:
+                raise ScreenError(f"{where} is missing {k}")
+        sol = st["solvent"]
+        for k in ("name", "density_kg_per_L"):
+            if sol.get(k) in (None, ""):
+                raise ScreenError(f"{where}.solvent is missing {k}")
+        reagents = []
+        for j, r in enumerate(st["reagents"]):
+            for k in ("name", "kg_per_mol", "equivalents", "note"):
+                if r.get(k) in (None, ""):
+                    raise ScreenError(f"{where}.reagents[{j}] is missing {k}")
+            reagents.append(
+                ProcessReagent(
+                    name=r["name"],
+                    cas=r.get("cas"),
+                    kg_per_mol=float(r["kg_per_mol"]),
+                    equivalents=float(r["equivalents"]),
+                    note=r["note"],
+                )
+            )
+        stages.append(
+            ProcessStage(
+                id=st["id"],
+                reagents=tuple(reagents),
+                solvent_name=sol["name"],
+                solvent_cas=sol.get("cas"),
+                solvent_density_kg_per_L=float(sol["density_kg_per_L"]),
+                volumes=float(st.get("volumes", 1.0)),
+                per_protected_group=bool(st.get("per_protected_group", False)),
+            )
+        )
+    return ProcessModel(
+        name=raw["name"],
+        source=raw["source"],
+        reaction_concentration_M=conc,
+        stage_yield=y,
+        stages=tuple(stages),
+        note=raw["note"],
+    )
+
+
 def load_template(path: str | Path) -> ClassTemplate:
     p = Path(path)
     try:
@@ -632,6 +802,7 @@ def load_template(path: str | Path) -> ClassTemplate:
         transferred_bond_smarts=cls.get("transferred_bond_smarts"),
         ec_prefix=cls.get("ec_prefix"),
         enzymatic_measures=_measures(raw.get("enzymatic_process"), p),
+        process_model=_process_model(raw.get("process_model"), p),
     )
 
 
@@ -747,6 +918,7 @@ def screen_reaction(
     enzymatic_yield: float = 1.0,
     reference_recovery: float = 0.90,
     cofactor_recycling: float = 0.0,
+    use_process_model: bool = False,
 ) -> ScreenResult:
     """Build the enzymatic-vs-chemical delta for one reaction and decide it.
 
@@ -783,6 +955,16 @@ def screen_reaction(
     plant achieves by distillation, which is the operating point at which
     the question "how good does the enzyme have to be?" is worth asking.
     """
+    if use_process_model and template.process_model is None:
+        raise ScreenError(
+            f"{template.id}: --process-model was asked for, but this template "
+            "declares no process_model block."
+        )
+    materials = (
+        materials_from_process_model(template.process_model)
+        if use_process_model
+        else template.materials
+    )
     if cofactor_recycling > 0.0 and not template.recycling_enablers:
         raise ScreenError(
             f"{template.id}: cofactor_recycling={cofactor_recycling} was asked "
@@ -933,6 +1115,7 @@ def screen_reaction(
             rxn,
             template,
             table,
+            materials,
             mol_per_fu,
             n_masked,
             cofactor_kg_stoich / yield_ * (1.0 - recycling),
@@ -991,6 +1174,7 @@ def _build_diff(
     rxn: RheaReaction,
     template: ClassTemplate,
     table: FactorTable,
+    materials: tuple[TemplateMaterial, ...],
     mol_per_fu: float,
     n_masked: int,
     cofactor_kg: float,
@@ -1028,7 +1212,7 @@ def _build_diff(
     """
     # a = chemical, b = enzymatic, so delta_mass > 0 means "chemical uses more".
     chem: dict[str, tuple[str, Role, float]] = {}
-    for m in template.materials:
+    for m in materials:
         scale = n_masked if m.per_protected_group else cofactor_coeff
         if scale == 0:
             continue
@@ -1437,6 +1621,7 @@ def screen_all(
     enzymatic_yield: float = 1.0,
     reference_recovery: float = 0.90,
     cofactor_recycling: float = 0.0,
+    use_process_model: bool = False,
 ) -> ScreenRun:
     run = ScreenRun(
         template=template,
@@ -1459,6 +1644,7 @@ def screen_all(
                 enzymatic_yield=enzymatic_yield,
                 reference_recovery=reference_recovery,
                 cofactor_recycling=cofactor_recycling,
+                use_process_model=use_process_model,
             )
         )
     return run

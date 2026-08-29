@@ -183,7 +183,18 @@ measures the same thing the threshold did.
 
 ### The road from here
 
-1. **Build a solvent-lean chemical template** (the fair fight). Both routes
+1. **Add classes, now that they are cheap** (Q1 coverage). A template may
+   now declare a `process_model` — reagents at stated equivalents, solvent
+   from a stated reaction concentration — instead of quoting one paper's
+   charged amounts. The parameters are chemistry-independent, so a new class
+   supplies its reagents and inherits the process. That is what unblocks
+   coverage: three rounds of literature search produced zero new
+   paper-sourced templates, and the paper-per-class route does not scale.
+   Screened both ways on the same 388 reactions, the modelled process cuts
+   the enzymatic advantage about six-fold **and leaves the verdict standing**
+   — 388 of 388 still have a guaranteed saving. The largest EC-3 groups are
+   1.1.1 (526 reactions), 2.1.1 (500) and 2.3.1 (382).
+2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
    together. Recycling is not free, and a template declares *how* it is paid
@@ -214,13 +225,13 @@ measures the same thing the threshold did.
    chemical route merely tidying up after a wasteful one is not the fair
    fight it looks like. The class needs a template from a procedure that is
    itself solvent-lean.
-2. **Add classes, on a stated selection rule** (Q1 coverage). The largest
+3. **Add paper-sourced classes where a source exists** (optional). The largest
    EC-3 groups — 1.1.1 (526 reactions), 2.1.1 (500), 2.3.1 (382) — would
    bring the total to 1,808: 9.7% of Rhea, 23.7% of the 7,635 that carry an
    EC number. Each needs one real published procedure, chosen by the same
    rule in every class, or the cross-class ranking measures how hard each
    paper's authors tried rather than the chemistry.
-3. **Locate the commercial processes** (Q3). Map already-commercialised
+4. **Locate the commercial processes** (Q3). Map already-commercialised
    enzymatic reactions — human-milk-oligosaccharide fucosylation
    (RHEA:14257 and others), anthocyanin glucosylation (RHEA:20093),
    β-arbutin (RHEA:12560) — onto Rhea ids and report their percentile in

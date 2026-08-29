@@ -343,3 +343,110 @@ enzymatic_process:
 # The enzyme is therefore still absent from this diff, which understates the
 # enzymatic route -- the same direction as every other gap noted above. It is
 # left undeclared rather than filled with a plausible number.
+
+# --- The chemical route as a declared process, not one paper's bench run ---
+#
+# WHY THIS EXISTS. `explain_verdict` measured what the paper-sourced template
+# above actually decides: in all 388 decided reactions of this class, at least
+# half the delta comes from one number, and it is the same number every time
+# -- Cepanec & Litvic's 150 mL of boiling ethyl acetate per millimole, or
+# 159 kg per mole of product. Every verdict this class produces is, to first
+# order, a statement about one author's isolation habits.
+#
+# Choosing a different paper does not fix that. It substitutes a different
+# author's habits, with no principled way to pick between them. What fixes it
+# is to stop claiming a paper and start declaring a model.
+#
+# THIS IS LESS PRECISE AND MORE HONEST. Nothing below is read from a
+# procedure, so every figure is `generalised` by construction. What it buys:
+# the parameters are chemistry-independent, so the next class supplies its own
+# reagents and inherits the process -- which is what makes coverage possible
+# at all, given that three sessions of literature search produced zero new
+# templates.
+#
+# Screen with --process-model to use it, and against the paper template to see
+# how much of any answer was the paper.
+process_model:
+  name: "Protected group-transfer, run at process concentration with a plant-style isolation"
+  source: >
+    Not a paper, deliberately, and not presented as one. Every parameter is a
+    declared modelling choice with its justification in `note`. The model is
+    calibrated against the one reaction in this repository with a hand-built
+    sourced ledger (RHEA:12560, beta-arbutin), and the comparison against the
+    paper-sourced template is reported rather than hidden.
+  # 0.2 mol of product per litre. Bench procedures commonly run far more
+  # dilute -- the source paper's isolation alone works out near 0.03 M -- and
+  # process chemistry pushes concentration up because vessel volume is the
+  # thing that costs. 0.2 M is a deliberately conservative process figure: it
+  # is not aggressive, and raising it only helps the chemical route.
+  reaction_concentration_M: 0.2
+  # Per stage. The source paper reports 62% glycosylation and 85%
+  # deprotection; 0.85 per stage is in that range and is applied uniformly
+  # rather than tuned per stage, because tuning it per stage would be fitting
+  # the model to the paper it is meant to be independent of.
+  stage_yield: 0.85
+  note: >
+    The single largest modelling choice is the isolation: 3 extraction volumes
+    plus 2 wash volumes, against the source paper's ~30 reaction volumes of
+    boiling ethyl acetate. That is the difference between recovering solvent
+    and not choosing to use it, and it is the whole reason this model exists.
+    Read every number here as a declared assumption that a process chemist can
+    disagree with by editing one line -- which is the point, and is not
+    available when the amounts come from a paper.
+  stages:
+
+    - id: protect
+      # Repeated once per group the acceptor must mask. The count comes from
+      # the acceptor's own structure, not from this model.
+      per_protected_group: true
+      volumes: 1.0
+      solvent: {name: toluene, cas: "108-88-3", density_kg_per_L: 0.867}
+      reagents:
+        - name: acetic anhydride
+          cas: "108-24-7"
+          kg_per_mol: 0.102089
+          equivalents: 1.1
+          note: >
+            1.1 equivalents per group masked. Slight excess over stoichiometry
+            is normal practice for an acylation; 1.1 is at the low end.
+
+    - id: couple
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: 1,2,3,4,6-penta-O-acetyl-beta-D-glucopyranose
+          cas: "604-68-2"
+          kg_per_mol: 0.390340
+          equivalents: 1.2
+          note: >
+            The glycosyl donor, 1.2 equivalents. Donor excess is how a
+            Helferich-type coupling is driven; 1.2 is modest.
+        - name: boron trifluoride diethyl etherate
+          cas: "109-63-7"
+          kg_per_mol: 0.141930
+          equivalents: 1.0
+          note: >
+            Promoter, stoichiometric rather than catalytic -- which is what
+            the chemistry actually requires and is charged as such.
+
+    - id: deprotect
+      volumes: 1.0
+      solvent: {name: methanol, cas: "67-56-1", density_kg_per_L: 0.792}
+      reagents:
+        - name: potassium carbonate
+          cas: "584-08-7"
+          kg_per_mol: 0.138205
+          equivalents: 2.0
+          note: >
+            2 equivalents for a Zemplen-type saponification. The paper-sourced
+            template charges roughly 17 equivalents, which is a bench habit
+            rather than a requirement.
+
+    - id: isolate
+      # The parameter this model exists to make arguable. 3 extraction volumes
+      # and 2 wash volumes, i.e. 5 reaction volumes total, against the source
+      # paper's ~30. A plant crystallises or extracts continuously; it does not
+      # boil 150 mL of ethyl acetate per millimole.
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

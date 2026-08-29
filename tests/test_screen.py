@@ -21,6 +21,7 @@ from carbonroute.screen import (
     fair_fight_frontier,
     count_substructure,
     explain_verdict,
+    materials_from_process_model,
     load_reactions,
     load_structures,
     load_template,
@@ -680,6 +681,104 @@ def test_the_shipped_glycosylation_class_declares_no_bond_check(screened):
     assert screened.template.transferred_bond_smarts is None
     assert screened.template.ec_prefix is None
     assert screened.matched == 406
+
+
+# --- a declared process instead of one paper's bench run ---------------------
+
+
+@pytest.fixture(scope="module")
+def by_process_model(inputs):
+    return screen_all(
+        *inputs,
+        use_process_model=True,
+        cofactor_recycling=1 - 1 / 240,
+        reference_recovery=0.90,
+    )
+
+
+def test_the_process_model_charges_from_parameters_not_from_a_paper(inputs):
+    """Solvent from a stated concentration, reagents at stated equivalents.
+
+    Everything it produces is `generalised` by construction: nothing in it was
+    read from a procedure, and saying so is the point rather than a weakness.
+    """
+    model = inputs[1].process_model
+    assert model is not None
+    materials = materials_from_process_model(model)
+    assert all(m.basis == "generalised" for m in materials)
+    assert all("process model" in m.note for m in materials)
+    # The isolation stage: 5 reaction volumes at 0.2 M, ethyl acetate at
+    # 0.902 kg/L, carried through one stage yield.
+    etoac = next(m for m in materials if m.name == "ethyl acetate")
+    expected = (1 / 0.2) * 5.0 * 0.902 / (0.85 ** 1)
+    assert etoac.kg_per_mol_product == pytest.approx(expected, rel=1e-6)
+    # The protection stage still scales with the acceptor's own structure.
+    anhydride = next(m for m in materials if m.name == "acetic anhydride")
+    assert anhydride.per_protected_group is True
+
+
+def test_the_paper_charges_six_times_the_isolation_solvent_a_process_would(inputs):
+    """The number that was deciding every verdict, put next to a modelled one.
+
+    Cepanec & Litvic charge 159 kg of ethyl acetate per mole of product -- 150
+    mL of boiling solvent per millimole, an effective isolation concentration
+    near 0.03 M. The model charges 5 reaction volumes at 0.2 M. The gap is not
+    a disagreement about chemistry; it is the difference between a bench run
+    and a process.
+    """
+    template = inputs[1]
+    paper = {m.name: m.kg_per_mol_product for m in template.materials}
+    model = {m.name: m.kg_per_mol_product for m in materials_from_process_model(template.process_model)}
+    assert paper["ethyl acetate"] / model["ethyl acetate"] == pytest.approx(6.0, abs=0.3)
+    # The donor, which is real chemistry rather than habit, agrees closely.
+    assert paper["1,2,3,4,6-penta-O-acetyl-beta-D-glucopyranose"] / model[
+        "1,2,3,4,6-penta-O-acetyl-beta-D-glucopyranose"
+    ] == pytest.approx(1.0, abs=0.15)
+
+
+def test_the_verdict_survives_being_modelled_instead_of_quoted(
+    at_published_operating_point, by_process_model, inputs
+):
+    """The robustness check the process model was built to make possible.
+
+    Screened against a competent process rather than one paper's bench run,
+    the enzymatic advantage shrinks by roughly six-fold -- that is the size of
+    the "which paper did you pick" effect, measured rather than argued. What
+    matters is that the conclusion does not move with it: all 388 reactions
+    still have a guaranteed saving. A finding that survives its own dominant
+    assumption being replaced is worth more than one that was never tested.
+    """
+    paper = next(
+        x for x in at_published_operating_point.decided if x.rhea_id == "RHEA:12560"
+    )
+    modelled = next(x for x in by_process_model.decided if x.rhea_id == "RHEA:12560")
+    assert modelled.advantage_min_kgCO2e < paper.advantage_min_kgCO2e / 4
+    assert modelled.advantage_min_kgCO2e > 0
+    assert len([x for x in by_process_model.decided if x.advantage_decided]) == 388
+
+
+def test_modelling_the_process_loosens_the_grip_of_one_material(
+    at_published_operating_point, by_process_model, inputs
+):
+    """And it does what it was for: the verdicts stop being about one number.
+
+    Under the paper template a single material carries a median 80% of every
+    delta and is the top term in all 388 reactions. Under the model that falls
+    to 60%, and it is no longer the top term in a substantial minority.
+    """
+    bounds = inputs[5]
+
+    def profile(run):
+        ex = [explain_verdict(r.standard_diff, bounds) for r in run.decided]
+        conc = sorted(e.concentration for e in ex)
+        etoac = sum(1 for e in ex if e.top.name == "ethyl acetate")
+        return conc[len(conc) // 2], etoac
+
+    paper_conc, paper_etoac = profile(at_published_operating_point)
+    model_conc, model_etoac = profile(by_process_model)
+    assert paper_etoac == 388
+    assert model_etoac < 300
+    assert model_conc < paper_conc - 0.1
 
 
 # --- what a verdict is actually made of --------------------------------------
