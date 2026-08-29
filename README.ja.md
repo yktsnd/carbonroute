@@ -883,6 +883,9 @@ ProBas・Federal LCA Commons・Rheaという5つのAPIは、いずれも本
 
 - [`docs/screening.md`](docs/screening.md) — 反応データベース全体を
   スクリーニングする方法と、それが思ったより低コストで済む理由。
+- [`docs/research-brief.md`](docs/research-brief.md) — 本リポジトリが
+  「実際に読んだ文献から」まだ得られていない4つの数値と、それを埋める
+  ための deep research 用プロンプト。
 - [`docs/bounds.md`](docs/bounds.md) — 係数そのものが欠けている場合
   に、値ではなく境界（区間）だけから順位を確定させる方法。
 - [`docs/data.md`](docs/data.md) — 係数表の形式と、引用可能な表の

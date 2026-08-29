@@ -821,6 +821,9 @@ both exist because this benchmark ran first and failed.
 
 - [`docs/screening.md`](docs/screening.md) — screening a whole reaction
   database, and why that costs less than it sounds.
+- [`docs/research-brief.md`](docs/research-brief.md) — the four numbers this
+  repository does not yet hold from a document it has read, written as a
+  ready-to-run brief for anyone with library access.
 - [`docs/bounds.md`](docs/bounds.md) — deciding a ranking from bounds when
   the factors themselves are missing.
 - [`docs/data.md`](docs/data.md) — the factor-table format and how to build
