@@ -838,6 +838,65 @@ wide, unevidenced `[0.5, 100]` cofactor ceiling.
 **Coverage across all five classes: 1,626 of 18,558 Rhea reactions matched
 (8.8%), 978 decided (5.3%).**
 
+## The sixth class: acetyl-CoA-dependent acetylation, and a second charge-state unification
+
+`data/reaction-classes/acetyl-coa-acyltransferase.yaml` covers transfer of
+the acetyl group from acetyl-CoA onto a nucleophilic acceptor (an alcohol
+or an amine), releasing CoA — EC 2.3.1. That EC group is a real grab-bag:
+it also covers acyl-CoA-to-acyl-CoA Claisen condensations (ketosynthase-type
+chemistry building a new C–C bond, not simple acyl transfer to a small
+acceptor), so this class leans on the mass-delta check to separate the two,
+the same way the NAD(P)+ class separates 2H-loss oxidation from oxidative
+decarboxylation.
+
+**The two halves of "simple acetylation" turn out to be one mass delta, not
+two, once a charge-state artifact is accounted for.** O-acetylation
+(R-OH → R-O-COCH₃) and N-acetylation (R-NH₂ → R-NH-COCH₃) are chemically the
+same net addition — C₂H₂O, 42.037 g/mol — and the O-acetylated members
+cluster there exactly (RHEA:10456, D-maltose → 1-O-acetylmaltose: 384.334 −
+342.297 = 42.037). The N-acetylated members initially looked like a
+*different* mass, 41.03, short by almost exactly one proton — the same kind
+of ChEBI charge-state convention the ATP-kinase class found, on the other
+side of the reaction this time: ChEBI draws amino-acid-type acceptors as
+the zwitterion (RHEA:10060's D-tryptophan is one proton heavier than the
+neutral form), while the acetylated product is drawn with a neutral amide
+nitrogen — so the *acceptor* carries the extra proton here, not the
+product. `expected_mass_delta` is set to the true value, 42.037, with
+`mass_delta_tolerance` widened to 1.1 specifically to catch this — unifying
+both halves as one real chemistry rather than silently splitting it in two
+for a drawing convention.
+
+| outcome | reactions |
+|---|---:|
+| matched (acetyl-CoA + EC 2.3.1) | 138 |
+| excluded — could not identify an acceptor/product pair | 10 |
+| excluded — right transfer count, wrong mass (Claisen condensation) | 4 |
+| **resolved within tolerance** | **124** |
+
+The 4 mass-delta exclusions (RHEA:31555, RHEA:47044, RHEA:79655,
+RHEA:79651) cluster at +704 or −57 g/mol — Claisen-type condensations
+building a new C–C bond to another CoA thioester, a genuinely different
+transformation this class does not model — and are correctly excluded
+rather than folded in as noise. No `transferred_bond_smarts` is declared:
+the mass-delta check alone already separates real acetylation from the
+Claisen confound by three orders of magnitude in delta.
+
+**The verdict, honestly: all 124 resolved reactions currently screen as
+indeterminate — a second honest non-result, for a related reason to the
+NAD(P)+ class's.** This class's acceptors are typically small (median
+product 221 g/mol), so acetyl-CoA's cost per kilogram of product is
+comparatively large even at the cofactor's cheapest plausible value within
+its wide, unevidenced `[0.5, 100]` ceiling — enough to erase the process
+model's modest acetic-anhydride/pyridine burden for every member. The
+honest options are the same ones already used for the NAD(P)+ class:
+narrow the cofactor bound with real evidence, or strengthen the process
+model with a stage this one omits. Neither has been done yet.
+
+**Coverage across all six classes: 1,764 of 18,558 Rhea reactions matched
+(9.5%), 978 decided (5.3%).** The gap between those two figures now spans
+two classes' worth of matched-but-indeterminate reactions (515 + 124 = 639)
+rather than one.
+
 ## Running one
 
 ```bash

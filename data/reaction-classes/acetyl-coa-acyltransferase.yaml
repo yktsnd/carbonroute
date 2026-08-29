@@ -1,0 +1,135 @@
+# Reaction class: acetyl-CoA-dependent O/N-acetylation
+#
+# Covers Rhea reactions consuming acetyl-CoA (CHEBI:57288) as a reactant,
+# restricted to EC 2.3.1 (acyltransferases). EC 2.3.1 is a real grab-bag --
+# it also covers acyl-CoA:acyl-CoA Claisen condensations (ketosynthase-type
+# chemistry building a new C-C bond and releasing a *different* CoA
+# thioester, not simple acyl transfer to a small acceptor) -- so this class
+# leans on the mass-delta check to separate simple acetylation from that
+# confound, the same way the NAD(P)+ class separates 2H-loss oxidation from
+# oxidative decarboxylation.
+#
+# THE TWO HALVES OF "SIMPLE ACETYLATION" TURN OUT TO BE ONE MASS DELTA, NOT
+# TWO, ONCE A CHARGE-STATE ARTIFACT IS ACCOUNTED FOR. O-acetylation
+# (R-OH -> R-O-COCH3) and N-acetylation (R-NH2 -> R-NH-COCH3) are
+# chemically the same net addition -- C2H2O, 42.037 g/mol, "one H replaced
+# by one acetyl group" -- and O-acetylated members of this class do cluster
+# there exactly (RHEA:10456, D-maltose -> 1-O-acetylmaltose, product
+# 384.334 g/mol minus acceptor 342.297 g/mol = 42.037). But the
+# N-acetylated members initially looked like a *different* mass, 41.03,
+# short by almost exactly one proton -- and the reason is the same kind of
+# ChEBI charge-state convention the ATP-kinase class found, just on the
+# other side of the reaction this time: ChEBI draws amino-acid-type
+# acceptors as the zwitterion (RHEA:10060's D-tryptophan is
+# [NH3+]...C(=O)[O-], 204.229 g/mol, one proton heavier than the neutral
+# amine/acid form), while the N-acetylated product is drawn with a neutral
+# amide nitrogen (N-acetyl-D-tryptophan, CC(=O)N[C@H]...C(=O)[O-], 245.258
+# g/mol) -- so the ACCEPTOR carries the extra proton here, not the product,
+# and the apparent delta comes up 1.008 short of the true 42.037 even
+# though the real transformation is identical. expected_mass_delta is set
+# to the true value, 42.037, with mass_delta_tolerance widened to 1.1 (just
+# past one proton) specifically to catch this -- and this is deliberately
+# not narrower, because doing so would silently split one real chemistry
+# into two "different" ones for a drawing convention, the exact mistake
+# this project's own methodology exists to catch.
+#
+# Structural verification (run through the actual screen): 138 reactions
+# match acetyl-CoA + EC 2.3.1. 128 resolve to a single acceptor/product
+# pair; 124 of those (96.9%) land within 1.1 of 42.037 -- 73 as
+# N-acetylation (the zwitterion-shifted cluster) and 51 as O-acetylation
+# (the textbook cluster), confirmed as the same real chemistry rather than
+# two by inspecting the structures directly, not by assuming it. The other
+# 4 cluster at +704.46/+704.47 (RHEA:47044/79655/31555 -- Claisen-type
+# condensations building a new C-C bond to another CoA thioester, a
+# genuinely different transformation this class does not model) and -57.03
+# (RHEA:79651, the same condensation chemistry run the other direction),
+# and are correctly excluded rather than folded in as noise. No
+# transferred_bond_smarts is declared: the mass-delta check alone already
+# separates real acetylation from the Claisen confound by three orders of
+# magnitude in delta, so a bond check would add no further discrimination.
+#
+# THE VERDICT, HONESTLY: all 124 matched-and-resolvable reactions currently
+# screen as indeterminate, the same finding the NAD(P)+-oxidoreductase
+# class ships with, for a related reason. This class's acceptors are
+# typically small (median product 221 g/mol, versus e.g. the ATP-kinase
+# class's larger typical acceptors), so acetyl-CoA's cost per kilogram of
+# product is comparatively large even before asking what acetyl-CoA itself
+# costs -- and at acetyl-CoA's cheapest plausible value within its wide,
+# unevidenced [0.5, 100] ceiling, that is still enough to erase the
+# process model's modest acetic-anhydride/pyridine burden for every member.
+# Padding the process model's reagent equivalents to force a decision would
+# be exactly the thumb-on-the-scale this project refuses elsewhere; the
+# honest options are the same ones already used for the NAD(P)+ class --
+# narrow the cofactor bound with real evidence, or strengthen the process
+# model with a stage this one omits. Neither has been done yet, so the
+# class ships as matched-but-undecided rather than with a number invented
+# to make it look otherwise.
+
+reaction_class:
+  id: acetyl-coa-acyltransferase
+  name: "Acetyl-CoA-dependent O/N-acetylation"
+  description: >
+    Enzymatic transfer of the acetyl group from acetyl-CoA onto a
+    nucleophilic acceptor (an alcohol or an amine), releasing CoA. Matched
+    on acetyl-CoA specifically (not other acyl-CoA thioesters, which
+    transfer a different group), restricted to EC 2.3.1, and separated from
+    that EC group's Claisen-condensation members by mass delta.
+  expected_mass_delta: 42.037
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:57288"
+  cofactor_role: reagent
+  ec_prefix: "2.3.1"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Acetic anhydride acetylation in pyridine, at process concentration"
+  source: >
+    Not a paper. Acetic anhydride with pyridine as both base and solvent is
+    the textbook Fischer-type chemical counterpart to an acetyltransferase
+    for O- and N-acetylation of an alcohol or amine -- the standard
+    laboratory route for both halves of this class. Same dual
+    solvent-plus-reagent shape the ATP-kinase class's pyridine already
+    uses. Parameters stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.9
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one -- it makes the chemical route
+    look better than it is for polyfunctional acceptors, not worse, so it
+    is not a thumb on the scale for "the enzyme wins".
+  stages:
+
+    - id: acetylate
+      volumes: 1.0
+      solvent: {name: pyridine, cas: "110-86-1", density_kg_per_L: 0.982}
+      reagents:
+        - name: acetic anhydride
+          cas: "108-24-7"
+          kg_per_mol: 0.102089
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the acylating agent -- modest excess,
+            standard for this reaction.
+        - name: pyridine
+          cas: "110-86-1"
+          role: reagent
+          kg_per_mol: 0.079102
+          equivalents: 2.0
+          note: >
+            2 equivalents beyond its role as solvent, to neutralise the
+            acetic acid generated and keep the nucleophile reactive.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

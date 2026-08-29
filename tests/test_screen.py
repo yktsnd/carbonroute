@@ -1299,3 +1299,90 @@ def test_dmapp_class_is_decided_and_decisively_favours_the_enzyme(dmapp_screened
     ]
     assert len(decided_with_verdict) == len(dmapp_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a sixth class: acetyl-CoA-dependent acetylation, another honest non-result
+
+
+@pytest.fixture(scope="module")
+def acoa_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "acetyl-coa-acyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "acetyl-coa-acyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def acoa_screened(acoa_inputs):
+    return screen_all(*acoa_inputs, use_process_model=True)
+
+
+def test_acoa_class_unifies_o_and_n_acetylation_at_one_mass_delta(acoa_inputs):
+    """O-acetylation (R-OH -> R-O-COCH3) and N-acetylation (R-NH2 ->
+    R-NH-COCH3) are the same net addition, C2H2O = 42.037 g/mol -- but
+    N-acetylated members of this class initially clustered at 41.03, short
+    by almost exactly one proton, because ChEBI draws amino-acid-type
+    acceptors like D-tryptophan as the zwitterion (one proton heavier than
+    the neutral form) while the acetylated product is drawn with a neutral
+    amide nitrogen. expected_mass_delta is set to the true value, and
+    mass_delta_tolerance is widened to 1.1 specifically to catch this,
+    unifying both halves as one real chemistry rather than splitting it in
+    two for a drawing convention."""
+    template = acoa_inputs[1]
+    assert template.expected_mass_delta == pytest.approx(42.037, abs=1e-6)
+    assert template.mass_delta_tolerance == pytest.approx(1.1, abs=1e-6)
+
+
+def test_acoa_class_matches_and_excludes_claisen_condensation(acoa_screened):
+    """138 Rhea reactions consume acetyl-CoA under EC 2.3.1. 128 resolve to
+    a single acceptor/product pair, and 124 of those (96.9%) land within
+    1.1 of 42.037 -- both O-acetylation (RHEA:10456, D-maltose) and
+    N-acetylation (RHEA:10060, D-tryptophan) clusters. The other 4
+    (RHEA:31555, RHEA:47044, RHEA:79655, RHEA:79651) cluster at +-704 or
+    -57 g/mol -- Claisen-type condensations building a new C-C bond to
+    another CoA thioester, a genuinely different transformation this class
+    does not model -- and are correctly excluded."""
+    assert acoa_screened.matched == 138
+    by_id = {r.rhea_id: r for r in acoa_screened.results}
+    assert by_id["RHEA:10456"].skipped_reason == ""
+    assert by_id["RHEA:10060"].skipped_reason == ""
+    for rhea_id in ("RHEA:31555", "RHEA:47044", "RHEA:79655", "RHEA:79651"):
+        assert not by_id[rhea_id].decided
+        assert "does not match" in by_id[rhea_id].skipped_reason
+
+
+def test_acoa_process_model_charges_acetic_anhydride_and_pyridine(acoa_inputs):
+    """The declared process, not a paper: acetic anhydride and pyridine
+    (as both base and solvent, under the existing key-summing behaviour
+    that totals both roles under one CAS), plus a plant-style isolation.
+    Everything generalised by construction."""
+    template = acoa_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"acetic anhydride", "pyridine", "ethyl acetate"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_acoa_class_verdicts_are_honestly_indeterminate_at_current_bounds(acoa_screened):
+    """Real coverage, and a real limitation, both reported rather than one
+    papered over to force the other -- the same finding the NAD(P)+ class
+    ships with. This class's acceptors are typically small, so acetyl-CoA's
+    cost per kilogram of product is comparatively large even at the
+    cofactor's cheapest plausible value within its wide, unevidenced
+    [0.5, 100] ceiling -- enough to erase the process model's modest
+    acetic-anhydride/pyridine burden for every resolvable member. Padding
+    the process model's reagent equivalents to force a decision would be
+    exactly the thumb-on-the-scale this project refuses everywhere else.
+    """
+    assert len(acoa_screened.decided) == 0
+    verdicts = {
+        r.rhea_id: r.verdict for r in acoa_screened.results if r.skipped_reason == ""
+    }
+    assert len(verdicts) == 124
+    assert all(v is not None and not v.decisive for v in verdicts.values())
+    assert all(v.verdict == "indeterminate" for v in verdicts.values())
