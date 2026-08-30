@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Sixteen classes now built — 2,815 of 18,558 reactions matched (15.2%), 1,724 decided (9.3%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Sixteen classes now built — 6,505 of 18,558 reactions matched (35.1%), 3,305 decided (17.8%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -291,6 +291,32 @@ measures the same thing the threshold did.
    same way — see the coverage ceiling below for what that number can and
    cannot
    reach.
+
+   **UPDATE, after re-deriving the ceiling below (see the corrected
+   section): `ec_prefix` on every class above was an unnecessary extra
+   restriction, not a required one.** Rhea's own EC annotation covers only
+   41.1% of its reactions, and a real share of the rest is genuine class
+   membership that `expected_mass_delta`/`transferred_bond_smarts` already
+   verify structurally without needing an EC number at all. Two real bugs
+   were found and fixed in the process — `_identify` was treating water as
+   a candidate acceptor the same way a proton once was (fixed the same
+   way, closing three false positives already live in the shipped
+   glycosylation/glucuronidation classes and recovering one true
+   positive), and all four prenyltransferase classes were treating a
+   single isopentenyl-diphosphate chain-elongation hop as a genuine
+   transfer, arithmetically indistinguishable from one by mass delta alone
+   (fixed with a new `excluded_co_cofactor_chebi` field). With both fixed,
+   `ec_prefix` was removed from ten classes (SAM, ATP-kinase, all four
+   prenyltransferases, and the O2-monooxygenase/desaturase/2-oxoglutarate/
+   ferredoxin classes), each disambiguated instead by which co-cofactor it
+   actually requires or excludes — a new `required_co_cofactor_chebi`
+   field, the mirror image of `excluded_co_cofactor_chebi`. Verified
+   against all ten with zero reactions lost from any class's previous
+   decided set, and every newly decided reaction spot-checked against its
+   real equation. Corrected total: **6,505 of 18,558 reactions matched
+   (35.1%), 3,305 decided (17.8%)** — see `docs/screening.md` for the
+   full per-class breakdown and `data/reaction-classes/*.yaml` file
+   headers for each class's own verified numbers.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -334,36 +360,49 @@ Say this plainly, because the numbers above invite the question directly:
 coverage, and that is a fact about the data, not about how much work gets
 done.**
 
-Matching requires a reaction to consume a recognisable cofactor as a
-reactant. Counting every reaction that consumes *any* of the sixteen most
-common cofactors in Rhea — CoA, acetyl-CoA, SAM, NAD(P)(H) in all four redox
-states, ATP, ADP, the UDP-sugars, FAD, FMN, O₂, H₂O₂ — with no further
-restriction at all, covers **8,073 of 18,558 reactions: 43.5%.** That is the
-ceiling for this method, full stop, before any class-purity filtering
-(EC restriction, mass-delta check, bond check) removes reactions that share a
-cofactor but are not the transformation a class template models — which the
-two shipped classes show removes a meaningful share (98 of 449 for SAM
-methylation, 27 of 478 for glycosylation). O₂ alone accounts for 15.8% of
-that ceiling and cannot be templated as a single class at all: it is consumed
-by oxidations, oxygenations and radical chemistry with no shared "chemical
-counterpart" whatsoever, the same heterogeneity problem CoA and SAM raised at
-the cofactor level in ["Why 18,558 reactions is a bounded problem"](#why-18558-reactions-is-a-bounded-problem-not-an-unbounded-one)
-above, one level worse.
+**CORRECTION: the paragraph below originally claimed a 43.5% ceiling and
+called 30–40% the honest target. Both were wrong** — an artefact of
+counting only sixteen cofactors chosen by convenience (CoA, acetyl-CoA,
+SAM, NAD(P)(H), ATP, ADP, the UDP-sugars, FAD, FMN, O₂, H₂O₂) rather than
+measuring true structural reachability. Re-derived properly: count every
+distinct species that appears on the LEFT side of any Rhea reaction,
+weighted by how many reactions it co-occurs with, excluding only the
+truly ubiquitous spectators (H₂O, H⁺, and the handful of universal metal
+ions) that carry no class-defining information. By that measure, **11.4%
+of Rhea (2,110 reactions) shares literally zero left-side participants
+with any other reaction** — those are the only ones structurally
+unreachable by any class-template method, no matter how many classes get
+built. The real ceiling is **88.6%, not 43.5%.**
 
-**80% coverage of Rhea is not a target this method can reach by working
-harder at it — the honest number to work toward is closer to 30–40%,** built
-from the EC-3 groups large enough to be worth templating and homogeneous
-enough to pass the mass-delta and bond checks. That is still a large,
-useful, and — unlike raw coverage — *comparable* fraction of the database:
-enough to rank which reaction classes are worth a real investigation, which
-was always the actual goal (see the closing paragraph of
-["Picking the next class"](#picking-the-next-class-by-ec-number-not-by-which-cofactor-is-most-common)).
-Reporting 80% would mean abandoning the cofactor-plus-structural-check
-methodology this project exists to demonstrate, in favour of matching on
-looser criteria that would silently mix chemistry the way raw cofactor
-frequency already warns against. That trade is refused here on the same
-terms every other number in this repository is: **an honestly bounded 35%
-is worth more than a fabricated 80%.**
+The second error the original paragraph made was treating O₂ as
+untemplatable because it is "consumed by oxidations, oxygenations and
+radical chemistry with no shared chemical counterpart." That is true of
+O₂ *alone*, but O₂ is never used alone — every real O₂-consuming reaction
+also needs a specific electron donor (NAD(P)H, a reduced flavin, a
+reduced iron-sulfur cluster, 2-oxoglutarate, or none at all), and that
+co-cofactor's identity is a clean, mechanistic discriminator. This
+project has since built six classes on exactly that basis
+(`o2-monooxygenase`, `p450-monooxygenase`, `o2-desaturase`,
+`o2-dioxygenase`, `2og-dioxygenase`, `ferredoxin-monooxygenase`), covering
+2,931 O₂-consuming Rhea reactions between them and correctly separating
+one mechanism from another via `required_co_cofactor_chebi` /
+`excluded_co_cofactor_chebi` (see the UPDATE two sections above) rather
+than by EC prefix.
+
+None of this means 80–100% is reachable soon, or that the remaining gap
+between today's 35.1% matched / 17.8% decided and the 88.6% structural
+ceiling is small or easy — it is a large, multi-year undertaking (roughly
+800 more class templates would be needed to reach the tier where a
+cofactor is common enough, at 5+ reactions, to be worth templating at
+all). But it is not capped at 30–40% by the data itself, and reporting
+that cap as a hard limit was itself a fabricated number by this project's
+own standard, corrected here rather than left standing. What remains true
+from the original argument: reporting 80% coverage *today* by loosening
+the cofactor-plus-structural-check methodology would be exactly the kind
+of shortcut this project exists to refuse. The number that matters is
+still **decided, not matched** — an honestly verified 17.8% is worth more
+than a fabricated 80%, and closing the gap to 88.6% is a matter of
+building more classes the same rigorous way, not lowering the bar.
 
 ---
 

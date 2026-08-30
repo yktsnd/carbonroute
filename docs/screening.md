@@ -1302,6 +1302,113 @@ project has built shows.
 **Coverage across all sixteen classes: 2,815 of 18,558 Rhea reactions
 matched (15.2%), 1,724 decided (9.3%).**
 
+### Correction: ec_prefix removed, the ceiling re-derived, coverage updated
+
+Everything above this line describes each class as it was built and
+verified with `ec_prefix` restricting every one of them to a single EC
+group. That restriction turned out to be unnecessary for ten of the
+sixteen classes (SAM-methyltransferase, ATP-kinase, all four
+prenyltransferase siblings, and all six O2-consuming classes): Rhea's own
+EC annotation covers only 41.1% of its reactions, and `expected_mass_delta`
+/ `transferred_bond_smarts` (plus, for the six O2 classes, the new
+`required_co_cofactor_chebi` / `excluded_co_cofactor_chebi` fields) already
+verify class membership structurally, without needing an EC number Rhea
+does not always provide.
+
+Two real bugs were found and fixed while testing this, both now part of
+`screen.py`'s `_identify` and each class's own file header:
+
+- **Water was never excluded from the acceptor search**, only the proton
+  was. Invisible under the original EC-restricted classes (verified: zero
+  previously-decided reactions had water as their acceptor), but it
+  surfaced immediately once `ec_prefix` was removed from the
+  prenyltransferase classes — DMAPP/GPP/FPP/GGPP diphosphate hydrolysis
+  and terpene-cyclisation reactions (e.g. geranyl diphosphate + H2O =
+  linalool + diphosphate) were passing the mass-delta check by
+  coincidence of arithmetic, not real chemistry. Fixing it the same way
+  the proton already was fixed three more false positives already live in
+  the shipped glycosylation and glucuronidation classes (their own
+  cofactor's hydrolysis, wrongly counted as a decided transfer) and
+  recovered one true positive (an ATP-driven phenol phosphorylation,
+  previously blocked by an ambiguous acceptor pairing with water).
+- **All four prenyltransferase classes were treating a single
+  isopentenyl-diphosphate (IPP) chain-elongation hop as a genuine transfer.**
+  DMAPP/GPP/FPP/GGPP condensing with exactly one IPP equivalent (e.g.
+  DMAPP + IPP = GPP + diphosphate, GPP synthase) is chain elongation, not
+  prenylation of a foreign acceptor -- but it is arithmetically
+  indistinguishable from a real transfer by mass delta alone, because the
+  resolver picks IPP as "the acceptor" and the elongated product as "the
+  product", and that delta always equals the donor's own transferred-group
+  mass regardless of what it actually reacted with. This was already live
+  in the shipped, EC-restricted classes (fpp-prenyltransferase's own
+  header had claimed "both of the 2 decided reactions are genuine,
+  real single-nucleophile prenylations" -- half of that 2 was this bug).
+  Fixed with a new `excluded_co_cofactor_chebi` field that excludes IPP
+  from matching entirely.
+
+With both fixed, `ec_prefix` was removed from the ten classes above, each
+now disambiguated by which co-cofactor it actually requires or excludes —
+for the six O2 classes this meant reusing each class's own
+`unpriced_co_cofactor_chebi` list as a `required_co_cofactor_chebi`
+matching gate, and giving `o2-dioxygenase` (defined by the ABSENCE of any
+other O2 class's co-cofactor) an `excluded_co_cofactor_chebi` list
+covering the union of the other five. Several of those required lists
+deliberately overlap (o2-desaturase and o2-monooxygenase both accept
+NADPH; o2-desaturase and ferredoxin-monooxygenase both accept Fe(2+) and
+reduced [2Fe-2S]) — verified this does not cause double-counting, because
+each class's own `expected_mass_delta` is mutually exclusive by
+construction (+15.999 for four of the six O2 classes, -2.016 for the
+desaturase), so the mass-delta check is the real tiebreaker and zero
+reactions ever decide for two classes at once (a dedicated test,
+`test_no_rhea_reaction_decides_for_more_than_one_o2_class`, verifies this
+directly against the real Rhea data).
+
+Verified against all ten changed classes with zero reactions lost from
+any class's previous decided set, and every newly decided reaction
+spot-checked against its real equation. Corrected per-class numbers
+(old ec_prefix-restricted matched/decided → new):
+
+| class | old (EC-restricted) | new (ec_prefix removed) |
+|---|---:|---:|
+| sam-methyltransferase | 449 / 351 | 946 / 672 |
+| atp-kinase | 209 / 203 | 1,059 / 369 |
+| dmapp-prenyltransferase | 42 / 36 | 73 / 62 |
+| gpp-prenyltransferase | 8 / 8 | 60 / 12 |
+| fpp-prenyltransferase | 6 / 1 | 178 / 9 |
+| ggpp-prenyltransferase | 6 / 3 | 55 / 5 |
+| o2-monooxygenase | 198 / 134 | 441 / 262 |
+| p450-monooxygenase | 256 / 176 | 920 / 623 |
+| o2-desaturase | 115 / 92 | 1,534 / 267 |
+| o2-dioxygenase | 102 / 59 | 932 / 197 |
+| 2og-dioxygenase | 101 / 60 | 284 / 125 |
+| ferredoxin-monooxygenase | 72 / 50 | 357 / 159 |
+
+(The dmapp/gpp/fpp/ggpp "old" figures above already include the IPP fix;
+before that fix they were 47/38, 11/10, 13/2, 9/4 — see each template's
+own CORRECTION note.) acetyl-coa-acyltransferase and nad-oxidoreductase
+were also measured with `ec_prefix` removed (138→347 and 515→1,659
+matched) but both decide 0 reactions either way — a chemical-baseline-data
+gap unrelated to `ec_prefix`, left untouched.
+
+Because several O2 classes' "matched" candidate pools now overlap by
+design, summing "matched" across classes overcounts unique reactions;
+"decided" never does (verified: the sum of all sixteen classes' decided
+counts equals the count of unique decided Rhea reactions, with zero
+double-decided). The honest, unique-reaction total across all sixteen
+classes: **6,505 of 18,558 Rhea reactions matched (35.1%), 3,305 decided
+(17.8%)** — up from 2,815/1,724 (15.2%/9.3%).
+
+See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
+in the README for a related correction: an earlier version of that
+section claimed a 43.5% structural ceiling and a 30–40% honest target,
+both wrong for a reason unrelated to this section (it counted only
+sixteen hand-picked cofactors rather than measuring true structural
+reachability). The real ceiling is 88.6%, and O2 — described there as
+untemplatable as a single class, which is still true of O2 *alone* — is
+templatable as six classes once each one's actual electron-donor identity
+is used as the discriminator instead of EC prefix, exactly as the six O2
+classes in this document now do.
+
 ## Running one
 
 ```bash
