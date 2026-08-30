@@ -2311,3 +2311,82 @@ def test_coa_ligase_process_model_charges_mixed_anhydride_reagents(coa_ligase_in
     names = {m.name for m in materials}
     assert {"isobutyl chloroformate", "triethylamine", "tetrahydrofuran", "ethyl acetate"} <= names
     assert all(m.basis == "generalised" for m in materials)
+
+
+# --- a nineteenth class: GDP-fucose-dependent fucosylation ------------------
+# Found by surveying every not-yet-covered cofactor for mass-delta
+# homogeneity directly, rather than by EC-group inspection -- the same
+# method that found coa-ligase's own candidate. The cleanest new class this
+# session: 76 of 77 decide, zero confounds beyond one clearly different
+# biosynthetic reaction.
+
+
+@pytest.fixture(scope="module")
+def fuc_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "gdp-fucosyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "gdp-fucosyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def fuc_screened(fuc_inputs):
+    return screen_all(*fuc_inputs, use_process_model=True)
+
+
+def test_fucosyltransferase_class_declares_no_ec_prefix(fuc_inputs):
+    """The mass-delta check alone already separates this class cleanly (see
+    the template's own header), so no ec_prefix was ever needed."""
+    template = fuc_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(146.14, abs=1e-6)
+
+
+def test_fucosyltransferase_class_matches_and_decides_the_expected_number(fuc_screened):
+    """77 Rhea reactions consume GDP-fucose. 76 (98.7%) resolve to a single
+    acceptor/product pair within one proton of 146.14 (the fucosyl group)
+    and are decided, every one decisively favouring the enzyme --
+    including RHEA:14257, the human-milk-oligosaccharide fucosylation this
+    project's own Q3 target list already names, and RHEA:42040 (ganglioside
+    GM1 -> Fuc-GM1), a much larger acceptor landing on the identical delta.
+    The other 1, RHEA:18885, is GDP-fucose SYNTHASE -- the biosynthetic
+    route that MAKES GDP-fucose, oxidising it rather than transferring it
+    -- correctly excluded by mass delta (-155.07, nowhere near 146.14)."""
+    assert fuc_screened.matched == 77
+    assert len(fuc_screened.decided) == 76
+    by_id = {r.rhea_id: r for r in fuc_screened.results}
+    assert by_id["RHEA:14257"].decided
+    assert by_id["RHEA:42040"].decided
+    assert not by_id["RHEA:18885"].decided
+    assert "does not match" in by_id["RHEA:18885"].skipped_reason
+
+
+def test_fucosyltransferase_process_model_charges_fucosyl_bromide_and_silver(fuc_inputs):
+    """The declared process, not a paper: the Koenigs-Knorr fucosyl
+    bromide donor and silver carbonate promoter, the same mechanism
+    udp-glucuronosyltransferase's own donor uses, then a saponification
+    workup. Everything generalised by construction."""
+    template = fuc_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {
+        "2,3,4-tri-O-acetyl-alpha-L-fucopyranosyl bromide",
+        "silver carbonate",
+        "sodium hydroxide",
+    } <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_fucosyltransferase_class_is_decided_and_decisively_favours_the_enzyme(fuc_screened):
+    """Every one of this class's 76 decided reactions reaches a decisive
+    verdict favouring the enzyme."""
+    decided_with_verdict = [
+        r for r in fuc_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(fuc_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

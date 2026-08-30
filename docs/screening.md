@@ -1461,8 +1461,35 @@ the acceptor search). Verified with
 `test_no_rhea_reaction_decides_for_more_than_one_o2_class`: zero
 double-decided across all six O2 classes after the fix.
 
-Final total, all eighteen classes: **6,639 of 18,558 Rhea reactions
-matched (35.8%), 3,498 decided (18.8%)**.
+Total after this fix, all eighteen classes: 6,639 of 18,558 Rhea reactions
+matched (35.8%), 3,498 decided (18.8%).
+
+A nineteenth class, `gdp-fucosyltransferase.yaml` (GDP-fucose-dependent
+fucosylation), was found differently from every class before it: rather
+than inspecting one EC group at a time, a script surveyed every
+not-yet-covered cofactor with >=15 left-side reactions directly, computing
+the real acceptor/product mass delta for each candidate the same way
+`_identify` does, and ranking by what fraction of each cofactor's
+reactions cluster on one signature mass. GDP-fucose came back the
+cleanest of the whole survey: 76 of 77 reactions land within one proton
+of 146.14 g/mol (the fucosyl group), the other 1 being GDP-fucose
+SYNTHASE (the biosynthetic route that *makes* GDP-fucose, correctly
+excluded as a different transformation). 77 matched, 76 decided, all
+decisive -- including RHEA:14257, the human-milk-oligosaccharide
+fucosylation this project's own Q3 target list already names. Its process
+model is Koenigs-Knorr fucosylation with a real, commercially catalogued
+glycosyl bromide donor (CAS 16741-27-8, verified via web search), the
+same mechanism `udp-glucuronosyltransferase`'s own donor uses. The same
+survey surfaced an even cleaner-looking sialyltransferase candidate
+(CMP-N-acetyl-beta-neuraminate, 122 reactions, 97%+ purity including a
+genuine 2-cofactor di-sialylation cluster) -- not built yet, because
+standard sialylation donors are custom-synthesized per publication rather
+than sold with one simple, verifiable commercial CAS number the way the
+fucosyl bromide is; left as a documented candidate for a future session
+rather than guessed at.
+
+Final total, all nineteen classes: **6,715 of 18,558 Rhea reactions
+matched (36.2%), 3,574 decided (19.3%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that
