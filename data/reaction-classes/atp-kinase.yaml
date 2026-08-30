@@ -1,12 +1,18 @@
 # Reaction class: ATP-dependent phosphorylation
 #
-# Covers every Rhea reaction consuming ATP (CHEBI:30616) as a reactant,
-# restricted to EC 2.7.1 (phosphotransferases with an alcohol group as
-# acceptor -- kinases). Matching on ATP specifically (not ADP or AMP, which
-# mark different, unrelated chemistry) and EC 2.7.1 (not the other EC 2.7.x
-# subclasses, which phosphorylate other acceptor types) narrows to a single
-# clean transformation: transfer of the gamma-phosphate of ATP onto an
-# acceptor hydroxyl, releasing ADP.
+# Covers every Rhea reaction consuming ATP (CHEBI:30616) as a reactant that
+# resolves, by mass delta and the phosphorus bond check below, to transfer
+# of the gamma-phosphate of ATP onto an acceptor hydroxyl, releasing ADP.
+# Matching on ATP specifically (not ADP or AMP, which mark different,
+# unrelated chemistry) is the only identity restriction; no ec_prefix is
+# declared. An earlier version restricted to EC 2.7.1 (phosphotransferases
+# with an alcohol acceptor -- kinases), narrowing 1,059 ATP-consuming
+# reactions to 209. That restriction is not needed: the mass-delta and
+# bond checks below already do the real narrowing (see "Structural
+# verification" below), and Rhea's EC annotation is incomplete (58.9% of
+# all Rhea reactions carry none at all) -- an EC-less genuine kinase
+# reaction was being silently discarded for no chemical reason, the same
+# gap the SAM-methyltransferase class's own file header documents fixing.
 #
 # THE MASS DELTA IS NOT THE TEXTBOOK ONE, AND THAT IS WORTH RECORDING. A
 # phosphate monoester, R-OH -> R-O-PO3H2, adds HPO3 net: 1.008 + 30.974 +
@@ -26,22 +32,28 @@
 # place to catch the reactions recorded the other way.
 #
 # Structural verification (run through the actual screen, not a throwaway
-# script): 209 reactions match ATP + EC 2.7.1. 202 of them (96.7%) resolve
-# to a single acceptor/product pair within one proton of 77.963 (times
-# however many phosphates the reaction transfers) and are decided. Of the
-# 7 that are not: 4 (RHEA:22740, RHEA:24952, RHEA:63428, RHEA:73839) could
-# not be resolved to a single acceptor/product pair from Rhea's equation
-# text at all; 3 more (RHEA:12260, RHEA:18245,
-# RHEA:18629 -- NADH kinase, dephospho-CoA kinase, NAD+ kinase) genuinely
-# transfer one phosphate but pair a large donor/acceptor with an
-# equally-large product, and the simple by-elimination pairing this project
-# uses to identify "the acceptor" and "the product" locks onto the wrong
-# pair for them, producing a mass delta nowhere near 77.96; they are
-# correctly excluded by the mass-delta check rather than mis-decided.
-# transferred_bond_smarts checks for it anyway, on a simple and robust
-# signature: acceptors in this class carry zero phosphorus atoms, and a
-# genuine member gains exactly one phosphorus per transfer -- it excluded
-# none of the 202 decided reactions, confirming it is not doing the
+# script, ec_prefix removed): 1,059 reactions match ATP. 524 could not be
+# resolved to a single acceptor/product pair from Rhea's equation text at
+# all -- ATP is consumed by a huge share of unrelated Rhea chemistry
+# (ligases, synthetases, transporters, multi-substrate reactions) once the
+# EC-2.7.1 restriction no longer screens most of that out upstream. Of the
+# 535 that do resolve, 369 (69.0%) land within one proton of 77.963 (times
+# however many phosphates the reaction transfers) and are decided, and 165
+# genuinely transfer something else -- including RHEA:12260, RHEA:18245
+# and RHEA:18629 (NADH kinase, dephospho-CoA kinase, NAD+ kinase), which
+# pair a large donor/acceptor with an equally-large product, and the
+# simple by-elimination pairing this project uses to identify "the
+# acceptor" and "the product" locks onto the wrong pair for them,
+# producing a mass delta nowhere near 77.96; they are correctly excluded
+# by the mass-delta check rather than mis-decided. Under the earlier
+# EC-2.7.1 restriction 209 matched, 203 decided (this class's own history:
+# see the water-exclusion fix that recovered RHEA:73839 from "could not
+# identify" once water was no longer eligible to stand in as the
+# acceptor). transferred_bond_smarts checks for the phosphorus signature
+# anyway, on a simple and robust rule: acceptors in this class carry zero
+# phosphorus atoms, and a genuine member gains exactly one phosphorus per
+# transfer -- it excluded none of the 534 reactions that reach the mass
+# check even at this much wider scale, confirming it is not doing the
 # discriminating work here; the mass-delta check alone already separates
 # the class.
 
@@ -50,15 +62,15 @@ reaction_class:
   name: "ATP-dependent phosphorylation of a hydroxyl"
   description: >
     Enzymatic transfer of ATP's gamma-phosphate onto an acceptor hydroxyl,
-    releasing ADP. Matching is on ATP specifically, narrowed to EC 2.7.1
-    (kinases acting on an alcohol acceptor).
+    releasing ADP. Matching is on ATP specifically; no ec_prefix is
+    declared (see the file header for why the earlier EC 2.7.1 restriction
+    was unnecessary and has been removed).
   expected_mass_delta: 77.963
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:30616"
   cofactor_role: reagent
-  ec_prefix: "2.7.1"
   # New phosphorus atom per phosphate transferred. Acceptors in this class
-  # carry none; verified against all 174 resolvable members.
+  # carry none; verified against all 534 resolvable members.
   transferred_bond_smarts: "[#15]"
 
 chemical_counterpart:

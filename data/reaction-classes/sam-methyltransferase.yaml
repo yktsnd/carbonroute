@@ -1,39 +1,58 @@
 # Reaction class: SAM-dependent O-, N- and S-methylation
 #
 # Covers every Rhea reaction consuming S-adenosyl-L-methionine (SAM,
-# CHEBI:59789) as a reactant, restricted to EC 2.1.1 (methyltransferases) and
-# to reactions that add a new methyl group on a heteroatom (O, N or S).
+# CHEBI:59789) as a reactant and adding a new methyl group on a heteroatom
+# (O, N or S).
 #
-# WHY THE RESTRICTION IS TWO-LAYERED, NOT ONE. SAM is consumed by far more
-# than methylation: 946 Rhea reactions consume it, but only 500 carry an
-# EC 2.1.1 annotation, and of those, a further chunk are radical-SAM
-# chemistry -- SAM cleaved reductively to 5'-deoxyadenosine + methionine
-# rather than donating a methyl to become SAH, consuming an additional
-# reducing cofactor (flavodoxin, ferredoxin, "AH2") alongside the acceptor.
-# Those are structurally different reactions (more than two participants on
-# the left after removing SAM), and `_identify` correctly refuses to pick an
+# WHY THE RESTRICTION IS STRUCTURAL, NOT AN EC PREFIX. SAM is consumed by
+# far more than methylation: 946 Rhea reactions consume it. An earlier
+# version of this class additionally restricted to EC 2.1.1
+# (methyltransferases, 500 of the 946) on the reasoning that a further
+# chunk of that EC group is radical-SAM chemistry -- SAM cleaved
+# reductively to 5'-deoxyadenosine + methionine rather than donating a
+# methyl to become SAH, consuming an additional reducing cofactor
+# (flavodoxin, ferredoxin, "AH2") alongside the acceptor. That reasoning
+# was correct but the restriction was unnecessary: those are structurally
+# different reactions (more than two participants on the left after
+# removing SAM), and `_identify` already correctly refuses to pick an
 # acceptor for them rather than guessing -- see ClassTemplate.matches's
-# comment on why a cofactor is necessary but not sufficient.
+# comment on why a cofactor is necessary but not sufficient. 58.9% of Rhea
+# carries no EC annotation at all, and a real share of SAM's EC-less
+# consumption is genuine heteroatom methylation (rRNA/tRNA base
+# methylation, natural-product O-methylation) that an EC restriction was
+# silently discarding for no chemical reason. ec_prefix is not declared
+# below; the two structural checks that follow do the actual narrowing.
 #
-# What remains after that first filter still needs a second one. Measured
-# against every EC-2.1.1 SAM reaction with a single resolvable acceptor
-# (449 of them): 7 have a mass delta that is not a multiple of 14.027 g/mol
-# (the net mass of a transferred methyl, CH3 replacing H) within one proton,
-# and a further 73 land exactly on that mass delta but attach the new methyl
-# to a CARBON, not a heteroatom -- C-methyltransferases in steroid, terpene
-# and tetrapyrrole biosynthesis (cycloartenol, zymosterol, the precorrin
-# series) and, notably, cytosine C5 methylation in DNA. Those are genuine
-# methylations, just not ones a methyl halide and a base can plausibly
-# perform: direct C-H methylation of an unactivated ring or alkene carbon is
-# not the same chemical problem as O-, N- or S-alkylation, and modelling it
-# with the same chemical counterpart would be exactly the kind of
-# mis-templating UDP-N-acetylglucosamine was excluded from the glycosylation
-# class for. They are candidates for their own class, not a free line here.
+# What remains after `_identify`'s structural refusal still needs a mass
+# and bond check. Of the 946 matched, 93 could not be resolved to a single
+# acceptor/product pair at all (mostly the radical-SAM and multi-reactant
+# shapes above); of the 853 that do resolve, 55 have a mass delta that is
+# not a multiple of 14.027 g/mol (the net mass of a transferred methyl,
+# CH3 replacing H) within one proton and are excluded outright, and a
+# further 126 land exactly on that mass delta but attach the new methyl to
+# a CARBON, not a heteroatom -- excluded by `transferred_bond_smarts`:
+# C-methyltransferases in steroid, terpene and tetrapyrrole biosynthesis
+# (cycloartenol, zymosterol, the precorrin series) and, notably, cytosine
+# C5 methylation in DNA. Those are genuine methylations, just not ones a
+# methyl halide and a base can plausibly perform: direct C-H methylation
+# of an unactivated ring or alkene carbon is not the same chemical problem
+# as O-, N- or S-alkylation, and modelling it with the same chemical
+# counterpart would be exactly the kind of mis-templating
+# UDP-N-acetylglucosamine was excluded from the glycosylation class for.
+# They are candidates for their own class, not a free line here. The
+# remaining 672 decide, all decisively favouring the enzyme.
 #
 # transferred_bond_smarts enforces that second filter structurally, the same
 # mechanism the acetyl-CoA investigation in docs/screening.md exists to
 # document: a mass delta is necessary but not sufficient, because two
-# structurally different transformations can weigh the same.
+# structurally different transformations can weigh the same. Structural
+# verification (run through the actual screen, ec_prefix removed): 946
+# reactions match, 672 (71.0%) decide, all decisively favouring the
+# enzyme -- up from 449 matched / 351 decided under the earlier EC-2.1.1
+# restriction, with zero reactions lost and every spot-checked new member
+# a genuine EC-less heteroatom methylation (e.g. RHEA:81215, a
+# 3-demethylubiquinone -> ubiquinone O-methylation with no EC annotation
+# at all).
 
 reaction_class:
   id: sam-methyltransferase
@@ -42,8 +61,10 @@ reaction_class:
     Enzymatic transfer of a methyl group from S-adenosyl-L-methionine onto a
     heteroatom (a phenol or alcohol oxygen, an amine or heterocyclic
     nitrogen, or a thiol sulfur), releasing S-adenosyl-L-homocysteine (SAH).
-    Matching is on the cofactor, narrowed to EC 2.1.1 because SAM is consumed
-    by chemistry this class does not model (see the file header).
+    Matching is on the cofactor alone; no ec_prefix is declared, because SAM
+    is consumed by chemistry this class does not model, and the structural
+    checks below already separate that chemistry without needing an EC
+    annotation Rhea does not always provide (see the file header).
   # A genuine methylation adds one methyl group net: CH3 replacing an H,
   # 12.011 + 2*1.008 = 14.027 g/mol, verified via RDKit against the real
   # Rhea pair trans-resveratrol -> pterostilbene (2 methyls, observed delta
@@ -56,7 +77,6 @@ reaction_class:
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:59789"
   cofactor_role: reagent
-  ec_prefix: "2.1.1"
   # New methyl attached to O, N or S -- the structural fact that separates a
   # real member of this class from a C-methyltransferase weighing the same.
   # Verified against real Rhea pairs: resveratrol->pterostilbene and

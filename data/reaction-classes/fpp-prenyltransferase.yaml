@@ -1,8 +1,9 @@
 # Reaction class: FPP-dependent prenylation
 #
 # Covers Rhea reactions consuming farnesyl diphosphate (FPP, CHEBI:175763)
-# as a reactant, restricted to EC 2.5.1. FPP is the three-isoprene-unit
-# allylic diphosphate donor -- another sibling of the DMAPP class
+# as a reactant. No ec_prefix is declared -- see the ec_prefix-removal note
+# below. FPP is the three-isoprene-unit allylic diphosphate donor --
+# another sibling of the DMAPP class
 # (data/reaction-classes/dmapp-prenyltransferase.yaml), same transformation,
 # a longer donor. Not folded into the DMAPP or GPP class because it
 # transfers a different mass again.
@@ -23,23 +24,30 @@
 # transfer by mass delta alone. `excluded_co_cofactor_chebi` below
 # excludes isopentenyl diphosphate (CHEBI:128769) from matching entirely.
 #
-# Structural verification (run through the actual screen, with the fix
-# applied): 6 reactions match FPP + EC 2.5.1 excluding IPP. Only 1 (16.7%)
-# resolves within tolerance and is decided, decisively favouring the
-# enzyme: RHEA:13345 (L-cysteinyl-[protein] + FPP = S-farnesyl-L-cysteinyl-
-# [protein] + diphosphate), the classic CAAX-motif protein farnesylation.
-# FPP is a much less "clean" cofactor than DMAPP or GPP for this class,
-# because most of its real EC 2.5.1 chemistry is NOT transfer onto a
-# foreign nucleophile: 3 (RHEA:22672 -> presqualene diphosphate,
-# RHEA:31547 -> diapophytoene, RHEA:32295/32299 -> squalene) are FPP
-# HOMODIMERISATION -- two FPP molecules coupling head-to-head with no
-# foreign acceptor at all, the same class of chemistry the DMAPP class's
-# chrysanthemyl/lavandulyl synthase members are; RHEA:28070 (heme b + FPP
-# + H2O -> Fe(II)-heme o) has three left-side reactants and does not
-# resolve to a single acceptor. The 1 that does decide is a genuine, real
-# single-nucleophile prenylation, correctly separated from this cofactor's
-# other, much more common chemistry -- a small class, honestly reported as
-# one.
+# With EC 2.5.1 still in place and IPP excluded: 6 reactions match FPP.
+# Only 1 (16.7%) resolves within tolerance and is decided, decisively
+# favouring the enzyme: RHEA:13345 (L-cysteinyl-[protein] + FPP =
+# S-farnesyl-L-cysteinyl-[protein] + diphosphate), the classic CAAX-motif
+# protein farnesylation. FPP is a much less "clean" cofactor than DMAPP or
+# GPP for this class, because most of its real EC 2.5.1 chemistry is NOT
+# transfer onto a foreign nucleophile: 3 (RHEA:22672 -> presqualene
+# diphosphate, RHEA:31547 -> diapophytoene, RHEA:32295/32299 -> squalene)
+# are FPP HOMODIMERISATION -- two FPP molecules coupling head-to-head with
+# no foreign acceptor at all, the same class of chemistry the DMAPP
+# class's chrysanthemyl/lavandulyl synthase members are; RHEA:28070 (heme
+# b + FPP + H2O -> Fe(II)-heme o) has three left-side reactants and does
+# not resolve to a single acceptor.
+#
+# ec_prefix removal (the same step taken for SAM-methyltransferase,
+# ATP-kinase and the DMAPP/GPP classes, safe here only because the IPP fix
+# above closed the one false-positive path mass delta alone could not
+# catch): with EC 2.5.1 dropped too, 178 reactions match FPP excluding
+# IPP, and 9 decide, all decisively favouring the enzyme. All 8 newly
+# decided members were spot-checked and are genuine EC-less farnesylations
+# of a real organic acceptor (aromatic polyketides -- orsellinate,
+# phthalides -- and a second protein tryptophan farnesylation) -- none is
+# chain elongation, homodimerisation or a water/proton artefact. FPP
+# remains the smallest and least "clean" of the four siblings even so.
 
 reaction_class:
   id: fpp-prenyltransferase
@@ -48,7 +56,7 @@ reaction_class:
     Enzymatic transfer of the farnesyl group from FPP onto a nucleophilic
     acceptor (O-, C- or S-prenylation), releasing diphosphate. Matched on
     FPP specifically (not DMAPP, GPP or GGPP, which transfer a different
-    mass), restricted to EC 2.5.1. Isopentenyl diphosphate (IPP,
+    mass); no ec_prefix is declared. Isopentenyl diphosphate (IPP,
     CHEBI:128769) is excluded outright: a single IPP equivalent condensing
     with FPP is chain elongation to GGPP, not prenylation of a foreign
     acceptor -- see the CORRECTION above.
@@ -56,7 +64,6 @@ reaction_class:
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:175763"
   cofactor_role: reagent
-  ec_prefix: "2.5.1"
   excluded_co_cofactor_chebi: "CHEBI:128769"
 
 chemical_counterpart:

@@ -1,8 +1,10 @@
 # Reaction class: DMAPP-dependent prenylation
 #
 # Covers Rhea reactions consuming dimethylallyl diphosphate (DMAPP,
-# CHEBI:57623) as a reactant, restricted to EC 2.5.1 (transferases moving a
-# group other than methyl). DMAPP is the smallest, most common of the four
+# CHEBI:57623) as a reactant. No ec_prefix is declared -- an earlier
+# version restricted to EC 2.5.1 (transferases moving a group other than
+# methyl); see the ec_prefix-removal note below for why that restriction
+# was dropped. DMAPP is the smallest, most common of the four
 # allylic-diphosphate prenyl donors (DMAPP, GPP, FPP, GGPP -- one, two,
 # three and four isoprene units respectively); the other three are not
 # covered by this class because each adds a different mass (the constant
@@ -51,11 +53,10 @@
 # from matching entirely, the same tool `required_co_cofactor_chebi` uses
 # to disambiguate the O2 classes.
 #
-# Structural verification (run through the actual screen, with the fix
-# applied): 42 reactions match DMAPP + EC 2.5.1 excluding IPP. 36 (85.7%)
-# resolve to a single acceptor/product pair within one proton of 68.119
-# and are decided, including RHEA:79231 (hapalindole U + DMAPP + H(+) =
-# ambiguine H + diphosphate), decided only once the acceptor/product
+# With EC 2.5.1 still in place and IPP excluded: 42 reactions match DMAPP.
+# 36 (85.7%) resolve to a single acceptor/product pair within one proton
+# of 68.119 and are decided, including RHEA:79231 (hapalindole U + DMAPP +
+# H(+) = ambiguine H + diphosphate), decided only once the acceptor/product
 # resolver was fixed to exclude a proton on the left side of the equation
 # the same way it already excluded one on the right -- see screen.py's
 # _identify docstring; 2,673 of Rhea's 18,558 reactions carry "+ H(+)" as
@@ -72,6 +73,17 @@
 # either; the remaining 2 (RHEA:58188, RHEA:58192) resolve but add 86.13
 # g/mol, not 68.119 -- a different carotenoid-pathway prenylation this
 # class's mass signature correctly does not claim.
+#
+# ec_prefix removal (the same step taken for SAM-methyltransferase and
+# ATP-kinase, and safe here only because the IPP fix above closed the one
+# false-positive path mass delta alone could not catch): with EC 2.5.1
+# dropped as well, 73 reactions match DMAPP excluding IPP, and 62 (84.9%)
+# decide, all decisively favouring the enzyme. Every one of the 26 newly
+# decided members was spot-checked against its real equation and is a
+# genuine EC-less prenylation of an organic acceptor -- fungal indole
+# alkaloid prenylation (echinulin, aszonalenin, cyclopiazonate pathways),
+# tRNA and protein prenylation, and small-molecule N- and O-prenylation --
+# none is chain elongation, homodimerisation or a water/proton artefact.
 
 reaction_class:
   id: dmapp-prenyltransferase
@@ -80,7 +92,7 @@ reaction_class:
     Enzymatic transfer of the dimethylallyl group from DMAPP onto a
     nucleophilic acceptor (O-, C- or S-prenylation), releasing diphosphate.
     Matched on DMAPP specifically (not GPP, FPP or GGPP, which transfer a
-    different mass), restricted to EC 2.5.1. Isopentenyl diphosphate (IPP,
+    different mass); no ec_prefix is declared. Isopentenyl diphosphate (IPP,
     CHEBI:128769) is excluded outright: a single IPP equivalent condensing
     with DMAPP is chain elongation to GPP, not prenylation of a foreign
     acceptor, and its mass delta is indistinguishable from a real transfer
@@ -89,7 +101,6 @@ reaction_class:
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:57623"
   cofactor_role: reagent
-  ec_prefix: "2.5.1"
   excluded_co_cofactor_chebi: "CHEBI:128769"
 
 chemical_counterpart:

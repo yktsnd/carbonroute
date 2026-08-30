@@ -1067,19 +1067,21 @@ def test_sam_template_has_no_materials_but_does_have_a_process_model(sam_inputs)
 
 
 def test_sam_class_matches_and_decides_the_expected_number(sam_screened):
-    """946 Rhea reactions consume SAM at all; EC 2.1.1 narrows that to 449
-    with a single resolvable acceptor. Of those, 351 both add the right mass
-    (a multiple of 14.027 g/mol, +/- one proton) and form the right bond (a
-    new methyl on a heteroatom, not carbon). The other 98 are excluded for
-    reasons verified by hand: 18 unidentifiable acceptor/product pairs
-    (mostly radical-SAM reactions with an extra redox cofactor), 6 with a
-    mass delta that fits no multiple of 14.027, and 74 that add exactly the
-    right mass but attach the new methyl to carbon -- real C-methyltransferases
-    (steroid/terpene biosynthesis, DNA cytosine C5 methylation) that are not
-    this class's O/N/S-alkylation chemistry. See the template's file header.
+    """946 Rhea reactions consume SAM at all; no ec_prefix is declared (an
+    earlier version restricted to EC 2.1.1, narrowing to 449 -- see the
+    template's file header for why that restriction was unnecessary and has
+    been removed). 93 do not resolve to a single acceptor/product pair
+    (mostly radical-SAM reactions with an extra redox cofactor, or other
+    multi-reactant shapes), 55 have a mass delta that fits no multiple of
+    14.027, and 126 add exactly the right mass but attach the new methyl to
+    carbon -- real C-methyltransferases (steroid/terpene biosynthesis, DNA
+    cytosine C5 methylation) that are not this class's O/N/S-alkylation
+    chemistry. The remaining 672 both add the right mass (a multiple of
+    14.027 g/mol, +/- one proton) and form the right bond (a new methyl on a
+    heteroatom, not carbon), all decisively favouring the enzyme.
     """
-    assert sam_screened.matched == 449
-    assert len(sam_screened.decided) == 351
+    assert sam_screened.matched == 946
+    assert len(sam_screened.decided) == 672
 
 
 def test_sam_class_bond_check_keeps_heteroatom_methylation_only(sam_screened):
@@ -1256,21 +1258,24 @@ def test_atp_class_uses_the_dianion_mass_delta_not_the_textbook_one(atp_inputs):
 
 
 def test_atp_class_matches_and_decides_the_expected_number(atp_screened):
-    """209 Rhea reactions consume ATP under EC 2.7.1. 203 of them (97.1%)
-    resolve to a single acceptor/product pair within one proton of the
-    dianion mass delta and are decided -- including RHEA:73839 (phenol + ATP
-    + H2O = phenyl phosphate + AMP + phosphate + 2 H(+)), recovered once
-    water is no longer eligible to stand in as "the acceptor" alongside
-    phenol; see _identify's comment. Every one of the 6 that are still not
-    decided is either an acceptor/product pairing this project's simple
-    by-elimination resolver cannot untangle (RHEA:22740, RHEA:24952,
-    RHEA:63428) or a real phosphorylation whose donor and acceptor are both
-    large enough (NADH kinase, dephospho-CoA kinase, NAD+ kinase) that the
-    resolver locks onto the wrong pair and the mass-delta check correctly
-    refuses to decide it rather than guessing.
+    """1,059 Rhea reactions consume ATP; no ec_prefix is declared (an
+    earlier version restricted to EC 2.7.1, narrowing to 209 -- see the
+    template's file header for why that restriction was unnecessary and has
+    been removed). 524 do not resolve to a single acceptor/product pair at
+    all -- ATP is consumed by far more Rhea chemistry than kinases once EC
+    no longer screens most of it out upstream. Of the 535 that resolve, 369
+    (69.0%) land within one proton of the dianion mass delta and are
+    decided -- including RHEA:10224 and RHEA:73839 (phenol + ATP + H2O =
+    phenyl phosphate + AMP + phosphate + 2 H(+)), recovered once water is
+    no longer eligible to stand in as "the acceptor" alongside phenol; see
+    _identify's comment. 165 genuinely transfer something else, including
+    RHEA:12260, RHEA:18245 and RHEA:18629 (NADH kinase, dephospho-CoA
+    kinase, NAD+ kinase), whose donor and acceptor are both large enough
+    that the by-elimination resolver locks onto the wrong pair and the
+    mass-delta check correctly refuses to decide it rather than guessing.
     """
-    assert atp_screened.matched == 209
-    assert len(atp_screened.decided) == 203
+    assert atp_screened.matched == 1059
+    assert len(atp_screened.decided) == 369
     by_id = {r.rhea_id: r for r in atp_screened.results}
     assert by_id["RHEA:10224"].decided
     for rhea_id in ("RHEA:12260", "RHEA:18245", "RHEA:18629"):
@@ -1280,11 +1285,12 @@ def test_atp_class_matches_and_decides_the_expected_number(atp_screened):
 
 def test_atp_class_bond_check_finds_no_further_exclusions(atp_screened):
     """transferred_bond_smarts checks for exactly one new phosphorus atom
-    per phosphate transferred. It excludes none of the 202 mass-delta-clean
-    reactions -- the mass-delta check alone already separates this class,
-    and the bond check is a second, independent confirmation rather than
-    the thing doing the discriminating work (unlike the SAM class, where
-    the bond check is load-bearing against C-methylation)."""
+    per phosphate transferred. It excludes none of the 534 reactions that
+    reach the mass check, even at this much wider (ec_prefix-free) scale --
+    the mass-delta check alone already separates this class, and the bond
+    check is a second, independent confirmation rather than the thing doing
+    the discriminating work (unlike the SAM class, where the bond check is
+    load-bearing against C-methylation)."""
     for r in atp_screened.results:
         assert "class's bond" not in r.skipped_reason
 
@@ -1339,22 +1345,25 @@ def dmapp_screened(dmapp_inputs):
 
 
 def test_dmapp_class_matches_and_decides_the_expected_number(dmapp_screened):
-    """42 Rhea reactions consume DMAPP under EC 2.5.1 once isopentenyl
-    diphosphate (IPP, CHEBI:128769) is excluded from matching (see the
-    template's own CORRECTION: a single IPP equivalent condensing with
-    DMAPP is GPP synthase, arithmetically indistinguishable from a real
-    transfer by mass delta alone, so it has to be excluded by identity
-    instead). 36 (85.7%) resolve to a single acceptor/product pair within
-    one proton of 68.119 (the isoprenyl group, C5H8) and are decided.
-    RHEA:10852 (leachianone G -> sophoraflavanone G) is the reaction that
-    pinned the constant down: 424.493 - 356.374 = 68.119 exactly, with
-    donor and leaving group drawn in the same charge state so no
-    dianion-style offset applies here. RHEA:79231 (hapalindole U + DMAPP +
-    H(+) -> ambiguine H) only decides once a proton on the left of the
+    """73 Rhea reactions consume DMAPP once isopentenyl diphosphate (IPP,
+    CHEBI:128769) is excluded from matching (see the template's own
+    CORRECTION: a single IPP equivalent condensing with DMAPP is GPP
+    synthase, arithmetically indistinguishable from a real transfer by mass
+    delta alone, so it has to be excluded by identity instead) and no
+    ec_prefix restricts to EC 2.5.1 (an earlier version did; removing it is
+    the same step taken for SAM-methyltransferase and ATP-kinase, safe here
+    only because the IPP fix closed the false-positive path mass delta
+    alone could not catch). 62 (84.9%) resolve to a single acceptor/product
+    pair within one proton of 68.119 (the isoprenyl group, C5H8) and are
+    decided. RHEA:10852 (leachianone G -> sophoraflavanone G) is the
+    reaction that pinned the constant down: 424.493 - 356.374 = 68.119
+    exactly, with donor and leaving group drawn in the same charge state so
+    no dianion-style offset applies here. RHEA:79231 (hapalindole U + DMAPP
+    + H(+) -> ambiguine H) only decides once a proton on the left of the
     equation is excluded from the acceptor search the same way one on the
     right already was."""
-    assert dmapp_screened.matched == 42
-    assert len(dmapp_screened.decided) == 36
+    assert dmapp_screened.matched == 73
+    assert len(dmapp_screened.decided) == 62
     by_id = {r.rhea_id: r for r in dmapp_screened.results}
     assert by_id["RHEA:10852"].decided
     assert by_id["RHEA:79231"].decided
@@ -1580,7 +1589,7 @@ def test_ugt_process_model_charges_the_bromide_donor_and_promoter(ugt_inputs):
 
 
 def test_ugt_class_is_decided_and_decisively_favours_the_enzyme(ugt_screened):
-    """Every one of this class's 95 decided reactions reaches a decisive
+    """Every one of this class's 94 decided reactions reaches a decisive
     verdict favouring the enzyme, the same shape as the ATP-kinase and
     DMAPP-prenyltransferase classes: the process model's silver-promoted
     Koenigs-Knorr coupling plus saponification is bulky enough to keep the
@@ -1599,9 +1608,9 @@ def test_ugt_class_is_decided_and_decisively_favours_the_enzyme(ugt_screened):
 @pytest.mark.parametrize(
     "class_id,cofactor_key,matched,decided",
     [
-        ("gpp-prenyltransferase", "name:chebi:58057", 8, 8),
-        ("fpp-prenyltransferase", "name:chebi:175763", 6, 1),
-        ("ggpp-prenyltransferase", "name:chebi:58756", 6, 3),
+        ("gpp-prenyltransferase", "name:chebi:58057", 60, 12),
+        ("fpp-prenyltransferase", "name:chebi:175763", 178, 9),
+        ("ggpp-prenyltransferase", "name:chebi:58756", 55, 5),
     ],
 )
 def test_prenyl_diphosphate_siblings_match_and_decide_the_expected_number(
@@ -1611,15 +1620,20 @@ def test_prenyl_diphosphate_siblings_match_and_decide_the_expected_number(
     prenylation, transferring two, three and four isoprene units instead of
     one. Each is its own class because each adds a different mass, and each
     is progressively less "clean" than DMAPP: a growing share of each
-    donor's real EC 2.5.1 chemistry is chain elongation or homodimerisation
-    rather than transfer onto a foreign nucleophile, which is why FPP's
-    decided count (1 of 6) is much smaller than DMAPP's own (36 of 42) --
-    a real finding about the chemistry, not a bug in the screen. All three
-    counts are post-fix: isopentenyl diphosphate (CHEBI:128769) is excluded
-    from matching, closing the single-IPP-hop false positive documented on
-    the DMAPP class's own CORRECTION (each sibling had at least one: GPP's
-    original 10 decided wrongly included 2, FPP's original 2 wrongly
-    included 1, GGPP's original 4 wrongly included 1)."""
+    donor's real chemistry is chain elongation or homodimerisation rather
+    than transfer onto a foreign nucleophile, which is why FPP's decided
+    fraction (9 of 178, 5.1%) is much smaller than DMAPP's own (62 of 73,
+    84.9%) -- a real finding about the chemistry, not a bug in the screen.
+    All three counts have two fixes applied: isopentenyl diphosphate
+    (CHEBI:128769) is excluded from matching, closing the single-IPP-hop
+    false positive documented on the DMAPP class's own CORRECTION (each
+    sibling had at least one under the earlier EC-2.5.1-restricted counts:
+    GPP's original 10 decided wrongly included 2, FPP's original 2 wrongly
+    included 1, GGPP's original 4 wrongly included 1); and no ec_prefix is
+    declared, the same step taken for SAM-methyltransferase, ATP-kinase and
+    the DMAPP class, admitting genuine EC-less prenylations that a
+    class-purity mass-delta and IPP-exclusion check now separate on their
+    own."""
     reactions, _ = load_reactions(RHEA / "reactions.tsv")
     structures = load_structures(RHEA / "participants.csv")
     template = load_template(CLASSES / f"{class_id}.yaml")

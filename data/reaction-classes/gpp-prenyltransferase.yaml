@@ -1,7 +1,8 @@
 # Reaction class: GPP-dependent prenylation
 #
 # Covers Rhea reactions consuming geranyl diphosphate (GPP, CHEBI:58057) as a
-# reactant, restricted to EC 2.5.1. GPP is the two-isoprene-unit allylic
+# reactant. No ec_prefix is declared -- see the ec_prefix-removal note
+# below. GPP is the two-isoprene-unit allylic
 # diphosphate donor -- the sibling of the DMAPP class
 # (data/reaction-classes/dmapp-prenyltransferase.yaml), covering the same
 # transformation (a nucleophile displaces diphosphate at C1 of the allylic
@@ -35,15 +36,23 @@
 # as excluded, now excluded earlier and more honestly, at the match
 # itself rather than downstream by mass delta).
 #
-# Structural verification (run through the actual screen, with the fix
-# applied): 8 reactions match GPP + EC 2.5.1 excluding IPP, and all 8
-# (100%) resolve to a single acceptor/product pair within tolerance and
-# are decided, every one decisively favouring the enzyme -- including
-# RHEA:33839 (2-O,3-dimethylflaviolin + GPP + H(+) =
+# With EC 2.5.1 still in place and IPP excluded: 8 reactions match GPP,
+# and all 8 (100%) resolve to a single acceptor/product pair within
+# tolerance and are decided, every one decisively favouring the enzyme --
+# including RHEA:33839 (2-O,3-dimethylflaviolin + GPP + H(+) =
 # 7-O-geranyl-2-O,3-dimethylflaviolin + diphosphate), which only decides
 # once a proton on the left of the equation is excluded from the acceptor
 # search the same way one on the right already was -- see screen.py's
 # _identify docstring.
+#
+# ec_prefix removal (the same step taken for SAM-methyltransferase,
+# ATP-kinase and the DMAPP class, safe here only because the IPP fix
+# above closed the one false-positive path mass delta alone could not
+# catch): with EC 2.5.1 dropped too, 60 reactions match GPP excluding IPP,
+# and 12 decide, all decisively favouring the enzyme. All 4 newly decided
+# members were spot-checked and are genuine EC-less geranylations of a
+# real organic acceptor (tRNA thiouridine, a protein tryptophan, glutamate,
+# hydroquinone) -- none is chain elongation or a water/proton artefact.
 
 reaction_class:
   id: gpp-prenyltransferase
@@ -52,7 +61,7 @@ reaction_class:
     Enzymatic transfer of the geranyl group from GPP onto a nucleophilic
     acceptor (O-, C- or S-prenylation), releasing diphosphate. Matched on
     GPP specifically (not DMAPP, FPP or GGPP, which transfer a different
-    mass), restricted to EC 2.5.1. Isopentenyl diphosphate (IPP,
+    mass); no ec_prefix is declared. Isopentenyl diphosphate (IPP,
     CHEBI:128769) is excluded outright: a single IPP equivalent condensing
     with GPP is chain elongation to FPP, not prenylation of a foreign
     acceptor -- see the CORRECTION above.
@@ -60,7 +69,6 @@ reaction_class:
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:58057"
   cofactor_role: reagent
-  ec_prefix: "2.5.1"
   excluded_co_cofactor_chebi: "CHEBI:128769"
 
 chemical_counterpart:
