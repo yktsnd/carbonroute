@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from carbonroute.bounds import load_bounds
+from carbonroute.bounds import Bound, load_bounds
 from carbonroute.ledger import load_ledger
 from carbonroute.resolve import (
     FactorTable,
@@ -132,6 +132,79 @@ def test_template_rejects_a_material_with_no_note(tmp_path):
     )
     with pytest.raises(ScreenError, match="note"):
         load_template(p)
+
+
+# --- a second cofactor a class needs but does not price ---------------------
+
+
+def _write_co_cofactor_template(tmp_path: Path) -> Path:
+    p = tmp_path / "co.yaml"
+    p.write_text(
+        "reaction_class:\n"
+        "  id: co\n  name: C\n  cofactor_chebi: 'CHEBI:15379'\n"
+        "  unpriced_co_cofactor_chebi: 'CHEBI:57945'\n"
+        "  expected_mass_delta: 15.999\n"
+        "  mass_delta_tolerance: 1.0\n"
+        "chemical_counterpart:\n"
+        "  name: C\n  source: S\n  materials:\n"
+        "    - {name: x, cas: '7732-18-5', kg_per_mol_product: 1.0, basis: sourced, note: n}\n",
+        encoding="utf-8",
+    )
+    return p
+
+
+def test_unpriced_co_cofactor_loads_as_a_tuple(tmp_path):
+    """A single ChEBI id is accepted the same way cofactor_chebi is."""
+    t = load_template(_write_co_cofactor_template(tmp_path))
+    assert t.unpriced_co_cofactor_chebi == ("CHEBI:57945",)
+
+
+def test_unpriced_co_cofactor_defaults_to_empty(tmp_path):
+    """The nine classes that never needed a second cofactor are unaffected:
+    the field defaults to empty and changes nothing about their behaviour."""
+    p = _write_template(
+        tmp_path, "    - {name: x, kg_per_mol_product: 1.0, basis: sourced, note: n}\n"
+    )
+    t = load_template(p)
+    assert t.unpriced_co_cofactor_chebi == ()
+
+
+def test_unpriced_co_cofactor_is_excluded_from_the_acceptor_search(tmp_path):
+    """A synthetic monooxygenase-shaped reaction: acceptor + O2 + NADH -> product
+    + NAD(+) + H2O. Without the co-cofactor field, `others_left` would contain
+    both the acceptor and NADH and fail to resolve at all -- exactly the
+    failure mode that blocked EC 1.14.13 before this mechanism existed."""
+    t = load_template(_write_co_cofactor_template(tmp_path))
+    rxn = parse_reaction(
+        "RHEA:00000",
+        "phenol + NADH + O2 = catechol + NAD(+) + H2O",
+        "CHEBI:15882;CHEBI:57945;CHEBI:15379;CHEBI:18135;CHEBI:57540;CHEBI:15377",
+        "EC:1.14.13.1",
+    )
+    assert rxn is not None
+    structures = {
+        "CHEBI:15882": "Oc1ccccc1",  # phenol
+        "CHEBI:18135": "Oc1ccccc1O",  # catechol
+        "CHEBI:15379": "O=O",  # O2, the priced cofactor
+    }
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    bounds = {
+        "name:chebi:15379": Bound(
+            key="name:chebi:15379", low=0.5, high=100.0, rationale="r", sources=()
+        )
+    }
+    result = screen_reaction(rxn, t, structures, table, assumptions, bounds)
+    assert result.skipped_reason == ""
+    assert result.acceptor_name == "phenol"
+    assert result.product_name == "catechol"
+    # NADH never appears as a priced material: only the cofactor (O2) does.
+    assert result.standard_diff is not None
+    keys = {row.key for row in result.standard_diff.rows}
+    assert not any("57945" in k for k in keys)
+    assert any("15379" in k for k in keys)
 
 
 def test_shipped_template_loads_and_labels_every_generalisation():

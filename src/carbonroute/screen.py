@@ -550,6 +550,22 @@ class ClassTemplate:
     #: paper's charged amounts. See `ProcessModel` for why that is the more
     #: honest option and not the less rigorous one.
     process_model: ProcessModel | None = None
+    #: ChEBI ids for a second reactant this class's reactions genuinely
+    #: consume alongside the cofactor above, but whose own cradle-to-gate
+    #: cost this template does NOT price -- e.g. the NAD(P)H a monooxygenase
+    #: oxidises to NAD(P)+ while O2 supplies the atom the product actually
+    #: gains. Excluded from the acceptor search the same way the cofactor
+    #: itself is (so `_identify` does not mistake it for the acceptor), but
+    #: it never enters `cofactor_coeff`, the mass-delta check, or any
+    #: material charge -- pricing a second, independently-varying cofactor is
+    #: a real feature this project does not yet have. This is a stated,
+    #: deliberate gap, not a shortcut: any reaction whose enzymatic route
+    #: needs a co-cofactor like this has its enzymatic side UNDERSTATED by
+    #: whatever that co-cofactor's regeneration really costs, in the same
+    #: direction every other unpriced gap in this project understates it --
+    #: never invented, always flagged. A report renders a standing warning
+    #: whenever a class declares one; see render_screen.
+    unpriced_co_cofactor_chebi: tuple[str, ...] = ()
 
     @property
     def recycling_enablers(self) -> tuple[ProcessMeasure, ...]:
@@ -790,6 +806,17 @@ def load_template(path: str | Path) -> ClassTemplate:
             "of ChEBI ids that all share this class's expected_mass_delta"
         )
 
+    raw_co_cofactor = cls.get("unpriced_co_cofactor_chebi", [])
+    if isinstance(raw_co_cofactor, str):
+        unpriced_co_cofactor_chebi = (raw_co_cofactor,)
+    elif isinstance(raw_co_cofactor, list) and all(isinstance(x, str) for x in raw_co_cofactor):
+        unpriced_co_cofactor_chebi = tuple(raw_co_cofactor)
+    else:
+        raise ScreenError(
+            f"{p}: reaction_class.unpriced_co_cofactor_chebi must be a ChEBI "
+            "id, or a list of them"
+        )
+
     return ClassTemplate(
         id=cls["id"],
         name=cls["name"],
@@ -807,6 +834,7 @@ def load_template(path: str | Path) -> ClassTemplate:
         ec_prefix=cls.get("ec_prefix"),
         enzymatic_measures=_measures(raw.get("enzymatic_process"), p),
         process_model=_process_model(raw.get("process_model"), p),
+        unpriced_co_cofactor_chebi=unpriced_co_cofactor_chebi,
     )
 
 
@@ -906,10 +934,16 @@ def _identify(rxn: RheaReaction, template: ClassTemplate) -> tuple[Participant, 
     `others_left`'s count, never increase it, so a reaction that matched
     before still matches the same way after) against all ten shipped
     classes before landing here.
+
+    `template.unpriced_co_cofactor_chebi` is excluded the same way: a
+    second reactant some classes genuinely need (e.g. the NAD(P)H a
+    monooxygenase oxidises alongside O2) but whose own cost this project
+    does not price. Excluding it here only affects which species can be
+    "the acceptor" -- it never enters the mass-delta check or any material
+    charge, both of which stay driven by `cofactor_chebi` alone.
     """
-    others_left = [
-        p for p in rxn.left if p.chebi not in template.cofactor_chebi and p.chebi != "CHEBI:15378"
-    ]
+    exclude = set(template.cofactor_chebi) | set(template.unpriced_co_cofactor_chebi) | {"CHEBI:15378"}
+    others_left = [p for p in rxn.left if p.chebi not in exclude]
     if len(others_left) != 1:
         return None
     acceptor = others_left[0]

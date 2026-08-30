@@ -1060,6 +1060,18 @@ def render_screen(run: "ScreenRun", reaction_source: str, bounds=None) -> str:
             "declared process, instead of one paper's bench run\"."
         )
         lines.append("")
+    if t.unpriced_co_cofactor_chebi:
+        lines.append(
+            "> **This class's reactions consume a second cofactor that is "
+            "NOT priced.** "
+            f"({', '.join(t.unpriced_co_cofactor_chebi)}, excluded from the "
+            "acceptor search but never charged as a material.) Its real "
+            "regeneration cost is a stated, deliberate gap, not an invented "
+            "zero — every enzymatic-side figure below is UNDERSTATED by "
+            "whatever that cofactor actually costs, the same direction "
+            "every other unpriced gap in this project understates it."
+        )
+        lines.append("")
     lines.append(f"**Chemical counterpart modelled:** {t.chemical_name}")
     lines.append("")
     lines.append(f"> {t.chemical_source.strip()}")
