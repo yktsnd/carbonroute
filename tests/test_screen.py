@@ -2494,3 +2494,84 @@ def test_acetylhexosamine_class_is_decided_and_decisively_favours_the_enzyme(
     ]
     assert len(decided_with_verdict) == len(acetylhexosamine_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a twenty-first class: UDP-xylose-dependent xylosylation ---------------
+# The third and final class from the mass-delta survey's clean-candidate
+# tier: a pentose donor, so it cannot merge with the hexose classes despite
+# the same Koenigs-Knorr mechanism.
+
+
+@pytest.fixture(scope="module")
+def xyl_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "udp-xylosyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "udp-xylosyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def xyl_screened(xyl_inputs):
+    return screen_all(*xyl_inputs, use_process_model=True)
+
+
+def test_xylosyltransferase_class_declares_no_ec_prefix(xyl_inputs):
+    """The mass-delta check alone already separates this class cleanly (see
+    the template's own header), so no ec_prefix was ever needed."""
+    template = xyl_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(132.12, abs=1e-6)
+
+
+def test_xylosyltransferase_class_matches_and_decides_the_expected_number(xyl_screened):
+    """24 Rhea reactions consume UDP-xylose. 22 (91.7%) resolve to a single
+    acceptor/product pair within one proton of 132.12 (the xylosyl group)
+    and are decided, every one decisively favouring the enzyme --
+    including RHEA:22244 (kaempferol -> kaempferol 3-O-beta-D-xyloside, the
+    reaction that pinned down the constant: 417.346 - 285.231 = 132.115
+    exactly) and protein O-xylosylation on an EGF-like domain (RHEA:50192).
+    The other 2: RHEA:28262 is a phosphoxylosyl transfer onto a mannosyl-
+    phosphate acceptor (+211.09, a different net mass, not a simple
+    xylosylation); RHEA:68368 is chain elongation of a growing
+    proteoglycan linkage region written with Rhea's "(n)"/"(n+1)"
+    notation (-175.12). Both correctly excluded by mass delta."""
+    assert xyl_screened.matched == 24
+    assert len(xyl_screened.decided) == 22
+    by_id = {r.rhea_id: r for r in xyl_screened.results}
+    assert by_id["RHEA:22244"].decided
+    assert by_id["RHEA:50192"].decided
+    assert not by_id["RHEA:28262"].decided
+    assert "does not match" in by_id["RHEA:28262"].skipped_reason
+    assert not by_id["RHEA:68368"].decided
+    assert "does not match" in by_id["RHEA:68368"].skipped_reason
+
+
+def test_xylosyltransferase_process_model_charges_xylosyl_bromide_and_silver(xyl_inputs):
+    """The declared process, not a paper: the Koenigs-Knorr xylosyl
+    bromide donor and silver carbonate promoter, the same mechanism the
+    other sugar-donor classes' donors use, then a saponification workup.
+    Everything generalised by construction."""
+    template = xyl_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {
+        "2,3,4-tri-O-acetyl-alpha-D-xylopyranosyl bromide",
+        "silver carbonate",
+        "sodium hydroxide",
+    } <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_xylosyltransferase_class_is_decided_and_decisively_favours_the_enzyme(xyl_screened):
+    """Every one of this class's 22 decided reactions reaches a decisive
+    verdict favouring the enzyme."""
+    decided_with_verdict = [
+        r for r in xyl_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(xyl_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

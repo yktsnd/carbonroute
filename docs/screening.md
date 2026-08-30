@@ -1532,8 +1532,25 @@ all 15 newly-matched reactions indeterminate for an uninteresting reason
 as coa-ligase's own missing THF bound earlier this session; fixed and
 re-verified before the final numbers below.
 
-Final total, still twenty classes: **6,878 of 18,558 Rhea reactions
-matched (37.1%), 3,718 decided (20.0%)**.
+Total after this merge, still twenty classes: 6,878 of 18,558 Rhea
+reactions matched (37.1%), 3,718 decided (20.0%).
+
+A twenty-first class, `udp-xylosyltransferase.yaml` (UDP-xylose-dependent
+xylosylation), is the third and final class from the mass-delta survey's
+clean-candidate tier. Xylose is a pentose, not a hexose, so it cannot
+merge with `udp-glucosyltransferase` or `udp-acetylhexosaminyltransferase`
+despite the identical Koenigs-Knorr mechanism -- it transfers a different
+net mass, 132.12 g/mol, verified against RHEA:22244 (kaempferol ->
+kaempferol 3-O-beta-D-xyloside: 417.346 - 285.231 = 132.115 exactly).
+24 reactions match, 22 (91.7%) decide, all decisive -- including protein
+O-xylosylation on EGF-like domains (RHEA:50192) alongside the more
+familiar flavonoid/saponin xylosylation. The 2 excluded: a phosphoxylosyl
+transfer at a different net mass (+211.09), and chain elongation of a
+growing proteoglycan linkage region (-175.12), both correctly excluded by
+mass delta rather than folded in.
+
+Final total, all twenty-one classes: **6,902 of 18,558 Rhea reactions
+matched (37.2%), 3,740 decided (20.2%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that

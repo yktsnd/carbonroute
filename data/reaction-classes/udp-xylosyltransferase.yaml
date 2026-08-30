@@ -1,0 +1,121 @@
+# Reaction class: UDP-xylose-dependent xylosylation
+#
+# Covers Rhea reactions consuming UDP-alpha-D-xylose (CHEBI:57632) as a
+# reactant: enzymatic transfer of the xylosyl unit onto an acceptor
+# hydroxyl (O-xylosylation of a flavonoid, saponin, proteoglycan
+# glycosaminoglycan-linkage region, or protein serine/threonine hydroxyl
+# in EGF-like domains and Notch), releasing UDP. Xylose is a pentose, not
+# a hexose -- one carbon and one hydroxymethyl short of the hexose-
+# nucleotide donors udp-glucosyltransferase and
+# udp-acetylhexosaminyltransferase cover, so it transfers a different net
+# mass and gets its own class rather than folding into either.
+#
+# Net mass added: the xylosyl group, C5H8O4, 132.12 g/mol -- the free
+# sugar, C5H10O5, minus the water lost in glycosidic bond formation.
+# Verified directly against RHEA:22244 (kaempferol -> kaempferol
+# 3-O-beta-D-xyloside, product 417.346 g/mol minus acceptor 285.231 g/mol
+# = 132.115 exactly).
+#
+# No ec_prefix is declared: the mass-delta check alone already separates
+# this class cleanly (see below), and EC annotation is incomplete (58.9%
+# of Rhea carries none) the same way it is everywhere else in this
+# project.
+#
+# Structural verification (run through the actual screen): 24 reactions
+# match UDP-xylose. 22 (91.7%) resolve to a single acceptor/product pair
+# within one proton of 132.12 and are decided, every one decisively
+# favouring the enzyme -- including protein O-xylosylation on an EGF-like
+# domain (RHEA:50192, RHEA:62016) and small-molecule xylosylation of
+# flavonoids (RHEA:22244) and diterpenoids (RHEA:75583, 11-O-
+# acetylcyathatriol -> erinacine Q). The other 2: RHEA:28262 is a
+# phosphoxylosyl transfer onto a mannosyl-phosphate acceptor (a different
+# net mass, +211.09, not a simple xylosylation); RHEA:68368 is chain
+# elongation of a growing proteoglycan linkage region written with Rhea's
+# "(n)"/"(n+1)" notation, the same resolver limitation the
+# udp-glucuronosyltransferase class's own hyaluronan-elongation confound
+# hits. Both correctly excluded by mass delta.
+
+reaction_class:
+  id: udp-xylosyltransferase
+  name: "UDP-xylose-dependent xylosylation"
+  description: >
+    Enzymatic transfer of the xylosyl unit from UDP-xylose onto an
+    acceptor hydroxyl, releasing UDP. Matched on UDP-xylose alone; no
+    ec_prefix is declared.
+  expected_mass_delta: 132.12
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:57632"
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Koenigs-Knorr xylosylation with a pre-formed bromide donor, then deacetylation"
+  source: >
+    Not a paper. 2,3,4-Tri-O-acetyl-alpha-D-xylopyranosyl bromide (CAS
+    3068-31-3) with silver carbonate is the textbook Koenigs-Knorr route
+    for xylosylation -- the standard laboratory method for a pre-formed
+    glycosyl bromide donor, the same mechanism the
+    gdp-fucosyltransferase and udp-glucuronosyltransferase classes' own
+    donors use, with the protecting-group count reduced by one to match
+    xylose's own pentose structure (a triacetate, one fewer acetate than
+    the hexose donors' triacetate-plus-CH2OAc). Deacetylation with sodium
+    hydroxide then removes the three acetate protecting groups, giving
+    the free xyloside the enzymatic product also is. Parameters stated on
+    the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.8
+  note: >
+    No protection stage for the acceptor's own other reactive groups is
+    modelled, for the same conservative reason the other process-model
+    classes omit one -- it makes the chemical route look better than it is
+    for polyfunctional acceptors, not worse, so it is not a thumb on the
+    scale for "the enzyme wins".
+  stages:
+
+    - id: glycosylate
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: 2,3,4-tri-O-acetyl-alpha-D-xylopyranosyl bromide
+          cas: "3068-31-3"
+          kg_per_mol: 0.33914
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the pre-formed glycosyl bromide donor --
+            modest excess, standard for this reaction, the same loading
+            the other sugar-donor classes' process models use.
+        - name: silver carbonate
+          cas: "534-16-7"
+          equivalents: 1.1
+          kg_per_mol: 0.275745
+          note: >
+            The Koenigs-Knorr promoter, activating the anomeric bromide
+            for substitution. 1.1 equivalents, standard loading.
+
+    - id: deprotect
+      volumes: 3.0
+      solvent: {name: methanol, cas: "67-56-1", density_kg_per_L: 0.792}
+      reagents:
+        - name: sodium hydroxide
+          cas: "1310-73-2"
+          kg_per_mol: 0.02
+          equivalents: 4.0
+          note: >
+            Saponification of the three sugar acetates -- 3 ester bonds
+            cleaved, 4 equivalents of base for complete hydrolysis with a
+            modest excess.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

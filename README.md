@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty classes now built — 6,878 of 18,558 reactions matched (37.1%), 3,718 decided (20.0%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-one classes now built — 6,902 of 18,558 reactions matched (37.2%), 3,740 decided (20.2%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -432,8 +432,22 @@ measures the same thing the threshold did.
    kaempferol among them); the other 1 is chain elongation of a growing
    rhamnogalacturonan, correctly excluded. Renamed to
    "6-deoxyhexose-nucleotide-dependent glycosylation" to reflect the
-   merge. Final total: **6,878 of 18,558 reactions matched (37.1%), 3,718
-   decided (20.0%)**.
+   merge. Total after this merge: 6,878 of 18,558 reactions matched
+   (37.1%), 3,718 decided (20.0%).
+
+   **A twenty-first class, `udp-xylosyltransferase.yaml`** (UDP-xylose-
+   dependent xylosylation — 24 matched, 22 decided, all decisive), the
+   third and final class from the mass-delta survey's clean-candidate
+   tier. Xylose is a pentose, not a hexose, so it cannot merge with the
+   sugar classes above despite the identical Koenigs-Knorr mechanism —
+   132.12 g/mol transferred, verified against RHEA:22244 (kaempferol ->
+   kaempferol 3-O-beta-D-xyloside), one carbon short of the hexose
+   donors' mass. Covers protein O-xylosylation on EGF-like/Notch domains
+   as well as flavonoid and saponin xylosylation. The 2 excluded: a
+   phosphoxylosyl transfer at a different net mass, and chain elongation
+   of a growing proteoglycan linkage region. Final total for this
+   session: **6,902 of 18,558 reactions matched (37.2%), 3,740 decided
+   (20.2%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -507,7 +521,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 37.1% matched / 20.0% decided and the 88.6% structural
+between today's 37.2% matched / 20.2% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at
@@ -517,7 +531,7 @@ own standard, corrected here rather than left standing. What remains true
 from the original argument: reporting 80% coverage *today* by loosening
 the cofactor-plus-structural-check methodology would be exactly the kind
 of shortcut this project exists to refuse. The number that matters is
-still **decided, not matched** — an honestly verified 20.0% is worth more
+still **decided, not matched** — an honestly verified 20.2% is worth more
 than a fabricated 80%, and closing the gap to 88.6% is a matter of
 building more classes the same rigorous way, not lowering the bar.
 
