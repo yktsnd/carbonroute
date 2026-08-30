@@ -566,6 +566,29 @@ class ClassTemplate:
     #: never invented, always flagged. A report renders a standing warning
     #: whenever a class declares one; see render_screen.
     unpriced_co_cofactor_chebi: tuple[str, ...] = ()
+    #: ChEBI ids that GATE matching: when non-empty, a reaction only matches
+    #: this class if it consumes the main cofactor AND at least one of
+    #: these. This is the tool that disambiguates a shared cofactor that
+    #: several genuinely different mechanisms consume -- O2 alone is
+    #: consumed by monooxygenases (need NAD(P)H), P450s (need a
+    #: flavin/hemoprotein reductase), desaturases and ferredoxin-dependent
+    #: hydroxylases (need a ferredoxin family) and 2-oxoglutarate
+    #: dioxygenases (need 2-oxoglutarate) -- five mechanistically distinct
+    #: classes that would otherwise all match the same 2,931 O2-consuming
+    #: reactions with no way to tell them apart. Usually the identical list
+    #: already declared as `unpriced_co_cofactor_chebi`, since the same
+    #: co-reactant that disambiguates a class is also the one it does not
+    #: price -- but kept as a separate field rather than reusing that one
+    #: implicitly, so a template's matching rule is never a side effect of
+    #: its pricing declaration.
+    required_co_cofactor_chebi: tuple[str, ...] = ()
+    #: ChEBI ids that BLOCK matching: when non-empty, a reaction fails to
+    #: match this class if it consumes any of these. The mirror image of
+    #: `required_co_cofactor_chebi`, for a class defined by the ABSENCE of
+    #: every other mechanism's co-cofactor -- a true dioxygenase (bare O2,
+    #: no electron donor at all) is exactly "O2 minus every reaction the
+    #: monooxygenase/desaturase/dioxygenase-with-2OG classes already claim".
+    excluded_co_cofactor_chebi: tuple[str, ...] = ()
 
     @property
     def recycling_enablers(self) -> tuple[ProcessMeasure, ...]:
@@ -578,17 +601,31 @@ class ClassTemplate:
         on the EC number: EC numbers are incomplete in Rhea (only 41% of
         reactions carry one) and describe the enzyme, while what decides
         whether a chemical counterpart is even a candidate is what the
-        transformation consumes.
+        transformation consumes. 58.9% of Rhea (10,923 reactions) carries no
+        EC annotation at all, and plenty of it is genuine class membership
+        -- an EC-less SAM methylation or DMAPP prenylation is still the same
+        real chemistry `expected_mass_delta` and `transferred_bond_smarts`
+        already verify structurally. `ec_prefix` is therefore an optional
+        narrowing tool, not a required one: unset it and let the structural
+        checks in `screen_reaction` do the separating, the way the shipped
+        glycosylation and glucuronidation classes always have.
 
-        That is necessary but nowhere near sufficient. A cofactor is consumed
-        by every reaction in its biochemical neighbourhood, and for a mixed
-        one the field has to be narrowed twice more: `ec_prefix` here, then
+        A cofactor is consumed by every reaction in its biochemical
+        neighbourhood, and for a mixed one the field may need narrowing by
+        `ec_prefix`, by `required_co_cofactor_chebi`/
+        `excluded_co_cofactor_chebi` (see their own docstrings -- the tool
+        for a cofactor several unrelated *mechanisms* share), or by
         `expected_mass_delta` and `transferred_bond_smarts` in
-        `screen_reaction`. Acetyl-CoA needs all three -- 347 reactions
-        consume it, 138 of those are EC 2.3.1, and 9 of *those* still add
-        42.04 g/mol without being acetylations at all.
+        `screen_reaction`. Acetyl-CoA needs the EC and mass-delta route --
+        347 reactions consume it, 138 of those are EC 2.3.1, and 9 of
+        *those* still add 42.04 g/mol without being acetylations at all.
         """
         if not any(p.chebi in self.cofactor_chebi for p in rxn.left):
+            return False
+        left_ids = {p.chebi for p in rxn.left}
+        if self.required_co_cofactor_chebi and not (left_ids & set(self.required_co_cofactor_chebi)):
+            return False
+        if self.excluded_co_cofactor_chebi and (left_ids & set(self.excluded_co_cofactor_chebi)):
             return False
         if self.ec_prefix is None:
             return True
@@ -806,16 +843,17 @@ def load_template(path: str | Path) -> ClassTemplate:
             "of ChEBI ids that all share this class's expected_mass_delta"
         )
 
-    raw_co_cofactor = cls.get("unpriced_co_cofactor_chebi", [])
-    if isinstance(raw_co_cofactor, str):
-        unpriced_co_cofactor_chebi = (raw_co_cofactor,)
-    elif isinstance(raw_co_cofactor, list) and all(isinstance(x, str) for x in raw_co_cofactor):
-        unpriced_co_cofactor_chebi = tuple(raw_co_cofactor)
-    else:
-        raise ScreenError(
-            f"{p}: reaction_class.unpriced_co_cofactor_chebi must be a ChEBI "
-            "id, or a list of them"
-        )
+    def _chebi_list(field: str) -> tuple[str, ...]:
+        raw_field = cls.get(field, [])
+        if isinstance(raw_field, str):
+            return (raw_field,)
+        if isinstance(raw_field, list) and all(isinstance(x, str) for x in raw_field):
+            return tuple(raw_field)
+        raise ScreenError(f"{p}: reaction_class.{field} must be a ChEBI id, or a list of them")
+
+    unpriced_co_cofactor_chebi = _chebi_list("unpriced_co_cofactor_chebi")
+    required_co_cofactor_chebi = _chebi_list("required_co_cofactor_chebi")
+    excluded_co_cofactor_chebi = _chebi_list("excluded_co_cofactor_chebi")
 
     return ClassTemplate(
         id=cls["id"],
@@ -835,6 +873,8 @@ def load_template(path: str | Path) -> ClassTemplate:
         enzymatic_measures=_measures(raw.get("enzymatic_process"), p),
         process_model=_process_model(raw.get("process_model"), p),
         unpriced_co_cofactor_chebi=unpriced_co_cofactor_chebi,
+        required_co_cofactor_chebi=required_co_cofactor_chebi,
+        excluded_co_cofactor_chebi=excluded_co_cofactor_chebi,
     )
 
 
