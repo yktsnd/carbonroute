@@ -1,0 +1,95 @@
+# Reaction class: Fe(II)/2-oxoglutarate-dependent dioxygenation
+#
+# Covers Rhea reactions consuming O2 (CHEBI:15379) as a reactant, restricted
+# to EC 1.14.11 -- Fe(II)/2-oxoglutarate-dependent dioxygenases (prolyl and
+# lysyl hydroxylases, many plant and microbial tailoring enzymes, the
+# gibberellin and clavulanic acid pathways among them). Mechanistically
+# these insert one oxygen atom into the acceptor, the same net
+# transformation the two monooxygenase classes model -- but the second
+# oxygen atom oxidatively decarboxylates the co-substrate 2-oxoglutarate to
+# succinate + CO2, rather than being reduced to water by NAD(P)H or an
+# equivalent electron donor. 2-oxoglutarate (CHEBI:16810) is declared
+# unpriced_co_cofactor_chebi for the same reason NAD(P)H is on the
+# monooxygenase classes: a real, required co-reactant whose own cost this
+# project does not price. Unusually consistent equation shape across the
+# whole EC group -- every resolvable member is written
+# `acceptor + 2-oxoglutarate + O2 = product + succinate + CO2`, with the
+# real product always listed FIRST on the right, so the existing "first
+# non-proton right-hand species" resolver needs no change to pick it out
+# correctly even though succinate and CO2 are not excluded from the search
+# the way 2-oxoglutarate is on the left.
+#
+# expected_mass_delta and mass_delta_tolerance are identical to the two
+# monooxygenase classes for the identical reason: a genuine member adds one
+# oxygen atom, 15.999 g/mol, verified directly against RHEA:10316 (thymine
+# -> 5-hydroxymethyluracil, a methyl hydroxylation).
+#
+# Structural verification (run through the actual screen): 101 reactions
+# match O2 + EC 1.14.11. 60 (59.4%) resolve to a single acceptor/product
+# pair within tolerance and are decided, every one decisively favouring
+# the enzyme, including RHEA:10316. 1 could not be resolved to a single
+# acceptor/product pair (RHEA:35975, a reaction consuming a SECOND
+# cofactor, AH2, and 2 equivalents of O2 -- a more complex mechanism this
+# simple two-reactant shape does not cover). The other 40 are correctly
+# excluded by mass delta: this EC group also contains oxidative ring
+# formation and desaturation (clustering near -2 to -96, several distinct
+# sub-chemistries not individually enumerated here) -- all correctly kept
+# out rather than folded in as noise.
+
+reaction_class:
+  id: 2og-dioxygenase
+  name: "Fe(II)/2-oxoglutarate-dependent dioxygenation"
+  description: >
+    Enzymatic insertion of one oxygen atom from O2 into an acceptor,
+    oxidatively decarboxylating 2-oxoglutarate to succinate and CO2 in the
+    same step. Matched on O2, restricted to EC 1.14.11; 2-oxoglutarate is
+    a required co-reactant this class does not price.
+  expected_mass_delta: 15.999
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:15379"
+  cofactor_role: reagent
+  ec_prefix: "1.14.11"
+  unpriced_co_cofactor_chebi: ["CHEBI:16810"]
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "mCPBA oxidation at process concentration"
+  source: >
+    Not a paper. Same textbook stoichiometric chemical counterpart as the
+    two monooxygenase classes: meta-chloroperoxybenzoic acid (mCPBA, CAS
+    937-14-4) -- the chemical route to a simple oxygen insertion does not
+    depend on which biological cofactor system the enzyme used to achieve
+    it. Parameters stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: oxidise
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: meta-chloroperoxybenzoic acid
+          cas: "937-14-4"
+          kg_per_mol: 0.172567
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the peracid oxidant -- modest excess,
+            standard for this reaction.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

@@ -1227,6 +1227,51 @@ solvent — is genuinely small: the isolation solvent alone is enough.
 **Coverage across all fourteen classes: 2,642 of 18,558 Rhea reactions
 matched (14.2%), 1,614 decided (8.7%).**
 
+## The fifteenth class: Fe(II)/2-oxoglutarate-dependent dioxygenation
+
+`data/reaction-classes/2og-dioxygenase.yaml` covers EC 1.14.11 --
+Fe(II)/2-oxoglutarate-dependent dioxygenases (prolyl and lysyl
+hydroxylases, and many plant/microbial tailoring enzymes — the
+gibberellin and clavulanic acid pathways among them). Mechanistically the
+same net transformation as the two monooxygenase classes — insert one
+oxygen atom into the acceptor — but the second oxygen atom oxidatively
+decarboxylates the co-substrate 2-oxoglutarate to succinate + CO2, rather
+than reducing NAD(P)H's family to water. 2-oxoglutarate
+(`CHEBI:16810`) is declared `unpriced_co_cofactor_chebi`, a real, required
+co-reactant this class does not price, the same mechanism with a very
+different co-cofactor identity.
+
+Unusually consistent equation shape across the whole EC group: every
+resolvable member is written `acceptor + 2-oxoglutarate + O2 = product +
+succinate + CO2`, with the real product always listed first on the right
+— so the existing "first non-proton right-hand species" resolver needs no
+change to pick it out correctly, even though succinate and CO2 are not
+excluded from the search the way 2-oxoglutarate is on the left.
+
+| outcome | reactions |
+|---|---:|
+| matched (O2 + EC 1.14.11) | 101 |
+| excluded — could not identify an acceptor/product pair | 1 |
+| excluded — right transfer count, wrong mass (several sub-chemistries) | 40 |
+| **decided** | **60** |
+
+`expected_mass_delta` is identical to the two monooxygenase classes for
+the identical reason: a genuine member adds one oxygen atom, 15.999
+g/mol, verified directly against RHEA:10316 (thymine →
+5-hydroxymethyluracil). The single unresolved reaction (RHEA:35975)
+consumes a *second* cofactor (AH2) and two equivalents of O2 — a more
+complex mechanism this class's simple two-reactant shape does not cover.
+The 40 mass-delta exclusions cover oxidative ring formation and
+desaturation among other confounds, correctly kept out rather than folded
+in as noise.
+
+Every one of the 60 decided reactions reaches a decisive verdict
+favouring the enzyme, even with 2-oxoglutarate's real cost left entirely
+unpriced.
+
+**Coverage across all fifteen classes: 2,743 of 18,558 Rhea reactions
+matched (14.8%), 1,674 decided (9.0%).**
+
 ## Running one
 
 ```bash

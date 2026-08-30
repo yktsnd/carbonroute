@@ -1899,3 +1899,64 @@ def test_dioxygenase_class_is_decided_and_decisively_favours_the_enzyme(dioxygen
     ]
     assert len(decided_with_verdict) == len(dioxygenase_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a fifteenth class: Fe(II)/2-oxoglutarate-dependent dioxygenation ------
+# 2-oxoglutarate is oxidatively decarboxylated to succinate + CO2 in the
+# same step -- a real, required co-reactant that this class does not price,
+# the same unpriced_co_cofactor_chebi mechanism with a very different
+# co-cofactor identity from NAD(P)H or a reduced flavin/ferredoxin.
+
+
+@pytest.fixture(scope="module")
+def twoog_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "2og-dioxygenase.yaml")
+    bounds = load_bounds(CLASSES / "2og-dioxygenase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def twoog_screened(twoog_inputs):
+    return screen_all(*twoog_inputs, use_process_model=True)
+
+
+def test_2og_class_declares_2_oxoglutarate_unpriced(twoog_inputs):
+    """2-oxoglutarate is oxidatively decarboxylated to succinate + CO2 in
+    the same step a genuine member inserts an oxygen atom into the
+    acceptor -- a real, required co-reactant, not a byproduct, and this
+    class does not price it."""
+    template = twoog_inputs[1]
+    assert template.unpriced_co_cofactor_chebi == ("CHEBI:16810",)
+    assert template.expected_mass_delta == pytest.approx(15.999, abs=1e-6)
+
+
+def test_2og_class_matches_and_decides_the_expected_number(twoog_screened):
+    """101 Rhea reactions consume O2 under EC 1.14.11. 60 (59.4%) resolve
+    within tolerance and are decided, including RHEA:10316 (thymine ->
+    5-hydroxymethyluracil). 1 could not be resolved to a single
+    acceptor/product pair: RHEA:35975 consumes a second cofactor (AH2) and
+    two equivalents of O2, a more complex mechanism this class's simple
+    two-reactant shape does not cover."""
+    assert twoog_screened.matched == 101
+    assert len(twoog_screened.decided) == 60
+    by_id = {r.rhea_id: r for r in twoog_screened.results}
+    assert by_id["RHEA:10316"].decided
+    assert not by_id["RHEA:35975"].decided
+    assert "could not identify" in by_id["RHEA:35975"].skipped_reason
+
+
+def test_2og_class_is_decided_and_decisively_favours_the_enzyme(twoog_screened):
+    """Every one of this class's 60 decided reactions reaches a decisive
+    verdict favouring the enzyme, even with 2-oxoglutarate's real cost
+    left entirely unpriced."""
+    decided_with_verdict = [
+        r for r in twoog_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(twoog_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
