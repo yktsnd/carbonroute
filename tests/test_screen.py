@@ -2575,3 +2575,105 @@ def test_xylosyltransferase_class_is_decided_and_decisively_favours_the_enzyme(x
     ]
     assert len(decided_with_verdict) == len(xyl_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a twenty-second class: CMP-sialic acid-dependent sialylation ---------
+# The largest candidate from the mass-delta survey, deferred until a simple
+# verifiable commercial sialylation donor could be found (see the
+# template's own header).
+
+
+@pytest.fixture(scope="module")
+def sia_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "cmp-sialyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "cmp-sialyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def sia_screened(sia_inputs):
+    return screen_all(*sia_inputs, use_process_model=True)
+
+
+def test_sialyltransferase_class_declares_no_ec_prefix(sia_inputs):
+    """The mass-delta check alone already separates this class cleanly (see
+    the template's own header), so no ec_prefix was ever needed."""
+    template = sia_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(290.248, abs=1e-6)
+
+
+def test_sialyltransferase_class_matches_and_decides_the_expected_number(sia_screened):
+    """122 Rhea reactions consume CMP-N-acetyl-beta-neuraminate (CMP-sialic
+    acid). 119 (97.5%) resolve to a single acceptor/product pair within one
+    proton of 290.25 (the sialyl group, or its exact double, 580.50, for a
+    branched N-glycan acceptor consuming 2 CMP-Neu5Ac in one step -- read via
+    the same cofactor_coeff mechanism the SAM class's di/tri-methylations
+    use) and are decided, every one decisively favouring the enzyme --
+    including RHEA:11836 (N-acetyllactosamine -> N-acetyl-alpha-neuraminyl-
+    (2->6)-beta-D-galactosyl-(1->4)-N-acetyl-beta-D-glucosamine, the
+    reaction that pinned down the constant: 673.598 - 383.350 = 290.248
+    exactly), a ganglioside acceptor (RHEA:18021, GM1 -> GD1a) and a
+    glycolipid acceptor (RHEA:18417). The other 3: RHEA:79555 and
+    RHEA:81827 are O-acetylation of the sialic acid's own glycerol side
+    chain using acetyl-CoA (a genuinely different transformation this
+    class's cofactor also participates in, correctly excluded because the
+    resulting mass delta, -151.07, is nowhere near 290.25); RHEA:16145 is
+    hydroxylation of the sialic acid itself to the N-glycoloyl form using O2
+    and cytochrome b5, a three-left-reactant shape this simple two-reactant
+    model does not attempt to handle."""
+    assert sia_screened.matched == 122
+    assert len(sia_screened.decided) == 119
+    by_id = {r.rhea_id: r for r in sia_screened.results}
+    assert by_id["RHEA:11836"].decided
+    assert by_id["RHEA:18021"].decided
+    assert by_id["RHEA:18417"].decided
+    assert not by_id["RHEA:79555"].decided
+    assert "does not match" in by_id["RHEA:79555"].skipped_reason
+    assert not by_id["RHEA:81827"].decided
+    assert "does not match" in by_id["RHEA:81827"].skipped_reason
+    assert not by_id["RHEA:16145"].decided
+    assert "could not identify" in by_id["RHEA:16145"].skipped_reason
+
+
+def test_sialyltransferase_class_scales_with_double_transfer(sia_screened):
+    """RHEA:85091, RHEA:85215, RHEA:85299 and RHEA:85371 each consume 2
+    CMP-Neu5Ac per product, read from Rhea's own stoichiometric coefficient
+    -- the same cofactor_coeff mechanism the SAM and glycosylation classes
+    use for their own multi-transfer reactions. All four are decided."""
+    by_id = {r.rhea_id: r for r in sia_screened.results}
+    for rhea_id in ("RHEA:85091", "RHEA:85215", "RHEA:85299", "RHEA:85371"):
+        assert by_id[rhea_id].decided
+        assert by_id[rhea_id].cofactor_kg_per_fu > 0
+
+
+def test_sialyltransferase_process_model_charges_thioglycoside_donor_and_nis(sia_inputs):
+    """The declared process, not a paper: an NIS/TfOH-activated sialyl
+    thioglycoside donor in dichloromethane, then saponification. Everything
+    generalised by construction."""
+    template = sia_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {
+        "methyl (phenyl 5-acetamido-4,7,8,9-tetra-O-acetyl-3,5-dideoxy-2-thio-D-glycero-D-galacto-2-nonulopyranosid)onate",
+        "N-iodosuccinimide",
+        "trifluoromethanesulfonic acid",
+        "sodium hydroxide",
+    } <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_sialyltransferase_class_is_decided_and_decisively_favours_the_enzyme(sia_screened):
+    """Every one of this class's 119 decided reactions reaches a decisive
+    verdict favouring the enzyme."""
+    decided_with_verdict = [
+        r for r in sia_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(sia_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

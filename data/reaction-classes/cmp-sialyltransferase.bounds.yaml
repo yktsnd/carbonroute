@@ -1,0 +1,55 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+
+bounds:
+
+  # ---- The enzymatic side -------------------------------------------------
+  "name:chebi:57812":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      CMP-N-acetyl-beta-neuraminate (CMP-sialic acid). No public
+      cradle-to-gate factor was found. Same interval and same reasoning as
+      the cofactors in the other shipped classes: deliberately wide because
+      it is not known, spanning from below the cheapest bulk organic in the
+      loaded tables up to well above the highest specialty figure this
+      project has found cited.
+    sources:
+      - "No public cradle-to-gate GWP for CMP-sialic acid was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+
+  # ---- The chemical side ---------------------------------------------------
+  "cas:155155-64-9":
+    low: 0.5
+    high: null
+    rationale: >
+      The sialyl thioglycoside donor (methyl (phenyl 5-acetamido-4,7,8,9-
+      tetra-O-acetyl-3,5-dideoxy-2-thio-D-glycero-D-galacto-2-nonulopyranosid)
+      onate). No public cradle-to-gate factor was found. Low bound only, by
+      the same convention every other unresolved chemical-side reagent in
+      this project uses.
+    sources:
+      - "No public cradle-to-gate GWP for this sialyl thioglycoside donor was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."
+  "cas:516-12-1":
+    low: 0.5
+    high: null
+    rationale: >
+      N-iodosuccinimide (NIS), the stoichiometric thiophilic activator for
+      the thioglycoside donor. No public cradle-to-gate factor was found.
+      Low bound only, same convention as the rest of this file.
+    sources:
+      - "No public cradle-to-gate GWP for N-iodosuccinimide was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."
+  "cas:1493-13-6":
+    low: 0.5
+    high: null
+    rationale: >
+      Trifluoromethanesulfonic acid (TfOH), the catalytic Bronsted-acid
+      co-promoter. No public cradle-to-gate factor was found. Low bound
+      only, same convention as the rest of this file.
+    sources:
+      - "No public cradle-to-gate GWP for trifluoromethanesulfonic acid was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."

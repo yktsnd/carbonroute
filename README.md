@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-one classes now built — 6,902 of 18,558 reactions matched (37.2%), 3,740 decided (20.2%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-two classes now built — 7,024 of 18,558 reactions matched (37.8%), 3,859 decided (20.8%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -445,9 +445,34 @@ measures the same thing the threshold did.
    donors' mass. Covers protein O-xylosylation on EGF-like/Notch domains
    as well as flavonoid and saponin xylosylation. The 2 excluded: a
    phosphoxylosyl transfer at a different net mass, and chain elongation
-   of a growing proteoglycan linkage region. Final total for this
-   session: **6,902 of 18,558 reactions matched (37.2%), 3,740 decided
-   (20.2%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
+   of a growing proteoglycan linkage region. Total after this class:
+   6,902 of 18,558 reactions matched (37.2%), 3,740 decided (20.2%).
+
+   **A twenty-second class, `cmp-sialyltransferase.yaml`** (CMP-sialic
+   acid-dependent sialylation — 122 matched, 119 decided, all decisive),
+   the largest candidate left unbuilt from the mass-delta survey, deferred
+   only because a simple, verifiable commercial sialylation donor took
+   longer to find than the sugar-nucleotide classes' peracetylated
+   halides did. Net mass 290.25 g/mol (the sialyl group), verified against
+   RHEA:11836 (673.598 − 383.350 = 290.248 exactly) and confirmed
+   identical across ganglioside (RHEA:18021, GM1 → GD1a) and glycolipid
+   (RHEA:18417) acceptors. A genuine doubled-transfer cluster — 4
+   reactions installing two sialyl residues in one step onto a branched
+   N-glycan, landing at exactly 2× 290.25 = 580.50 — is correctly decided
+   via the same `cofactor_coeff` mechanism the SAM class's di/tri-
+   methylations use. The chemical route is chemically harder than the
+   other sugar-donor classes' Koenigs-Knorr chemistry (a ketose anomeric
+   centre with no neighbouring-group participation), so the process model
+   uses an NIS/TfOH-activated thioglycoside donor (CAS 155155-64-9)
+   instead of a halide, at a lower stage yield (65%, not the other
+   sugar-donor classes' 80%) reflecting that real difficulty. The 3
+   excluded: 2 (RHEA:79555, RHEA:81827) are O-acetylation of the sialic
+   acid's own side chain via acetyl-CoA, a different transformation the
+   same cofactor also participates in; 1 (RHEA:16145) is hydroxylation to
+   the N-glycoloyl form via O2/cytochrome b5, a three-reactant shape this
+   model does not attempt to handle. Final total for this session:
+   **7,024 of 18,558 reactions matched (37.8%), 3,859 decided
+   (20.8%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -521,7 +546,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 37.2% matched / 20.2% decided and the 88.6% structural
+between today's 37.8% matched / 20.8% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at
@@ -531,7 +556,7 @@ own standard, corrected here rather than left standing. What remains true
 from the original argument: reporting 80% coverage *today* by loosening
 the cofactor-plus-structural-check methodology would be exactly the kind
 of shortcut this project exists to refuse. The number that matters is
-still **decided, not matched** — an honestly verified 20.2% is worth more
+still **decided, not matched** — an honestly verified 20.8% is worth more
 than a fabricated 80%, and closing the gap to 88.6% is a matter of
 building more classes the same rigorous way, not lowering the bar.
 

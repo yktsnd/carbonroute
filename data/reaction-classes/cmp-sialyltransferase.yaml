@@ -1,0 +1,158 @@
+# Reaction class: CMP-sialic acid-dependent sialylation
+#
+# Covers Rhea reactions consuming CMP-N-acetyl-beta-neuraminate (CMP-Neu5Ac,
+# "CMP-sialic acid", CHEBI:57812) as a reactant: enzymatic transfer of the
+# N-acetylneuraminyl (sialyl) unit onto an acceptor hydroxyl -- almost
+# always a terminal galactose or N-acetylgalactosamine on a glycan, ganglioside
+# or glycoprotein -- releasing CMP. This is the sialyltransferase family:
+# the enzymes that cap human-milk-oligosaccharide, ganglioside and
+# N-/O-glycan chains with sialic acid, biomedically central to cell-
+# surface recognition, viral receptor biology and therapeutic-protein
+# glycoengineering.
+#
+# Found via the same mass-delta survey that found gdp-fucosyltransferase,
+# udp-acetylhexosaminyltransferase and udp-xylosyltransferase, and the
+# largest of the survey's candidates left unbuilt at the time -- deferred
+# only because a simple, verifiable commercial chemical donor took longer
+# to find than the sugar-nucleotide classes' peracetylated halides did.
+#
+# Net mass added: the sialyl group, C11H17NO8, 290.25 g/mol -- N-acetyl-
+# neuraminic acid itself, C11H19NO9 (309.27), minus the water lost in
+# glycosidic bond formation. Verified directly against RHEA:11836
+# (N-acetyllactosamine -> N-acetyl-alpha-neuraminyl-(2->6)-beta-D-
+# galactosyl-(1->4)-N-acetyl-beta-D-glucosamine, product 673.598 g/mol
+# minus acceptor 383.350 g/mol = 290.248 exactly) and confirmed identical
+# across ganglioside acceptors (RHEA:18021, GM1 -> GD1a) and glycolipid
+# acceptors (RHEA:18417) of very different size.
+#
+# A GENUINE DOUBLED-TRANSFER CLUSTER, THE SAME MECHANISM
+# udp-glucosyltransferase'S BIS-GLUCOSIDES AND THE SAM CLASS'S DI/TRI-
+# METHYLATIONS USE. 4 reactions (a branched N-glycan acceptor consuming 2
+# CMP-Neu5Ac to install two sialyl residues in one step) land at exactly
+# 580.50 g/mol, precisely 2x 290.25 -- correctly decided via the existing
+# cofactor_coeff mechanism, which reads Rhea's own stoichiometric
+# coefficient on the CMP-Neu5Ac reactant rather than assuming one transfer
+# per reaction.
+#
+# No ec_prefix is declared: the mass-delta check alone already separates
+# this class cleanly (see below), and EC annotation is incomplete (58.9%
+# of Rhea carries none) the same way it is everywhere else in this
+# project.
+#
+# Structural verification (run through the actual screen): 122 reactions
+# match CMP-Neu5Ac. 119 (97.5%) resolve to a single acceptor/product pair
+# within one proton of 290.25 (or its exact double, 580.50) and are
+# decided, every one decisively favouring the enzyme. The other 3: 2
+# (RHEA:79555, RHEA:81827) are O-ACETYLATION of the sialic acid's own
+# glycerol side chain using acetyl-CoA (CMP-Neu5Ac + acetyl-CoA = CMP-
+# N-acetyl-7(or 9)-O-acetyl-beta-neuraminate + CoA) -- a genuinely
+# different transformation this class's cofactor consumes for, correctly
+# excluded because the resolver's "acceptor" in that shape is acetyl-CoA,
+# not a real sialylation substrate, and the resulting mass delta is
+# nowhere near 290.25; 1 (RHEA:16145) is hydroxylation of the sialic acid
+# itself to the N-glycoloyl form using O2 and cytochrome b5 (CMP-Neu5Ac +
+# 2 Fe(II)-[cytochrome b5] + O2 + 2 H(+) = CMP-N-glycoloyl-neuraminate +
+# ...), a three-left-reactant shape this simple two-reactant model does
+# not attempt to handle.
+
+reaction_class:
+  id: cmp-sialyltransferase
+  name: "CMP-sialic acid-dependent sialylation"
+  description: >
+    Enzymatic transfer of the N-acetylneuraminyl (sialyl) unit from
+    CMP-N-acetyl-beta-neuraminate onto an acceptor hydroxyl, releasing
+    CMP. Matched on CMP-sialic acid alone; no ec_prefix is declared.
+  expected_mass_delta: 290.248
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:57812"
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "NIS/TfOH-activated thioglycoside sialylation, then saponification"
+  source: >
+    Not a paper. Sialylation is chemically harder than the other sugar-
+    donor classes' Koenigs-Knorr chemistry -- the anomeric centre is a
+    ketose with no neighbouring-group participation to force selectivity
+    -- so the textbook route uses a thioglycoside donor instead of a
+    halide: methyl (phenyl 5-acetamido-4,7,8,9-tetra-O-acetyl-3,5-dideoxy-
+    2-thio-D-glycero-D-galacto-2-nonulopyranosid)onate (CAS 155155-64-9),
+    activated in situ by N-iodosuccinimide (NIS) and catalytic
+    trifluoromethanesulfonic acid (TfOH) -- the standard, widely published
+    NIS/TfOH promoter system for sialyl thioglycosides. Saponification
+    with sodium hydroxide then removes the four acetate protecting groups
+    and the donor's own methyl ester in one step (5 ester bonds total, the
+    same shape udp-glucuronosyltransferase's own donor deprotection uses),
+    giving the free sialoside the enzymatic product also is. Parameters
+    stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.65
+  note: >
+    No protection stage for the acceptor's own other reactive groups is
+    modelled, for the same conservative reason the other process-model
+    classes omit one -- it makes the chemical route look better than it is
+    for polyfunctional acceptors, not worse, so it is not a thumb on the
+    scale for "the enzyme wins". stage_yield is set lower than the other
+    sugar-donor classes' 0.8 (65%, not 80%) because sialylation is
+    genuinely a harder, lower-yielding reaction in real syntheses -- this
+    is conservative in the same direction, favouring the chemical route
+    relative to reality, not the enzyme.
+  stages:
+
+    - id: glycosylate
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: methyl (phenyl 5-acetamido-4,7,8,9-tetra-O-acetyl-3,5-dideoxy-2-thio-D-glycero-D-galacto-2-nonulopyranosid)onate
+          cas: "155155-64-9"
+          kg_per_mol: 0.58361
+          equivalents: 1.5
+          note: >
+            1.5 equivalents of the sialyl thioglycoside donor -- a larger
+            excess than the other sugar-donor classes' bromide/chloride
+            donors (1.3), reflecting sialylation's genuinely lower
+            coupling efficiency.
+        - name: N-iodosuccinimide
+          cas: "516-12-1"
+          kg_per_mol: 0.22498
+          equivalents: 1.5
+          note: >
+            The stoichiometric thiophilic activator for the thioglycoside
+            donor, matched to the donor's own loading.
+        - name: trifluoromethanesulfonic acid
+          cas: "1493-13-6"
+          kg_per_mol: 0.15007
+          equivalents: 0.2
+          note: >
+            Catalytic Brønsted acid co-promoter, standard sub-
+            stoichiometric loading for the NIS/TfOH system.
+
+    - id: deprotect
+      volumes: 3.0
+      solvent: {name: methanol, cas: "67-56-1", density_kg_per_L: 0.792}
+      reagents:
+        - name: sodium hydroxide
+          cas: "1310-73-2"
+          kg_per_mol: 0.02
+          equivalents: 6.0
+          note: >
+            Saponification of the four sugar acetates and the donor's
+            methyl ester -- 5 ester bonds cleaved, 6 equivalents of base
+            for complete hydrolysis with a modest excess, the same
+            per-bond loading udp-glucuronosyltransferase's own
+            deprotection uses.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

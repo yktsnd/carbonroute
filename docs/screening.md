@@ -1549,8 +1549,51 @@ transfer at a different net mass (+211.09), and chain elongation of a
 growing proteoglycan linkage region (-175.12), both correctly excluded by
 mass delta rather than folded in.
 
-Final total, all twenty-one classes: **6,902 of 18,558 Rhea reactions
-matched (37.2%), 3,740 decided (20.2%)**.
+Total after this class, all twenty-one: 6,902 of 18,558 Rhea reactions
+matched (37.2%), 3,740 decided (20.2%).
+
+A twenty-second class, `cmp-sialyltransferase.yaml` (CMP-sialic
+acid-dependent sialylation), is the largest candidate left unbuilt from
+the mass-delta survey -- deferred earlier only because a simple,
+verifiable commercial sialylation donor took longer to find than the
+sugar-nucleotide classes' peracetylated halides did. It transfers the
+sialyl group, net mass 290.248 g/mol, verified directly against
+RHEA:11836 (N-acetyllactosamine -> N-acetyl-alpha-neuraminyl-(2->6)-beta-
+D-galactosyl-(1->4)-N-acetyl-beta-D-glucosamine: 673.598 - 383.350 =
+290.248 exactly) and confirmed identical across a ganglioside acceptor
+(RHEA:18021, GM1 -> GD1a) and a glycolipid acceptor (RHEA:18417). A
+genuine doubled-transfer cluster -- 4 reactions (RHEA:85091, RHEA:85215,
+RHEA:85299, RHEA:85371) installing two sialyl residues onto a branched
+N-glycan acceptor in one step, landing at exactly 2 x 290.25 = 580.50 --
+is correctly decided via the same `cofactor_coeff` mechanism the SAM
+class's di/tri-methylations and the sugar-donor classes' bis-glycosides
+use, reading Rhea's own stoichiometric coefficient on the cofactor
+reactant. 122 reactions match, 119 (97.5%) decide, all decisive. The 3
+excluded: RHEA:79555 and RHEA:81827 are O-acetylation of the sialic
+acid's own glycerol side chain using acetyl-CoA -- a genuinely different
+transformation this class's own cofactor also participates in, correctly
+excluded because the resulting mass delta (-151.07) is nowhere near
+290.25; RHEA:16145 is hydroxylation of the sialic acid itself to the
+N-glycoloyl form via O2 and cytochrome b5, a three-left-reactant shape
+this simple two-reactant model does not attempt to handle.
+
+Sialylation is chemically harder than the other sugar-donor classes'
+Koenigs-Knorr chemistry -- the anomeric centre is a ketose with no
+neighbouring-group participation to force selectivity -- so the process
+model uses a thioglycoside donor (methyl (phenyl 5-acetamido-4,7,8,9-
+tetra-O-acetyl-3,5-dideoxy-2-thio-D-glycero-D-galacto-2-nonulopyranosid)
+onate, CAS 155155-64-9, verified via web search) activated in situ by
+N-iodosuccinimide (NIS) and catalytic trifluoromethanesulfonic acid
+(TfOH), the standard published NIS/TfOH promoter system for sialyl
+thioglycosides, rather than a halide donor + silver carbonate. Its stage
+yield is set lower than the other sugar-donor classes' 0.8 (0.65, not
+0.80) to reflect that this reaction is genuinely harder and
+lower-yielding in real syntheses -- conservative in the direction that
+favours the chemical route, not the enzyme, the same discipline the
+other process-model classes' parameters follow.
+
+Final total, all twenty-two classes: **7,024 of 18,558 Rhea reactions
+matched (37.8%), 3,859 decided (20.8%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that
