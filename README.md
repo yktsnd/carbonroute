@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Sixteen classes now built — 6,505 of 18,558 reactions matched (35.1%), 3,305 decided (17.8%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Seventeen classes now built — 6,635 of 18,558 reactions matched (35.8%), 3,433 decided (18.5%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -313,10 +313,21 @@ measures the same thing the threshold did.
    field, the mirror image of `excluded_co_cofactor_chebi`. Verified
    against all ten with zero reactions lost from any class's previous
    decided set, and every newly decided reaction spot-checked against its
-   real equation. Corrected total: **6,505 of 18,558 reactions matched
-   (35.1%), 3,305 decided (17.8%)** — see `docs/screening.md` for the
+   real equation. Corrected total: 6,505 of 18,558 reactions matched
+   (35.1%), 3,305 decided (17.8%) — see `docs/screening.md` for the
    full per-class breakdown and `data/reaction-classes/*.yaml` file
    headers for each class's own verified numbers.
+
+   **A seventeenth class, `paps-sulfotransferase.yaml`** (3'-phosphoadenylyl
+   sulfate-dependent sulfation of a phenol, alcohol, amine or
+   glycosaminoglycan/steroid/bile-acid hydroxyl — 130 matched, 128 decided,
+   all decisive), was added the same EC-free way from the start: the
+   mass-delta check alone (net +79.056 g/mol, the sulfonate group replacing
+   a hydrogen) separates 128 of 130 PAPS-consuming reactions with zero
+   confounds found — the tightest signal-to-noise ratio of any class this
+   project has built. Its process model is SO3-pyridine complex in
+   pyridine solvent, the textbook mild sulfating agent. Updated total:
+   **6,635 of 18,558 reactions matched (35.8%), 3,433 decided (18.5%)**.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -390,7 +401,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 35.1% matched / 17.8% decided and the 88.6% structural
+between today's 35.8% matched / 18.5% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at
@@ -400,7 +411,7 @@ own standard, corrected here rather than left standing. What remains true
 from the original argument: reporting 80% coverage *today* by loosening
 the cofactor-plus-structural-check methodology would be exactly the kind
 of shortcut this project exists to refuse. The number that matters is
-still **decided, not matched** — an honestly verified 17.8% is worth more
+still **decided, not matched** — an honestly verified 18.5% is worth more
 than a fabricated 80%, and closing the gap to 88.6% is a matter of
 building more classes the same rigorous way, not lowering the bar.
 

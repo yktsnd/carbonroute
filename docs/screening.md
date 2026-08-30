@@ -1395,8 +1395,17 @@ design, summing "matched" across classes overcounts unique reactions;
 "decided" never does (verified: the sum of all sixteen classes' decided
 counts equals the count of unique decided Rhea reactions, with zero
 double-decided). The honest, unique-reaction total across all sixteen
-classes: **6,505 of 18,558 Rhea reactions matched (35.1%), 3,305 decided
-(17.8%)** — up from 2,815/1,724 (15.2%/9.3%).
+classes: 6,505 of 18,558 Rhea reactions matched (35.1%), 3,305 decided
+(17.8%) — up from 2,815/1,724 (15.2%/9.3%).
+
+A seventeenth class, `paps-sulfotransferase.yaml` (3'-phosphoadenylyl
+sulfate-dependent sulfation, built EC-free from the start -- see its own
+file header), added 130 matched / 128 decided, all decisive: the mass-
+delta check alone (net +79.056 g/mol, one proton's tolerance) separates
+128 of 130 PAPS-consuming reactions with zero confounds found, the
+tightest signal-to-noise ratio of any class this project has built.
+Updated unique-reaction total: **6,635 of 18,558 Rhea reactions matched
+(35.8%), 3,433 decided (18.5%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that

@@ -1,0 +1,115 @@
+# Reaction class: PAPS-dependent sulfation
+#
+# Covers Rhea reactions consuming 3'-phosphoadenylyl sulfate (PAPS,
+# CHEBI:58339) as a reactant: enzymatic transfer of the sulfonate group
+# (-SO3-) from PAPS onto a nucleophilic acceptor (a phenol, alcohol,
+# amine, glycosaminoglycan hydroxyl, bile-acid or steroid hydroxyl),
+# releasing adenosine 3',5'-bisphosphate (PAP, CHEBI:58343). Rhea's
+# cleanest single-cofactor class this project has built: net mass added
+# by a genuine member is 79.056 g/mol, the sulfonate group replacing a
+# hydrogen (SO3, 80.06, minus H, 1.008). Verified directly against three
+# independently-named acceptors, all three landing on the identical
+# 79.056: RHEA:13453 (quercetin -> quercetin 3-sulfate, 380.286 -
+# 301.230), RHEA:11884 (cortisol -> cortisol 21-sulfate, 441.522 -
+# 362.466) and RHEA:10908 (glycolithocholate -> glycolithocholate
+# 3-sulfate, 511.681 - 432.625). A real minority of the class lands one
+# proton either side of that value (78.05 or 80.06) -- the same
+# charge-state bookkeeping pattern (ChEBI drawing the sulfate ester or its
+# acceptor at whichever protonation state its curators used) already
+# found on six other classes this project has built -- so
+# mass_delta_tolerance is widened to 1.1 to unify the cluster the same way
+# the o2-dioxygenase and UDP-glucuronosyltransferase classes' own
+# tolerances do.
+#
+# No ec_prefix is declared, and none was ever tried: of the 130
+# PAPS-consuming reactions, only 41 carry an EC 2.8.2 annotation, and 87
+# do not carry any EC annotation at all -- the same 58.9%-of-Rhea gap
+# documented on the SAM-methyltransferase and ATP-kinase classes' headers.
+# Since the mass-delta check alone already separates 128 of 130 candidates
+# cleanly (no bond check needed, no chemically mixed confound found),
+# restricting to EC 2.8.2 would have discarded most of the class's
+# genuine members for no chemical reason -- this class is built EC-free
+# from the start, following the precedent Stage 1 of the 80%-coverage
+# strategy established for the other ten classes it touched.
+#
+# The only two PAPS-consuming reactions that do not resolve at all are
+# PAPS's own hydrolysis (RHEA:11232, RHEA:77639: PAPS + H2O = sulfate/APS
+# + PAP), correctly excluded because water is not eligible to stand in as
+# "the acceptor" -- see screen.py's _identify docstring.
+#
+# Structural verification (run through the actual screen): 130 reactions
+# match PAPS. 128 (98.5%) resolve to a single acceptor/product pair within
+# one proton of 79.056 and are decided, every one of them decisively
+# favouring the enzyme and every one consuming exactly one PAPS per
+# product (no multi-sulfation reaction was found in this set, unlike the
+# glycosylation and methylation classes' bis-/tris-transfers). The other 2
+# are the PAPS hydrolysis reactions above -- zero reactions were excluded
+# by the mass-delta check itself, the tightest signal-to-noise ratio of
+# any class this project has built.
+
+reaction_class:
+  id: paps-sulfotransferase
+  name: "PAPS-dependent sulfation"
+  description: >
+    Enzymatic transfer of the sulfonate group from 3'-phosphoadenylyl
+    sulfate (PAPS) onto a nucleophilic acceptor (O- or N-sulfation of a
+    phenol, alcohol, amine, or a glycosaminoglycan/steroid/bile-acid
+    hydroxyl), releasing adenosine 3',5'-bisphosphate (PAP). Matched on
+    PAPS alone; no ec_prefix is declared -- see the file header.
+  expected_mass_delta: 79.056
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:58339"
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "SO3-pyridine complex sulfation at process concentration"
+  source: >
+    Not a paper. The sulfur trioxide-pyridine complex (SO3.py, CAS
+    26412-87-3) is the textbook mild chemical counterpart to a
+    sulfotransferase: it sulfates phenols, alcohols and amines directly in
+    pyridine solvent, the same reagent class used industrially to make
+    sulfated surfactants and pharmaceutical sulfate esters (e.g. estrone
+    sulfate). Pyridine solvent doubles as the base that is consumed as the
+    pyridinium salt of the reaction's own byproduct, so no separate base
+    reagent is needed -- unlike the alkylation-type process models (SAM
+    methylation, DMAPP/GPP/FPP/GGPP prenylation), which release a strong
+    acid (HI, HBr) a base must neutralise. Parameters stated on the same
+    terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one -- it makes the chemical route
+    look better than it is for polyfunctional acceptors, not worse, so it
+    is not a thumb on the scale for "the enzyme wins".
+  stages:
+
+    - id: sulfate
+      volumes: 1.0
+      solvent: {name: pyridine, cas: "110-86-1", density_kg_per_L: 0.982}
+      reagents:
+        - name: sulfur trioxide pyridine complex
+          cas: "26412-87-3"
+          kg_per_mol: 0.15916
+          equivalents: 1.5
+          note: >
+            1.5 equivalents of the sulfating agent -- modest excess,
+            standard for this reaction, the same order as the SAM class's
+            methyl iodide loading and the prenyltransferase classes'
+            prenyl bromide loading.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

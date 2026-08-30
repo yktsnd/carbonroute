@@ -2125,3 +2125,89 @@ def test_no_rhea_reaction_decides_for_more_than_one_o2_class(
     assert double_decided == {}
     total_decided = sum(len(run.decided) for run in runs.values())
     assert total_decided == sum(counts.values())
+
+
+# --- a seventeenth class: PAPS-dependent sulfation --------------------------
+# Built EC-free from the start: Rhea's cleanest single-cofactor class, with
+# a mass-delta check alone separating 128 of 130 PAPS-consuming reactions.
+
+
+@pytest.fixture(scope="module")
+def paps_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "paps-sulfotransferase.yaml")
+    bounds = load_bounds(CLASSES / "paps-sulfotransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def paps_screened(paps_inputs):
+    return screen_all(*paps_inputs, use_process_model=True)
+
+
+def test_paps_class_declares_no_ec_prefix(paps_inputs):
+    """Only 41 of the 130 PAPS-consuming reactions carry an EC 2.8.2
+    annotation, and 87 carry none at all -- the same 58.9%-of-Rhea gap the
+    SAM-methyltransferase and ATP-kinase classes' own headers document.
+    The mass-delta check alone already separates this class cleanly, so
+    no ec_prefix was ever declared."""
+    template = paps_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(79.056, abs=1e-6)
+
+
+def test_paps_class_matches_and_decides_the_expected_number(paps_screened):
+    """130 Rhea reactions consume PAPS. 128 (98.5%) resolve to a single
+    acceptor/product pair within one proton of 79.056 (the sulfonate
+    group, SO3, replacing a hydrogen) and are decided, every one
+    decisively favouring the enzyme -- the tightest signal-to-noise ratio
+    of any class this project has built: zero of the 130 are excluded by
+    the mass-delta check itself. RHEA:13453 (quercetin -> quercetin
+    3-sulfate) is the reaction that pinned down the constant: 380.286 -
+    301.230 = 79.056 exactly."""
+    assert paps_screened.matched == 130
+    assert len(paps_screened.decided) == 128
+    by_id = {r.rhea_id: r for r in paps_screened.results}
+    assert by_id["RHEA:13453"].decided
+    assert by_id["RHEA:11884"].decided
+    assert by_id["RHEA:10908"].decided
+
+
+def test_paps_class_excludes_its_own_hydrolysis(paps_screened):
+    """RHEA:11232 and RHEA:77639 are PAPS's own hydrolysis (PAPS + H2O =
+    sulfate/adenosine-5'-phosphosulfate + PAP), not a sulfation of any
+    acceptor. Water is excluded from the acceptor search the same way a
+    proton is (see _identify's comment), so both correctly come back
+    unresolved rather than mis-decided against a spurious water-as-
+    acceptor pairing."""
+    by_id = {r.rhea_id: r for r in paps_screened.results}
+    for rhea_id in ("RHEA:11232", "RHEA:77639"):
+        assert not by_id[rhea_id].decided
+        assert "could not identify" in by_id[rhea_id].skipped_reason
+
+
+def test_paps_process_model_charges_so3_pyridine_complex(paps_inputs):
+    """The declared process, not a paper: SO3-pyridine complex in pyridine
+    solvent (which doubles as the base, since sulfation does not release a
+    strong acid the way alkylation releases HI/HBr), plus a plant-style
+    isolation. Everything generalised by construction."""
+    template = paps_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"sulfur trioxide pyridine complex", "pyridine", "ethyl acetate"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_paps_class_is_decided_and_decisively_favours_the_enzyme(paps_screened):
+    """Every one of this class's 128 decided reactions reaches a decisive
+    verdict favouring the enzyme."""
+    decided_with_verdict = [
+        r for r in paps_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(paps_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
