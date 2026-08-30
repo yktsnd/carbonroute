@@ -1,0 +1,121 @@
+# Reaction class: O2/NAD(P)H-dependent monooxygenation
+#
+# Covers Rhea reactions consuming O2 (CHEBI:15379) as a reactant, restricted
+# to EC 1.14.13 -- flavin/pyridine-nucleotide monooxygenases (aromatic and
+# aliphatic hydroxylases, Baeyer-Villiger monooxygenases, sulfoxidations,
+# N-oxidations). These enzymes incorporate ONE atom of O2 into the product
+# (a "monooxygenase," as opposed to the dioxygenases that incorporate both);
+# the other oxygen atom leaves as water, reduced by NAD(P)H, which the
+# enzyme oxidises to NAD(P)+ in the same step. That is a genuine second
+# cofactor, not a byproduct -- and until this class, this project's
+# architecture had no way to express a reaction needing two cofactors at
+# once. See ClassTemplate.unpriced_co_cofactor_chebi.
+#
+# THE UNPRICED GAP, STATED PLAINLY: NAD(P)H's own regeneration is a real
+# cost of this route and this template does NOT charge it. Every verdict
+# this class produces is conditional on that gap, in the same
+# understating-the-enzyme direction every other unpriced assumption in this
+# project is; see docs/screening.md and the standing warning render_screen
+# prints for any class that declares a co-cofactor.
+#
+# A FOURTH CHARGE-STATE SPLIT. Net mass added by a genuine member is one
+# oxygen atom, 15.999 g/mol (ArH -> Ar-OH, or a sulfide -> sulfoxide, or a
+# ketone -> ester via Baeyer-Villiger insertion -- all the same "+O" at the
+# level of the mass-delta check). Verified directly against RHEA:11440
+# (2,3,5,6-tetrachlorophenol -> 2,3,5,6-tetrachlorohydroquinone): observed
+# delta is 14.991, not 15.999, short by almost exactly one proton. ChEBI
+# draws the acceptor as a phenolATE (one hydroxyl already deprotonated) and
+# the product as a bis-phenolate (BOTH hydroxyls deprotonated, including the
+# newly-installed one) -- so the new OH is drawn without its proton, the
+# same kind of charge-state bookkeeping already found on the ATP-kinase,
+# acetyl-CoA and UDP-glucuronate classes, a fourth independent instance of
+# the same underlying ChEBI convention. expected_mass_delta is set to the
+# true value, 15.999, with mass_delta_tolerance widened to unify this
+# cluster.
+#
+# EC 1.14.13 IS GENUINELY MIXED, EVEN AFTER RESTRICTING TO O2: some members
+# are oxidative DEcarboxylations (salicylate -> catechol + CO2, net -27.99)
+# and ring-opening oxygenations (a much larger mass change), a different
+# transformation the mass-delta check correctly separates out, the same
+# discipline the NAD(P)+-oxidoreductase class's own decarboxylation
+# confound already established. A further, distinct confound this class
+# shares no name with any prior one: oxidative O-DEMETHYLATION
+# (Ar-O-CH3 + O2 + NAD(P)H -> Ar-OH + HCHO + NAD(P)+ + H2O, the methyl
+# group leaving as formaldehyde), net -14.03 g/mol -- the mirror image of
+# the SAM class's own +14.03 methylation, correctly excluded by the same
+# mass-delta check rather than mistaken for a hydroxylation.
+#
+# Structural verification (run through the actual screen): 198 reactions
+# match O2 + EC 1.14.13. 134 (67.7%) resolve to a single acceptor/product
+# pair within tolerance and are decided, every one decisively favouring
+# the enzyme -- zero could not be resolved to a single acceptor/product
+# pair at all (this class's reactions are consistently written as
+# acceptor + O2 + NAD(P)H = product + NAD(P)+ + H2O, a clean two-cofactor
+# shape). Of the decided, the majority cluster at the textbook 16.0 g/mol
+# (RHEA:11420, senecionine N-oxidation, among them); a real minority
+# cluster at 14.99, the phenolate charge-state offset described above
+# (RHEA:11440, verified directly). The other 64 are correctly excluded by
+# mass delta: oxidative decarboxylation (RHEA:21628 and others, clustering
+# near -27 to -44), O-demethylation (18 reactions clustering at -14.03),
+# and several smaller, rarer confounds this EC group carries -- none
+# folded in as noise.
+
+reaction_class:
+  id: o2-monooxygenase
+  name: "O2/NAD(P)H-dependent monooxygenation"
+  description: >
+    Enzymatic insertion of one oxygen atom from O2 into an acceptor
+    (aromatic/aliphatic hydroxylation, Baeyer-Villiger oxidation,
+    sulfoxidation or N-oxidation), reducing the other oxygen atom to water
+    with NAD(P)H. Matched on O2, restricted to EC 1.14.13; NAD(P)H is a
+    required co-reactant this class does not price -- see the header note.
+  expected_mass_delta: 15.999
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:15379"
+  cofactor_role: reagent
+  ec_prefix: "1.14.13"
+  unpriced_co_cofactor_chebi: ["CHEBI:57945", "CHEBI:57783"]
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "mCPBA oxidation at process concentration"
+  source: >
+    Not a paper. meta-Chloroperoxybenzoic acid (mCPBA) is the textbook
+    stoichiometric chemical counterpart to a monooxygenase for this whole
+    family of transformations -- aromatic and aliphatic hydroxylation,
+    Baeyer-Villiger oxidation of ketones, sulfoxidation and N-oxidation are
+    all standard mCPBA reactions. Parameters stated on the same terms the
+    other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: oxidise
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: meta-chloroperoxybenzoic acid
+          cas: "937-14-4"
+          kg_per_mol: 0.172567
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the peracid oxidant -- modest excess,
+            standard for this reaction.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

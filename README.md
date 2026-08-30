@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Ten classes now built — 1,971 of 18,558 reactions matched (10.6%), 1,153 decided (6.2%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Eleven classes now built — 2,169 of 18,558 reactions matched (11.7%), 1,287 decided (6.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -239,8 +239,20 @@ measures the same thing the threshold did.
    reaction that genuinely needs one as a co-reactant (2,673 of Rhea's
    18,558, 14.4%). Fixed symmetrically, and checked to be purely additive
    (it can only add matches, never remove one) against all ten shipped
-   classes before landing — three gained a reaction each. Combined:
-   **1,971 of 18,558 reactions matched (10.6%), 1,153 decided (6.2%)**, up
+   classes before landing — three gained a reaction each. And an
+   eleventh, `o2-monooxygenase.yaml` (EC 1.14.13, aromatic/aliphatic
+   hydroxylation, Baeyer-Villiger oxidation, sulfoxidation and N-oxidation
+   — 198 matched, 134 decided, all decisive; a *fourth* independent
+   charge-state split), is the first class needing genuinely *two*
+   cofactors: O2 supplies the atom the product gains, and NAD(P)H drives
+   the mechanism in the same step. Nothing in this architecture could
+   express that before, so `ClassTemplate` gained
+   `unpriced_co_cofactor_chebi` — NAD(P)H is excluded from the acceptor
+   search but deliberately never priced, a stated gap (this class's
+   enzymatic side is understated by whatever NAD(P)H's real regeneration
+   costs) rather than an invented zero, flagged on every report this
+   class produces. Combined:
+   **2,169 of 18,558 reactions matched (11.7%), 1,287 decided (6.9%)**, up
    from one class's original 406 / 388. More classes are being added the
    same way — see the coverage ceiling below for what that number can and
    cannot

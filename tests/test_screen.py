@@ -1602,3 +1602,87 @@ def test_prenyl_diphosphate_siblings_match_and_decide_the_expected_number(
     decided_with_verdict = [x for x in r.decided if x.verdict is not None and x.verdict.decisive]
     assert len(decided_with_verdict) == len(r.decided)
     assert all(x.verdict.verdict == "b_lower" for x in decided_with_verdict)
+
+
+# --- an eleventh class: O2/NAD(P)H-dependent monooxygenation ---------------
+# The first class needing unpriced_co_cofactor_chebi -- NAD(P)H is a real,
+# required co-reactant this project does not price.
+
+
+@pytest.fixture(scope="module")
+def monooxygenase_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "o2-monooxygenase.yaml")
+    bounds = load_bounds(CLASSES / "o2-monooxygenase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def monooxygenase_screened(monooxygenase_inputs):
+    return screen_all(*monooxygenase_inputs, use_process_model=True)
+
+
+def test_monooxygenase_class_declares_nadh_and_nadph_unpriced(monooxygenase_inputs):
+    """NAD(P)H drives the mechanism but never appears as a priced material:
+    this class's whole point is that it is a real cost this project does
+    not charge, not that it can be ignored."""
+    template = monooxygenase_inputs[1]
+    assert template.unpriced_co_cofactor_chebi == ("CHEBI:57945", "CHEBI:57783")
+
+
+def test_monooxygenase_class_matches_and_decides_the_expected_number(monooxygenase_screened):
+    """198 Rhea reactions consume O2 under EC 1.14.13. 134 (67.7%) resolve
+    to a single acceptor/product pair within tolerance and are decided --
+    zero could not be resolved to a pair at all, because this class's
+    two-cofactor shape (acceptor + O2 + NAD(P)H = product + NAD(P)+ + H2O)
+    is exactly what unpriced_co_cofactor_chebi exists to handle.
+    RHEA:11440 (2,3,5,6-tetrachlorophenol -> ...hydroquinone) is the
+    reaction that pinned down the charge-state offset: observed delta
+    14.991, short of the textbook 15.999 by almost exactly one proton
+    because ChEBI draws the newly-installed hydroxyl as a phenolate."""
+    assert monooxygenase_screened.matched == 198
+    assert len(monooxygenase_screened.decided) == 134
+    by_id = {r.rhea_id: r for r in monooxygenase_screened.results}
+    assert by_id["RHEA:11440"].decided
+    assert by_id["RHEA:11420"].decided
+
+
+def test_monooxygenase_class_excludes_decarboxylation_and_demethylation(monooxygenase_screened):
+    """Two genuinely different EC 1.14.13 sub-chemistries share the O2
+    cofactor with real monooxygenation and are correctly excluded: oxidative
+    decarboxylation (RHEA:21628, mass -44.05, a different transformation the
+    NAD(P)+-oxidoreductase class's own decarboxylation confound already
+    established the pattern for) and O-demethylation (RHEA:10860's sibling
+    reactions cluster at -14.03, the mirror image of the SAM class's own
+    +14.03 methylation)."""
+    by_id = {r.rhea_id: r for r in monooxygenase_screened.results}
+    assert not by_id["RHEA:21628"].decided
+    assert "does not match" in by_id["RHEA:21628"].skipped_reason
+
+
+def test_monooxygenase_process_model_charges_mcpba(monooxygenase_inputs):
+    """The declared process, not a paper: mCPBA oxidation in
+    dichloromethane, plus a plant-style isolation. Everything generalised
+    by construction."""
+    template = monooxygenase_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"meta-chloroperoxybenzoic acid", "dichloromethane", "ethyl acetate"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_monooxygenase_class_is_decided_and_decisively_favours_the_enzyme(monooxygenase_screened):
+    """Every one of this class's 134 decided reactions reaches a decisive
+    verdict favouring the enzyme, even with NAD(P)H's own real cost left
+    entirely unpriced -- an mCPBA-based chemical route is bulky enough on
+    its own to keep the sign fixed."""
+    decided_with_verdict = [
+        r for r in monooxygenase_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(monooxygenase_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

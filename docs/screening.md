@@ -1022,6 +1022,69 @@ the enzyme, the same shape DMAPP, ATP-kinase and the UGT class show.
 **Coverage across all ten classes: 1,971 of 18,558 Rhea reactions matched
 (10.6%), 1,153 decided (6.2%).**
 
+## The eleventh class: O2/NAD(P)H-dependent monooxygenation, and a first two-cofactor class
+
+`data/reaction-classes/o2-monooxygenase.yaml` covers EC 1.14.13 —
+flavin/pyridine-nucleotide monooxygenases: aromatic and aliphatic
+hydroxylases, Baeyer-Villiger oxidations, sulfoxidations, N-oxidations.
+These enzymes insert one atom of O2 into the product; the other leaves as
+water, reduced by NAD(P)H, which the enzyme oxidises in the same step —
+mechanistically a genuine second cofactor, not a byproduct. Every earlier
+class in this project consumes exactly one cofactor identity per
+reaction, so nothing in the architecture could express this until now.
+
+**This is the class that motivated `unpriced_co_cofactor_chebi`.**
+`_identify`'s acceptor search now also excludes NAD(P)H
+(`CHEBI:57945`/`CHEBI:57783`), the same way it excludes the priced
+cofactor and a bare proton — but NAD(P)H is never charged as a material.
+That is a stated, deliberate gap, not an invented zero: this class's
+enzymatic side is genuinely understated by whatever NAD(P)H's own
+regeneration costs, in the same direction every other unpriced
+assumption in this project understates it, and `render_screen` prints a
+standing warning on every report against this class saying so.
+
+**A fourth charge-state split**, independently discovered from the
+ATP-kinase, acetyl-CoA and UDP-glucuronate ones. A genuine member adds
+one oxygen atom, 15.999 g/mol — verified directly against RHEA:11440
+(2,3,5,6-tetrachlorophenol → 2,3,5,6-tetrachlorohydroquinone). But the
+observed delta is 14.991, short by almost exactly one proton: ChEBI
+draws the acceptor as a phenol**ate** (one hydroxyl already deprotonated)
+and the product as a bis-phenolate (both hydroxyls deprotonated,
+including the newly-installed one), so the new OH is drawn without its
+proton. `expected_mass_delta` is set to the true value, 15.999, with
+`mass_delta_tolerance` widened to 1.1 to unify both clusters.
+
+| outcome | reactions |
+|---|---:|
+| matched (O2 + EC 1.14.13) | 198 |
+| excluded — right transfer count, wrong mass (64 other transformations) | 64 |
+| **decided** | **134** |
+
+Notably, **zero** of the 198 fail to resolve to a single acceptor/product
+pair at all — this class's reactions are consistently written as
+`acceptor + O2 + NAD(P)H = product + NAD(P)+ + H2O`, exactly the shape
+`unpriced_co_cofactor_chebi` exists to handle. Of the 134 decided, the
+majority cluster at the textbook 16.0 g/mol (RHEA:11420, senecionine
+N-oxidation, among them); the phenolate-shifted minority clusters at
+14.99. The 64 mass-delta exclusions split into several genuinely
+different EC 1.14.13 sub-chemistries the mass-delta check correctly
+keeps out: oxidative **decarboxylation** (RHEA:21628 and others,
+clustering near −27 to −44 — the same discipline the
+NAD(P)+-oxidoreductase class's own decarboxylation confound already
+established) and oxidative **O-demethylation** (18 reactions clustering
+at −14.03, `Ar-O-CH3 + O2 + NAD(P)H → Ar-OH + HCHO + NAD(P)+ + H2O` — the
+mirror image of the SAM class's own +14.03 methylation, correctly not
+mistaken for a hydroxylation).
+
+Every one of the 134 decided reactions reaches a decisive verdict
+favouring the enzyme, even with NAD(P)H's real cost left entirely
+unpriced: an mCPBA-based process model (the textbook stoichiometric
+chemical counterpart for this whole transformation family) is bulky
+enough on its own to keep the sign fixed.
+
+**Coverage across all eleven classes: 2,169 of 18,558 Rhea reactions
+matched (11.7%), 1,287 decided (6.9%).**
+
 ## Running one
 
 ```bash

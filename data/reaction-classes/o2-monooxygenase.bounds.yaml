@@ -1,0 +1,41 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+#
+# This class also declares an UNPRICED co-cofactor (NAD(P)H) -- see the
+# template's own header comment and the standing warning render_screen
+# prints. There is no bound entry for it because it is not priced at all,
+# not even as an interval: pricing it is a larger feature (true
+# simultaneous multi-cofactor pricing) this project does not have yet, and
+# a bound would misleadingly imply it enters the diff the way the other
+# bounded materials do.
+
+bounds:
+
+  # ---- The enzymatic side (the priced cofactor only) -----------------------
+  "name:chebi:15379":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      O2. No public cradle-to-gate factor was found for a biologically
+      sourced/activated oxygen (as opposed to industrial O2 production,
+      which is a different question -- this is what the enzyme's own
+      mechanism spends, not what a plant would buy). Same interval and
+      same reasoning as the cofactors in the other shipped classes:
+      deliberately wide because it is not known.
+    sources:
+      - "No public cradle-to-gate GWP for enzymatically-activated O2 was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+
+  # ---- The chemical side ---------------------------------------------------
+  "cas:937-14-4":
+    low: 0.5
+    high: null
+    rationale: >
+      meta-Chloroperoxybenzoic acid. No public cradle-to-gate factor was
+      found. Low bound only, by the same convention every other unresolved
+      chemical-side reagent in this project uses.
+    sources:
+      - "No public cradle-to-gate GWP for mCPBA was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."
