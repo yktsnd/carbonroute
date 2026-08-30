@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Thirteen classes now built — 2,540 of 18,558 reactions matched (13.7%), 1,555 decided (8.4%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Fourteen classes now built — 2,642 of 18,558 reactions matched (14.2%), 1,614 decided (8.7%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -265,8 +265,15 @@ measures the same thing the threshold did.
    this EC group removes two hydrogens to form a C=C bond (−2.016 g/mol,
    the same 2H-loss signature the NAD(P)+-oxidoreductase class targets),
    not insert an oxygen atom, so it reuses that class's process model
-   rather than the monooxygenases' mCPBA one. Combined:
-   **2,540 of 18,558 reactions matched (13.7%), 1,555 decided (8.4%)**, up
+   rather than the monooxygenases' mCPBA one. A fourteenth,
+   `o2-dioxygenase.yaml` (EC 1.13.11, dioxygenation incorporating both O2
+   atoms with no separate electron donor at all — 102 matched, 59
+   decided, all decisive), needs no co-cofactor and shows a graded
+   three-way version of the charge-state pattern found four times before
+   (32.0 / 30.99 / 29.98 g/mol, unified with a widened tolerance the same
+   way the UDP-glucuronosyltransferase class's two-way split was).
+   Combined:
+   **2,642 of 18,558 reactions matched (14.2%), 1,614 decided (8.7%)**, up
    from one class's original 406 / 388. More classes are being added the
    same way — see the coverage ceiling below for what that number can and
    cannot

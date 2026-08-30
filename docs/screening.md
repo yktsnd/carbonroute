@@ -1180,6 +1180,53 @@ entirely unpriced.
 **Coverage across all thirteen classes: 2,540 of 18,558 Rhea reactions
 matched (13.7%), 1,555 decided (8.4%).**
 
+## The fourteenth class: O2-dependent dioxygenation, and a graded charge-state pattern
+
+`data/reaction-classes/o2-dioxygenase.yaml` covers EC 1.13.11 —
+dioxygenases that incorporate *both* atoms of O2 into the product
+directly, with no separate electron-donor cofactor at all. Architecturally
+the simplest of the four O2-consuming classes this project has built: no
+`unpriced_co_cofactor_chebi` is declared, because none is needed.
+
+**A charge-state pattern found four times before this class, but graded
+rather than binary.** A genuine member adds both oxygen atoms, 31.998
+g/mol — confirmed against RHEA:10428 (a lipoxygenase forming a
+hydroperoxide, the cleanest possible member). But real members cluster at
+*three* deltas, not one: 32.0, 30.99 (short one proton, RHEA:14409) and
+29.98 (short two protons, RHEA:10084, a ring-cleaving catechol
+dioxygenase that installs a new carboxylate ChEBI draws with mixed
+protonation). `expected_mass_delta` is set to the midpoint of the two
+extremes, 30.99, with `mass_delta_tolerance` widened to 1.1 — the same
+"expected = true midpoint, tolerance = span the charge states" strategy
+the UDP-glucuronosyltransferase class already uses, here spanning a
+three-way rather than two-way split.
+
+| outcome | reactions |
+|---|---:|
+| matched (O2 + EC 1.13.11) | 102 |
+| excluded — could not identify an acceptor/product pair | 2 |
+| excluded — right transfer count, wrong mass (several sub-chemistries) | 41 |
+| **decided** | **59** |
+
+EC 1.13.11 is the most heterogeneous O2-consuming EC group this project
+has templated: beyond simple O2 incorporation it also contains reactions
+that split the acceptor into two separate products (a genuinely different
+shape this project's single-acceptor/single-product resolver correctly
+refuses to force into one pairing), oxidative ring cleavage releasing CO
+or CO2, and carotenoid-cleaving dioxygenases that split one large acceptor
+into two roughly-equal fragments. The 2 unresolved reactions each
+genuinely require H2O as a third reactant beyond O2 (sulfur/thiol
+oxidation to sulfite) — a different shape again, correctly left
+unresolved rather than mis-decided.
+
+Every one of the 59 decided reactions reaches a decisive verdict
+favouring the enzyme, even though the chemical route's real stoichiometric
+burden here — a catalytic photosensitiser (methylene blue, 2 mol%) plus
+solvent — is genuinely small: the isolation solvent alone is enough.
+
+**Coverage across all fourteen classes: 2,642 of 18,558 Rhea reactions
+matched (14.2%), 1,614 decided (8.7%).**
+
 ## Running one
 
 ```bash

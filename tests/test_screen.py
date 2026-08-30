@@ -1829,3 +1829,73 @@ def test_desaturase_class_is_decided_and_decisively_favours_the_enzyme(desaturas
     ]
     assert len(decided_with_verdict) == len(desaturase_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a fourteenth class: O2-dependent dioxygenation -------------------------
+# No unpriced_co_cofactor_chebi needed at all: a true dioxygenase
+# incorporates both O2 atoms with no separate electron-donor cofactor.
+
+
+@pytest.fixture(scope="module")
+def dioxygenase_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "o2-dioxygenase.yaml")
+    bounds = load_bounds(CLASSES / "o2-dioxygenase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def dioxygenase_screened(dioxygenase_inputs):
+    return screen_all(*dioxygenase_inputs, use_process_model=True)
+
+
+def test_dioxygenase_class_needs_no_co_cofactor(dioxygenase_inputs):
+    """A true dioxygenase incorporates both O2 atoms directly, with no
+    separate electron-donor cofactor -- architecturally the simplest of
+    the four O2-consuming classes."""
+    template = dioxygenase_inputs[1]
+    assert template.unpriced_co_cofactor_chebi == ()
+    assert template.expected_mass_delta == pytest.approx(30.99, abs=1e-6)
+
+
+def test_dioxygenase_class_matches_and_unifies_three_charge_states(dioxygenase_screened):
+    """102 Rhea reactions consume O2 under EC 1.13.11. 59 (57.8%) resolve
+    within tolerance and are decided, spanning three charge-state clusters
+    unified by one expected_mass_delta and a widened tolerance: RHEA:10428
+    (a clean lipoxygenase, the textbook 32.0 g/mol), RHEA:14409 (one proton
+    short) and RHEA:10084 (a ring-cleaving catechol dioxygenase, two
+    protons short) are all decided, confirming all three are the same real
+    chemistry rather than three different ones."""
+    assert dioxygenase_screened.matched == 102
+    assert len(dioxygenase_screened.decided) == 59
+    by_id = {r.rhea_id: r for r in dioxygenase_screened.results}
+    for rhea_id in ("RHEA:10428", "RHEA:14409", "RHEA:10084"):
+        assert by_id[rhea_id].decided
+
+
+def test_dioxygenase_class_excludes_reactions_needing_a_third_reactant(dioxygenase_screened):
+    """RHEA:12981 and RHEA:13957 both genuinely require H2O as a third
+    reactant beyond O2 (sulfur/thiol oxidation to sulfite), a different
+    reaction shape this class does not attempt to handle, and correctly
+    come back unresolved rather than mis-decided."""
+    by_id = {r.rhea_id: r for r in dioxygenase_screened.results}
+    for rhea_id in ("RHEA:12981", "RHEA:13957"):
+        assert not by_id[rhea_id].decided
+        assert "could not identify" in by_id[rhea_id].skipped_reason
+
+
+def test_dioxygenase_class_is_decided_and_decisively_favours_the_enzyme(dioxygenase_screened):
+    """Every one of this class's 59 decided reactions reaches a decisive
+    verdict favouring the enzyme, even though the chemical route's real
+    stoichiometric burden here (a catalytic photosensitiser plus solvent)
+    is genuinely small."""
+    decided_with_verdict = [
+        r for r in dioxygenase_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(dioxygenase_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

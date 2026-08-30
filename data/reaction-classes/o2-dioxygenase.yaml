@@ -1,0 +1,116 @@
+# Reaction class: O2-dependent dioxygenation
+#
+# Covers Rhea reactions consuming O2 (CHEBI:15379) as a reactant, restricted
+# to EC 1.13.11 -- dioxygenases that incorporate BOTH atoms of O2 into the
+# product directly, with no separate electron-donor cofactor at all (unlike
+# the three earlier O2-consuming classes in this project, all of which
+# needed NAD(P)H or an equivalent reductant). Architecturally the simplest
+# O2 class: no unpriced_co_cofactor_chebi is declared, because none is
+# needed.
+#
+# A THIRD-ORDER CHARGE-STATE PATTERN. A genuine member adds both oxygen
+# atoms, O2, 31.998 g/mol -- confirmed against RHEA:10428
+# ((5Z,8Z,11Z,14Z)-eicosatetraenoate -> (12S)-hydroperoxy-..., a
+# lipoxygenase forming a hydroperoxide, the cleanest possible member of this
+# class). But real members cluster at THREE deltas, not one: 32.0, 30.99
+# (short one proton) and 29.98 (short two protons). This is the same ChEBI
+# charge-state phenomenon found on four earlier classes this session, but
+# graded rather than binary: ring-cleaving catechol dioxygenases
+# (RHEA:10084, 3,4-dihydroxybenzoate -> 3-carboxy-cis,cis-muconate) install
+# a NEW carboxylate as well as retaining the two that were already there,
+# and ChEBI's mixed protonation of that carboxylate family (mono- or
+# di-deprotonated depending on the specific entry) is what produces a
+# *spread* rather than a clean pair of clusters. expected_mass_delta is set
+# to the midpoint of the two extremes, 30.99, with mass_delta_tolerance
+# widened to 1.1 to cover all three clusters -- the same "expected = true
+# midpoint, tolerance = span the charge states" strategy the
+# UDP-glucuronosyltransferase class already uses.
+#
+# EC 1.13.11 IS THE MOST HETEROGENEOUS O2-CONSUMING EC GROUP THIS PROJECT
+# HAS TEMPLATED. Beyond simple O2 incorporation it also contains reactions
+# that split the acceptor into TWO separate products (a genuinely different
+# shape this project's single-acceptor/single-product resolver correctly
+# refuses to force into one pairing), oxidative ring cleavage releasing CO
+# or CO2, and carotenoid-cleaving dioxygenases that split one large acceptor
+# into two roughly-equal fragments. All are excluded by the mass-delta
+# check or by failing to resolve to a single acceptor/product pair, not
+# folded in as noise.
+#
+# Structural verification (run through the actual screen): 102 reactions
+# match O2 + EC 1.13.11. 59 (57.8%) resolve to a single acceptor/product
+# pair within tolerance and are decided, every one decisively favouring
+# the enzyme -- including RHEA:10428 (the clean lipoxygenase example),
+# RHEA:14409 (cysteamine -> hypotaurine, the one-proton-short cluster) and
+# RHEA:10084 (the ring-cleaving catechol dioxygenase, the two-proton-short
+# cluster), confirming all three charge-state variants are the same real
+# chemistry. 2 could not be resolved to a single acceptor/product pair:
+# both consume H2O as a genuinely required third reactant beyond O2
+# (S-sulfanylglutathione and elemental sulfur oxidation to sulfite), a
+# different reaction shape this class does not attempt to handle. The
+# other 41 are correctly excluded by mass delta -- this class's own header
+# above describes the confounds (product-splitting, ring cleavage with CO
+# or CO2 loss, carotenoid cleavage) that make this EC group the most
+# heterogeneous of the four O2-consuming classes this project has built.
+
+reaction_class:
+  id: o2-dioxygenase
+  name: "O2-dependent dioxygenation"
+  description: >
+    Enzymatic incorporation of both atoms of O2 into an acceptor (forming a
+    hydroperoxide, a new diol, or cleaving an aromatic ring while
+    retaining both new oxygens), with no separate electron-donor cofactor.
+    Matched on O2, restricted to EC 1.13.11.
+  expected_mass_delta: 30.99
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:15379"
+  cofactor_role: reagent
+  ec_prefix: "1.13.11"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Singlet-oxygen ene reaction / autoxidation at process concentration"
+  source: >
+    Not a paper. Photosensitised singlet-oxygen ene reaction (methylene
+    blue or Rose Bengal as sensitiser, O2 bubbled through, a light source)
+    is the textbook chemical counterpart for hydroperoxide-forming
+    dioxygenation, the dominant member of this class -- the same reaction
+    class lipoxygenase chemistry is routinely compared against in the
+    synthetic literature. Parameters stated on the same terms the other
+    process models use, with the sensitiser treated as a catalytic
+    reagent rather than a stoichiometric one.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.8
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: dioxygenate
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: methylene blue
+          cas: "61-73-4"
+          kg_per_mol: 0.319852
+          equivalents: 0.02
+          note: >
+            Catalytic photosensitiser, 2 mol% -- the reaction's real
+            stoichiometric input is O2 itself and light, neither of which
+            this project charges (O2 is the priced cofactor on the
+            enzymatic side of the comparison, not a chemical-side
+            reagent, and photon input has no material mass).
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []
