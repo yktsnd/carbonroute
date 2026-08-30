@@ -45,20 +45,42 @@
 # the SAM class's own +14.03 methylation, correctly excluded by the same
 # mass-delta check rather than mistaken for a hydroxylation.
 #
-# Structural verification (run through the actual screen): 198 reactions
-# match O2 + EC 1.14.13. 134 (67.7%) resolve to a single acceptor/product
-# pair within tolerance and are decided, every one decisively favouring
-# the enzyme -- zero could not be resolved to a single acceptor/product
-# pair at all (this class's reactions are consistently written as
-# acceptor + O2 + NAD(P)H = product + NAD(P)+ + H2O, a clean two-cofactor
-# shape). Of the decided, the majority cluster at the textbook 16.0 g/mol
-# (RHEA:11420, senecionine N-oxidation, among them); a real minority
-# cluster at 14.99, the phenolate charge-state offset described above
-# (RHEA:11440, verified directly). The other 64 are correctly excluded by
-# mass delta: oxidative decarboxylation (RHEA:21628 and others, clustering
-# near -27 to -44), O-demethylation (18 reactions clustering at -14.03),
-# and several smaller, rarer confounds this EC group carries -- none
-# folded in as noise.
+# With EC 1.14.13 still in place: 198 reactions match O2. 134 (67.7%)
+# resolve to a single acceptor/product pair within tolerance and are
+# decided, every one decisively favouring the enzyme -- zero could not be
+# resolved to a single acceptor/product pair at all (this class's
+# reactions are consistently written as acceptor + O2 + NAD(P)H = product
+# + NAD(P)+ + H2O, a clean two-cofactor shape). Of the decided, the
+# majority cluster at the textbook 16.0 g/mol (RHEA:11420, senecionine
+# N-oxidation, among them); a real minority cluster at 14.99, the
+# phenolate charge-state offset described above (RHEA:11440, verified
+# directly). The other 64 are correctly excluded by mass delta: oxidative
+# decarboxylation (RHEA:21628 and others, clustering near -27 to -44),
+# O-demethylation (18 reactions clustering at -14.03), and several
+# smaller, rarer confounds this EC group carries -- none folded in as
+# noise.
+#
+# STAGE 2: ec_prefix REPLACED BY required_co_cofactor_chebi. O2 alone is
+# consumed by six mechanistically distinct classes in this project (this
+# one, p450-monooxygenase, o2-desaturase, o2-dioxygenase, 2og-dioxygenase,
+# ferredoxin-monooxygenase), and restricting to EC 1.14.13 was one way to
+# separate them, but EC annotation covers only 41.1% of Rhea. The real
+# discriminator is which co-cofactor the reaction actually consumes
+# alongside O2 -- exactly the `unpriced_co_cofactor_chebi` list above --
+# so `required_co_cofactor_chebi` below reuses it as a matching gate, not
+# just an acceptor-search exclusion; see ClassTemplate's own docstring for
+# why these are two separate fields even when their contents agree. With
+# ec_prefix dropped: 441 reactions match, 262 decide, all decisively
+# favouring the enzyme, zero of the 134 previously-decided reactions
+# lost. NOTE ON "matched": o2-desaturase's own required list also
+# includes NADPH, so a real share of this class's 441 matched candidates
+# are ALSO candidates for o2-desaturase -- the two never double-decide the
+# same reaction (their expected_mass_delta signs are opposite, +15.999 vs
+# -2.016, and the mass-delta check is the tiebreaker), but summing
+# "matched" across the six O2 classes overcounts unique reactions. Every
+# newly decided reaction was spot-checked against its real equation --
+# e.g. RHEA:54852 (heptan-4-one + NADPH + O2 -> propyl butanoate, a
+# Baeyer-Villiger oxidation with no EC annotation at all).
 
 reaction_class:
   id: o2-monooxygenase
@@ -67,13 +89,14 @@ reaction_class:
     Enzymatic insertion of one oxygen atom from O2 into an acceptor
     (aromatic/aliphatic hydroxylation, Baeyer-Villiger oxidation,
     sulfoxidation or N-oxidation), reducing the other oxygen atom to water
-    with NAD(P)H. Matched on O2, restricted to EC 1.14.13; NAD(P)H is a
-    required co-reactant this class does not price -- see the header note.
+    with NAD(P)H. Matched on O2 and on NAD(P)H being present as a required
+    co-reactant this class does not price -- see the header note; no
+    ec_prefix is declared.
   expected_mass_delta: 15.999
   mass_delta_tolerance: 1.1
   cofactor_chebi: "CHEBI:15379"
   cofactor_role: reagent
-  ec_prefix: "1.14.13"
+  required_co_cofactor_chebi: ["CHEBI:57945", "CHEBI:57783"]
   unpriced_co_cofactor_chebi: ["CHEBI:57945", "CHEBI:57783"]
 
 chemical_counterpart:

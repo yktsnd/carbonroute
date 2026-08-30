@@ -24,14 +24,29 @@
 # one oxygen atom, 15.999 g/mol, and the same ChEBI charge-state offset
 # already found four times this session applies here too.
 #
-# Structural verification (run through the actual screen): 72 reactions
-# match O2 + EC 1.14.15. 50 (69.4%) resolve to a single acceptor/product
-# pair within tolerance and are decided, every one decisively favouring
-# the enzyme. 2 could not be resolved to a single acceptor/product pair.
-# The other 20 are correctly excluded by mass delta -- this EC group
-# carries the same kind of further sub-chemistries (dehydrogenation,
-# ring modification) the other O2-consuming classes' own confounds
-# already document, not individually enumerated here.
+# With EC 1.14.15 still in place: 72 reactions match O2. 50 (69.4%)
+# resolve to a single acceptor/product pair within tolerance and are
+# decided, every one decisively favouring the enzyme. 2 could not be
+# resolved to a single acceptor/product pair. The other 20 are correctly
+# excluded by mass delta -- this EC group carries the same kind of further
+# sub-chemistries (dehydrogenation, ring modification) the other
+# O2-consuming classes' own confounds already document, not individually
+# enumerated here.
+#
+# STAGE 2: ec_prefix REPLACED BY required_co_cofactor_chebi, the same step
+# taken across all six O2 classes -- see o2-monooxygenase.yaml's own
+# header for the full rationale. With ec_prefix dropped: 357 reactions
+# match, 159 decide, all decisively favouring the enzyme, zero of the 50
+# previously-decided reactions lost. This class's required list overlaps
+# o2-desaturase's (both include 2Fe-2S and Fe2+), so some of the 357
+# matched candidates are also o2-desaturase candidates -- resolved the
+# same way as elsewhere, by the opposite-sign expected_mass_delta (+15.999
+# here, -2.016 there); verified zero reactions decide for both. Every
+# newly decided reaction was spot-checked -- all show the same "reduced
+# [2Fe-2S]-ferredoxin + O2" hydroxylation shape, e.g. RHEA:61536
+# (ent-kaur-16-ene hydroxylation, gibberellin biosynthesis) and
+# RHEA:14937 (violaxanthin biosynthesis), neither carrying an EC
+# annotation.
 
 reaction_class:
   id: ferredoxin-monooxygenase
@@ -41,12 +56,13 @@ reaction_class:
     ferredoxin- or rubredoxin-dependent monooxygenase (steroid/bile acid
     hydroxylases, camphor monooxygenase, alkane hydroxylases), reducing
     the other oxygen atom to water with an electron donor this class does
-    not price. Matched on O2, restricted to EC 1.14.15.
+    not price. Matched on O2 and on that electron donor being present as a
+    required co-reactant; no ec_prefix is declared.
   expected_mass_delta: 15.999
   mass_delta_tolerance: 1.1
   cofactor_chebi: "CHEBI:15379"
   cofactor_role: reagent
-  ec_prefix: "1.14.15"
+  required_co_cofactor_chebi: ["CHEBI:33738", "CHEBI:33723", "CHEBI:29033"]
   unpriced_co_cofactor_chebi: ["CHEBI:33738", "CHEBI:33723", "CHEBI:29033"]
 
 chemical_counterpart:

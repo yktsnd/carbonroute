@@ -28,22 +28,42 @@
 # the electron donor's own regeneration cost is real and this template does
 # NOT charge it.
 #
-# Structural verification (run through the actual screen): 115 reactions
-# match O2 + EC 1.14.19. 92 (80.0%) resolve to a single acceptor/product
-# pair within tolerance and are decided, every one decisively favouring
-# the enzyme -- including RHEA:11776 (octadecanoyl-[ACP] -> (9Z)-
-# octadecenoyl-[ACP]), the reaction the class was designed around. 19
-# could not be resolved to a single acceptor/product pair -- reactions
-# whose acceptor is written alongside a further small-molecule reactant
-# (chloride, bromide, L-tryptophan) this class's co-cofactor list does not
-# cover, because those ARE genuinely different chemistry (halogenases,
-# not desaturases) rather than something safe to also declare unpriced.
-# The other 4 are correctly excluded by mass delta: oxidative
-# DIMERISATION (RHEA:26031/26035, two flaviolin molecules coupling to a
-# biflaviolin, +202.12 -- a new C-C bond between two acceptor molecules,
-# not a desaturation of one), a complex multi-O2 reaction losing HCN and
-# CO2 (RHEA:52776, -75.07), and an oxidative decarbonylation-type loss of
-# formate (RHEA:58520, -29.02) -- none folded in as noise.
+# With EC 1.14.19 still in place: 115 reactions match O2. 92 (80.0%)
+# resolve to a single acceptor/product pair within tolerance and are
+# decided, every one decisively favouring the enzyme -- including
+# RHEA:11776 (octadecanoyl-[ACP] -> (9Z)-octadecenoyl-[ACP]), the reaction
+# the class was designed around. 19 could not be resolved to a single
+# acceptor/product pair -- reactions whose acceptor is written alongside a
+# further small-molecule reactant (chloride, bromide, L-tryptophan) this
+# class's co-cofactor list does not cover, because those ARE genuinely
+# different chemistry (halogenases, not desaturases) rather than
+# something safe to also declare unpriced. The other 4 are correctly
+# excluded by mass delta: oxidative DIMERISATION (RHEA:26031/26035, two
+# flaviolin molecules coupling to a biflaviolin, +202.12 -- a new C-C bond
+# between two acceptor molecules, not a desaturation of one), a complex
+# multi-O2 reaction losing HCN and CO2 (RHEA:52776, -75.07), and an
+# oxidative decarbonylation-type loss of formate (RHEA:58520, -29.02) --
+# none folded in as noise.
+#
+# STAGE 2: ec_prefix REPLACED BY required_co_cofactor_chebi, the same step
+# taken across all six O2 classes -- see o2-monooxygenase.yaml's own
+# header for the full rationale. With ec_prefix dropped: 1,534 reactions
+# match, 267 decide, all decisively favouring the enzyme, zero of the 92
+# previously-decided reactions lost. This class's required list is the
+# widest of the six (all five of its known electron-donor identities,
+# each shared with at least one other O2 class -- Fe(II) and 2Fe-2S with
+# ferredoxin-monooxygenase, the P450-reductase flavin with
+# p450-monooxygenase, NADPH with o2-monooxygenase), so its "matched" count
+# overlaps heavily with the other five: most of the 1,534 are candidates
+# this class's own expected_mass_delta (-2.016, the opposite sign of the
+# four +15.999 classes) correctly does not decide. Verified: zero
+# reactions decide for both this class and any other O2 class -- the
+# mass-delta sign is the real tiebreaker, co-cofactor identity alone is
+# not sufficient here, unlike the cleaner p450/2og/ferredoxin splits. Every
+# newly decided reaction was spot-checked -- all show a genuine -2.016
+# desaturation/dehydrogenation with one of the five donors, e.g.
+# RHEA:65820 (decanoyl-[ACP] + 2 reduced [2Fe-2S]-ferredoxin + O2 ->
+# dec-9-enoyl-[ACP]), none carrying an EC annotation.
 
 reaction_class:
   id: o2-desaturase
@@ -51,13 +71,15 @@ reaction_class:
   description: >
     Enzymatic removal of two hydrogens to form a new C=C double bond in a
     fatty acyl chain, reducing O2 fully to two water molecules with
-    electrons from a co-substrate this class does not price. Matched on
-    O2, restricted to EC 1.14.19.
+    electrons from a co-substrate this class does not price. Matched on O2
+    and on one of five known electron-donor identities being present; no
+    ec_prefix is declared.
   expected_mass_delta: -2.016
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:15379"
   cofactor_role: reagent
-  ec_prefix: "1.14.19"
+  required_co_cofactor_chebi:
+    ["CHEBI:29033", "CHEBI:57618", "CHEBI:33738", "CHEBI:57783", "CHEBI:58307"]
   unpriced_co_cofactor_chebi:
     ["CHEBI:29033", "CHEBI:57618", "CHEBI:33738", "CHEBI:57783", "CHEBI:58307"]
 

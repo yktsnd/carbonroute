@@ -24,17 +24,30 @@
 # oxygen atom, 15.999 g/mol, verified directly against RHEA:10316 (thymine
 # -> 5-hydroxymethyluracil, a methyl hydroxylation).
 #
-# Structural verification (run through the actual screen): 101 reactions
-# match O2 + EC 1.14.11. 60 (59.4%) resolve to a single acceptor/product
-# pair within tolerance and are decided, every one decisively favouring
-# the enzyme, including RHEA:10316. 1 could not be resolved to a single
-# acceptor/product pair (RHEA:35975, a reaction consuming a SECOND
-# cofactor, AH2, and 2 equivalents of O2 -- a more complex mechanism this
-# simple two-reactant shape does not cover). The other 40 are correctly
-# excluded by mass delta: this EC group also contains oxidative ring
-# formation and desaturation (clustering near -2 to -96, several distinct
-# sub-chemistries not individually enumerated here) -- all correctly kept
-# out rather than folded in as noise.
+# With EC 1.14.11 still in place: 101 reactions match O2. 60 (59.4%)
+# resolve to a single acceptor/product pair within tolerance and are
+# decided, every one decisively favouring the enzyme, including
+# RHEA:10316. 1 could not be resolved to a single acceptor/product pair
+# (RHEA:35975, a reaction consuming a SECOND cofactor, AH2, and 2
+# equivalents of O2 -- a more complex mechanism this simple two-reactant
+# shape does not cover). The other 40 are correctly excluded by mass
+# delta: this EC group also contains oxidative ring formation and
+# desaturation (clustering near -2 to -96, several distinct sub-chemistries
+# not individually enumerated here) -- all correctly kept out rather than
+# folded in as noise.
+#
+# STAGE 2: ec_prefix REPLACED BY required_co_cofactor_chebi, the same step
+# taken across all six O2 classes -- see o2-monooxygenase.yaml's own
+# header for the full rationale. 2-oxoglutarate is a uniquely clean
+# discriminator here: of the 101 EC-restricted matches, all 101 already
+# consume it (it is definitionally what makes this EC group what it is),
+# so this class's required list does not overlap any other O2 class's.
+# With ec_prefix dropped: 284 reactions match, 125 decide, all decisively
+# favouring the enzyme, zero of the 60 previously-decided reactions lost.
+# Every newly decided reaction was spot-checked -- all show the same
+# `acceptor + 2-oxoglutarate + O2 = product + succinate + CO2` shape, e.g.
+# RHEA:57156 (protein lysyl hydroxylation) and RHEA:54620
+# (2-hydroxyeicosanoyl-CoA formation), neither carrying an EC annotation.
 
 reaction_class:
   id: 2og-dioxygenase
@@ -42,13 +55,14 @@ reaction_class:
   description: >
     Enzymatic insertion of one oxygen atom from O2 into an acceptor,
     oxidatively decarboxylating 2-oxoglutarate to succinate and CO2 in the
-    same step. Matched on O2, restricted to EC 1.14.11; 2-oxoglutarate is
-    a required co-reactant this class does not price.
+    same step. Matched on O2 and on 2-oxoglutarate being present as a
+    required co-reactant this class does not price; no ec_prefix is
+    declared.
   expected_mass_delta: 15.999
   mass_delta_tolerance: 1.1
   cofactor_chebi: "CHEBI:15379"
   cofactor_role: reagent
-  ec_prefix: "1.14.11"
+  required_co_cofactor_chebi: ["CHEBI:16810"]
   unpriced_co_cofactor_chebi: ["CHEBI:16810"]
 
 chemical_counterpart:

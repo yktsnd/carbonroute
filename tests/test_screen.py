@@ -1685,17 +1685,18 @@ def test_monooxygenase_class_declares_nadh_and_nadph_unpriced(monooxygenase_inpu
 
 
 def test_monooxygenase_class_matches_and_decides_the_expected_number(monooxygenase_screened):
-    """198 Rhea reactions consume O2 under EC 1.14.13. 134 (67.7%) resolve
-    to a single acceptor/product pair within tolerance and are decided --
-    zero could not be resolved to a pair at all, because this class's
-    two-cofactor shape (acceptor + O2 + NAD(P)H = product + NAD(P)+ + H2O)
-    is exactly what unpriced_co_cofactor_chebi exists to handle.
-    RHEA:11440 (2,3,5,6-tetrachlorophenol -> ...hydroquinone) is the
-    reaction that pinned down the charge-state offset: observed delta
-    14.991, short of the textbook 15.999 by almost exactly one proton
-    because ChEBI draws the newly-installed hydroxyl as a phenolate."""
-    assert monooxygenase_screened.matched == 198
-    assert len(monooxygenase_screened.decided) == 134
+    """441 Rhea reactions consume O2 alongside NAD(P)H (no ec_prefix is
+    declared -- an earlier version restricted to EC 1.14.13, narrowing to
+    198; see the template's own STAGE 2 note for why that restriction was
+    dropped, the same step taken for the other five O2 classes). 262
+    (59.4%) resolve to a single acceptor/product pair within tolerance and
+    are decided. RHEA:11440 (2,3,5,6-tetrachlorophenol -> ...hydroquinone)
+    is the reaction that pinned down the charge-state offset: observed
+    delta 14.991, short of the textbook 15.999 by almost exactly one
+    proton because ChEBI draws the newly-installed hydroxyl as a
+    phenolate."""
+    assert monooxygenase_screened.matched == 441
+    assert len(monooxygenase_screened.decided) == 262
     by_id = {r.rhea_id: r for r in monooxygenase_screened.results}
     assert by_id["RHEA:11440"].decided
     assert by_id["RHEA:11420"].decided
@@ -1726,7 +1727,7 @@ def test_monooxygenase_process_model_charges_mcpba(monooxygenase_inputs):
 
 
 def test_monooxygenase_class_is_decided_and_decisively_favours_the_enzyme(monooxygenase_screened):
-    """Every one of this class's 134 decided reactions reaches a decisive
+    """Every one of this class's 262 decided reactions reaches a decisive
     verdict favouring the enzyme, even with NAD(P)H's own real cost left
     entirely unpriced -- an mCPBA-based chemical route is bulky enough on
     its own to keep the sign fixed."""
@@ -1770,15 +1771,18 @@ def test_p450_class_declares_the_electron_donor_unpriced(p450_inputs):
 
 
 def test_p450_class_matches_and_decides_the_expected_number(p450_screened):
-    """256 Rhea reactions consume O2 under EC 1.14.14 -- cytochrome P450s and
-    related heme-thiolate monooxygenases, Rhea's single largest O2-consuming
-    EC group. 176 (68.8%) resolve within tolerance and are decided. 4 could
-    not be resolved to a single acceptor/product pair: three need a third
-    reactant (glutathione) beyond O2 and the electron donor, and one
-    (RHEA:12312) uses FMNH2 and NADH as two separate simultaneous reactants
+    """920 Rhea reactions consume O2 alongside the P450 electron donor (no
+    ec_prefix is declared -- an earlier version restricted to EC 1.14.14,
+    narrowing to 256, Rhea's single largest O2-consuming EC group; see the
+    template's own STAGE 2 note for why that restriction was dropped). 623
+    (67.7%) resolve within tolerance and are decided. Under the earlier
+    EC-restricted count, 4 could not be resolved to a single
+    acceptor/product pair: three need a third reactant (glutathione)
+    beyond O2 and the electron donor, and one (RHEA:12312) uses FMNH2 and
+    NADH as two separate simultaneous reactants
     rather than the single reduced-donor shape this class handles."""
-    assert p450_screened.matched == 256
-    assert len(p450_screened.decided) == 176
+    assert p450_screened.matched == 920
+    assert len(p450_screened.decided) == 623
     by_id = {r.rhea_id: r for r in p450_screened.results}
     assert not by_id["RHEA:12312"].decided
     assert "could not identify" in by_id["RHEA:12312"].skipped_reason
@@ -1800,7 +1804,7 @@ def test_p450_class_excludes_dehydrogenation(p450_screened):
 
 
 def test_p450_class_is_decided_and_decisively_favours_the_enzyme(p450_screened):
-    """Every one of this class's 176 decided reactions reaches a decisive
+    """Every one of this class's 623 decided reactions reaches a decisive
     verdict favouring the enzyme, the same shape as the o2-monooxygenase
     class, even with the electron donor's real cost left entirely
     unpriced."""
@@ -1848,12 +1852,19 @@ def test_desaturase_class_targets_2h_loss_not_oxygen_insertion(desaturase_inputs
 
 
 def test_desaturase_class_matches_and_decides_the_expected_number(desaturase_screened):
-    """115 Rhea reactions consume O2 under EC 1.14.19. 92 (80.0%) resolve
-    within tolerance and are decided, including RHEA:11776
-    (octadecanoyl-[ACP] -> (9Z)-octadecenoyl-[ACP]), the reaction the class
-    was designed around."""
-    assert desaturase_screened.matched == 115
-    assert len(desaturase_screened.decided) == 92
+    """1,534 Rhea reactions consume O2 alongside one of this class's five
+    known electron donors (no ec_prefix is declared -- an earlier version
+    restricted to EC 1.14.19, narrowing to 115; see the template's own
+    STAGE 2 note for why that restriction was dropped and why this class's
+    "matched" count overlaps heavily with the other O2 classes'). 267
+    (17.4%) resolve within tolerance and decide -- a much smaller fraction
+    than before, because most of the 1,534 are genuine candidates for one
+    of the +15.999 O2 classes instead, correctly rejected here by this
+    class's own -2.016 sign. RHEA:11776 (octadecanoyl-[ACP] ->
+    (9Z)-octadecenoyl-[ACP]), the reaction the class was designed around,
+    still decides."""
+    assert desaturase_screened.matched == 1534
+    assert len(desaturase_screened.decided) == 267
     by_id = {r.rhea_id: r for r in desaturase_screened.results}
     assert by_id["RHEA:11776"].decided
 
@@ -1870,7 +1881,7 @@ def test_desaturase_class_excludes_dimerisation(desaturase_screened):
 
 
 def test_desaturase_class_is_decided_and_decisively_favours_the_enzyme(desaturase_screened):
-    """Every one of this class's 92 decided reactions reaches a decisive
+    """Every one of this class's 267 decided reactions reaches a decisive
     verdict favouring the enzyme, even with every electron donor's real
     cost left entirely unpriced."""
     decided_with_verdict = [
@@ -1913,15 +1924,18 @@ def test_dioxygenase_class_needs_no_co_cofactor(dioxygenase_inputs):
 
 
 def test_dioxygenase_class_matches_and_unifies_three_charge_states(dioxygenase_screened):
-    """102 Rhea reactions consume O2 under EC 1.13.11. 59 (57.8%) resolve
-    within tolerance and are decided, spanning three charge-state clusters
-    unified by one expected_mass_delta and a widened tolerance: RHEA:10428
-    (a clean lipoxygenase, the textbook 32.0 g/mol), RHEA:14409 (one proton
-    short) and RHEA:10084 (a ring-cleaving catechol dioxygenase, two
-    protons short) are all decided, confirming all three are the same real
-    chemistry rather than three different ones."""
-    assert dioxygenase_screened.matched == 102
-    assert len(dioxygenase_screened.decided) == 59
+    """932 Rhea reactions consume O2 with none of the other five O2
+    classes' required co-cofactors present (no ec_prefix is declared --
+    an earlier version restricted to EC 1.13.11, narrowing to 102; see the
+    template's own STAGE 2 note for why that restriction was dropped). 197
+    (21.1%) resolve within tolerance and are decided, spanning three
+    charge-state clusters unified by one expected_mass_delta and a widened
+    tolerance: RHEA:10428 (a clean lipoxygenase, the textbook 32.0 g/mol),
+    RHEA:14409 (one proton short) and RHEA:10084 (a ring-cleaving catechol
+    dioxygenase, two protons short) are all decided, confirming all three
+    are the same real chemistry rather than three different ones."""
+    assert dioxygenase_screened.matched == 932
+    assert len(dioxygenase_screened.decided) == 197
     by_id = {r.rhea_id: r for r in dioxygenase_screened.results}
     for rhea_id in ("RHEA:10428", "RHEA:14409", "RHEA:10084"):
         assert by_id[rhea_id].decided
@@ -1943,7 +1957,7 @@ def test_dioxygenase_class_excludes_reactions_needing_a_third_reactant(dioxygena
 
 
 def test_dioxygenase_class_is_decided_and_decisively_favours_the_enzyme(dioxygenase_screened):
-    """Every one of this class's 59 decided reactions reaches a decisive
+    """Every one of this class's 197 decided reactions reaches a decisive
     verdict favouring the enzyme, even though the chemical route's real
     stoichiometric burden here (a catalytic photosensitiser plus solvent)
     is genuinely small."""
@@ -1990,14 +2004,18 @@ def test_2og_class_declares_2_oxoglutarate_unpriced(twoog_inputs):
 
 
 def test_2og_class_matches_and_decides_the_expected_number(twoog_screened):
-    """101 Rhea reactions consume O2 under EC 1.14.11. 60 (59.4%) resolve
-    within tolerance and are decided, including RHEA:10316 (thymine ->
-    5-hydroxymethyluracil). 1 could not be resolved to a single
-    acceptor/product pair: RHEA:35975 consumes a second cofactor (AH2) and
-    two equivalents of O2, a more complex mechanism this class's simple
-    two-reactant shape does not cover."""
-    assert twoog_screened.matched == 101
-    assert len(twoog_screened.decided) == 60
+    """284 Rhea reactions consume O2 alongside 2-oxoglutarate (no ec_prefix
+    is declared -- an earlier version restricted to EC 1.14.11, narrowing
+    to 101; see the template's own STAGE 2 note for why that restriction
+    was dropped -- 2-oxoglutarate is a uniquely clean discriminator with
+    no overlap against any other O2 class's required list). 125 (44.0%)
+    resolve within tolerance and are decided, including RHEA:10316
+    (thymine -> 5-hydroxymethyluracil). RHEA:35975 still cannot be
+    resolved to a single acceptor/product pair: it consumes a second
+    cofactor (AH2) and two equivalents of O2, a more complex mechanism
+    this class's simple two-reactant shape does not cover."""
+    assert twoog_screened.matched == 284
+    assert len(twoog_screened.decided) == 125
     by_id = {r.rhea_id: r for r in twoog_screened.results}
     assert by_id["RHEA:10316"].decided
     assert not by_id["RHEA:35975"].decided
@@ -2005,7 +2023,7 @@ def test_2og_class_matches_and_decides_the_expected_number(twoog_screened):
 
 
 def test_2og_class_is_decided_and_decisively_favours_the_enzyme(twoog_screened):
-    """Every one of this class's 60 decided reactions reaches a decisive
+    """Every one of this class's 125 decided reactions reaches a decisive
     verdict favouring the enzyme, even with 2-oxoglutarate's real cost
     left entirely unpriced."""
     decided_with_verdict = [
@@ -2051,13 +2069,59 @@ def test_ferredoxin_class_declares_three_donor_families_unpriced(ferredoxin_inpu
 
 
 def test_ferredoxin_class_matches_and_decides_the_expected_number(ferredoxin_screened):
-    """72 Rhea reactions consume O2 under EC 1.14.15. 50 (69.4%) resolve
-    within tolerance and are decided, every one decisively favouring the
-    enzyme."""
-    assert ferredoxin_screened.matched == 72
-    assert len(ferredoxin_screened.decided) == 50
+    """357 Rhea reactions consume O2 alongside one of this class's three
+    donor families (no ec_prefix is declared -- an earlier version
+    restricted to EC 1.14.15, narrowing to 72; see the template's own
+    STAGE 2 note for why that restriction was dropped, and for why this
+    class's required list overlaps o2-desaturase's without ever
+    double-deciding a reaction). 159 (44.5%) resolve within tolerance and
+    are decided, every one decisively favouring the enzyme."""
+    assert ferredoxin_screened.matched == 357
+    assert len(ferredoxin_screened.decided) == 159
     decided_with_verdict = [
         r for r in ferredoxin_screened.decided if r.verdict is not None and r.verdict.decisive
     ]
     assert len(decided_with_verdict) == len(ferredoxin_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- the six O2 classes together: no reaction decides for more than one ----
+
+
+def test_no_rhea_reaction_decides_for_more_than_one_o2_class(
+    monooxygenase_screened,
+    p450_screened,
+    desaturase_screened,
+    dioxygenase_screened,
+    twoog_screened,
+    ferredoxin_screened,
+):
+    """The whole point of required_co_cofactor_chebi / excluded_co_cofactor_
+    chebi is to let six mechanistically distinct classes share one cofactor
+    (O2) without becoming six votes on the same reaction. Several of their
+    required lists deliberately overlap (o2-monooxygenase and o2-desaturase
+    both accept NADPH; o2-desaturase and ferredoxin-monooxygenase both
+    accept Fe(2+) and reduced [2Fe-2S]), so their "matched" candidate pools
+    overlap heavily -- but the real tiebreaker is each class's own
+    expected_mass_delta (+15.999 for four of them, -2.016 for the
+    desaturase, a broader spread for the bare-O2 dioxygenase), which is
+    mutually exclusive by construction. This is the property that makes
+    that overlap safe rather than a double-count: verified here directly
+    against the real Rhea data, not assumed from the individual classes'
+    own passing tests."""
+    runs = {
+        "o2-monooxygenase": monooxygenase_screened,
+        "p450-monooxygenase": p450_screened,
+        "o2-desaturase": desaturase_screened,
+        "o2-dioxygenase": dioxygenase_screened,
+        "2og-dioxygenase": twoog_screened,
+        "ferredoxin-monooxygenase": ferredoxin_screened,
+    }
+    counts: dict[str, int] = {}
+    for run in runs.values():
+        for r in run.decided:
+            counts[r.rhea_id] = counts.get(r.rhea_id, 0) + 1
+    double_decided = {rid: n for rid, n in counts.items() if n > 1}
+    assert double_decided == {}
+    total_decided = sum(len(run.decided) for run in runs.values())
+    assert total_decided == sum(counts.values())

@@ -36,21 +36,43 @@
 # check or by failing to resolve to a single acceptor/product pair, not
 # folded in as noise.
 #
-# Structural verification (run through the actual screen): 102 reactions
-# match O2 + EC 1.13.11. 59 (57.8%) resolve to a single acceptor/product
-# pair within tolerance and are decided, every one decisively favouring
-# the enzyme -- including RHEA:10428 (the clean lipoxygenase example),
-# RHEA:14409 (cysteamine -> hypotaurine, the one-proton-short cluster) and
-# RHEA:10084 (the ring-cleaving catechol dioxygenase, the two-proton-short
-# cluster), confirming all three charge-state variants are the same real
-# chemistry. 2 could not be resolved to a single acceptor/product pair:
-# both consume H2O as a genuinely required third reactant beyond O2
-# (S-sulfanylglutathione and elemental sulfur oxidation to sulfite), a
-# different reaction shape this class does not attempt to handle. The
-# other 41 are correctly excluded by mass delta -- this class's own header
-# above describes the confounds (product-splitting, ring cleavage with CO
-# or CO2 loss, carotenoid cleavage) that make this EC group the most
-# heterogeneous of the four O2-consuming classes this project has built.
+# With EC 1.13.11 still in place: 102 reactions match O2. 59 (57.8%)
+# resolve to a single acceptor/product pair within tolerance and are
+# decided, every one decisively favouring the enzyme -- including
+# RHEA:10428 (the clean lipoxygenase example), RHEA:14409 (cysteamine ->
+# hypotaurine, the one-proton-short cluster) and RHEA:10084 (the
+# ring-cleaving catechol dioxygenase, the two-proton-short cluster),
+# confirming all three charge-state variants are the same real chemistry.
+# 2 (RHEA:12981, RHEA:13957) genuinely require H2O as a third reactant
+# beyond O2 (S-sulfanylglutathione and elemental sulfur oxidation to
+# sulfite) -- water is excluded from the acceptor search the same way a
+# proton is (see screen.py's _identify docstring), so both resolve on
+# their remaining sulfur-containing reactant alone and are correctly
+# excluded by mass delta rather than mis-decided against a spurious
+# water-as-acceptor pairing; an earlier version of this file described
+# them as unresolvable, which was accurate before that fix and is folded
+# into the 41 below now. The other 41 are correctly excluded by mass
+# delta -- this class's own header above describes the confounds
+# (product-splitting, ring cleavage with CO or CO2 loss, carotenoid
+# cleavage) that make this EC group the most heterogeneous of the six
+# O2-consuming classes this project has built.
+#
+# STAGE 2: ec_prefix REPLACED BY excluded_co_cofactor_chebi -- the mirror
+# image of the required_co_cofactor_chebi gate the other five O2 classes
+# use (see o2-monooxygenase.yaml's header for the full rationale). This
+# class is defined by the ABSENCE of every other mechanism's co-cofactor:
+# a true dioxygenase is exactly "O2 minus every reaction the five other O2
+# classes already claim by co-cofactor identity", so excluded_co_cofactor_
+# chebi below is the union of all five other classes' required lists --
+# NADH, NADPH, FMNH2, FADH2, Fe(2+)/rubredoxin, reduced [2Fe-2S], reduced
+# [4Fe-4S], 2-oxoglutarate (8 distinct ids; NADPH and FADH2 already appear
+# in more than one other class's own list). With ec_prefix dropped: 932
+# reactions match, 197 decide, all decisively favouring the enzyme, zero
+# of the 59 previously-decided reactions lost. Every newly decided
+# reaction was spot-checked -- all are bare "acceptor + O2 = product"
+# lipoxygenase/dioxygenase reactions with no reduced co-cofactor present
+# at all, e.g. RHEA:51332 (eicosatrienoate hydroperoxidation) and
+# RHEA:48996 (catechol ring cleavage), neither carrying an EC annotation.
 
 reaction_class:
   id: o2-dioxygenase
@@ -59,12 +81,23 @@ reaction_class:
     Enzymatic incorporation of both atoms of O2 into an acceptor (forming a
     hydroperoxide, a new diol, or cleaving an aromatic ring while
     retaining both new oxygens), with no separate electron-donor cofactor.
-    Matched on O2, restricted to EC 1.13.11.
+    Matched on O2 and on the ABSENCE of every other O2 class's required
+    co-cofactor; no ec_prefix is declared.
   expected_mass_delta: 30.99
   mass_delta_tolerance: 1.1
   cofactor_chebi: "CHEBI:15379"
   cofactor_role: reagent
-  ec_prefix: "1.13.11"
+  excluded_co_cofactor_chebi:
+    [
+      "CHEBI:57945",
+      "CHEBI:57783",
+      "CHEBI:57618",
+      "CHEBI:58307",
+      "CHEBI:29033",
+      "CHEBI:33738",
+      "CHEBI:33723",
+      "CHEBI:16810",
+    ]
 
 chemical_counterpart:
   name: "Declared process model only -- see process_model below"
