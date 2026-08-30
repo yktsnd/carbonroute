@@ -953,6 +953,51 @@ within its wide, unevidenced `[0.5, 100]` cofactor ceiling.
 **Coverage across all seven classes: 1,938 of 18,558 Rhea reactions
 matched (10.4%), 1,136 decided (6.1%).**
 
+## Three more siblings: GPP, FPP and GGPP prenylation
+
+DMAPP is one of four allylic-diphosphate prenyl donors in Rhea; the other
+three transfer two, three and four isoprene units respectively rather than
+one, so each needs its own `expected_mass_delta` and its own class:
+`data/reaction-classes/gpp-prenyltransferase.yaml`,
+`fpp-prenyltransferase.yaml` and `ggpp-prenyltransferase.yaml`. Same
+transformation as DMAPP (a nucleophile displaces diphosphate at C1 of the
+allylic system), same process-model shape (a prenyl bromide analogue —
+geranyl, farnesyl or geranylgeranyl bromide, each CAS verified by web
+search rather than memory given how obscure the longer-chain reagents
+are — with a mild base), no `transferred_bond_smarts` for the same reason
+DMAPP carries none.
+
+| class | matched | decided | decided as % of matched |
+|---|---:|---:|---:|
+| GPP (two units, 136.24 g/mol) | 11 | 9 | 81.8% |
+| FPP (three units, 204.36 g/mol) | 13 | 2 | 15.4% |
+| GGPP (four units, 272.48 g/mol) | 9 | 3 | 33.3% |
+
+**FPP is the honest finding here, and it runs the opposite direction from
+DMAPP's.** DMAPP decides 37 of 47 matched reactions (78.7%) because most of
+its real EC 2.5.1 chemistry really is transfer onto a foreign nucleophile.
+FPP decides only 2 of 13 (15.4%) because most of *its* real EC 2.5.1
+chemistry is something else entirely: 6 reactions are chain elongation
+(FPP condensing with 3–10 more isopentenyl diphosphate equivalents to
+build a longer polyprenyl diphosphate — RHEA:27551/27559/27794/27798/
+27802/53008, mass deltas at exact multiples of 68.12, the same confound
+DMAPP's class documents), and 3 more are FPP **homodimerisation** — two
+FPP molecules condensing head-to-head with no foreign acceptor at all
+(RHEA:22672 → presqualene diphosphate, RHEA:31547 → diapophytoene,
+RHEA:32295/32299 → squalene, all genuine terpenoid biosynthesis, none of
+it this class's transformation). GGPP shows the same two confounds in
+smaller numbers, plus one prenylation-with-decarboxylation
+(RHEA:38003) that loses CO₂ alongside diphosphate and so adds a
+different net mass. Every excluded reaction is correctly separated by the
+mass-delta check rather than folded in as noise — a smaller class is not
+the same thing as a wrong one.
+
+Every decided reaction across all three classes is decisive and favours
+the enzyme, the same shape DMAPP, ATP-kinase and the UGT class show.
+
+**Coverage across all ten classes: 1,971 of 18,558 Rhea reactions matched
+(10.6%), 1,150 decided (6.2%).**
+
 ## Running one
 
 ```bash

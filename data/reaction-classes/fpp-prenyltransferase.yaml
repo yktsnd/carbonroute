@@ -1,0 +1,96 @@
+# Reaction class: FPP-dependent prenylation
+#
+# Covers Rhea reactions consuming farnesyl diphosphate (FPP, CHEBI:175763)
+# as a reactant, restricted to EC 2.5.1. FPP is the three-isoprene-unit
+# allylic diphosphate donor -- another sibling of the DMAPP class
+# (data/reaction-classes/dmapp-prenyltransferase.yaml), same transformation,
+# a longer donor. Not folded into the DMAPP or GPP class because it
+# transfers a different mass again.
+#
+# Net mass added: the farnesyl group, C15H24, 204.357 g/mol -- three times
+# the DMAPP class's 68.119. Same charge-state situation as the DMAPP and GPP
+# classes: donor and leaving group are drawn in the same charge state.
+#
+# No transferred_bond_smarts, for the same reason as the DMAPP class.
+#
+# Structural verification (run through the actual screen): 13 reactions
+# match FPP + EC 2.5.1. Only 2 (15.4%) resolve within tolerance and are
+# decided, both decisively favouring the enzyme -- FPP is a much less
+# "clean" cofactor than DMAPP or GPP for this class, because most of its
+# real EC 2.5.1 chemistry is NOT transfer onto a foreign nucleophile:
+# 6 reactions (RHEA:27551/27559/27794/27798/27802/53008) are chain
+# elongation with 3-10 more isopentenyl diphosphate equivalents, correctly
+# excluded by mass delta at exact multiples of 68.12; 3 more
+# (RHEA:22672 -> presqualene diphosphate, RHEA:31547 -> diapophytoene,
+# RHEA:32295/32299 -> squalene) are FPP HOMODIMERISATION -- two FPP
+# molecules coupling head-to-head with no foreign acceptor at all, the
+# same class of chemistry the DMAPP class's chrysanthemyl/lavandulyl
+# synthase members are; RHEA:28070 (heme b + FPP + H2O -> Fe(II)-heme o)
+# has three left-side reactants and does not resolve to a single acceptor.
+# The 2 that do decide are genuine, real single-nucleophile prenylations,
+# correctly separated from this cofactor's other, much more common
+# chemistry -- a small class, honestly reported as one.
+
+reaction_class:
+  id: fpp-prenyltransferase
+  name: "FPP-dependent prenylation"
+  description: >
+    Enzymatic transfer of the farnesyl group from FPP onto a nucleophilic
+    acceptor (O-, C- or S-prenylation), releasing diphosphate. Matched on
+    FPP specifically (not DMAPP, GPP or GGPP, which transfer a different
+    mass), restricted to EC 2.5.1.
+  expected_mass_delta: 204.357
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:175763"
+  cofactor_role: reagent
+  ec_prefix: "2.5.1"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Farnesyl bromide alkylation with a mild base, at process concentration"
+  source: >
+    Not a paper. Farnesyl bromide (trans,trans isomer, CAS 28290-41-7,
+    verified via web search rather than memory) with a mild base is the
+    direct fifteen-carbon analogue of the DMAPP class's prenyl bromide
+    route. Parameters stated on the same terms the other process models
+    use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: prenylate
+      volumes: 1.0
+      solvent: {name: acetone, cas: "67-64-1", density_kg_per_L: 0.791}
+      reagents:
+        - name: farnesyl bromide
+          cas: "28290-41-7"
+          kg_per_mol: 0.285264
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the alkylating agent -- modest excess, same
+            order as the DMAPP class's prenyl bromide loading.
+        - name: potassium carbonate
+          cas: "584-08-7"
+          kg_per_mol: 0.138205
+          equivalents: 2.0
+          note: >
+            Base to neutralise the HBr generated and keep the nucleophile
+            deprotonated -- same loading as the DMAPP class's base.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

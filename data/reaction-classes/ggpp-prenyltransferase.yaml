@@ -1,0 +1,89 @@
+# Reaction class: GGPP-dependent prenylation
+#
+# Covers Rhea reactions consuming geranylgeranyl diphosphate (GGPP,
+# CHEBI:58756) as a reactant, restricted to EC 2.5.1. GGPP is the
+# four-isoprene-unit allylic diphosphate donor -- the last sibling of the
+# DMAPP class (data/reaction-classes/dmapp-prenyltransferase.yaml), same
+# transformation, a longer donor still.
+#
+# Net mass added: the geranylgeranyl group, C20H32, 272.476 g/mol -- four
+# times the DMAPP class's 68.119. Same charge-state situation as the DMAPP,
+# GPP and FPP classes: donor and leaving group are drawn in the same charge
+# state.
+#
+# No transferred_bond_smarts, for the same reason as the DMAPP class.
+#
+# Structural verification (run through the actual screen): 9 reactions
+# match GGPP + EC 2.5.1. 3 (33.3%) resolve within tolerance and are
+# decided, all decisively favouring the enzyme. The other 6: 2
+# (RHEA:27555, RHEA:27594) are chain elongation with more isopentenyl
+# diphosphate, excluded by mass delta at exact multiples of 68.12; 4
+# (RHEA:34475 -> phytoene, a GGPP homodimerisation with no foreign
+# acceptor; RHEA:38003, a prenylation-with-decarboxylation losing CO2 as
+# well as diphosphate, a genuinely different net mass; RHEA:49228 and
+# RHEA:58176, reactions with a large porphyrin/carotenoid partner and, in
+# one case, a second cofactor (NADPH) alongside GGPP) do not resolve to a
+# single acceptor/product pair.
+
+reaction_class:
+  id: ggpp-prenyltransferase
+  name: "GGPP-dependent prenylation"
+  description: >
+    Enzymatic transfer of the geranylgeranyl group from GGPP onto a
+    nucleophilic acceptor (O-, C- or S-prenylation), releasing diphosphate.
+    Matched on GGPP specifically (not DMAPP, GPP or FPP, which transfer a
+    different mass), restricted to EC 2.5.1.
+  expected_mass_delta: 272.476
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:58756"
+  cofactor_role: reagent
+  ec_prefix: "2.5.1"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Geranylgeranyl bromide alkylation with a mild base, at process concentration"
+  source: >
+    Not a paper. Geranylgeranyl bromide (CAS 50848-64-1, verified via web
+    search rather than memory) with a mild base is the direct
+    twenty-carbon analogue of the DMAPP class's prenyl bromide route.
+    Parameters stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: prenylate
+      volumes: 1.0
+      solvent: {name: acetone, cas: "67-64-1", density_kg_per_L: 0.791}
+      reagents:
+        - name: geranylgeranyl bromide
+          cas: "50848-64-1"
+          kg_per_mol: 0.353388
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the alkylating agent -- modest excess, same
+            order as the DMAPP class's prenyl bromide loading.
+        - name: potassium carbonate
+          cas: "584-08-7"
+          kg_per_mol: 0.138205
+          equivalents: 2.0
+          note: >
+            Base to neutralise the HBr generated and keep the nucleophile
+            deprotonated -- same loading as the DMAPP class's base.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

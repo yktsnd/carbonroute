@@ -1478,3 +1478,44 @@ def test_ugt_class_is_decided_and_decisively_favours_the_enzyme(ugt_screened):
     ]
     assert len(decided_with_verdict) == len(ugt_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- three siblings of the DMAPP class: GPP, FPP and GGPP prenylation ------
+
+
+@pytest.mark.parametrize(
+    "class_id,cofactor_key,matched,decided",
+    [
+        ("gpp-prenyltransferase", "name:chebi:58057", 11, 9),
+        ("fpp-prenyltransferase", "name:chebi:175763", 13, 2),
+        ("ggpp-prenyltransferase", "name:chebi:58756", 9, 3),
+    ],
+)
+def test_prenyl_diphosphate_siblings_match_and_decide_the_expected_number(
+    class_id, cofactor_key, matched, decided
+):
+    """GPP, FPP and GGPP are DMAPP's siblings: the same allylic-diphosphate
+    prenylation, transferring two, three and four isoprene units instead of
+    one. Each is its own class because each adds a different mass, and each
+    is progressively less "clean" than DMAPP: a growing share of each
+    donor's real EC 2.5.1 chemistry is chain elongation or homodimerisation
+    rather than transfer onto a foreign nucleophile, which is why FPP's
+    decided count (2 of 13) is much smaller than DMAPP's own (37 of 47) --
+    a real finding about the chemistry, not a bug in the screen."""
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / f"{class_id}.yaml")
+    bounds = load_bounds(CLASSES / f"{class_id}.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    r = screen_all(
+        reactions, template, structures, table, assumptions, bounds, use_process_model=True
+    )
+    assert r.matched == matched
+    assert len(r.decided) == decided
+    assert cofactor_key in bounds
+    decided_with_verdict = [x for x in r.decided if x.verdict is not None and x.verdict.decisive]
+    assert len(decided_with_verdict) == len(r.decided)
+    assert all(x.verdict.verdict == "b_lower" for x in decided_with_verdict)

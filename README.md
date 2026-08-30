@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Seven classes now built — 1,938 of 18,558 reactions matched (10.4%), 1,136 decided (6.1%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Ten classes now built — 1,971 of 18,558 reactions matched (10.6%), 1,150 decided (6.2%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -224,8 +224,16 @@ measures the same thing the threshold did.
    `udp-glucuronosyltransferase.yaml` (UDP-glucuronate-dependent
    glucuronidation — the real UGT drug-metabolism family — 102 matched, 95
    decided, all decisive; a *third* charge-state split, one proton apart,
-   unified the same way as the other two). Combined:
-   **1,938 of 18,558 reactions matched (10.4%), 1,136 decided (6.1%)**, up
+   unified the same way as the other two), and three more siblings of the
+   DMAPP class — `gpp-prenyltransferase.yaml`, `fpp-prenyltransferase.yaml`
+   and `ggpp-prenyltransferase.yaml` (the other three allylic-diphosphate
+   prenyl donors, transferring two/three/four isoprene units instead of
+   DMAPP's one — 11/13/9 matched, 9/2/3 decided). FPP is the honest finding
+   there: it decides only 2 of 13 (15.4%, the opposite of DMAPP's 78.7%)
+   because most of its real chemistry is chain elongation or
+   homodimerisation, not transfer onto a foreign nucleophile — a smaller
+   class, correctly reported as one rather than padded. Combined:
+   **1,971 of 18,558 reactions matched (10.6%), 1,150 decided (6.2%)**, up
    from one class's original 406 / 388. More classes are being added the
    same way — see the coverage ceiling below for what that number can and
    cannot

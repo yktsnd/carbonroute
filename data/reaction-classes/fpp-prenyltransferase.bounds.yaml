@@ -1,0 +1,40 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+
+bounds:
+
+  # ---- The enzymatic side -------------------------------------------------
+  "name:chebi:175763":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      Farnesyl diphosphate (FPP). No public cradle-to-gate factor was
+      found. Same interval and same reasoning as the cofactors in the
+      other shipped classes: deliberately wide because it is not known.
+    sources:
+      - "No public cradle-to-gate GWP for FPP was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+
+  # ---- The chemical side ---------------------------------------------------
+  "cas:28290-41-7":
+    low: 0.5
+    high: null
+    rationale: >
+      Farnesyl bromide. No public cradle-to-gate factor was found. Low
+      bound only, by the same convention every other unresolved
+      chemical-side reagent in this project uses.
+    sources:
+      - "No public cradle-to-gate GWP for farnesyl bromide was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."
+  "cas:584-08-7":
+    low: 0.3
+    high: null
+    rationale: >
+      Potassium carbonate. No public cradle-to-gate factor was found. Same
+      low-bound-only convention, reproduced from the DMAPP-prenyltransferase
+      class (bounds are declared per-file, not shared).
+    sources:
+      - "No public cradle-to-gate GWP for potassium carbonate was found."
+      - "data/factors/ademe_base_carbone.csv: Sodium carbonate, 0.341 kgCO2e/kg (a comparable inorganic base, used as context for the low anchor)."

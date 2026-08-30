@@ -1,0 +1,96 @@
+# Reaction class: GPP-dependent prenylation
+#
+# Covers Rhea reactions consuming geranyl diphosphate (GPP, CHEBI:58057) as a
+# reactant, restricted to EC 2.5.1. GPP is the two-isoprene-unit allylic
+# diphosphate donor -- the sibling of the DMAPP class
+# (data/reaction-classes/dmapp-prenyltransferase.yaml), covering the same
+# transformation (a nucleophile displaces diphosphate at C1 of the allylic
+# system) with a longer donor. It is not folded into the DMAPP class because
+# it transfers twice the mass: DMAPP adds one isoprenyl unit, GPP adds two,
+# and the current template schema has one expected_mass_delta per class.
+#
+# Net mass added: the geranyl group, C10H16, 136.238 g/mol -- exactly twice
+# the DMAPP class's 68.119, confirmed directly against RHEA:17449 (flaviolin
+# -> 3-linalylflaviolin, product 341.383 g/mol minus acceptor 205.145 g/mol
+# = 136.238). Same charge-state situation as the DMAPP class: donor and
+# leaving group are drawn in the same charge state, so no offset applies.
+#
+# No transferred_bond_smarts, for the same reason as the DMAPP class: many
+# acceptors in this class are natural products that already carry an
+# unrelated isoprenyl-derived alkene, so "one more C=C" is not a clean
+# discriminator, and the mass-delta check alone is the class-purity test.
+#
+# Structural verification (run through the actual screen): 11 reactions
+# match GPP + EC 2.5.1. 9 (81.8%) resolve to a single acceptor/product pair
+# within tolerance and are decided, every one decisively favouring the
+# enzyme. The other 2: RHEA:27563 (7 isopentenyl diphosphate + GPP =
+# all-trans-nonaprenyl diphosphate + 7 diphosphate) is chain elongation,
+# the same confound the DMAPP class documents, excluded by mass delta
+# (544.95, an exact multiple of 68.12); RHEA:33839 (2-O,3-dimethylflaviolin
+# + GPP = 7-O-geranyl-2-O,3-dimethylflaviolin, a genuine prenylation) could
+# not be resolved to a single acceptor/product pair.
+
+reaction_class:
+  id: gpp-prenyltransferase
+  name: "GPP-dependent prenylation"
+  description: >
+    Enzymatic transfer of the geranyl group from GPP onto a nucleophilic
+    acceptor (O-, C- or S-prenylation), releasing diphosphate. Matched on
+    GPP specifically (not DMAPP, FPP or GGPP, which transfer a different
+    mass), restricted to EC 2.5.1.
+  expected_mass_delta: 136.238
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:58057"
+  cofactor_role: reagent
+  ec_prefix: "2.5.1"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Geranyl bromide alkylation with a mild base, at process concentration"
+  source: >
+    Not a paper. Geranyl bromide (CAS 6138-90-5, verified via web search
+    rather than memory) with a mild base is the direct ten-carbon analogue
+    of the DMAPP class's prenyl bromide route -- the same Williamson-type
+    alkylation, with the alkylating agent swapped for the electrophile this
+    class actually transfers. Parameters stated on the same terms the other
+    process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: prenylate
+      volumes: 1.0
+      solvent: {name: acetone, cas: "67-64-1", density_kg_per_L: 0.791}
+      reagents:
+        - name: geranyl bromide
+          cas: "6138-90-5"
+          kg_per_mol: 0.217150
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the alkylating agent -- modest excess, same
+            order as the DMAPP class's prenyl bromide loading.
+        - name: potassium carbonate
+          cas: "584-08-7"
+          kg_per_mol: 0.138205
+          equivalents: 2.0
+          note: >
+            Base to neutralise the HBr generated and keep the nucleophile
+            deprotonated -- same loading as the DMAPP class's base.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []
