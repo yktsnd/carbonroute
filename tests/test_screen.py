@@ -1254,16 +1254,20 @@ def dmapp_screened(dmapp_inputs):
 
 
 def test_dmapp_class_matches_and_decides_the_expected_number(dmapp_screened):
-    """47 Rhea reactions consume DMAPP under EC 2.5.1. 37 (78.7%) resolve to
+    """47 Rhea reactions consume DMAPP under EC 2.5.1. 38 (80.9%) resolve to
     a single acceptor/product pair within one proton of 68.119 (the
     isoprenyl group, C5H8) and are decided. RHEA:10852 (leachianone G ->
     sophoraflavanone G) is the reaction that pinned the constant down:
     424.493 - 356.374 = 68.119 exactly, with donor and leaving group drawn
-    in the same charge state so no dianion-style offset applies here."""
+    in the same charge state so no dianion-style offset applies here.
+    RHEA:79231 (hapalindole U + DMAPP + H(+) -> ambiguine H) only decides
+    once a proton on the left of the equation is excluded from the
+    acceptor search the same way one on the right already was."""
     assert dmapp_screened.matched == 47
-    assert len(dmapp_screened.decided) == 37
+    assert len(dmapp_screened.decided) == 38
     by_id = {r.rhea_id: r for r in dmapp_screened.results}
     assert by_id["RHEA:10852"].decided
+    assert by_id["RHEA:79231"].decided
 
 
 def test_dmapp_class_excludes_chain_elongation_and_homodimerisation(dmapp_screened):
@@ -1299,7 +1303,7 @@ def test_dmapp_process_model_charges_prenyl_bromide_and_base(dmapp_inputs):
 
 
 def test_dmapp_class_is_decided_and_decisively_favours_the_enzyme(dmapp_screened):
-    """Every one of this class's 37 decided reactions reaches a decisive
+    """Every one of this class's 38 decided reactions reaches a decisive
     verdict favouring the enzyme, the same shape as the ATP-kinase class
     and unlike NAD(P)+-oxidoreductase: the process model's stoichiometric
     prenyl bromide loading is bulky enough to keep the sign fixed even at
@@ -1437,19 +1441,25 @@ def test_ugt_class_unifies_two_clusters_one_proton_apart(ugt_inputs):
 def test_ugt_class_matches_and_excludes_five_other_transformations(ugt_screened):
     """102 Rhea reactions consume UDP-glucuronate. RHEA:11404 (UDP-
     glucuronate 4-epimerase, a pure isomerisation with no separate acceptor)
-    cannot be resolved to an acceptor/product pair. Of the 101 that do
-    resolve, 95 (94.1%) land within tolerance and are decided -- every one
-    of them decisively favouring the enzyme. The other 6 are genuinely
+    cannot be resolved to an acceptor/product pair -- nor can RHEA:23916 and
+    RHEA:70523 (UDP-glucuronate decarboxylase to UDP-xylose/UDP-apiose):
+    both consume only UDP-glucuronate plus a proton, so once a proton on
+    the left of the equation is correctly excluded from the acceptor
+    search, nothing is left to call "the acceptor" either. Of the 101 that
+    do resolve, 95 (94.1%) land within tolerance and are decided -- every
+    one of them decisively favouring the enzyme. The other 4 are genuinely
     different UDP-glucuronate chemistry (hyaluronan chain elongation,
-    UDP-glucuronate decarboxylase, oxidative decarboxylation, hydrolysis to
-    the 1-phosphate) and are correctly excluded by mass delta."""
+    oxidative decarboxylation, hydrolysis to the 1-phosphate) and are
+    correctly excluded by mass delta."""
     assert ugt_screened.matched == 102
     assert len(ugt_screened.decided) == 95
     by_id = {r.rhea_id: r for r in ugt_screened.results}
     assert by_id["RHEA:10568"].decided
     assert by_id["RHEA:28314"].decided
-    assert "could not identify" in by_id["RHEA:11404"].skipped_reason
-    for rhea_id in ("RHEA:12528", "RHEA:20908", "RHEA:23916", "RHEA:24702", "RHEA:29559", "RHEA:70523"):
+    for rhea_id in ("RHEA:11404", "RHEA:23916", "RHEA:70523"):
+        assert not by_id[rhea_id].decided
+        assert "could not identify" in by_id[rhea_id].skipped_reason
+    for rhea_id in ("RHEA:12528", "RHEA:20908", "RHEA:24702", "RHEA:29559"):
         assert not by_id[rhea_id].decided
         assert "does not match" in by_id[rhea_id].skipped_reason
 
@@ -1486,9 +1496,9 @@ def test_ugt_class_is_decided_and_decisively_favours_the_enzyme(ugt_screened):
 @pytest.mark.parametrize(
     "class_id,cofactor_key,matched,decided",
     [
-        ("gpp-prenyltransferase", "name:chebi:58057", 11, 9),
+        ("gpp-prenyltransferase", "name:chebi:58057", 11, 10),
         ("fpp-prenyltransferase", "name:chebi:175763", 13, 2),
-        ("ggpp-prenyltransferase", "name:chebi:58756", 9, 3),
+        ("ggpp-prenyltransferase", "name:chebi:58756", 9, 4),
     ],
 )
 def test_prenyl_diphosphate_siblings_match_and_decide_the_expected_number(
@@ -1500,7 +1510,7 @@ def test_prenyl_diphosphate_siblings_match_and_decide_the_expected_number(
     is progressively less "clean" than DMAPP: a growing share of each
     donor's real EC 2.5.1 chemistry is chain elongation or homodimerisation
     rather than transfer onto a foreign nucleophile, which is why FPP's
-    decided count (2 of 13) is much smaller than DMAPP's own (37 of 47) --
+    decided count (2 of 13) is much smaller than DMAPP's own (38 of 47) --
     a real finding about the chemistry, not a bug in the screen."""
     reactions, _ = load_reactions(RHEA / "reactions.tsv")
     structures = load_structures(RHEA / "participants.csv")

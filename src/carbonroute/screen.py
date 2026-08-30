@@ -895,8 +895,21 @@ def _identify(rxn: RheaReaction, template: ClassTemplate) -> tuple[Participant, 
     heaviest species on the right that is not the cofactor's own leaving
     group. Both are identified positionally from Rhea's own curated equation,
     not inferred from names.
+
+    A proton is excluded from the left side the same way it already was from
+    the right: 2,673 of Rhea's 18,558 reactions (14.4%) carry "+ H(+)" as a
+    reactant -- mechanistically real (many oxygenases and reductases need
+    it), but never the acceptor a class template is looking for. Leaving it
+    in `others_left` silently failed every such reaction's identification
+    for every class before this fix, understating matched counts across the
+    board; verified empirically to be purely additive (it can only reduce
+    `others_left`'s count, never increase it, so a reaction that matched
+    before still matches the same way after) against all ten shipped
+    classes before landing here.
     """
-    others_left = [p for p in rxn.left if p.chebi not in template.cofactor_chebi]
+    others_left = [
+        p for p in rxn.left if p.chebi not in template.cofactor_chebi and p.chebi != "CHEBI:15378"
+    ]
     if len(others_left) != 1:
         return None
     acceptor = others_left[0]

@@ -14,16 +14,21 @@
 # No transferred_bond_smarts, for the same reason as the DMAPP class.
 #
 # Structural verification (run through the actual screen): 9 reactions
-# match GGPP + EC 2.5.1. 3 (33.3%) resolve within tolerance and are
-# decided, all decisively favouring the enzyme. The other 6: 2
-# (RHEA:27555, RHEA:27594) are chain elongation with more isopentenyl
-# diphosphate, excluded by mass delta at exact multiples of 68.12; 4
-# (RHEA:34475 -> phytoene, a GGPP homodimerisation with no foreign
-# acceptor; RHEA:38003, a prenylation-with-decarboxylation losing CO2 as
-# well as diphosphate, a genuinely different net mass; RHEA:49228 and
-# RHEA:58176, reactions with a large porphyrin/carotenoid partner and, in
-# one case, a second cofactor (NADPH) alongside GGPP) do not resolve to a
-# single acceptor/product pair.
+# match GGPP + EC 2.5.1. 4 (44.4%) resolve within tolerance and are
+# decided, all decisively favouring the enzyme -- including RHEA:49228
+# (bacteriochlorophyllide a + GGPP + H(+) = geranylgeranyl-
+# bacteriochlorophyllide a + diphosphate), which only decides once a
+# proton on the left of the equation is excluded from the acceptor search
+# the same way one on the right already was -- see screen.py's _identify
+# docstring. The other 5: RHEA:34475 (2 GGPP -> phytoene, a GGPP
+# homodimerisation with no foreign acceptor at all) could not be resolved
+# to a single acceptor/product pair; 4 are excluded by mass delta --
+# RHEA:27555/RHEA:27594 are chain elongation with more isopentenyl
+# diphosphate, at exact multiples of 68.12; RHEA:38003 is a prenylation-
+# with-decarboxylation losing CO2 alongside diphosphate, a genuinely
+# different net mass; RHEA:58176 consumes a second cofactor (NADPH)
+# alongside GGPP in a reductive prenylation that adds a different mass
+# again.
 
 reaction_class:
   id: ggpp-prenyltransferase

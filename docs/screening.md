@@ -807,9 +807,9 @@ trianions) in this pair, so the textbook and observed values agree.
 | outcome | reactions |
 |---|---:|
 | matched (DMAPP + EC 2.5.1) | 47 |
-| excluded — could not identify an acceptor/product pair | 8 |
-| excluded — right transfer count, wrong mass (chain elongation) | 2 |
-| **decided** | **37** |
+| excluded — could not identify an acceptor/product pair | 6 |
+| excluded — right transfer count, wrong mass (chain elongation) | 3 |
+| **decided** | **38** |
 
 Two genuinely different sub-chemistries share the DMAPP cofactor with real
 prenylation, and both are correctly excluded rather than mis-decided. **Chain
@@ -831,7 +831,7 @@ NAD(P)+-oxidoreductase class carries none: many acceptors in this class are
 natural products that already carry an unrelated isoprenyl-derived alkene
 from the same biosynthetic family, so "one more C=C" is not a clean
 discriminator. The mass-delta check alone is the whole class-purity test
-here, and — like the ATP-kinase class — every one of the 37 decided
+here, and — like the ATP-kinase class — every one of the 38 decided
 reactions reaches a decisive verdict favouring the enzyme: the process
 model's stoichiometric prenyl bromide loading (the same Williamson-type
 alkylation shape the SAM class uses, with the alkylating agent swapped)
@@ -926,19 +926,25 @@ far outside that window.
 | outcome | reactions |
 |---|---:|
 | matched (UDP-glucuronate) | 102 |
-| excluded — could not identify an acceptor/product pair (pure isomerisation) | 1 |
-| excluded — right transfer count, wrong mass (5 other transformations) | 6 |
+| excluded — could not identify an acceptor/product pair | 3 |
+| excluded — right transfer count, wrong mass (4 other transformations) | 4 |
 | **decided** | **95** |
 
-The single unresolved reaction (RHEA:11404) is UDP-glucuronate
-4-epimerase — a pure isomerisation to UDP-galacturonate with no separate
-acceptor at all. The 6 mass-delta exclusions are genuinely different
-UDP-glucuronate chemistry, not glucuronosylation gone wrong: hyaluronan/
-proteoglycan chain elongation (2, written with Rhea's "(n)"/"(n+1)"
-polymer notation), UDP-glucuronate decarboxylase (2, no separate acceptor
-at all), a further NAD⁺-dependent oxidative decarboxylation (1), and
-hydrolysis to glucuronate 1-phosphate rather than transfer to a foreign
-acceptor (1) — all correctly excluded rather than folded in as noise.
+Three reactions have no separate acceptor at all: RHEA:11404
+(UDP-glucuronate 4-epimerase, a pure isomerisation to UDP-galacturonate)
+and RHEA:23916/RHEA:70523 (UDP-glucuronate decarboxylase to UDP-xylose or
+UDP-apiose, releasing CO₂) — the latter two only resolve to "could not
+identify" once a proton on the left of their equations is correctly
+excluded from the acceptor search the same way one on the right already
+was (see "Three more siblings" below); before that fix they were
+mis-bucketed as a wrong mass rather than a missing acceptor, though
+correctly excluded either way. The 4 remaining mass-delta exclusions are
+genuinely different UDP-glucuronate chemistry, not glucuronosylation gone
+wrong: hyaluronan/proteoglycan chain elongation (2, written with Rhea's
+"(n)"/"(n+1)" polymer notation), a further NAD⁺-dependent oxidative
+decarboxylation (1), and hydrolysis to glucuronate 1-phosphate rather
+than transfer to a foreign acceptor (1) — all correctly excluded rather
+than folded in as noise.
 
 No `transferred_bond_smarts` is declared: the mass-delta check alone
 already separates real glucuronosylation from this cofactor's other
@@ -967,14 +973,31 @@ search rather than memory given how obscure the longer-chain reagents
 are — with a mild base), no `transferred_bond_smarts` for the same reason
 DMAPP carries none.
 
+**Building them surfaced a real, general bug in `_identify`, the function
+every class uses to pick out the acceptor and product.** It already
+excluded a bare proton from the right-hand side of an equation ("H(+)" is
+never the product), but not from the left — so any reaction needing a
+proton as a genuine co-reactant (2,673 of Rhea's 18,558, 14.4%, most
+oxidoreductases and several prenylations among them) silently failed
+identification, or worse, occasionally let a lone proton stand in as a
+fake "acceptor". Fixed symmetrically, and checked to be purely additive
+before landing — it can only shrink `others_left`'s count, never grow it,
+so no reaction that matched before can stop matching — verified empirically
+against all ten already-shipped classes: seven were unaffected, DMAPP
+gained one decided reaction (37 → 38, RHEA:79231), UDP-glucuronate kept
+its 95 decided but reclassified two reactions from a wrong mass to the
+honester "could not identify" (they were only failing the mass check
+because a lone proton had been mistaken for their acceptor), and GPP and
+GGPP each gained one, below.
+
 | class | matched | decided | decided as % of matched |
 |---|---:|---:|---:|
-| GPP (two units, 136.24 g/mol) | 11 | 9 | 81.8% |
+| GPP (two units, 136.24 g/mol) | 11 | 10 | 90.9% |
 | FPP (three units, 204.36 g/mol) | 13 | 2 | 15.4% |
-| GGPP (four units, 272.48 g/mol) | 9 | 3 | 33.3% |
+| GGPP (four units, 272.48 g/mol) | 9 | 4 | 44.4% |
 
 **FPP is the honest finding here, and it runs the opposite direction from
-DMAPP's.** DMAPP decides 37 of 47 matched reactions (78.7%) because most of
+DMAPP's.** DMAPP decides 38 of 47 matched reactions (80.9%) because most of
 its real EC 2.5.1 chemistry really is transfer onto a foreign nucleophile.
 FPP decides only 2 of 13 (15.4%) because most of *its* real EC 2.5.1
 chemistry is something else entirely: 6 reactions are chain elongation
@@ -987,16 +1010,17 @@ FPP molecules condensing head-to-head with no foreign acceptor at all
 RHEA:32295/32299 → squalene, all genuine terpenoid biosynthesis, none of
 it this class's transformation). GGPP shows the same two confounds in
 smaller numbers, plus one prenylation-with-decarboxylation
-(RHEA:38003) that loses CO₂ alongside diphosphate and so adds a
-different net mass. Every excluded reaction is correctly separated by the
-mass-delta check rather than folded in as noise — a smaller class is not
-the same thing as a wrong one.
+(RHEA:38003) that loses CO₂ alongside diphosphate and one reaction
+(RHEA:58176) that consumes a second cofactor (NADPH) alongside GGPP,
+both adding a different net mass. Every excluded reaction is correctly
+separated by the mass-delta check rather than folded in as noise — a
+smaller class is not the same thing as a wrong one.
 
 Every decided reaction across all three classes is decisive and favours
 the enzyme, the same shape DMAPP, ATP-kinase and the UGT class show.
 
 **Coverage across all ten classes: 1,971 of 18,558 Rhea reactions matched
-(10.6%), 1,150 decided (6.2%).**
+(10.6%), 1,153 decided (6.2%).**
 
 ## Running one
 

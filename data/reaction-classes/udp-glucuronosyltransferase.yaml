@@ -23,23 +23,25 @@
 # (see below).
 #
 # Structural verification (run through the actual screen): 102 reactions
-# consume UDP-glucuronate. 1 (RHEA:11404, UDP-glucuronate 4-epimerase --
-# UDP-glucuronate = UDP-galacturonate) has no separate acceptor at all, a
-# pure isomerisation, and correctly comes back "could not identify
-# acceptor/product". Of the 101 that do resolve to a single acceptor/product
-# pair, 95 (94.1%) land within tolerance -- 67 at the 175.12 cluster, 28 at
-# the 176.12 cluster -- and are decided, every one of them decisively
-# favouring the enzyme. The other 6 are genuinely different UDP-glucuronate
-# chemistry, not glucuronosylation gone wrong: 2 (RHEA:12528, RHEA:20908)
-# are hyaluronan/proteoglycan CHAIN ELONGATION, adding a glucuronosyl unit to
-# a growing polysaccharide written with Rhea's "(n)"/"(n+1)" notation, where
-# this project's acceptor/product resolver cannot form a real molecular-
-# weight comparison; 2 (RHEA:23916, RHEA:70523) are UDP-glucuronate
-# DECARBOXYLASE reactions (UDP-glucuronate -> UDP-xylose or UDP-apiose + CO2,
-# no separate acceptor at all -- UDP-glucuronate is both the "acceptor" and
-# whole substrate); 1 (RHEA:24702) is a further NAD+-dependent oxidative
-# decarboxylation of the same kind; 1 (RHEA:29559) is hydrolysis to
-# glucuronate 1-phosphate, not a transfer to a foreign acceptor. All are
+# consume UDP-glucuronate. 3 have no separate acceptor at all and correctly
+# come back "could not identify acceptor/product": RHEA:11404
+# (UDP-glucuronate 4-epimerase -- UDP-glucuronate = UDP-galacturonate, a
+# pure isomerisation) and RHEA:23916/RHEA:70523 (UDP-glucuronate
+# DECARBOXYLASE -- UDP-glucuronate + H(+) -> UDP-xylose or UDP-apiose +
+# CO2 -- once a proton on the left of the equation is correctly excluded
+# from the acceptor search the same way one on the right already was,
+# nothing is left over to call "the acceptor" for these two either). Of
+# the 99 that do resolve to a single acceptor/product pair, 95 (95.9%)
+# land within tolerance -- 67 at the 175.12 cluster, 28 at the 176.12
+# cluster -- and are decided, every one of them decisively favouring the
+# enzyme. The other 4 are genuinely different UDP-glucuronate chemistry,
+# not glucuronosylation gone wrong: 2 (RHEA:12528, RHEA:20908) are
+# hyaluronan/proteoglycan CHAIN ELONGATION, adding a glucuronosyl unit to
+# a growing polysaccharide written with Rhea's "(n)"/"(n+1)" notation,
+# where this project's acceptor/product resolver cannot form a real
+# molecular-weight comparison; 1 (RHEA:24702) is a further NAD+-dependent
+# oxidative decarboxylation; 1 (RHEA:29559) is hydrolysis to glucuronate
+# 1-phosphate, not a transfer to a foreign acceptor. All are
 # correctly excluded by the mass-delta check rather than folded in as noise.
 # No transferred_bond_smarts is declared: the mass-delta check alone already
 # separates real glucuronosylation from this cofactor's other reactions by
