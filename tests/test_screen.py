@@ -1760,3 +1760,72 @@ def test_p450_class_is_decided_and_decisively_favours_the_enzyme(p450_screened):
     ]
     assert len(decided_with_verdict) == len(p450_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a thirteenth class: O2-dependent fatty acyl desaturation ---------------
+# Same O2 cofactor as the two monooxygenase classes, but the OPPOSITE mass
+# signature: this EC group removes 2H rather than inserting an oxygen atom.
+
+
+@pytest.fixture(scope="module")
+def desaturase_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "o2-desaturase.yaml")
+    bounds = load_bounds(CLASSES / "o2-desaturase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def desaturase_screened(desaturase_inputs):
+    return screen_all(*desaturase_inputs, use_process_model=True)
+
+
+def test_desaturase_class_targets_2h_loss_not_oxygen_insertion(desaturase_inputs):
+    """Same O2 cofactor as the two monooxygenase classes, but this EC
+    group's dominant chemistry is dehydrogenation (octadecanoyl-[ACP] ->
+    (9Z)-octadecenoyl-[ACP], -2.016 g/mol), not oxygen insertion -- the
+    expected_mass_delta has to be the opposite sign from the other two O2
+    classes, not their +15.999."""
+    template = desaturase_inputs[1]
+    assert template.expected_mass_delta == pytest.approx(-2.016, abs=1e-6)
+    assert template.unpriced_co_cofactor_chebi == (
+        "CHEBI:29033", "CHEBI:57618", "CHEBI:33738", "CHEBI:57783", "CHEBI:58307",
+    )
+
+
+def test_desaturase_class_matches_and_decides_the_expected_number(desaturase_screened):
+    """115 Rhea reactions consume O2 under EC 1.14.19. 92 (80.0%) resolve
+    within tolerance and are decided, including RHEA:11776
+    (octadecanoyl-[ACP] -> (9Z)-octadecenoyl-[ACP]), the reaction the class
+    was designed around."""
+    assert desaturase_screened.matched == 115
+    assert len(desaturase_screened.decided) == 92
+    by_id = {r.rhea_id: r for r in desaturase_screened.results}
+    assert by_id["RHEA:11776"].decided
+
+
+def test_desaturase_class_excludes_dimerisation(desaturase_screened):
+    """RHEA:26031/26035 (two flaviolin molecules coupling to a biflaviolin,
+    +202.12 g/mol) are oxidative dimerisation -- a new C-C bond between two
+    acceptor molecules, not a desaturation of one -- and are correctly
+    excluded by mass delta rather than mis-decided."""
+    by_id = {r.rhea_id: r for r in desaturase_screened.results}
+    for rhea_id in ("RHEA:26031", "RHEA:26035"):
+        assert not by_id[rhea_id].decided
+        assert "does not match" in by_id[rhea_id].skipped_reason
+
+
+def test_desaturase_class_is_decided_and_decisively_favours_the_enzyme(desaturase_screened):
+    """Every one of this class's 92 decided reactions reaches a decisive
+    verdict favouring the enzyme, even with every electron donor's real
+    cost left entirely unpriced."""
+    decided_with_verdict = [
+        r for r in desaturase_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(desaturase_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

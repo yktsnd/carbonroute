@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twelve classes now built — 2,425 of 18,558 reactions matched (13.1%), 1,463 decided (7.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Thirteen classes now built — 2,540 of 18,558 reactions matched (13.7%), 1,555 decided (8.4%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -258,9 +258,15 @@ measures the same thing the threshold did.
    `unpriced_co_cofactor_chebi` mechanism with a different electron-donor
    identity (`CHEBI:57618`, the same ChEBI entity Rhea's equation text
    variously labels "reduced [NADPH--hemoprotein reductase]", "FMNH2" or
-   "reduced [flavodoxin]" depending on biological context, plus FADH2).
-   Combined:
-   **2,425 of 18,558 reactions matched (13.1%), 1,463 decided (7.9%)**, up
+   "reduced [flavodoxin]" depending on biological context, plus FADH2). A
+   thirteenth, `o2-desaturase.yaml` (EC 1.14.19, fatty acyl desaturation —
+   115 matched, 92 decided, all decisive), shares the O2 cofactor with the
+   two monooxygenase classes but targets the *opposite* mass signature:
+   this EC group removes two hydrogens to form a C=C bond (−2.016 g/mol,
+   the same 2H-loss signature the NAD(P)+-oxidoreductase class targets),
+   not insert an oxygen atom, so it reuses that class's process model
+   rather than the monooxygenases' mCPBA one. Combined:
+   **2,540 of 18,558 reactions matched (13.7%), 1,555 decided (8.4%)**, up
    from one class's original 406 / 388. More classes are being added the
    same way — see the coverage ceiling below for what that number can and
    cannot

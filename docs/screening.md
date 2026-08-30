@@ -1128,6 +1128,58 @@ the electron donor's real cost left entirely unpriced.
 **Coverage across all twelve classes: 2,425 of 18,558 Rhea reactions
 matched (13.1%), 1,463 decided (7.9%).**
 
+## The thirteenth class: O2-dependent fatty acyl desaturation
+
+`data/reaction-classes/o2-desaturase.yaml` covers EC 1.14.19 — fatty
+acyl-CoA/-ACP/-lipid desaturases. Same O2 cofactor as the two
+monooxygenase classes, but the *opposite* mass signature: this EC
+group's dominant chemistry removes two hydrogens to form a new C=C
+double bond (octadecanoyl-[ACP] → (9Z)-octadecenoyl-[ACP]), reducing O2
+fully to two water molecules with four electrons from a co-substrate,
+rather than inserting an oxygen atom. Net mass change: −2.016 g/mol, the
+same signature the NAD(P)+-oxidoreductase class targets for 2H-loss
+oxidation — this class is really "the same dehydrogenation chemistry,
+powered by O2 instead of NAD(P)+", not a third sibling of the two
+monooxygenase classes despite sharing their cofactor. Its process model
+is reused directly from `nad-oxidoreductase.yaml` for the same reason:
+the chemical route (TEMPO/NaOCl/KBr) does not know or care which
+cofactor the enzyme used to drive the same net dehydrogenation.
+
+Five co-cofactor identities cover the large majority of this class's
+electron donors: Fe(II)-[cytochrome b5] (45 reactions), reduced
+[NADPH--hemoprotein reductase] (23 — the same `CHEBI:57618` entity the
+p450-monooxygenase class already declares), reduced
+[2Fe-2S]-[ferredoxin] (22), NADPH (10) and FADH2 (8). Several reactions
+consume *two* equivalents of a donor for the four-electron reduction of
+O2 to two waters; since none of these five is priced, the doubled
+stoichiometry needs no special handling.
+
+| outcome | reactions |
+|---|---:|
+| matched (O2 + EC 1.14.19) | 115 |
+| excluded — could not identify an acceptor/product pair | 19 |
+| excluded — right transfer count, wrong mass (3 other transformations) | 4 |
+| **decided** | **92** |
+
+The 19 unresolved reactions pair the acceptor with a further
+small-molecule reactant (chloride, bromide, L-tryptophan) this class's
+co-cofactor list does not cover — correctly, because those *are*
+genuinely different chemistry (halogenases, not desaturases) rather than
+something safe to also declare unpriced. The 4 mass-delta exclusions are
+each a different confound: oxidative **dimerisation**
+(RHEA:26031/RHEA:26035, two flaviolin molecules coupling to a
+biflaviolin, +202.12 — a new C–C bond between two acceptor molecules,
+not a desaturation of one), a complex multi-O2 reaction losing HCN and
+CO2 (RHEA:52776, −75.07), and an oxidative decarbonylation-type loss of
+formate (RHEA:58520, −29.02) — none folded in as noise.
+
+Every one of the 92 decided reactions reaches a decisive verdict
+favouring the enzyme, even with every electron donor's real cost left
+entirely unpriced.
+
+**Coverage across all thirteen classes: 2,540 of 18,558 Rhea reactions
+matched (13.7%), 1,555 decided (8.4%).**
+
 ## Running one
 
 ```bash
