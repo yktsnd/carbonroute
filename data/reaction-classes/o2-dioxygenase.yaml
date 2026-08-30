@@ -73,6 +73,18 @@
 # lipoxygenase/dioxygenase reactions with no reduced co-cofactor present
 # at all, e.g. RHEA:51332 (eicosatrienoate hydroperoxidation) and
 # RHEA:48996 (catechol ring cleavage), neither carrying an EC annotation.
+#
+# AH2 (CHEBI:17499) added to the exclusion list once o2-monooxygenase and
+# 2og-dioxygenase started requiring it (see their own AH2 notes): 113
+# reactions genuinely needing a generic reduced donor alongside O2 -- real
+# members of those two classes, not this one -- were sitting in this
+# class's "matched" pool unable to resolve ("could not identify") for lack
+# of this exclusion. Excluding AH2 here does not change what this class
+# DECIDES (those 113 were never decided here; their real mass-delta
+# signature is +15.999, not this class's +30.99), only what it MATCHES --
+# matched drops from 932 to 819, decided stays 197, keeping "matched" an
+# honest count of bare-O2 candidates rather than including reactions this
+# class was never going to claim.
 
 reaction_class:
   id: o2-dioxygenase
@@ -97,6 +109,7 @@ reaction_class:
       "CHEBI:33738",
       "CHEBI:33723",
       "CHEBI:16810",
+      "CHEBI:17499",
     ]
 
 chemical_counterpart:

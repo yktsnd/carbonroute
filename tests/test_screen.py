@@ -1679,27 +1679,29 @@ def monooxygenase_screened(monooxygenase_inputs):
 def test_monooxygenase_class_declares_nadh_and_nadph_unpriced(monooxygenase_inputs):
     """NAD(P)H drives the mechanism but never appears as a priced material:
     this class's whole point is that it is a real cost this project does
-    not charge, not that it can be ignored."""
+    not charge, not that it can be ignored. AH2 (CHEBI:17499), Rhea's own
+    generic placeholder for an unspecified reduced donor, is unpriced the
+    same way -- see the template's own AH2 note."""
     template = monooxygenase_inputs[1]
-    assert template.unpriced_co_cofactor_chebi == ("CHEBI:57945", "CHEBI:57783")
+    assert template.unpriced_co_cofactor_chebi == ("CHEBI:57945", "CHEBI:57783", "CHEBI:17499")
 
 
 def test_monooxygenase_class_matches_and_decides_the_expected_number(monooxygenase_screened):
-    """441 Rhea reactions consume O2 alongside NAD(P)H (no ec_prefix is
-    declared -- an earlier version restricted to EC 1.14.13, narrowing to
-    198; see the template's own STAGE 2 note for why that restriction was
-    dropped, the same step taken for the other five O2 classes). 262
-    (59.4%) resolve to a single acceptor/product pair within tolerance and
-    are decided. RHEA:11440 (2,3,5,6-tetrachlorophenol -> ...hydroquinone)
-    is the reaction that pinned down the charge-state offset: observed
-    delta 14.991, short of the textbook 15.999 by almost exactly one
-    proton because ChEBI draws the newly-installed hydroxyl as a
-    phenolate."""
-    assert monooxygenase_screened.matched == 441
-    assert len(monooxygenase_screened.decided) == 262
+    """557 Rhea reactions consume O2 alongside NAD(P)H or AH2 (Rhea's
+    generic placeholder for an unspecified reduced donor -- no ec_prefix
+    is declared; an earlier version restricted to EC 1.14.13, narrowing to
+    198; see the template's own STAGE 2 and AH2 notes). 326 (58.5%)
+    resolve to a single acceptor/product pair within tolerance and are
+    decided. RHEA:11440 (2,3,5,6-tetrachlorophenol -> ...hydroquinone) is
+    the reaction that pinned down the charge-state offset: observed delta
+    14.991, short of the textbook 15.999 by almost exactly one proton
+    because ChEBI draws the newly-installed hydroxyl as a phenolate."""
+    assert monooxygenase_screened.matched == 557
+    assert len(monooxygenase_screened.decided) == 326
     by_id = {r.rhea_id: r for r in monooxygenase_screened.results}
     assert by_id["RHEA:11440"].decided
     assert by_id["RHEA:11420"].decided
+    assert by_id["RHEA:15865"].decided  # tryptamine -> 4-hydroxytryptamine, AH2-donor
 
 
 def test_monooxygenase_class_excludes_decarboxylation_and_demethylation(monooxygenase_screened):
@@ -1727,7 +1729,7 @@ def test_monooxygenase_process_model_charges_mcpba(monooxygenase_inputs):
 
 
 def test_monooxygenase_class_is_decided_and_decisively_favours_the_enzyme(monooxygenase_screened):
-    """Every one of this class's 262 decided reactions reaches a decisive
+    """Every one of this class's 326 decided reactions reaches a decisive
     verdict favouring the enzyme, even with NAD(P)H's own real cost left
     entirely unpriced -- an mCPBA-based chemical route is bulky enough on
     its own to keep the sign fixed."""
@@ -1924,17 +1926,18 @@ def test_dioxygenase_class_needs_no_co_cofactor(dioxygenase_inputs):
 
 
 def test_dioxygenase_class_matches_and_unifies_three_charge_states(dioxygenase_screened):
-    """932 Rhea reactions consume O2 with none of the other five O2
-    classes' required co-cofactors present (no ec_prefix is declared --
-    an earlier version restricted to EC 1.13.11, narrowing to 102; see the
-    template's own STAGE 2 note for why that restriction was dropped). 197
-    (21.1%) resolve within tolerance and are decided, spanning three
+    """819 Rhea reactions consume O2 with none of the other five O2
+    classes' required co-cofactors present, AH2 included (no ec_prefix is
+    declared -- an earlier version restricted to EC 1.13.11, narrowing to
+    102; see the template's own STAGE 2 and AH2 notes for why matched
+    dropped from an intermediate 932 once AH2 joined the exclusion list).
+    197 (24.1%) resolve within tolerance and are decided, spanning three
     charge-state clusters unified by one expected_mass_delta and a widened
     tolerance: RHEA:10428 (a clean lipoxygenase, the textbook 32.0 g/mol),
     RHEA:14409 (one proton short) and RHEA:10084 (a ring-cleaving catechol
     dioxygenase, two protons short) are all decided, confirming all three
     are the same real chemistry rather than three different ones."""
-    assert dioxygenase_screened.matched == 932
+    assert dioxygenase_screened.matched == 819
     assert len(dioxygenase_screened.decided) == 197
     by_id = {r.rhea_id: r for r in dioxygenase_screened.results}
     for rhea_id in ("RHEA:10428", "RHEA:14409", "RHEA:10084"):
@@ -1997,9 +2000,12 @@ def test_2og_class_declares_2_oxoglutarate_unpriced(twoog_inputs):
     """2-oxoglutarate is oxidatively decarboxylated to succinate + CO2 in
     the same step a genuine member inserts an oxygen atom into the
     acceptor -- a real, required co-reactant, not a byproduct, and this
-    class does not price it."""
+    class does not price it. AH2 (CHEBI:17499) is unpriced too (excluded
+    from the acceptor search, not from the required-co-cofactor gate --
+    see the template's own AH2 note for why the two fields differ here)."""
     template = twoog_inputs[1]
-    assert template.unpriced_co_cofactor_chebi == ("CHEBI:16810",)
+    assert template.unpriced_co_cofactor_chebi == ("CHEBI:16810", "CHEBI:17499")
+    assert template.required_co_cofactor_chebi == ("CHEBI:16810",)
     assert template.expected_mass_delta == pytest.approx(15.999, abs=1e-6)
 
 
@@ -2008,22 +2014,22 @@ def test_2og_class_matches_and_decides_the_expected_number(twoog_screened):
     is declared -- an earlier version restricted to EC 1.14.11, narrowing
     to 101; see the template's own STAGE 2 note for why that restriction
     was dropped -- 2-oxoglutarate is a uniquely clean discriminator with
-    no overlap against any other O2 class's required list). 125 (44.0%)
+    no overlap against any other O2 class's required list). 126 (44.4%)
     resolve within tolerance and are decided, including RHEA:10316
-    (thymine -> 5-hydroxymethyluracil). RHEA:35975 still cannot be
-    resolved to a single acceptor/product pair: it consumes a second
-    cofactor (AH2) and two equivalents of O2, a more complex mechanism
-    this class's simple two-reactant shape does not cover."""
+    (thymine -> 5-hydroxymethyluracil) and, since AH2 joined
+    unpriced_co_cofactor_chebi, RHEA:35975 (fumitremorgin B ->
+    verruculogen, which needs a further reducing equivalent alongside
+    2-oxoglutarate's own oxidative decarboxylation and 2 equivalents of
+    O2 -- see the template's own AH2 note)."""
     assert twoog_screened.matched == 284
-    assert len(twoog_screened.decided) == 125
+    assert len(twoog_screened.decided) == 126
     by_id = {r.rhea_id: r for r in twoog_screened.results}
     assert by_id["RHEA:10316"].decided
-    assert not by_id["RHEA:35975"].decided
-    assert "could not identify" in by_id["RHEA:35975"].skipped_reason
+    assert by_id["RHEA:35975"].decided
 
 
 def test_2og_class_is_decided_and_decisively_favours_the_enzyme(twoog_screened):
-    """Every one of this class's 125 decided reactions reaches a decisive
+    """Every one of this class's 126 decided reactions reaches a decisive
     verdict favouring the enzyme, even with 2-oxoglutarate's real cost
     left entirely unpriced."""
     decided_with_verdict = [

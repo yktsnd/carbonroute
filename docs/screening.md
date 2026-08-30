@@ -1423,9 +1423,46 @@ coverage is small (+4, not +156) because most of its matches already fall
 inside `atp-kinase`'s own widened matched set (both require ATP; they
 never double-decide, since `atp-kinase`'s own mass-delta check correctly
 rejects a ~746 g/mol addition as nowhere near its 77.963 target). Final
-unique-reaction total: **6,639 of 18,558 Rhea reactions matched (35.8%),
-3,433 decided (18.5%)** -- unchanged from the seventeen-class figure at
+unique-reaction total: 6,639 of 18,558 Rhea reactions matched (35.8%),
+3,433 decided (18.5%) -- unchanged from the seventeen-class figure at
 this precision.
+
+A systematic recovery across three existing classes, not a new one:
+CHEBI:17499 ("AH2") is Rhea's own generic placeholder for "some
+unspecified reduced donor," used wherever curators knew a
+monooxygenase-type reaction needed one but not its specific identity.
+169 reactions across every class this project has built were blocked
+from resolving to a single acceptor by AH2 sitting unexcluded in the
+acceptor search -- found the same way the water and IPP false-positive
+fixes were, by inspecting what was actually blocking "could not
+identify" cases in aggregate rather than per class. Genuine only for two
+classes, verified per-class rather than applied globally, because AH2 is
+a different confound on different classes: `sam-methyltransferase` (40
+occurrences, radical-SAM chemistry, correctly left excluded) and
+`atp-kinase` (13, tRNA sulfur-relay and cobalamin biosynthesis,
+correctly left excluded) were checked and rejected; `o2-monooxygenase`
+(+64 decided, zero lost) and `2og-dioxygenase` (+1) were verified
+genuine. `o2-dioxygenase`'s exclusion list gained AH2 too, dropping its
+matched count from 932 to 819 (decided unaffected at 197) so its
+"matched" stays an honest count of bare-O2 candidates rather than
+reactions that were never going to decide there.
+
+One bug caught before landing: an initial attempt added AH2 to BOTH
+classes' `required_co_cofactor_chebi`, which briefly made
+`o2-monooxygenase` and `2og-dioxygenase` double-decide the same 64
+reactions -- `required_co_cofactor_chebi` is OR logic, so a reaction with
+AH2 present satisfied `2og-dioxygenase`'s gate even without
+2-oxoglutarate. Fixed by declaring AH2 required only where it is a
+genuine alternative donor identity (`o2-monooxygenase`, alongside
+NAD(P)H) and unpriced-only, not required, where a different cofactor
+already does the real gating (`2og-dioxygenase` stays gated on
+2-oxoglutarate alone; AH2 there only helps `_identify` exclude it from
+the acceptor search). Verified with
+`test_no_rhea_reaction_decides_for_more_than_one_o2_class`: zero
+double-decided across all six O2 classes after the fix.
+
+Final total, all eighteen classes: **6,639 of 18,558 Rhea reactions
+matched (35.8%), 3,498 decided (18.8%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that

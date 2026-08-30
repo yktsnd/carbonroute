@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Eighteen classes now built — 6,639 of 18,558 reactions matched (35.8%), 3,433 decided (18.5%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Eighteen classes now built — 6,639 of 18,558 reactions matched (35.8%), 3,498 decided (18.8%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -347,10 +347,34 @@ measures the same thing the threshold did.
    dropped from that class (both require ATP; they never double-decide,
    since `atp-kinase`'s own mass-delta check correctly rejects a CoA
    thioester's ~746 g/mol addition as nowhere near its 77.963 target). Final
-   total: **6,639 of 18,558 reactions matched (35.8%), 3,433 decided
-   (18.5%)** — unchanged from the seventeen-class figure at this precision,
+   total: 6,639 of 18,558 reactions matched (35.8%), 3,433 decided
+   (18.5%) — unchanged from the seventeen-class figure at this precision,
    an honest reflection of how little marginal coverage this particular
    class adds once its overlap and its own undecidability are both counted.
+
+   **A systematic recovery, not a new class: AH2.** Rhea uses CHEBI:17499
+   ("AH2") as its own generic placeholder for "some unspecified reduced
+   donor" wherever curators knew a monooxygenase-type reaction needed one
+   but not its specific identity. 169 reactions across every class this
+   project has built were blocked from resolving to a single acceptor by
+   AH2 sitting unexcluded in the acceptor search — the same shape as the
+   water and proton exclusions before it, but per-class rather than
+   universal, because AH2 is genuinely a different transformation on
+   different classes (radical-SAM chemistry on `sam-methyltransferase`,
+   tRNA sulfur-relay and cobalamin biosynthesis on `atp-kinase` — both
+   correctly left excluded). Verified as genuine only for two classes:
+   `o2-monooxygenase` (+64 decided, zero lost, zero double-decided with
+   any other O2 class) and `2og-dioxygenase` (+1). `o2-dioxygenase`'s own
+   exclusion list gained AH2 too, to keep its "matched" honest now that
+   those 64 reactions correctly belong elsewhere. One bug caught before
+   landing: adding AH2 to `required_co_cofactor_chebi` on both classes
+   independently briefly made `o2-monooxygenase` and `2og-dioxygenase`
+   double-decide the same 64 reactions, because `required_co_cofactor_chebi`
+   uses OR semantics — fixed by declaring AH2 required only where it is a
+   genuine alternative donor (`o2-monooxygenase`) and unpriced-only, not
+   required, where a different cofactor already does the real gating
+   (`2og-dioxygenase`, still gated on 2-oxoglutarate alone). Final total:
+   **6,639 of 18,558 reactions matched (35.8%), 3,498 decided (18.8%)**.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -424,7 +448,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 35.8% matched / 18.5% decided and the 88.6% structural
+between today's 35.8% matched / 18.8% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at
@@ -434,7 +458,7 @@ own standard, corrected here rather than left standing. What remains true
 from the original argument: reporting 80% coverage *today* by loosening
 the cofactor-plus-structural-check methodology would be exactly the kind
 of shortcut this project exists to refuse. The number that matters is
-still **decided, not matched** — an honestly verified 18.5% is worth more
+still **decided, not matched** — an honestly verified 18.8% is worth more
 than a fabricated 80%, and closing the gap to 88.6% is a matter of
 building more classes the same rigorous way, not lowering the bar.
 

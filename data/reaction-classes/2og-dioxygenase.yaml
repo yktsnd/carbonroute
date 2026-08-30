@@ -48,6 +48,22 @@
 # `acceptor + 2-oxoglutarate + O2 = product + succinate + CO2` shape, e.g.
 # RHEA:57156 (protein lysyl hydroxylation) and RHEA:54620
 # (2-hydroxyeicosanoyl-CoA formation), neither carrying an EC annotation.
+#
+# AH2 (CHEBI:17499) added to unpriced_co_cofactor_chebi ONLY, not to
+# required_co_cofactor_chebi: a handful of this class's real members
+# (RHEA:35975 among them, already documented above as a 3-reactant
+# reaction this simple shape could not previously handle) are written
+# `acceptor + 2-oxoglutarate + AH2 + O2 = ...`, a further reducing
+# equivalent alongside 2-oxoglutarate's own oxidative decarboxylation.
+# Excluding AH2 from the acceptor search recovers 1 more reaction
+# (matched stays 284, decided 125 -> 126, zero lost). AH2 was
+# deliberately NOT added to required_co_cofactor_chebi: doing so would
+# have used required_co_cofactor_chebi's OR semantics to match ANY
+# AH2-containing O2 reaction regardless of whether 2-oxoglutarate is even
+# present, which is not this class's mechanism and briefly caused 64
+# reactions to double-decide against o2-monooxygenase before this was
+# caught and fixed (see o2-monooxygenase.yaml's own AH2 note).
+# 2-oxoglutarate alone remains the required gate.
 
 reaction_class:
   id: 2og-dioxygenase
@@ -63,7 +79,7 @@ reaction_class:
   cofactor_chebi: "CHEBI:15379"
   cofactor_role: reagent
   required_co_cofactor_chebi: ["CHEBI:16810"]
-  unpriced_co_cofactor_chebi: ["CHEBI:16810"]
+  unpriced_co_cofactor_chebi: ["CHEBI:16810", "CHEBI:17499"]
 
 chemical_counterpart:
   name: "Declared process model only -- see process_model below"

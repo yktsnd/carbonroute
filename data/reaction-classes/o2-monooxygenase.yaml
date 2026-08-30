@@ -81,6 +81,30 @@
 # newly decided reaction was spot-checked against its real equation --
 # e.g. RHEA:54852 (heptan-4-one + NADPH + O2 -> propyl butanoate, a
 # Baeyer-Villiger oxidation with no EC annotation at all).
+#
+# AH2 (CHEBI:17499) ADDED: Rhea's own generic placeholder for "some
+# unspecified reduced donor" (SMILES a bare wildcard atom, not a real
+# molecule) -- used when Rhea's curators know a monooxygenase needs an
+# electron donor but do not know its specific identity. 169 reactions
+# across this project's classes were blocked from resolving to a single
+# acceptor by AH2 sitting in the acceptor search unexcluded; of those, 64
+# belong here (real hydroxylations/epoxidations with the classic
+# "acceptor + AH2 + O2 = product + A + H2O" shape, e.g. RHEA:15865
+# tryptamine -> 4-hydroxytryptamine, RHEA:19137 17beta-estradiol ->
+# 6beta-hydroxyestradiol-17beta). Verified none of the 64 also consumes
+# 2-oxoglutarate (which would make it 2og-dioxygenase's reaction, not
+# this class's -- see that class's own AH2 note and o2-dioxygenase's
+# excluded_co_cofactor_chebi, both updated the same day for the same
+# reason). Adding AH2 to required_co_cofactor_chebi and
+# unpriced_co_cofactor_chebi together: 557 reactions match, 326 decide,
+# zero of the 262 previously-decided reactions lost, and zero double-
+# decide with any other O2 class (see
+# test_no_rhea_reaction_decides_for_more_than_one_o2_class). The
+# SAM-methyltransferase and ATP-kinase classes also have AH2-blocked
+# reactions (40 and 13 respectively) but those are a different, correctly
+# excluded confound -- radical-SAM chemistry and tRNA sulfur-relay/
+# cobalamin biosynthesis, not this class's transformation -- and AH2 was
+# deliberately NOT added there.
 
 reaction_class:
   id: o2-monooxygenase
@@ -89,15 +113,16 @@ reaction_class:
     Enzymatic insertion of one oxygen atom from O2 into an acceptor
     (aromatic/aliphatic hydroxylation, Baeyer-Villiger oxidation,
     sulfoxidation or N-oxidation), reducing the other oxygen atom to water
-    with NAD(P)H. Matched on O2 and on NAD(P)H being present as a required
+    with NAD(P)H, or with AH2 where Rhea records only a generic reduced
+    donor. Matched on O2 and on one of these being present as a required
     co-reactant this class does not price -- see the header note; no
     ec_prefix is declared.
   expected_mass_delta: 15.999
   mass_delta_tolerance: 1.1
   cofactor_chebi: "CHEBI:15379"
   cofactor_role: reagent
-  required_co_cofactor_chebi: ["CHEBI:57945", "CHEBI:57783"]
-  unpriced_co_cofactor_chebi: ["CHEBI:57945", "CHEBI:57783"]
+  required_co_cofactor_chebi: ["CHEBI:57945", "CHEBI:57783", "CHEBI:17499"]
+  unpriced_co_cofactor_chebi: ["CHEBI:57945", "CHEBI:57783", "CHEBI:17499"]
 
 chemical_counterpart:
   name: "Declared process model only -- see process_model below"
