@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Fifteen classes now built — 2,743 of 18,558 reactions matched (14.8%), 1,674 decided (9.0%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Sixteen classes now built — 2,815 of 18,558 reactions matched (15.2%), 1,724 decided (9.3%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -279,8 +279,14 @@ measures the same thing the threshold did.
    the second oxygen atom oxidatively decarboxylates the co-substrate
    2-oxoglutarate to succinate + CO2 rather than reducing NAD(P)H —
    declared unpriced the same way, a real co-cofactor identity this
-   mechanism now covers five times over. Combined:
-   **2,743 of 18,558 reactions matched (14.8%), 1,674 decided (9.0%)**, up
+   mechanism now covers five times over. A sixteenth,
+   `ferredoxin-monooxygenase.yaml` (EC 1.14.15, steroid/bile acid
+   hydroxylases, camphor monooxygenase, alkane hydroxylases — 72
+   matched, 50 decided, all decisive), reuses the same mCPBA process
+   model with a third electron-donor family (ferredoxin, adrenodoxin,
+   putidaredoxin and rubredoxin, three ChEBI ids covering all 72
+   reactions). Combined:
+   **2,815 of 18,558 reactions matched (15.2%), 1,724 decided (9.3%)**, up
    from one class's original 406 / 388. More classes are being added the
    same way — see the coverage ceiling below for what that number can and
    cannot

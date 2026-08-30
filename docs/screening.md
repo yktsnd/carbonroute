@@ -1272,6 +1272,36 @@ unpriced.
 **Coverage across all fifteen classes: 2,743 of 18,558 Rhea reactions
 matched (14.8%), 1,674 decided (9.0%).**
 
+## The sixteenth class: O2/ferredoxin-dependent monooxygenation
+
+`data/reaction-classes/ferredoxin-monooxygenase.yaml` covers EC 1.14.15
+— ferredoxin/rubredoxin-dependent monooxygenases: steroid and bile acid
+hydroxylases, camphor 5-monooxygenase, alkane hydroxylases. Same net
+transformation as the two earlier monooxygenase classes, with a third
+family of electron-donor identity: reduced [2Fe-2S]-ferredoxin
+(`CHEBI:33738`, which in Rhea's own text also covers "reduced
+[adrenodoxin]" and "reduced [2Fe-2S]-[putidaredoxin]" — the same
+underlying entity playing different named biological roles, the same
+convention already found on `p450-monooxygenase`), reduced
+2[4Fe-4S]-ferredoxin (`CHEBI:33723`) and reduced rubredoxin
+(`CHEBI:29033`, already declared on `o2-desaturase`). All three are
+declared `unpriced_co_cofactor_chebi`, covering all 72 of this EC
+group's O2-consuming reactions.
+
+| outcome | reactions |
+|---|---:|
+| matched (O2 + EC 1.14.15) | 72 |
+| excluded — could not identify an acceptor/product pair | 2 |
+| excluded — right transfer count, wrong mass (several sub-chemistries) | 20 |
+| **decided** | **50** |
+
+Every one of the 50 decided reactions reaches a decisive verdict
+favouring the enzyme, the same shape every O2-consuming class this
+project has built shows.
+
+**Coverage across all sixteen classes: 2,815 of 18,558 Rhea reactions
+matched (15.2%), 1,724 decided (9.3%).**
+
 ## Running one
 
 ```bash

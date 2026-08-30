@@ -1,0 +1,92 @@
+# Reaction class: O2/ferredoxin-dependent monooxygenation
+#
+# Covers Rhea reactions consuming O2 (CHEBI:15379) as a reactant, restricted
+# to EC 1.14.15 -- ferredoxin/rubredoxin-dependent monooxygenases (steroid
+# and bile acid hydroxylases, camphor 5-monooxygenase, alkane
+# hydroxylases). Same net transformation as the o2-monooxygenase and
+# p450-monooxygenase classes -- insert one atom of O2, reduce the other to
+# water -- with a third family of electron-donor identity: reduced
+# [2Fe-2S]-ferredoxin (CHEBI:33738, which in Rhea's own text also covers
+# "reduced [adrenodoxin]" and "reduced [2Fe-2S]-[putidaredoxin]" -- the
+# same underlying ChEBI entity playing different named biological roles,
+# the same convention already found on the p450-monooxygenase class),
+# reduced 2[4Fe-4S]-ferredoxin (CHEBI:33723) and reduced rubredoxin
+# (CHEBI:29033, already declared on the o2-desaturase class). All three are
+# declared unpriced_co_cofactor_chebi, covering all 72 of this EC group's
+# O2-consuming reactions.
+#
+# THE UNPRICED GAP, STATED PLAINLY: as with the other three
+# electron-donor-dependent O2 classes, the donor's own regeneration cost is
+# real and this template does NOT charge it.
+#
+# expected_mass_delta and mass_delta_tolerance are identical to the other
+# two monooxygenase classes for the identical reason: a genuine member adds
+# one oxygen atom, 15.999 g/mol, and the same ChEBI charge-state offset
+# already found four times this session applies here too.
+#
+# Structural verification (run through the actual screen): 72 reactions
+# match O2 + EC 1.14.15. 50 (69.4%) resolve to a single acceptor/product
+# pair within tolerance and are decided, every one decisively favouring
+# the enzyme. 2 could not be resolved to a single acceptor/product pair.
+# The other 20 are correctly excluded by mass delta -- this EC group
+# carries the same kind of further sub-chemistries (dehydrogenation,
+# ring modification) the other O2-consuming classes' own confounds
+# already document, not individually enumerated here.
+
+reaction_class:
+  id: ferredoxin-monooxygenase
+  name: "O2/ferredoxin-dependent monooxygenation"
+  description: >
+    Enzymatic insertion of one oxygen atom from O2 into an acceptor via a
+    ferredoxin- or rubredoxin-dependent monooxygenase (steroid/bile acid
+    hydroxylases, camphor monooxygenase, alkane hydroxylases), reducing
+    the other oxygen atom to water with an electron donor this class does
+    not price. Matched on O2, restricted to EC 1.14.15.
+  expected_mass_delta: 15.999
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:15379"
+  cofactor_role: reagent
+  ec_prefix: "1.14.15"
+  unpriced_co_cofactor_chebi: ["CHEBI:33738", "CHEBI:33723", "CHEBI:29033"]
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "mCPBA oxidation at process concentration"
+  source: >
+    Not a paper. Same textbook stoichiometric chemical counterpart as the
+    other two monooxygenase classes: meta-chloroperoxybenzoic acid (mCPBA,
+    CAS 937-14-4). Parameters stated on the same terms the other process
+    models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: oxidise
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: meta-chloroperoxybenzoic acid
+          cas: "937-14-4"
+          kg_per_mol: 0.172567
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the peracid oxidant -- modest excess,
+            standard for this reaction.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

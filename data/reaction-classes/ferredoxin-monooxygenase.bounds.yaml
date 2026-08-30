@@ -1,0 +1,36 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+#
+# This class also declares three UNPRICED co-cofactors (the electron
+# donors) -- see the template's own header comment and the standing warning
+# render_screen prints. There is no bound entry for any of them because
+# none is priced at all; see o2-monooxygenase.bounds.yaml for the same note
+# in full.
+
+bounds:
+
+  # ---- The enzymatic side (the priced cofactor only) -----------------------
+  "name:chebi:15379":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      O2. No public cradle-to-gate factor was found for a biologically
+      sourced/activated oxygen. Same interval and same reasoning as the
+      other O2-consuming classes' identical entry.
+    sources:
+      - "No public cradle-to-gate GWP for enzymatically-activated O2 was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+
+  # ---- The chemical side ---------------------------------------------------
+  "cas:937-14-4":
+    low: 0.5
+    high: null
+    rationale: >
+      meta-Chloroperoxybenzoic acid. No public cradle-to-gate factor was
+      found. Low bound only, by the same convention every other unresolved
+      chemical-side reagent in this project uses.
+    sources:
+      - "No public cradle-to-gate GWP for mCPBA was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."

@@ -1960,3 +1960,51 @@ def test_2og_class_is_decided_and_decisively_favours_the_enzyme(twoog_screened):
     ]
     assert len(decided_with_verdict) == len(twoog_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a sixteenth class: O2/ferredoxin-dependent monooxygenation -----------
+# A third family of electron-donor identity for the same O2-insertion
+# chemistry: steroid/bile acid hydroxylases, camphor monooxygenase, alkane
+# hydroxylases.
+
+
+@pytest.fixture(scope="module")
+def ferredoxin_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "ferredoxin-monooxygenase.yaml")
+    bounds = load_bounds(CLASSES / "ferredoxin-monooxygenase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def ferredoxin_screened(ferredoxin_inputs):
+    return screen_all(*ferredoxin_inputs, use_process_model=True)
+
+
+def test_ferredoxin_class_declares_three_donor_families_unpriced(ferredoxin_inputs):
+    """CHEBI:33738 is one ChEBI entity Rhea's equation text variously labels
+    'reduced [2Fe-2S]-[ferredoxin]', 'reduced [adrenodoxin]' or
+    'reduced [2Fe-2S]-[putidaredoxin]' depending on biological context --
+    the same convention already found on the p450-monooxygenase class."""
+    template = ferredoxin_inputs[1]
+    assert template.unpriced_co_cofactor_chebi == (
+        "CHEBI:33738", "CHEBI:33723", "CHEBI:29033",
+    )
+
+
+def test_ferredoxin_class_matches_and_decides_the_expected_number(ferredoxin_screened):
+    """72 Rhea reactions consume O2 under EC 1.14.15. 50 (69.4%) resolve
+    within tolerance and are decided, every one decisively favouring the
+    enzyme."""
+    assert ferredoxin_screened.matched == 72
+    assert len(ferredoxin_screened.decided) == 50
+    decided_with_verdict = [
+        r for r in ferredoxin_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(ferredoxin_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
