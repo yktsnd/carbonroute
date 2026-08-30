@@ -1,0 +1,110 @@
+# Reaction class: O2/heme-thiolate-dependent monooxygenation (cytochrome P450)
+#
+# Covers Rhea reactions consuming O2 (CHEBI:15379) as a reactant, restricted
+# to EC 1.14.14 -- cytochrome P450s and related heme-thiolate
+# monooxygenases. Same net transformation as the o2-monooxygenase class
+# (EC 1.14.13): insert one atom of O2 into the acceptor, reduce the other to
+# water. The electron donor differs by biological context rather than by
+# chemistry -- CHEBI:57618 is the SAME ChEBI entity Rhea's equation text
+# variously labels "reduced [NADPH--hemoprotein reductase]" (226 of 257
+# reactions in this class), "FMNH2" (16) or "reduced [flavodoxin]" (3); a
+# second entity, FADH2 (CHEBI:58307, 11 reactions), covers most of the rest.
+# Both are declared as unpriced_co_cofactor_chebi, the same mechanism the
+# o2-monooxygenase class introduced -- see ClassTemplate for why pricing
+# them is a stated, deliberate gap rather than a shortcut.
+#
+# THE UNPRICED GAP, STATED PLAINLY: the electron donor's own regeneration
+# cost is real and this template does NOT charge it. Every verdict this
+# class produces is conditional on that gap, understating the enzymatic
+# route in the same direction every other unpriced assumption in this
+# project does.
+#
+# expected_mass_delta and mass_delta_tolerance are identical to the
+# o2-monooxygenase class for the identical reason: a genuine member adds one
+# oxygen atom, 15.999 g/mol, and the same ChEBI charge-state offset found
+# there (a newly-installed hydroxyl occasionally drawn as a phenolate,
+# short by one proton) applies here too -- this is the same underlying
+# chemistry with a different heme-thiolate machinery, not a different
+# transformation.
+#
+# No transferred_bond_smarts: this class's substrates are wildly varied
+# (terpenoids, steroids, alkaloids, flavonoids), so a single bond SMARTS
+# would not generalise the way it does for a class with one narrow
+# acceptor chemistry; the mass-delta check plus EC restriction is the
+# whole class-purity test, the same choice the o2-monooxygenase class
+# makes for the same underlying reason.
+#
+# Structural verification (run through the actual screen): 256 reactions
+# match O2 + EC 1.14.14. 176 (68.8%) resolve to a single acceptor/product
+# pair within tolerance and are decided, every one decisively favouring
+# the enzyme. 4 could not be resolved to a single acceptor/product pair --
+# reactions genuinely needing a THIRD reactant beyond O2 and the electron
+# donor (three consume glutathione alongside an oxime substrate; one,
+# RHEA:12312, uses FMNH2 and NADH as two separate simultaneous reactants
+# rather than the single reduced-donor shape this class's
+# unpriced_co_cofactor_chebi list handles). The other 76 are correctly
+# excluded by mass delta: this EC group is more chemically diverse than
+# EC 1.14.13's, carrying real dehydrogenation (12 reactions near -2.02,
+# the same 2H-loss signature the NAD(P)+-oxidoreductase class's own
+# expected_mass_delta targets), oxidative demethylation-type losses (11
+# near -30.03, consistent with a CH2O leaving group), and a long tail of
+# smaller, rarer P450 chemistries (epoxidation, ring contraction,
+# oxidative C-C bond cleavage) this class does not attempt to enumerate --
+# all correctly kept out rather than folded in as noise.
+
+reaction_class:
+  id: p450-monooxygenase
+  name: "O2/heme-thiolate-dependent monooxygenation (cytochrome P450)"
+  description: >
+    Enzymatic insertion of one oxygen atom from O2 into an acceptor via a
+    cytochrome P450 or related heme-thiolate monooxygenase, reducing the
+    other oxygen atom to water with an electron donor this class does not
+    price. Matched on O2, restricted to EC 1.14.14.
+  expected_mass_delta: 15.999
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:15379"
+  cofactor_role: reagent
+  ec_prefix: "1.14.14"
+  unpriced_co_cofactor_chebi: ["CHEBI:57618", "CHEBI:58307"]
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it ships
+    with a process_model instead (see below) and must be screened with
+    --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "mCPBA oxidation at process concentration"
+  source: >
+    Not a paper. Same textbook stoichiometric chemical counterpart as the
+    o2-monooxygenase class: meta-chloroperoxybenzoic acid (mCPBA, CAS
+    937-14-4). Parameters stated on the same terms the other process
+    models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.85
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one.
+  stages:
+
+    - id: oxidise
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: meta-chloroperoxybenzoic acid
+          cas: "937-14-4"
+          kg_per_mol: 0.172567
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the peracid oxidant -- modest excess,
+            standard for this reaction.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Eleven classes now built — 2,169 of 18,558 reactions matched (11.7%), 1,287 decided (6.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twelve classes now built — 2,425 of 18,558 reactions matched (13.1%), 1,463 decided (7.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -251,8 +251,16 @@ measures the same thing the threshold did.
    search but deliberately never priced, a stated gap (this class's
    enzymatic side is understated by whatever NAD(P)H's real regeneration
    costs) rather than an invented zero, flagged on every report this
-   class produces. Combined:
-   **2,169 of 18,558 reactions matched (11.7%), 1,287 decided (6.9%)**, up
+   class produces. A twelfth, `p450-monooxygenase.yaml` (EC 1.14.14,
+   cytochrome P450s and related heme-thiolate monooxygenases — Rhea's
+   single *largest* O2-consuming EC group, bigger even than EC 1.14.13's —
+   256 matched, 176 decided, all decisive), reuses the same
+   `unpriced_co_cofactor_chebi` mechanism with a different electron-donor
+   identity (`CHEBI:57618`, the same ChEBI entity Rhea's equation text
+   variously labels "reduced [NADPH--hemoprotein reductase]", "FMNH2" or
+   "reduced [flavodoxin]" depending on biological context, plus FADH2).
+   Combined:
+   **2,425 of 18,558 reactions matched (13.1%), 1,463 decided (7.9%)**, up
    from one class's original 406 / 388. More classes are being added the
    same way — see the coverage ceiling below for what that number can and
    cannot

@@ -1686,3 +1686,77 @@ def test_monooxygenase_class_is_decided_and_decisively_favours_the_enzyme(monoox
     ]
     assert len(decided_with_verdict) == len(monooxygenase_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a twelfth class: cytochrome P450 monooxygenation -----------------------
+# The same unpriced-co-cofactor mechanism, a different electron-donor
+# identity, and Rhea's biggest single O2-consuming EC group.
+
+
+@pytest.fixture(scope="module")
+def p450_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "p450-monooxygenase.yaml")
+    bounds = load_bounds(CLASSES / "p450-monooxygenase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def p450_screened(p450_inputs):
+    return screen_all(*p450_inputs, use_process_model=True)
+
+
+def test_p450_class_declares_the_electron_donor_unpriced(p450_inputs):
+    """CHEBI:57618 is one ChEBI entity Rhea's equation text variously labels
+    'reduced [NADPH--hemoprotein reductase]', 'FMNH2' or
+    'reduced [flavodoxin]' depending on biological context -- all the same
+    underlying reduced flavin, none of it priced."""
+    template = p450_inputs[1]
+    assert template.unpriced_co_cofactor_chebi == ("CHEBI:57618", "CHEBI:58307")
+
+
+def test_p450_class_matches_and_decides_the_expected_number(p450_screened):
+    """256 Rhea reactions consume O2 under EC 1.14.14 -- cytochrome P450s and
+    related heme-thiolate monooxygenases, Rhea's single largest O2-consuming
+    EC group. 176 (68.8%) resolve within tolerance and are decided. 4 could
+    not be resolved to a single acceptor/product pair: three need a third
+    reactant (glutathione) beyond O2 and the electron donor, and one
+    (RHEA:12312) uses FMNH2 and NADH as two separate simultaneous reactants
+    rather than the single reduced-donor shape this class handles."""
+    assert p450_screened.matched == 256
+    assert len(p450_screened.decided) == 176
+    by_id = {r.rhea_id: r for r in p450_screened.results}
+    assert not by_id["RHEA:12312"].decided
+    assert "could not identify" in by_id["RHEA:12312"].skipped_reason
+
+
+def test_p450_class_excludes_dehydrogenation(p450_screened):
+    """This EC group is more chemically diverse than EC 1.14.13's: some
+    members are real dehydrogenations (net -2.016, the same 2H-loss
+    signature the NAD(P)+-oxidoreductase class targets), a genuinely
+    different transformation from oxygen insertion, correctly excluded by
+    mass delta rather than folded in as noise."""
+    dehydrogenation_like = [
+        r
+        for r in p450_screened.results
+        if r.skipped_reason and "mass added (-2.0" in r.skipped_reason
+    ]
+    assert len(dehydrogenation_like) > 0
+    assert all(not r.decided for r in dehydrogenation_like)
+
+
+def test_p450_class_is_decided_and_decisively_favours_the_enzyme(p450_screened):
+    """Every one of this class's 176 decided reactions reaches a decisive
+    verdict favouring the enzyme, the same shape as the o2-monooxygenase
+    class, even with the electron donor's real cost left entirely
+    unpriced."""
+    decided_with_verdict = [
+        r for r in p450_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(p450_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

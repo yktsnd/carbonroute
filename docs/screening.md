@@ -1085,6 +1085,49 @@ enough on its own to keep the sign fixed.
 **Coverage across all eleven classes: 2,169 of 18,558 Rhea reactions
 matched (11.7%), 1,287 decided (6.9%).**
 
+## The twelfth class: cytochrome P450 monooxygenation
+
+`data/reaction-classes/p450-monooxygenase.yaml` covers EC 1.14.14 —
+cytochrome P450s and related heme-thiolate monooxygenases, Rhea's single
+largest O2-consuming EC group (257 reactions, larger even than EC
+1.14.13's 198). Same net transformation as the `o2-monooxygenase` class:
+insert one atom of O2, reduce the other to water. The electron donor
+differs by biological context rather than by chemistry — `CHEBI:57618`
+is the *same* ChEBI entity Rhea's equation text variously labels "reduced
+[NADPH--hemoprotein reductase]" (226 of 257 reactions), "FMNH2" (16) or
+"reduced [flavodoxin]" (3); FADH2 (`CHEBI:58307`, 11 reactions) covers
+most of the rest. Both are declared `unpriced_co_cofactor_chebi`, the
+same mechanism `o2-monooxygenase` introduced, with the same stated gap:
+the electron donor's own regeneration cost is real and unpriced.
+
+| outcome | reactions |
+|---|---:|
+| matched (O2 + EC 1.14.14) | 256 |
+| excluded — could not identify an acceptor/product pair | 4 |
+| excluded — right transfer count, wrong mass (several sub-chemistries) | 76 |
+| **decided** | **176** |
+
+The 4 unresolved reactions genuinely need a *third* reactant beyond O2
+and the electron donor: three consume glutathione alongside an oxime
+substrate, and one (RHEA:12312) uses FMNH2 and NADH as two separate
+simultaneous reactants rather than the single reduced-donor shape this
+class's co-cofactor list handles. This EC group is more chemically
+diverse than EC 1.14.13's: 12 of the 76 mass-delta exclusions cluster
+near −2.02, real dehydrogenation (the same 2H-loss signature the
+NAD(P)+-oxidoreductase class's own `expected_mass_delta` targets, a
+genuinely different transformation from oxygen insertion); 11 more
+cluster near −30.03, consistent with a CH₂O leaving group; the remainder
+is a long tail of rarer P450 chemistries (epoxidation, ring contraction,
+oxidative C–C cleavage) this class does not attempt to enumerate — all
+correctly kept out rather than folded in as noise.
+
+Every one of the 176 decided reactions reaches a decisive verdict
+favouring the enzyme, the same shape `o2-monooxygenase` shows, even with
+the electron donor's real cost left entirely unpriced.
+
+**Coverage across all twelve classes: 2,425 of 18,558 Rhea reactions
+matched (13.1%), 1,463 decided (7.9%).**
+
 ## Running one
 
 ```bash
