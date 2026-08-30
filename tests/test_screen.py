@@ -258,16 +258,19 @@ def test_the_class_matches_the_expected_number_of_reactions(screened):
     # ADP-glucose, GDP-glucose, UDP-galactofuranose, dTDP-glucose,
     # CDP-glucose), for 478 total.
     assert screened.matched == 478
-    # 27 of the 478 are excluded by the mass-delta check, not silently
+    # 29 of the 478 are excluded by the mass-delta check, not silently
     # templated as glycosylations: 13 where an acceptor/product pair could
-    # not be identified, and 14 that consume a class cofactor for a
-    # genuinely different transformation -- the cofactor's own hydrolysis, a
+    # not be identified, and 16 that consume a class cofactor for a
+    # genuinely different transformation -- the cofactor's own hydrolysis
+    # (including RHEA:28102 and RHEA:15049, GDP-mannose/GDP-glucose + H2O ->
+    # free sugar + GDP, correctly excluded once water is no longer eligible
+    # to stand in as "the acceptor" -- see _identify's comment), a
     # sugar-nucleotide exchange, a hexose-1-phosphate transfer onto a lipid
     # carrier (undecaprenyl phosphate), oxidation of the sugar-nucleotide
     # itself, or (among the six sibling donors) chain elongation and
     # isomerisation of the same kind -- verified by hand for every
     # exclusion bucket; see screen_reaction's comment on the check.
-    assert len(screened.decided) == 451
+    assert len(screened.decided) == 449
 
 
 def test_screen_reproduces_the_hand_built_case(screened):
@@ -296,7 +299,7 @@ def test_no_reaction_in_this_class_survives_industrial_solvent_recovery(screened
 
     Every verdict here is decided at zero solvent recovery, but the template
     comes from a bench procedure that discards over 800 kg of solvent per kg
-    of product. None of the 451 survives 99% recovery, and the whole
+    of product. None of the 449 survives 99% recovery, and the whole
     distribution sits below the 90-95% a real plant achieves by distillation.
     If this ever starts passing, the class's advantage has stopped being an
     artefact of glassware and the claim can be made much more strongly.
@@ -340,18 +343,24 @@ def test_bis_glycosylation_scales_the_chemical_side_too(screened):
 def test_mass_delta_check_excludes_reactions_that_are_not_this_transformation(screened):
     """RHEA:29555 consumes UDP-glucose but is the cofactor's OWN hydrolysis
     (UDP-glucose + H2O -> glucose 1-phosphate + UMP), not a transfer onto an
-    external acceptor -- `_identify` mistakes water for the acceptor, and the
-    mass-delta check is what actually catches it. RHEA:13989 is a sugar-
-    nucleotide exchange (galactose 1-phosphate + UDP-glucose -> glucose
-    1-phosphate + UDP-galactose) where nothing is added at all. RHEA:28126
-    transfers glucosyl-1-phosphate (162.14 + a phosphate group, 242.12 total)
-    onto a lipid carrier (undecaprenyl phosphate), not a hydroxyl -- a real
-    but different biosynthetic mechanism that only became reachable once
-    UDP-galactose reactions widened the field this check has to police.
-    RHEA:35755 oxidises UDP-glucose itself (an NAD+-dependent step) rather
-    than transferring it anywhere. All four consume a class cofactor; none
+    external acceptor. Water is excluded from the acceptor search the same
+    way a proton is (see _identify's comment), so nothing is left to call
+    "the acceptor" and it comes back unresolved rather than mis-decided
+    against a spurious water pairing. RHEA:13989 is a sugar-nucleotide
+    exchange (galactose 1-phosphate + UDP-glucose -> glucose 1-phosphate +
+    UDP-galactose) where nothing is added at all -- this one the mass-delta
+    check is what actually catches. RHEA:28126 transfers glucosyl-1-phosphate
+    (162.14 + a phosphate group, 242.12 total) onto a lipid carrier
+    (undecaprenyl phosphate), not a hydroxyl -- a real but different
+    biosynthetic mechanism that only became reachable once UDP-galactose
+    reactions widened the field this check has to police. RHEA:35755
+    oxidises UDP-glucose itself (an NAD+-dependent step) rather than
+    transferring it anywhere. All four consume a class cofactor; none
     belongs in a glycosylation class."""
-    for rhea_id in ("RHEA:29555", "RHEA:13989", "RHEA:28126", "RHEA:35755"):
+    r = next(x for x in screened.results if x.rhea_id == "RHEA:29555")
+    assert not r.decided
+    assert r.skipped_reason == "could not identify acceptor/product"
+    for rhea_id in ("RHEA:13989", "RHEA:28126", "RHEA:35755"):
         r = next(x for x in screened.results if x.rhea_id == rhea_id)
         assert not r.decided
         assert "does not match this class's expected" in r.skipped_reason
@@ -440,7 +449,7 @@ def test_the_class_does_not_survive_an_industrial_solvent_loop_at_any_conversion
     needs = [r.min_enzymatic_yield for r in screened.decided]
     still_decided = [y for y in needs if y is not None]
     assert len(still_decided) == 25
-    assert len(needs) - len(still_decided) == 426
+    assert len(needs) - len(still_decided) == 424
     # And those 25 are not comfortable: the median one needs 93% conversion.
     still_decided.sort()
     assert min(still_decided) == pytest.approx(0.853, abs=0.005)
@@ -463,7 +472,7 @@ def test_the_break_even_frontier_slopes_the_only_way_it_can(inputs):
     must decrease monotonically down the curve."""
     curve = break_even_frontier(*inputs, yields=(1.0, 0.7, 0.5))
     assert [p.enzymatic_yield for p in curve] == [1.0, 0.7, 0.5]
-    assert all(p.decided == 451 for p in curve)
+    assert all(p.decided == 449 for p in curve)
     for a, b in zip(curve, curve[1:]):
         assert b.min_threshold < a.min_threshold
         assert b.median_threshold < a.median_threshold
@@ -622,7 +631,7 @@ def test_the_fair_fight_holds_once_both_sides_are_evidenced(inputs):
     once both routes are pushed hard.
     """
     curve = fair_fight_frontier(*inputs, efforts=(0.0, 0.9, 0.99))
-    assert all(p.enzyme_wins == 451 for p in curve)
+    assert all(p.enzyme_wins == 449 for p in curve)
     assert all(p.chemistry_wins == 0 for p in curve)
 
 
@@ -655,11 +664,11 @@ def test_the_published_operating_point_is_decided_for_the_whole_class(inputs):
     """
     run = screen_all(*inputs, cofactor_recycling=1 - 1 / 240, reference_recovery=0.90)
     guaranteed = [r for r in run.decided if r.advantage_decided]
-    assert len(guaranteed) == len(run.decided) == 451
+    assert len(guaranteed) == len(run.decided) == 449
 
 
 def test_the_fair_fight_report_names_what_actually_decides_it(inputs):
-    """A table saying the enzyme wins 451-0 at 99% effort is worthless without
+    """A table saying the enzyme wins 449-0 at 99% effort is worthless without
     the reason. The dominant solvent term is a bench isolation, and recovery
     can only divide it -- it cannot un-choose it."""
     from carbonroute.report import render_fair_fight
@@ -828,7 +837,7 @@ def test_the_verdict_survives_being_modelled_instead_of_quoted(
     Screened against a competent process rather than one paper's bench run,
     the enzymatic advantage shrinks by roughly six-fold -- that is the size of
     the "which paper did you pick" effect, measured rather than argued. What
-    matters is that the conclusion does not move with it: all 451 reactions
+    matters is that the conclusion does not move with it: all 449 reactions
     still have a guaranteed saving. A finding that survives its own dominant
     assumption being replaced is worth more than one that was never tested.
     """
@@ -838,7 +847,7 @@ def test_the_verdict_survives_being_modelled_instead_of_quoted(
     modelled = next(x for x in by_process_model.decided if x.rhea_id == "RHEA:12560")
     assert modelled.advantage_min_kgCO2e < paper.advantage_min_kgCO2e / 4
     assert modelled.advantage_min_kgCO2e > 0
-    assert len([x for x in by_process_model.decided if x.advantage_decided]) == 451
+    assert len([x for x in by_process_model.decided if x.advantage_decided]) == 449
 
 
 def test_modelling_the_process_loosens_the_grip_of_one_material(
@@ -847,7 +856,7 @@ def test_modelling_the_process_loosens_the_grip_of_one_material(
     """And it does what it was for: the verdicts stop being about one number.
 
     Under the paper template a single material carries a median 80% of every
-    delta and is the top term in all 451 reactions. Under the model that falls
+    delta and is the top term in all 449 reactions. Under the model that falls
     to 60%, and it is no longer the top term in a substantial minority.
     """
     bounds = inputs[5]
@@ -860,7 +869,7 @@ def test_modelling_the_process_loosens_the_grip_of_one_material(
 
     paper_conc, paper_etoac = profile(at_published_operating_point)
     model_conc, model_etoac = profile(by_process_model)
-    assert paper_etoac == 451
+    assert paper_etoac == 449
     assert model_etoac < 300
     assert model_conc < paper_conc - 0.1
 
@@ -891,7 +900,7 @@ def test_every_verdict_in_this_class_rests_on_one_material(at_published_operatin
     """The finding this detector was built to surface, and it is not a
     comfortable one.
 
-    In all 451 decided reactions the single largest term carries at least
+    In all 449 decided reactions the single largest term carries at least
     half the delta, and it is the same material every time: ethyl acetate,
     the template's 159 kg/mol bench isolation. The verdicts are therefore
     mostly a statement about one paper's choice of extraction volume. That
@@ -1247,18 +1256,21 @@ def test_atp_class_uses_the_dianion_mass_delta_not_the_textbook_one(atp_inputs):
 
 
 def test_atp_class_matches_and_decides_the_expected_number(atp_screened):
-    """209 Rhea reactions consume ATP under EC 2.7.1. 202 of them (96.7%)
+    """209 Rhea reactions consume ATP under EC 2.7.1. 203 of them (97.1%)
     resolve to a single acceptor/product pair within one proton of the
-    dianion mass delta and are decided. Every one of the 7 that are not
+    dianion mass delta and are decided -- including RHEA:73839 (phenol + ATP
+    + H2O = phenyl phosphate + AMP + phosphate + 2 H(+)), recovered once
+    water is no longer eligible to stand in as "the acceptor" alongside
+    phenol; see _identify's comment. Every one of the 6 that are still not
     decided is either an acceptor/product pairing this project's simple
     by-elimination resolver cannot untangle (RHEA:22740, RHEA:24952,
-    RHEA:63428, RHEA:73839) or a real phosphorylation whose donor and
-    acceptor are both large enough (NADH kinase, dephospho-CoA kinase,
-    NAD+ kinase) that the resolver locks onto the wrong pair and the
-    mass-delta check correctly refuses to decide it rather than guessing.
+    RHEA:63428) or a real phosphorylation whose donor and acceptor are both
+    large enough (NADH kinase, dephospho-CoA kinase, NAD+ kinase) that the
+    resolver locks onto the wrong pair and the mass-delta check correctly
+    refuses to decide it rather than guessing.
     """
     assert atp_screened.matched == 209
-    assert len(atp_screened.decided) == 202
+    assert len(atp_screened.decided) == 203
     by_id = {r.rhea_id: r for r in atp_screened.results}
     assert by_id["RHEA:10224"].decided
     for rhea_id in ("RHEA:12260", "RHEA:18245", "RHEA:18629"):
@@ -1515,24 +1527,27 @@ def test_ugt_class_matches_and_excludes_five_other_transformations(ugt_screened)
     """102 Rhea reactions consume UDP-glucuronate. RHEA:11404 (UDP-
     glucuronate 4-epimerase, a pure isomerisation with no separate acceptor)
     cannot be resolved to an acceptor/product pair -- nor can RHEA:23916 and
-    RHEA:70523 (UDP-glucuronate decarboxylase to UDP-xylose/UDP-apiose):
-    both consume only UDP-glucuronate plus a proton, so once a proton on
-    the left of the equation is correctly excluded from the acceptor
-    search, nothing is left to call "the acceptor" either. Of the 101 that
-    do resolve, 95 (94.1%) land within tolerance and are decided -- every
-    one of them decisively favouring the enzyme. The other 4 are genuinely
-    different UDP-glucuronate chemistry (hyaluronan chain elongation,
-    oxidative decarboxylation, hydrolysis to the 1-phosphate) and are
-    correctly excluded by mass delta."""
+    RHEA:70523 (UDP-glucuronate decarboxylase to UDP-xylose/UDP-apiose): both
+    consume only UDP-glucuronate plus a proton, so once a proton is excluded
+    from the acceptor search nothing is left to call "the acceptor" either.
+    RHEA:26073 and RHEA:29559 (hydrolysis to D-glucuronate or to the
+    1-phosphate) join them for the same reason once water is excluded too --
+    see _identify's comment: both consume only UDP-glucuronate plus H2O, and
+    once water is no longer eligible to stand in as an acceptor there is
+    nothing left on the reactant side either. Of the 97 that do resolve, 94
+    (96.9%) land within tolerance and are decided -- every one of them
+    decisively favouring the enzyme. The other 3 are genuinely different
+    UDP-glucuronate chemistry (hyaluronan chain elongation, oxidative
+    decarboxylation to NADH) and are correctly excluded by mass delta."""
     assert ugt_screened.matched == 102
-    assert len(ugt_screened.decided) == 95
+    assert len(ugt_screened.decided) == 94
     by_id = {r.rhea_id: r for r in ugt_screened.results}
     assert by_id["RHEA:10568"].decided
     assert by_id["RHEA:28314"].decided
-    for rhea_id in ("RHEA:11404", "RHEA:23916", "RHEA:70523"):
+    for rhea_id in ("RHEA:11404", "RHEA:23916", "RHEA:70523", "RHEA:26073", "RHEA:29559"):
         assert not by_id[rhea_id].decided
         assert "could not identify" in by_id[rhea_id].skipped_reason
-    for rhea_id in ("RHEA:12528", "RHEA:20908", "RHEA:24702", "RHEA:29559"):
+    for rhea_id in ("RHEA:12528", "RHEA:20908", "RHEA:24702"):
         assert not by_id[rhea_id].decided
         assert "does not match" in by_id[rhea_id].skipped_reason
 
@@ -1881,12 +1896,16 @@ def test_dioxygenase_class_matches_and_unifies_three_charge_states(dioxygenase_s
 def test_dioxygenase_class_excludes_reactions_needing_a_third_reactant(dioxygenase_screened):
     """RHEA:12981 and RHEA:13957 both genuinely require H2O as a third
     reactant beyond O2 (sulfur/thiol oxidation to sulfite), a different
-    reaction shape this class does not attempt to handle, and correctly
-    come back unresolved rather than mis-decided."""
+    reaction shape this class does not attempt to handle. Water is excluded
+    from the acceptor search the same way a proton is (see _identify's
+    comment), so both resolve on the remaining sulfur-containing reactant
+    alone and are correctly excluded once its mass delta does not match a
+    dioxygenation -- rather than mis-decided against a spurious
+    water-as-acceptor pairing."""
     by_id = {r.rhea_id: r for r in dioxygenase_screened.results}
     for rhea_id in ("RHEA:12981", "RHEA:13957"):
         assert not by_id[rhea_id].decided
-        assert "could not identify" in by_id[rhea_id].skipped_reason
+        assert "does not match" in by_id[rhea_id].skipped_reason
 
 
 def test_dioxygenase_class_is_decided_and_decisively_favours_the_enzyme(dioxygenase_screened):

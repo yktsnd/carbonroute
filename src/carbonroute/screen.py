@@ -981,8 +981,29 @@ def _identify(rxn: RheaReaction, template: ClassTemplate) -> tuple[Participant, 
     does not price. Excluding it here only affects which species can be
     "the acceptor" -- it never enters the mass-delta check or any material
     charge, both of which stay driven by `cofactor_chebi` alone.
+
+    Water (CHEBI:15377) is excluded for the same reason as the proton: it
+    is a spectator or a leaving-group's own hydrolysis partner, never the
+    organic acceptor a class template prices a synthetic route against.
+    Found by removing `ec_prefix` from the prenyltransferase classes as an
+    experiment -- without this exclusion, DMAPP/GPP/FPP/GGPP diphosphate
+    hydrolysis and terpene-cyclisation reactions (RHEA:21496 dimethylallyl
+    diphosphate + H2O = prenol + diphosphate; RHEA:15809 geranyl
+    diphosphate + H2O = linalool + diphosphate) pass the mass-delta check
+    -- the bond math of ionising a prenyl diphosphate and quenching the
+    cation with water is arithmetically identical to alkylating a real
+    acceptor -- and get wrongly decided as prenyltransferase-class members,
+    priced against a chemical route (prenylate an acceptor with a halide)
+    that is not how anyone actually makes linalool or cineole. Verified
+    against all 16 shipped classes as it stood before this fix: zero
+    currently-decided reactions have water as their identified acceptor, so
+    this exclusion is purely additive, same as the proton fix above.
     """
-    exclude = set(template.cofactor_chebi) | set(template.unpriced_co_cofactor_chebi) | {"CHEBI:15378"}
+    exclude = (
+        set(template.cofactor_chebi)
+        | set(template.unpriced_co_cofactor_chebi)
+        | {"CHEBI:15378", "CHEBI:15377"}
+    )
     others_left = [p for p in rxn.left if p.chebi not in exclude]
     if len(others_left) != 1:
         return None
