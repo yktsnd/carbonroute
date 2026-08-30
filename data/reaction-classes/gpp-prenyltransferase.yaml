@@ -20,17 +20,30 @@
 # unrelated isoprenyl-derived alkene, so "one more C=C" is not a clean
 # discriminator, and the mass-delta check alone is the class-purity test.
 #
-# Structural verification (run through the actual screen): 11 reactions
-# match GPP + EC 2.5.1. 10 (90.9%) resolve to a single acceptor/product pair
-# within tolerance and are decided, every one decisively favouring the
-# enzyme -- including RHEA:33839 (2-O,3-dimethylflaviolin + GPP + H(+) =
+# CORRECTION: an earlier version of this file claimed 11 matched / 10
+# decided. That 10 wrongly included RHEA:19361 and RHEA:23300 (isopentenyl
+# diphosphate + GPP = (E)- or (Z)-farnesyl diphosphate + diphosphate) --
+# FPP synthase, GPP condensing with exactly ONE isopentenyl diphosphate
+# (IPP) equivalent, not prenylation of a foreign nucleophile. As on the
+# DMAPP class, a single IPP hop is arithmetically indistinguishable from a
+# real transfer by mass delta alone (product_mw - IPP_mw always equals
+# GPP's own transferred-group mass, 136.238, regardless of what GPP
+# actually reacted with) -- see the DMAPP class's own CORRECTION for the
+# full explanation. `excluded_co_cofactor_chebi` below excludes
+# isopentenyl diphosphate (CHEBI:128769) from matching entirely, fixing
+# this and RHEA:27563 (the multi-IPP chain elongation already documented
+# as excluded, now excluded earlier and more honestly, at the match
+# itself rather than downstream by mass delta).
+#
+# Structural verification (run through the actual screen, with the fix
+# applied): 8 reactions match GPP + EC 2.5.1 excluding IPP, and all 8
+# (100%) resolve to a single acceptor/product pair within tolerance and
+# are decided, every one decisively favouring the enzyme -- including
+# RHEA:33839 (2-O,3-dimethylflaviolin + GPP + H(+) =
 # 7-O-geranyl-2-O,3-dimethylflaviolin + diphosphate), which only decides
 # once a proton on the left of the equation is excluded from the acceptor
 # search the same way one on the right already was -- see screen.py's
-# _identify docstring. The other 1: RHEA:27563 (7 isopentenyl diphosphate
-# + GPP = all-trans-nonaprenyl diphosphate + 7 diphosphate) is chain
-# elongation, the same confound the DMAPP class documents, excluded by
-# mass delta (544.95, an exact multiple of 68.12).
+# _identify docstring.
 
 reaction_class:
   id: gpp-prenyltransferase
@@ -39,12 +52,16 @@ reaction_class:
     Enzymatic transfer of the geranyl group from GPP onto a nucleophilic
     acceptor (O-, C- or S-prenylation), releasing diphosphate. Matched on
     GPP specifically (not DMAPP, FPP or GGPP, which transfer a different
-    mass), restricted to EC 2.5.1.
+    mass), restricted to EC 2.5.1. Isopentenyl diphosphate (IPP,
+    CHEBI:128769) is excluded outright: a single IPP equivalent condensing
+    with GPP is chain elongation to FPP, not prenylation of a foreign
+    acceptor -- see the CORRECTION above.
   expected_mass_delta: 136.238
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:58057"
   cofactor_role: reagent
   ec_prefix: "2.5.1"
+  excluded_co_cofactor_chebi: "CHEBI:128769"
 
 chemical_counterpart:
   name: "Declared process model only -- see process_model below"

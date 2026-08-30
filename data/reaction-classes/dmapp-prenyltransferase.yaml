@@ -29,37 +29,49 @@
 # clean discriminator. The mass-delta check is the whole class-purity test
 # here.
 #
-# Structural verification (run through the actual screen): 47 reactions
-# match DMAPP + EC 2.5.1. 38 of them (80.9%) resolve to a single
-# acceptor/product pair within one proton of 68.119 and are decided,
-# including RHEA:79231 (hapalindole U + DMAPP + H(+) = ambiguine H +
-# diphosphate), decided only once the acceptor/product resolver was fixed
-# to exclude a proton on the left side of the equation the same way it
-# already excluded one on the right -- see screen.py's _identify
-# docstring; 2,673 of Rhea's 18,558 reactions carry "+ H(+)" as a left-side
-# reactant, and this class's members are far from the only ones that
-# needed it excluded to resolve correctly. The other 9: 6 could not be
-# resolved to a single acceptor/product pair -- mostly chain-elongation
-# reactions where DMAPP condenses with two or more isopentenyl diphosphate
-# (IPP) equivalents, so the "acceptor" this project's by-elimination
-# resolver finds is IPP, not a foreign nucleophile (RHEA:27810,
-# RHEA:55520, RHEA:77975 are exactly this, and are the same 3 reactions
-# the mass-delta check below also independently excludes -- see next
-# paragraph -- when IPP's own coefficient happens to leave exactly one
-# non-cofactor left reactant); 2 more (RHEA:14009, RHEA:21676) are DMAPP
-# HOMODIMERISATION (chrysanthemyl and lavandulyl diphosphate synthase --
-# head-to-head coupling of two DMAPP molecules, an "irregular monoterpene"
-# pathway with no separate foreign acceptor at all, so 2 DMAPP is
-# structurally the reaction's whole left side and nothing is left over to
-# call "the acceptor"). Of the 38 decided, mass delta and chain-elongation
-# exclusion overlap for the 3 IPP-condensation reactions that do resolve to
-# a single left-over reactant: 136.24 (2x), 204.36 (3x) and 340.60 (5x) g/mol
-# cluster tightly at exact multiples of 68.12, confirming they are the same
-# real chemistry (successive isoprene-unit addition) rather than noise --
-# and are correctly excluded, because this class models DMAPP transferring
-# onto a foreign nucleophile, not IPP chain elongation, which is a genuinely
-# different transformation. Zero of the 38 decided reactions were excluded
-# for a wrong reason on manual inspection.
+# CORRECTION: an earlier version of this file claimed 47 matched / 38
+# decided and stated "zero of the 38 decided reactions were excluded for a
+# wrong reason on manual inspection" -- that claim was wrong. RHEA:11328
+# (isopentenyl diphosphate + DMAPP = neryl diphosphate + diphosphate) and
+# RHEA:22408 (isopentenyl diphosphate + DMAPP = geranyl diphosphate +
+# diphosphate) were among those 38, and are not prenylation of a foreign
+# nucleophile -- they are GPP synthase: DMAPP condensing with exactly ONE
+# isopentenyl diphosphate (IPP) equivalent to build a longer allylic
+# diphosphate. Two or more IPP equivalents was already a documented
+# confound this class excludes (see below); what was missed is that
+# condensing with exactly one equivalent is *arithmetically
+# indistinguishable* from a genuine transfer by mass delta alone -- the
+# resolver picks IPP as "the acceptor" and the elongated product as "the
+# product", and product_mw - IPP_mw always equals DMAPP's own
+# transferred-group mass (68.119) regardless of which molecule DMAPP
+# actually reacted with, because that is just DMAPP's own mass minus its
+# leaving diphosphate. mass_delta cannot tell this apart from a real
+# prenylation; only the acceptor's identity can. `excluded_co_cofactor_chebi`
+# below fixes this: isopentenyl diphosphate (CHEBI:128769) is now excluded
+# from matching entirely, the same tool `required_co_cofactor_chebi` uses
+# to disambiguate the O2 classes.
+#
+# Structural verification (run through the actual screen, with the fix
+# applied): 42 reactions match DMAPP + EC 2.5.1 excluding IPP. 36 (85.7%)
+# resolve to a single acceptor/product pair within one proton of 68.119
+# and are decided, including RHEA:79231 (hapalindole U + DMAPP + H(+) =
+# ambiguine H + diphosphate), decided only once the acceptor/product
+# resolver was fixed to exclude a proton on the left side of the equation
+# the same way it already excluded one on the right -- see screen.py's
+# _identify docstring; 2,673 of Rhea's 18,558 reactions carry "+ H(+)" as
+# a left-side reactant, and this class's members are far from the only
+# ones that needed it excluded to resolve correctly. The other 6: 4 could
+# not be resolved to a single acceptor/product pair -- RHEA:14009 and
+# RHEA:21676 are DMAPP HOMODIMERISATION (chrysanthemyl and lavandulyl
+# diphosphate synthase -- head-to-head coupling of two DMAPP molecules, an
+# "irregular monoterpene" pathway with no separate foreign acceptor at
+# all, so 2 DMAPP is structurally the reaction's whole left side and
+# nothing is left over to call "the acceptor"), and RHEA:56124/RHEA:56128
+# each have three left-side reactants (lycopene, DMAPP and an electron
+# acceptor/donor pair alongside water) so no single acceptor resolves
+# either; the remaining 2 (RHEA:58188, RHEA:58192) resolve but add 86.13
+# g/mol, not 68.119 -- a different carotenoid-pathway prenylation this
+# class's mass signature correctly does not claim.
 
 reaction_class:
   id: dmapp-prenyltransferase
@@ -68,12 +80,17 @@ reaction_class:
     Enzymatic transfer of the dimethylallyl group from DMAPP onto a
     nucleophilic acceptor (O-, C- or S-prenylation), releasing diphosphate.
     Matched on DMAPP specifically (not GPP, FPP or GGPP, which transfer a
-    different mass), restricted to EC 2.5.1.
+    different mass), restricted to EC 2.5.1. Isopentenyl diphosphate (IPP,
+    CHEBI:128769) is excluded outright: a single IPP equivalent condensing
+    with DMAPP is chain elongation to GPP, not prenylation of a foreign
+    acceptor, and its mass delta is indistinguishable from a real transfer
+    -- see the CORRECTION above.
   expected_mass_delta: 68.119
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:57623"
   cofactor_role: reagent
   ec_prefix: "2.5.1"
+  excluded_co_cofactor_chebi: "CHEBI:128769"
 
 chemical_counterpart:
   name: "Declared process model only -- see process_model below"

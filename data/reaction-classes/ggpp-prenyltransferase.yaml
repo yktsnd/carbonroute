@@ -13,22 +13,33 @@
 #
 # No transferred_bond_smarts, for the same reason as the DMAPP class.
 #
-# Structural verification (run through the actual screen): 9 reactions
-# match GGPP + EC 2.5.1. 4 (44.4%) resolve within tolerance and are
-# decided, all decisively favouring the enzyme -- including RHEA:49228
-# (bacteriochlorophyllide a + GGPP + H(+) = geranylgeranyl-
-# bacteriochlorophyllide a + diphosphate), which only decides once a
-# proton on the left of the equation is excluded from the acceptor search
-# the same way one on the right already was -- see screen.py's _identify
-# docstring. The other 5: RHEA:34475 (2 GGPP -> phytoene, a GGPP
-# homodimerisation with no foreign acceptor at all) could not be resolved
-# to a single acceptor/product pair; 4 are excluded by mass delta --
-# RHEA:27555/RHEA:27594 are chain elongation with more isopentenyl
-# diphosphate, at exact multiples of 68.12; RHEA:38003 is a prenylation-
-# with-decarboxylation losing CO2 alongside diphosphate, a genuinely
-# different net mass; RHEA:58176 consumes a second cofactor (NADPH)
-# alongside GGPP in a reductive prenylation that adds a different mass
-# again.
+# CORRECTION: an earlier version of this file claimed 9 matched / 4
+# decided. That 4 wrongly included RHEA:25694 (isopentenyl diphosphate +
+# GGPP = geranylfarnesyl diphosphate + diphosphate) -- polyprenyl
+# synthase, GGPP condensing with exactly ONE isopentenyl diphosphate (IPP)
+# equivalent, not prenylation of a foreign nucleophile: the same
+# single-IPP-hop confound documented on the DMAPP class's own CORRECTION,
+# arithmetically indistinguishable from a real transfer by mass delta
+# alone. `excluded_co_cofactor_chebi` below excludes isopentenyl
+# diphosphate (CHEBI:128769) from matching entirely, fixing this and
+# RHEA:27555/RHEA:27594 (the multi-IPP chain elongations already
+# documented as excluded, now excluded earlier and more honestly, at the
+# match itself rather than downstream by mass delta).
+#
+# Structural verification (run through the actual screen, with the fix
+# applied): 6 reactions match GGPP + EC 2.5.1 excluding IPP. 3 (50%)
+# resolve within tolerance and are decided, all decisively favouring the
+# enzyme -- including RHEA:49228 (bacteriochlorophyllide a + GGPP + H(+) =
+# geranylgeranyl-bacteriochlorophyllide a + diphosphate), which only
+# decides once a proton on the left of the equation is excluded from the
+# acceptor search the same way one on the right already was -- see
+# screen.py's _identify docstring. The other 3: RHEA:34475 (2 GGPP ->
+# phytoene, a GGPP homodimerisation with no foreign acceptor at all) could
+# not be resolved to a single acceptor/product pair; RHEA:38003 is a
+# prenylation-with-decarboxylation losing CO2 alongside diphosphate, a
+# genuinely different net mass; RHEA:58176 consumes a second cofactor
+# (NADPH) alongside GGPP in a reductive prenylation that adds a different
+# mass again.
 
 reaction_class:
   id: ggpp-prenyltransferase
@@ -37,12 +48,16 @@ reaction_class:
     Enzymatic transfer of the geranylgeranyl group from GGPP onto a
     nucleophilic acceptor (O-, C- or S-prenylation), releasing diphosphate.
     Matched on GGPP specifically (not DMAPP, GPP or FPP, which transfer a
-    different mass), restricted to EC 2.5.1.
+    different mass), restricted to EC 2.5.1. Isopentenyl diphosphate (IPP,
+    CHEBI:128769) is excluded outright: a single IPP equivalent condensing
+    with GGPP is chain elongation, not prenylation of a foreign acceptor
+    -- see the CORRECTION above.
   expected_mass_delta: 272.476
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:58756"
   cofactor_role: reagent
   ec_prefix: "2.5.1"
+  excluded_co_cofactor_chebi: "CHEBI:128769"
 
 chemical_counterpart:
   name: "Declared process model only -- see process_model below"

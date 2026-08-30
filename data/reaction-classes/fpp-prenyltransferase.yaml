@@ -13,23 +13,33 @@
 #
 # No transferred_bond_smarts, for the same reason as the DMAPP class.
 #
-# Structural verification (run through the actual screen): 13 reactions
-# match FPP + EC 2.5.1. Only 2 (15.4%) resolve within tolerance and are
-# decided, both decisively favouring the enzyme -- FPP is a much less
-# "clean" cofactor than DMAPP or GPP for this class, because most of its
-# real EC 2.5.1 chemistry is NOT transfer onto a foreign nucleophile:
-# 6 reactions (RHEA:27551/27559/27794/27798/27802/53008) are chain
-# elongation with 3-10 more isopentenyl diphosphate equivalents, correctly
-# excluded by mass delta at exact multiples of 68.12; 3 more
-# (RHEA:22672 -> presqualene diphosphate, RHEA:31547 -> diapophytoene,
-# RHEA:32295/32299 -> squalene) are FPP HOMODIMERISATION -- two FPP
-# molecules coupling head-to-head with no foreign acceptor at all, the
-# same class of chemistry the DMAPP class's chrysanthemyl/lavandulyl
-# synthase members are; RHEA:28070 (heme b + FPP + H2O -> Fe(II)-heme o)
-# has three left-side reactants and does not resolve to a single acceptor.
-# The 2 that do decide are genuine, real single-nucleophile prenylations,
-# correctly separated from this cofactor's other, much more common
-# chemistry -- a small class, honestly reported as one.
+# CORRECTION: an earlier version of this file claimed 13 matched / 2
+# decided and called both of the 2 "genuine, real single-nucleophile
+# prenylations". That was wrong: RHEA:17653 (isopentenyl diphosphate + FPP
+# = GGPP + diphosphate) is GGPP synthase, FPP condensing with exactly ONE
+# isopentenyl diphosphate (IPP) equivalent, not prenylation of a foreign
+# nucleophile -- the same single-IPP-hop confound documented on the DMAPP
+# class's own CORRECTION, arithmetically indistinguishable from a real
+# transfer by mass delta alone. `excluded_co_cofactor_chebi` below
+# excludes isopentenyl diphosphate (CHEBI:128769) from matching entirely.
+#
+# Structural verification (run through the actual screen, with the fix
+# applied): 6 reactions match FPP + EC 2.5.1 excluding IPP. Only 1 (16.7%)
+# resolves within tolerance and is decided, decisively favouring the
+# enzyme: RHEA:13345 (L-cysteinyl-[protein] + FPP = S-farnesyl-L-cysteinyl-
+# [protein] + diphosphate), the classic CAAX-motif protein farnesylation.
+# FPP is a much less "clean" cofactor than DMAPP or GPP for this class,
+# because most of its real EC 2.5.1 chemistry is NOT transfer onto a
+# foreign nucleophile: 3 (RHEA:22672 -> presqualene diphosphate,
+# RHEA:31547 -> diapophytoene, RHEA:32295/32299 -> squalene) are FPP
+# HOMODIMERISATION -- two FPP molecules coupling head-to-head with no
+# foreign acceptor at all, the same class of chemistry the DMAPP class's
+# chrysanthemyl/lavandulyl synthase members are; RHEA:28070 (heme b + FPP
+# + H2O -> Fe(II)-heme o) has three left-side reactants and does not
+# resolve to a single acceptor. The 1 that does decide is a genuine, real
+# single-nucleophile prenylation, correctly separated from this cofactor's
+# other, much more common chemistry -- a small class, honestly reported as
+# one.
 
 reaction_class:
   id: fpp-prenyltransferase
@@ -38,12 +48,16 @@ reaction_class:
     Enzymatic transfer of the farnesyl group from FPP onto a nucleophilic
     acceptor (O-, C- or S-prenylation), releasing diphosphate. Matched on
     FPP specifically (not DMAPP, GPP or GGPP, which transfer a different
-    mass), restricted to EC 2.5.1.
+    mass), restricted to EC 2.5.1. Isopentenyl diphosphate (IPP,
+    CHEBI:128769) is excluded outright: a single IPP equivalent condensing
+    with FPP is chain elongation to GGPP, not prenylation of a foreign
+    acceptor -- see the CORRECTION above.
   expected_mass_delta: 204.357
   mass_delta_tolerance: 1.0
   cofactor_chebi: "CHEBI:175763"
   cofactor_role: reagent
   ec_prefix: "2.5.1"
+  excluded_co_cofactor_chebi: "CHEBI:128769"
 
 chemical_counterpart:
   name: "Declared process model only -- see process_model below"
