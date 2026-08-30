@@ -18,6 +18,16 @@ bounds:
     sources:
       - "No public cradle-to-gate GWP for GDP-fucose was found."
       - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+  "name:chebi:83836":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      UDP-beta-L-rhamnose. Same reasoning as GDP-fucose above; rhamnose
+      and fucose are both 6-deoxyhexoses carrying the identical transferred
+      mass, no basis was found to assign this donor a different interval.
+    sources:
+      - "No public cradle-to-gate GWP for UDP-rhamnose was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
 
   # ---- The chemical side ---------------------------------------------------
   "cas:16741-27-8":

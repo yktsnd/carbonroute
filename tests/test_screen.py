@@ -2341,29 +2341,40 @@ def fuc_screened(fuc_inputs):
 
 def test_fucosyltransferase_class_declares_no_ec_prefix(fuc_inputs):
     """The mass-delta check alone already separates this class cleanly (see
-    the template's own header), so no ec_prefix was ever needed."""
+    the template's own header), so no ec_prefix was ever needed. Matched on
+    both GDP-fucose and UDP-rhamnose -- two 6-deoxyhexose-nucleotide
+    donors carrying the identical transferred mass, merged the same way
+    udp-glucosyltransferase merges its eight hexose donors."""
     template = fuc_inputs[1]
     assert template.ec_prefix is None
+    assert template.cofactor_chebi == ("CHEBI:57273", "CHEBI:83836")
     assert template.expected_mass_delta == pytest.approx(146.14, abs=1e-6)
 
 
 def test_fucosyltransferase_class_matches_and_decides_the_expected_number(fuc_screened):
-    """77 Rhea reactions consume GDP-fucose. 76 (98.7%) resolve to a single
-    acceptor/product pair within one proton of 146.14 (the fucosyl group)
-    and are decided, every one decisively favouring the enzyme --
-    including RHEA:14257, the human-milk-oligosaccharide fucosylation this
-    project's own Q3 target list already names, and RHEA:42040 (ganglioside
-    GM1 -> Fuc-GM1), a much larger acceptor landing on the identical delta.
-    The other 1, RHEA:18885, is GDP-fucose SYNTHASE -- the biosynthetic
-    route that MAKES GDP-fucose, oxidising it rather than transferring it
-    -- correctly excluded by mass delta (-155.07, nowhere near 146.14)."""
-    assert fuc_screened.matched == 77
-    assert len(fuc_screened.decided) == 76
+    """92 Rhea reactions consume GDP-fucose or UDP-rhamnose (77 fucose, 15
+    rhamnose). 90 (97.8%) resolve to a single acceptor/product pair within
+    one proton of 146.14 (the 6-deoxyhexosyl group) and are decided, every
+    one decisively favouring the enzyme -- including RHEA:14257, the
+    human-milk-oligosaccharide fucosylation this project's own Q3 target
+    list already names, RHEA:42040 (ganglioside GM1 -> Fuc-GM1), a much
+    larger acceptor landing on the identical delta, and RHEA:61160
+    (quercetin -> quercitrin, a UDP-rhamnose transfer). The other 2:
+    RHEA:18885 is GDP-fucose SYNTHASE -- the biosynthetic route that MAKES
+    GDP-fucose, oxidising it rather than transferring it -- correctly
+    excluded by mass delta (-155.07, nowhere near 146.14); RHEA:55736 is
+    chain elongation of a growing rhamnogalacturonan written with Rhea's
+    "(n)"/"(n+1)" notation, correctly excluded by mass delta (-175.12)."""
+    assert fuc_screened.matched == 92
+    assert len(fuc_screened.decided) == 90
     by_id = {r.rhea_id: r for r in fuc_screened.results}
     assert by_id["RHEA:14257"].decided
     assert by_id["RHEA:42040"].decided
+    assert by_id["RHEA:61160"].decided
     assert not by_id["RHEA:18885"].decided
     assert "does not match" in by_id["RHEA:18885"].skipped_reason
+    assert not by_id["RHEA:55736"].decided
+    assert "does not match" in by_id["RHEA:55736"].skipped_reason
 
 
 def test_fucosyltransferase_process_model_charges_fucosyl_bromide_and_silver(fuc_inputs):
@@ -2383,7 +2394,7 @@ def test_fucosyltransferase_process_model_charges_fucosyl_bromide_and_silver(fuc
 
 
 def test_fucosyltransferase_class_is_decided_and_decisively_favours_the_enzyme(fuc_screened):
-    """Every one of this class's 76 decided reactions reaches a decisive
+    """Every one of this class's 90 decided reactions reaches a decisive
     verdict favouring the enzyme."""
     decided_with_verdict = [
         r for r in fuc_screened.decided if r.verdict is not None and r.verdict.decisive

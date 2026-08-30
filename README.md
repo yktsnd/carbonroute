@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty classes now built — 6,863 of 18,558 reactions matched (37.0%), 3,704 decided (20.0%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty classes now built — 6,878 of 18,558 reactions matched (37.1%), 3,718 decided (20.0%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -415,9 +415,25 @@ measures the same thing the threshold did.
    model uses a glycosyl CHLORIDE donor (CAS 3068-34-6, verified via web
    search) rather than the bromide the other sugar-donor classes use,
    because the C2 acetamido group's neighbouring-group participation
-   favours the more stable chloride for this specific sugar. Final total:
-   **6,863 of 18,558 reactions matched (37.0%), 3,704 decided (20.0%)** —
-   crossing 20% decided for the first time this session.
+   favours the more stable chloride for this specific sugar. Total after
+   this class: 6,863 of 18,558 reactions matched (37.0%), 3,704 decided
+   (20.0%) — crossing 20% decided for the first time this session.
+
+   **`gdp-fucosyltransferase.yaml` extended, not a new class: UDP-
+   rhamnose.** Fucose and rhamnose are both L-configured 6-deoxyhexoses —
+   different stereochemistry, identical formula and identical transferred
+   mass (146.14 g/mol, verified against RHEA:61160, quercetin ->
+   quercitrin) — so UDP-beta-L-rhamnose was added to the fucosylation
+   class's own `cofactor_chebi` list rather than built as a twenty-first
+   class, the same merge already used three times over (UDP-glucose/
+   UDP-galactose; UDP-GlcNAc/UDP-GalNAc; now GDP-fucose/UDP-rhamnose).
+   14 of 15 rhamnose-consuming reactions land on the identical delta
+   (rhamnosylation of flavonoids and saponins — myricetin, quercetin,
+   kaempferol among them); the other 1 is chain elongation of a growing
+   rhamnogalacturonan, correctly excluded. Renamed to
+   "6-deoxyhexose-nucleotide-dependent glycosylation" to reflect the
+   merge. Final total: **6,878 of 18,558 reactions matched (37.1%), 3,718
+   decided (20.0%)**.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -491,7 +507,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 37.0% matched / 20.0% decided and the 88.6% structural
+between today's 37.1% matched / 20.0% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at

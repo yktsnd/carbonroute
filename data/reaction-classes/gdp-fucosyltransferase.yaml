@@ -1,53 +1,69 @@
-# Reaction class: GDP-fucose-dependent fucosylation
+# Reaction class: 6-deoxyhexose-nucleotide-dependent glycosylation
 #
-# Covers Rhea reactions consuming GDP-beta-L-fucose (CHEBI:57273) as a
-# reactant: enzymatic transfer of the fucosyl unit onto an acceptor hydroxyl
-# (O-fucosylation of an oligosaccharide, glycolipid or glycoprotein glycan),
-# releasing GDP. This is the fucosyltransferase family -- the enzymes behind
-# human-milk-oligosaccharide fucosylation (RHEA:14257 among them, already
-# named in this project's own Q3 target list), the Lewis/ABO blood-group
-# antigens, and selectin-ligand biosynthesis.
+# Covers Rhea reactions consuming GDP-beta-L-fucose (CHEBI:57273) or
+# UDP-beta-L-rhamnose (CHEBI:83836) as a reactant: enzymatic transfer of a
+# 6-deoxyhexosyl unit onto an acceptor hydroxyl (O-fucosylation or
+# O-rhamnosylation of an oligosaccharide, flavonoid, saponin or
+# glycoprotein glycan), releasing the nucleotide diphosphate. Fucose and
+# rhamnose are both 6-deoxyhexoses -- L-configured, C6H12O5, differing only
+# in which nucleotide carries them (GDP vs UDP) and in stereochemistry the
+# resolver's mass-delta check cannot and need not distinguish -- so they
+# are merged the same way udp-glucosyltransferase merges its eight
+# hexose-nucleotide donors and udp-acetylhexosaminyltransferase merges
+# UDP-GlcNAc/UDP-GalNAc. This is the fucosyltransferase and
+# rhamnosyltransferase family combined -- the enzymes behind human-milk-
+# oligosaccharide fucosylation (RHEA:14257 among them, already named in
+# this project's own Q3 target list), the Lewis/ABO blood-group antigens,
+# selectin-ligand biosynthesis, and flavonoid/saponin rhamnosylation
+# (myricetin -> myricitrin, quercetin -> quercitrin, among others).
 #
-# Net mass added: the fucosyl group (a 6-deoxyhexose, C6H10O4, 146.14 g/mol
-# -- fucose itself, C6H12O5, minus the water lost in glycosidic bond
-# formation). Verified directly against RHEA:14257 (a beta-D-galactosyl-
-# (1->4)-N-acetyl-beta-D-glucosaminyl derivative -> its 3-O-fucosylated
-# derivative, product 528.484 g/mol minus acceptor 382.342 g/mol = 146.142
-# exactly) and RHEA:42040 (ganglioside GM1 -> ganglioside Fuc-GM1, product
-# 1452.508 minus acceptor 1306.366 = 146.142 exactly), a much larger
-# acceptor giving the identical delta -- confirming the mass math tracks
-# the transferred group alone, independent of acceptor size. No charge-
-# state split found: unlike several other classes this session, this
-# donor's leaving group (GDP) and the acceptor/product pair are drawn in
-# consistent protonation states throughout the resolvable set.
+# Net mass added: the 6-deoxyhexosyl group, C6H10O4, 146.14 g/mol -- the
+# free sugar, C6H12O5, minus the water lost in glycosidic bond formation.
+# Verified directly against RHEA:14257 (a beta-D-galactosyl-(1->4)-N-
+# acetyl-beta-D-glucosaminyl derivative -> its 3-O-fucosylated derivative,
+# product 528.484 g/mol minus acceptor 382.342 g/mol = 146.142 exactly),
+# RHEA:42040 (ganglioside GM1 -> ganglioside Fuc-GM1, product 1452.508
+# minus acceptor 1306.366 = 146.142 exactly, a much larger acceptor giving
+# the identical delta) and RHEA:61160 (quercetin -> quercitrin, a UDP-
+# rhamnose transfer: product 448.38 minus acceptor 302.24 = 146.14 exactly)
+# -- confirming both donors' mass math tracks the transferred group alone,
+# independent of acceptor identity or which nucleotide carries the sugar.
+# No charge-state split found: unlike several other classes this session,
+# the leaving group and the acceptor/product pair are drawn in consistent
+# protonation states throughout the resolvable set.
 #
 # No ec_prefix is declared: the mass-delta check alone already separates
 # this class cleanly (see below), and EC annotation is incomplete (58.9%
 # of Rhea carries none) the same way it is everywhere else in this
 # project.
 #
-# Structural verification (run through the actual screen): 77 reactions
-# match GDP-fucose. 76 (98.7%) resolve to a single acceptor/product pair
-# within one proton of 146.14 and are decided, every one decisively
-# favouring the enzyme -- the same signal-to-noise ratio the
-# PAPS-sulfotransferase class shows. The other 1, RHEA:18885 (GDP-fucose +
-# NADP(+) = GDP-4-dehydro-alpha-D-rhamnose + NADPH + H(+)), is GDP-fucose
-# SYNTHASE -- the biosynthetic route that MAKES GDP-fucose from a GDP-
-# mannose-derived precursor, oxidising it rather than transferring it to
-# any acceptor -- a genuinely different transformation this class does not
-# attempt to handle, correctly excluded by mass delta (-155.07, nowhere
-# near 146.14).
+# Structural verification (run through the actual screen): 92 reactions
+# match GDP-fucose or UDP-rhamnose combined (77 fucose, 15 rhamnose). 90
+# (97.8%) resolve to a single acceptor/product pair within one proton of
+# 146.14 and are decided, every one decisively favouring the enzyme -- the
+# same signal-to-noise ratio the PAPS-sulfotransferase class shows. The
+# other 2: RHEA:18885 (GDP-fucose + NADP(+) = GDP-4-dehydro-alpha-D-
+# rhamnose + NADPH + H(+)) is GDP-fucose SYNTHASE -- the biosynthetic route
+# that MAKES GDP-fucose from a GDP-mannose-derived precursor, oxidising it
+# rather than transferring it to any acceptor -- correctly excluded by
+# mass delta (-155.07, nowhere near 146.14); RHEA:55736 is chain
+# elongation of a growing rhamnogalacturonan written with Rhea's
+# "(n)"/"(n+1)" notation, the same resolver limitation the
+# udp-glucuronosyltransferase class's own hyaluronan-elongation confound
+# hits, correctly excluded by mass delta (-175.12).
 
 reaction_class:
   id: gdp-fucosyltransferase
-  name: "GDP-fucose-dependent fucosylation"
+  name: "6-deoxyhexose-nucleotide-dependent glycosylation"
   description: >
-    Enzymatic transfer of the fucosyl unit from GDP-beta-L-fucose onto an
-    acceptor hydroxyl, releasing GDP. Matched on GDP-fucose alone; no
-    ec_prefix is declared.
+    Enzymatic transfer of a 6-deoxyhexosyl unit from GDP-fucose or
+    UDP-rhamnose onto an acceptor hydroxyl, releasing the nucleotide
+    diphosphate. Matched on either donor (identical transferred mass, the
+    same merge udp-glucosyltransferase uses for its eight hexose-
+    nucleotide donors); no ec_prefix is declared.
   expected_mass_delta: 146.14
   mass_delta_tolerance: 1.0
-  cofactor_chebi: "CHEBI:57273"
+  cofactor_chebi: ["CHEBI:57273", "CHEBI:83836"]
   cofactor_role: reagent
 
 chemical_counterpart:
@@ -74,7 +90,13 @@ process_model:
     since fucose carries no carboxylate the way glucuronate does).
     Deacetylation with sodium hydroxide then removes the three acetate
     protecting groups, giving the free fucoside the enzymatic product also
-    is. Parameters stated on the same terms the other process models use.
+    is. The same donor stands in for the rhamnose-transfer half of this
+    merged cofactor pair too, the same way a single representative donor
+    already stands in for every hexose udp-glucosyltransferase covers --
+    fucose and rhamnose are both 6-deoxyhexose triacetate bromides with
+    the identical Koenigs-Knorr chemistry, differing only in ring
+    stereochemistry this project's mass-based screen does not model.
+    Parameters stated on the same terms the other process models use.
   reaction_concentration_M: 0.2
   stage_yield: 0.8
   note: >

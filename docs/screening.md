@@ -1509,9 +1509,31 @@ rather than the bromide the other sugar-donor classes use, because the C2
 acetamido group's neighbouring-group participation favours the more
 stable chloride for this specific sugar.
 
-Final total, all twenty classes: **6,863 of 18,558 Rhea reactions matched
-(37.0%), 3,704 decided (20.0%)** -- crossing 20% decided for the first
+Total after this class, all twenty: 6,863 of 18,558 Rhea reactions matched
+(37.0%), 3,704 decided (20.0%) -- crossing 20% decided for the first
 time this session.
+
+`gdp-fucosyltransferase.yaml` was then extended rather than a twenty-first
+class built: fucose and rhamnose are both L-configured 6-deoxyhexoses --
+different stereochemistry, identical formula, identical transferred mass
+(146.14 g/mol, verified against RHEA:61160, quercetin -> quercitrin) --
+so UDP-beta-L-rhamnose (CHEBI:83836) was added to the class's own
+`cofactor_chebi` list, the same merge already used twice (UDP-glucose/
+UDP-galactose in `udp-glucosyltransferase`; UDP-GlcNAc/UDP-GalNAc in
+`udp-acetylhexosaminyltransferase`). 14 of 15 rhamnose-consuming
+reactions land on the identical delta (rhamnosylation of flavonoids and
+saponins); the other 1 is chain elongation of a growing
+rhamnogalacturonan, correctly excluded. The class was renamed
+"6-deoxyhexose-nucleotide-dependent glycosylation" to reflect the merge.
+One bug caught before landing: the bounds file needed a new entry for
+UDP-rhamnose's own resolve key (`name:chebi:83836`) -- missing it left
+all 15 newly-matched reactions indeterminate for an uninteresting reason
+(a missing-bound gap, not the real economics), the same class of mistake
+as coa-ligase's own missing THF bound earlier this session; fixed and
+re-verified before the final numbers below.
+
+Final total, still twenty classes: **6,878 of 18,558 Rhea reactions
+matched (37.1%), 3,718 decided (20.0%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that
