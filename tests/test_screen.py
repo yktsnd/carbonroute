@@ -2390,3 +2390,96 @@ def test_fucosyltransferase_class_is_decided_and_decisively_favours_the_enzyme(f
     ]
     assert len(decided_with_verdict) == len(fuc_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a twentieth class: UDP-N-acetylhexosamine-dependent glycosylation -----
+# UDP-GlcNAc and UDP-GalNAc merged the same way UDP-glucose/UDP-galactose
+# are: C4 epimers, identical transferred mass. Also from the mass-delta
+# survey, and the least clean of the survey's top candidates -- reported
+# honestly rather than rounded up.
+
+
+@pytest.fixture(scope="module")
+def acetylhexosamine_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "udp-acetylhexosaminyltransferase.yaml")
+    bounds = load_bounds(CLASSES / "udp-acetylhexosaminyltransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def acetylhexosamine_screened(acetylhexosamine_inputs):
+    return screen_all(*acetylhexosamine_inputs, use_process_model=True)
+
+
+def test_acetylhexosamine_class_declares_both_donors(acetylhexosamine_inputs):
+    """UDP-GlcNAc and UDP-GalNAc are C4 epimers, differing only in one
+    hydroxyl's stereochemistry, so they add the identical net mass and are
+    matched together -- the same merge udp-glucosyltransferase uses for
+    UDP-glucose/UDP-galactose."""
+    template = acetylhexosamine_inputs[1]
+    assert template.cofactor_chebi == ("CHEBI:57705", "CHEBI:67138")
+    assert template.expected_mass_delta == pytest.approx(203.194, abs=1e-6)
+    assert template.ec_prefix is None
+
+
+def test_acetylhexosamine_class_matches_and_decides_the_expected_number(
+    acetylhexosamine_screened,
+):
+    """152 Rhea reactions consume UDP-GlcNAc or UDP-GalNAc. 130 (85.5%)
+    resolve to a single acceptor/product pair within one proton of 203.194
+    (the N-acetylhexosaminyl group) and are decided, every one decisively
+    favouring the enzyme -- including RHEA:12588 (ganglioside GM3 ->
+    ganglioside GM2, a GalNAc transfer). The other 22 are genuinely
+    different UDP-GlcNAc/GalNAc chemistry: RHEA:13289 transfers the WHOLE
+    GlcNAc-1-phosphate onto dolichyl phosphate (EC 2.7.8.15, a different
+    net mass, +283.17 not +203.19) and RHEA:13325 oxidises UDP-GlcNAc
+    itself to the uronate (NAD+-dependent, -44.11) -- neither belongs in a
+    glycosylation class, and both are correctly excluded by mass delta
+    rather than folded in as noise."""
+    assert acetylhexosamine_screened.matched == 152
+    assert len(acetylhexosamine_screened.decided) == 130
+    by_id = {r.rhea_id: r for r in acetylhexosamine_screened.results}
+    assert by_id["RHEA:12588"].decided
+    assert not by_id["RHEA:13289"].decided
+    assert "does not match" in by_id["RHEA:13289"].skipped_reason
+    assert not by_id["RHEA:13325"].decided
+    assert "does not match" in by_id["RHEA:13325"].skipped_reason
+
+
+def test_acetylhexosamine_process_model_charges_glucosaminyl_chloride_and_silver(
+    acetylhexosamine_inputs,
+):
+    """The declared process, not a paper: a glycosyl CHLORIDE donor (not a
+    bromide, because the C2 acetamido group's neighbouring-group
+    participation favours the more stable chloride for this sugar) with
+    silver carbonate, then a saponification workup. Everything generalised
+    by construction."""
+    template = acetylhexosamine_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {
+        "2-acetamido-3,4,6-tri-O-acetyl-2-deoxy-alpha-D-glucopyranosyl chloride",
+        "silver carbonate",
+        "sodium hydroxide",
+    } <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_acetylhexosamine_class_is_decided_and_decisively_favours_the_enzyme(
+    acetylhexosamine_screened,
+):
+    """Every one of this class's 130 decided reactions reaches a decisive
+    verdict favouring the enzyme."""
+    decided_with_verdict = [
+        r
+        for r in acetylhexosamine_screened.decided
+        if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(acetylhexosamine_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

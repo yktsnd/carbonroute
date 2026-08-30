@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Nineteen classes now built — 6,715 of 18,558 reactions matched (36.2%), 3,574 decided (19.3%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty classes now built — 6,863 of 18,558 reactions matched (37.0%), 3,704 decided (20.0%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -395,8 +395,29 @@ measures the same thing the threshold did.
    122 reactions, 97%+ purity) — not built yet, because sialylation
    donors are custom-synthesized per lab rather than sold with a simple,
    verifiable commercial CAS number the way the fucosyl bromide is; left
-   as a documented candidate rather than guessed at. Final total:
-   **6,715 of 18,558 reactions matched (36.2%), 3,574 decided (19.3%)**.
+   as a documented candidate rather than guessed at. Total after this
+   class: 6,715 of 18,558 reactions matched (36.2%), 3,574 decided
+   (19.3%).
+
+   **A twentieth class, `udp-acetylhexosaminyltransferase.yaml`** (UDP-
+   GlcNAc/UDP-GalNAc-dependent glycosylation — 152 matched, 130 decided,
+   all decisive), merges the two donors the same way
+   `udp-glucosyltransferase` merges UDP-glucose/UDP-galactose: C4 epimers,
+   identical transferred mass (203.194 g/mol). The least clean of the
+   survey's top candidates, reported at its real number rather than
+   rounded up — 85.5%, not the 95%+ the flagship glycosylation classes
+   reach — because this cofactor pair has real competing chemistry a
+   simple mass-delta check has to separate out: GlcNAc-1-phosphate
+   transfer onto dolichyl phosphate (RHEA:13289, EC 2.7.8.15, a different
+   enzyme family transferring the whole phosphosugar, not just GlcNAc) and
+   oxidation of the donor itself to the uronate (RHEA:13325, NAD+-
+   dependent), both correctly excluded rather than folded in. Process
+   model uses a glycosyl CHLORIDE donor (CAS 3068-34-6, verified via web
+   search) rather than the bromide the other sugar-donor classes use,
+   because the C2 acetamido group's neighbouring-group participation
+   favours the more stable chloride for this specific sugar. Final total:
+   **6,863 of 18,558 reactions matched (37.0%), 3,704 decided (20.0%)** —
+   crossing 20% decided for the first time this session.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -470,7 +491,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 36.2% matched / 19.3% decided and the 88.6% structural
+between today's 37.0% matched / 20.0% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at
@@ -480,7 +501,7 @@ own standard, corrected here rather than left standing. What remains true
 from the original argument: reporting 80% coverage *today* by loosening
 the cofactor-plus-structural-check methodology would be exactly the kind
 of shortcut this project exists to refuse. The number that matters is
-still **decided, not matched** — an honestly verified 19.3% is worth more
+still **decided, not matched** — an honestly verified 20.0% is worth more
 than a fabricated 80%, and closing the gap to 88.6% is a matter of
 building more classes the same rigorous way, not lowering the bar.
 

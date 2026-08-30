@@ -1,0 +1,126 @@
+# Reaction class: UDP-N-acetylhexosamine-dependent glycosylation
+#
+# Covers Rhea reactions consuming UDP-N-acetyl-alpha-D-glucosamine (UDP-
+# GlcNAc, CHEBI:57705) or UDP-N-acetyl-alpha-D-galactosamine (UDP-GalNAc,
+# CHEBI:67138) as a reactant: enzymatic transfer of the N-acetylhexosamine
+# unit onto an acceptor hydroxyl, releasing UDP. The same merge the
+# udp-glucosyltransferase class already uses for UDP-glucose/UDP-galactose:
+# GlcNAc and GalNAc are C4 epimers, differing only in one hydroxyl's
+# stereochemistry, so they add the identical net mass and this project's
+# by-elimination resolver cannot and need not tell them apart chemically.
+#
+# Net mass added: the N-acetylhexosaminyl group, C8H13NO5, 203.194 g/mol --
+# an N-acetylhexose (221.21) minus the water lost in glycosidic bond
+# formation. Verified directly against RHEA:12588 (ganglioside GM3 ->
+# ganglioside GM2, a GalNAc transfer: product 1144.225 g/mol minus
+# acceptor 941.031 g/mol = 203.194 exactly).
+#
+# THIS COFACTOR PAIR IS LESS CLEAN THAN UDP-HEXOSE, AND THAT IS REPORTED
+# RATHER THAN HIDDEN. Structural verification (run through the actual
+# screen): 152 reactions match UDP-GlcNAc or UDP-GalNAc combined. 130
+# (85.5%) resolve to a single acceptor/product pair within one proton of
+# 203.194 and are decided, every one decisively favouring the enzyme. The
+# other 22: 7 could not be resolved to a single acceptor/product pair
+# (mostly multi-reactant reductive/biosynthetic shapes this simple
+# two-reactant model does not cover); 15 resolve but land outside
+# tolerance -- the same class of confound the udp-glucosyltransferase
+# class's own header documents for its cofactor: GlcNAc-1-phosphate
+# transfer onto dolichyl phosphate or an Asn-linked glycan (RHEA:13289
+# among them -- EC 2.7.8.x, transferring the WHOLE GlcNAc-1-phosphate, not
+# just GlcNAc, a different net mass), oxidation of UDP-GlcNAc itself to
+# the uronate (RHEA:13325, NAD+-dependent, mass added -44.11), and a
+# handful of further small clusters not individually enumerated here.
+# None folded in as noise.
+#
+# No ec_prefix is declared: the mass-delta check alone already separates
+# 130 genuine members from the 22 confounds without needing an EC number
+# Rhea does not always provide.
+
+reaction_class:
+  id: udp-acetylhexosaminyltransferase
+  name: "UDP-N-acetylhexosamine-dependent glycosylation"
+  description: >
+    Enzymatic transfer of the N-acetylhexosaminyl unit from UDP-GlcNAc or
+    UDP-GalNAc onto an acceptor hydroxyl, releasing UDP. Matched on either
+    donor (C4 epimers, identical transferred mass, the same merge
+    udp-glucosyltransferase uses for glucose/galactose); no ec_prefix is
+    declared.
+  expected_mass_delta: 203.194
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: ["CHEBI:57705", "CHEBI:67138"]
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Koenigs-Knorr N-acetylglucosaminylation with a pre-formed chloride donor, then deacetylation"
+  source: >
+    Not a paper. 2-Acetamido-3,4,6-tri-O-acetyl-2-deoxy-alpha-D-
+    glucopyranosyl chloride (CAS 3068-34-6) with silver carbonate is the
+    textbook Koenigs-Knorr route for N-acetylglucosaminylation -- a
+    chloride donor rather than the bromide the other sugar-donor classes
+    in this project use, because the C2 acetamido group's neighbouring-
+    group participation favours the more stable, more easily handled
+    chloride for this specific sugar. Deacetylation with sodium hydroxide
+    then removes the three acetate protecting groups, giving the free
+    N-acetylhexosaminide the enzymatic product also is. The same donor
+    class (a chloride, silver-activated) stands in for the GalNAc-transfer
+    half of this merged cofactor pair too, the same way the glucose/
+    galactose class's own donor stands in for both epimers it covers.
+    Parameters stated on the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.8
+  note: >
+    No protection stage for the acceptor's own other reactive groups is
+    modelled, for the same conservative reason the other process-model
+    classes omit one -- it makes the chemical route look better than it is
+    for polyfunctional acceptors, not worse, so it is not a thumb on the
+    scale for "the enzyme wins".
+  stages:
+
+    - id: glycosylate
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: 2-acetamido-3,4,6-tri-O-acetyl-2-deoxy-alpha-D-glucopyranosyl chloride
+          cas: "3068-34-6"
+          kg_per_mol: 0.36576
+          equivalents: 1.3
+          note: >
+            1.3 equivalents of the pre-formed glycosyl chloride donor --
+            modest excess, standard for this reaction, the same loading
+            the other sugar-donor classes' process models use.
+        - name: silver carbonate
+          cas: "534-16-7"
+          equivalents: 1.1
+          kg_per_mol: 0.275745
+          note: >
+            The Koenigs-Knorr promoter, activating the anomeric chloride
+            for substitution. 1.1 equivalents, standard loading.
+
+    - id: deprotect
+      volumes: 3.0
+      solvent: {name: methanol, cas: "67-56-1", density_kg_per_L: 0.792}
+      reagents:
+        - name: sodium hydroxide
+          cas: "1310-73-2"
+          kg_per_mol: 0.02
+          equivalents: 4.0
+          note: >
+            Saponification of the three sugar acetates -- 3 ester bonds
+            cleaved, 4 equivalents of base for complete hydrolysis with a
+            modest excess.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

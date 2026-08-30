@@ -1,0 +1,55 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+
+bounds:
+
+  # ---- The enzymatic side -------------------------------------------------
+  "name:chebi:57705":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      UDP-N-acetyl-alpha-D-glucosamine. No public cradle-to-gate factor was
+      found. Same interval and same reasoning as the cofactors in the other
+      shipped classes: deliberately wide because it is not known, spanning
+      from below the cheapest bulk organic in the loaded tables up to well
+      above the highest specialty figure this project has found cited.
+    sources:
+      - "No public cradle-to-gate GWP for UDP-GlcNAc was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+  "name:chebi:67138":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      UDP-N-acetyl-alpha-D-galactosamine. Same reasoning as UDP-GlcNAc
+      above; carries the same net transferred mass, no basis was found to
+      assign it a different interval.
+    sources:
+      - "No public cradle-to-gate GWP for UDP-GalNAc was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+
+  # ---- The chemical side ---------------------------------------------------
+  "cas:3068-34-6":
+    low: 0.5
+    high: null
+    rationale: >
+      2-Acetamido-3,4,6-tri-O-acetyl-2-deoxy-alpha-D-glucopyranosyl
+      chloride. No public cradle-to-gate factor was found. Low bound only,
+      by the same convention every other unresolved chemical-side reagent
+      in this project uses.
+    sources:
+      - "No public cradle-to-gate GWP for this glycosyl chloride donor was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."
+  "cas:534-16-7":
+    low: 0.5
+    high: null
+    rationale: >
+      Silver carbonate. No public cradle-to-gate factor was found; silver
+      is a mined metal with a real, non-trivial footprint, so 0.5 is a
+      deliberately conservative floor, not an estimate of its true value.
+      Low bound only, same convention as the other sugar-donor classes'
+      own silver carbonate bound.
+    sources:
+      - "No public cradle-to-gate GWP for silver carbonate was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."

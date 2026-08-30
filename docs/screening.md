@@ -1488,8 +1488,30 @@ than sold with one simple, verifiable commercial CAS number the way the
 fucosyl bromide is; left as a documented candidate for a future session
 rather than guessed at.
 
-Final total, all nineteen classes: **6,715 of 18,558 Rhea reactions
-matched (36.2%), 3,574 decided (19.3%)**.
+Total after this class, all nineteen: 6,715 of 18,558 Rhea reactions
+matched (36.2%), 3,574 decided (19.3%).
+
+A twentieth class, `udp-acetylhexosaminyltransferase.yaml` (UDP-GlcNAc /
+UDP-GalNAc-dependent glycosylation), merges the two donors the same way
+`udp-glucosyltransferase` merges UDP-glucose/UDP-galactose: C4 epimers,
+identical transferred mass (203.194 g/mol, verified against RHEA:12588,
+ganglioside GM3 -> GM2). 152 reactions match, 130 (85.5%) decide, all
+decisive -- the least clean of the survey's top candidates, and reported
+at that real number rather than rounded toward the 95%+ the flagship
+glycosylation classes reach, because this cofactor pair has genuine
+competing chemistry to separate out: GlcNAc-1-phosphate transfer onto
+dolichyl phosphate (RHEA:13289, EC 2.7.8.15 -- a different enzyme family
+transferring the whole phosphosugar, not just GlcNAc, at a different net
+mass) and oxidation of the donor itself to the uronate (RHEA:13325,
+NAD+-dependent), both correctly excluded by mass delta. Process model
+uses a glycosyl CHLORIDE donor (CAS 3068-34-6, verified via web search)
+rather than the bromide the other sugar-donor classes use, because the C2
+acetamido group's neighbouring-group participation favours the more
+stable chloride for this specific sugar.
+
+Final total, all twenty classes: **6,863 of 18,558 Rhea reactions matched
+(37.0%), 3,704 decided (20.0%)** -- crossing 20% decided for the first
+time this session.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that
