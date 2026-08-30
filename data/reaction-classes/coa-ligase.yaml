@@ -1,0 +1,140 @@
+# Reaction class: ATP/GTP-dependent CoA thioester formation (acid-thiol ligases)
+#
+# Covers Rhea reactions consuming free coenzyme A (CoA, CHEBI:57287) as a
+# reactant alongside ATP or GTP: enzymatic activation of a carboxylic acid
+# as its acyl-adenylate (or -guanylate) intermediate, then displacement by
+# CoA's own thiol to form the acyl-CoA thioester, releasing AMP + diphosphate
+# (or ADP + phosphate, for the succinate-CoA-ligase-type mechanism some
+# members use). Net transformation: R-COOH + CoA-SH -> R-CO-S-CoA, powered
+# by the nucleotide triphosphate.
+#
+# CoA is a chemically mixed cofactor -- 1,649 Rhea reactions consume it,
+# covering acetylations, Claisen condensations and redox steps that share
+# nothing structurally, the same heterogeneity this project's own
+# EC-group-selection methodology (docs/screening.md) already documents for
+# CoA at the raw-frequency level. What makes THIS subset structurally
+# coherent is not CoA alone but CoA consumed TOGETHER with a nucleotide
+# triphosphate: that is exactly the acid-thiol ligase mechanism, and no
+# other CoA chemistry in Rhea has that shape. ATP or GTP is declared
+# required_co_cofactor_chebi (gating matching) and unpriced_co_cofactor_chebi
+# (excluded from the acceptor search and from pricing, the same real,
+# deliberate gap the O2-consuming classes' electron donors and the
+# 2og-dioxygenase class's 2-oxoglutarate already carry) -- this class prices
+# CoA's own transferred mass but not the nucleotide triphosphate's real
+# regeneration cost.
+#
+# Net mass added: 746.502 g/mol, CoA's own thioester-forming mass (its full
+# structure minus the water lost in the formal condensation). Verified
+# directly against three independently-named acids with different leaving
+# groups: RHEA:10132 (benzoate -> benzoyl-CoA via ATP/AMP+PPi, 867.617 -
+# 121.115), RHEA:10828 (anthranilate -> anthraniloyl-CoA via ATP/AMP+PPi,
+# 882.632 - 136.130) and RHEA:14169 (glutarate -> glutaryl-CoA via
+# ATP/ADP+phosphate, a different leaving-group mechanism), all three
+# landing on the identical 746.502 -- confirming the mass math depends only
+# on CoA's own identity, not on which nucleotide or which leaving-group
+# shape a given ligase uses.
+#
+# No ec_prefix is declared: the required_co_cofactor_chebi gate above
+# already does the real narrowing (CoA + a nucleotide triphosphate,
+# together, is specific to this mechanism), and EC annotation is
+# incomplete (58.9% of Rhea carries none) the same way it is everywhere
+# else in this project.
+#
+# Structural verification (run through the actual screen): 156 reactions
+# match CoA + (ATP or GTP). All 156 resolve to a single acceptor/product
+# pair within one proton of 746.502 -- reactions loading a protein/carrier-
+# protein complex ("holo-[...synthase]", "holo-[peptidyl-carrier protein]")
+# instead of forming a free acyl-CoA never enter this pool in the first
+# place, because they do not consume free CoA at all (loading is directly
+# onto the carrier's own phosphopantetheine arm). Zero of the 156 are
+# excluded by the mass-delta check -- the same clean signal-to-noise ratio
+# the PAPS-sulfotransferase class shows.
+#
+# AN HONEST NON-RESULT: 0 of the 156 decide. Not a bug -- the same
+# structural limitation the NAD(P)+-oxidoreductase and acetyl-CoA-
+# acyltransferase classes' own headers already document, here more
+# extreme. CoA's transferred mass, 746.502 g/mol, is by far the largest of
+# any class this project has built (next largest: UDP-glucosyltransferase
+# at 162.14, roughly 4.6x smaller). Applied to the same deliberately wide,
+# unevidenced [0.5, 100] kgCO2e/kg cofactor bound every other class with no
+# public factor uses, that mass turns into an enzymatic-side uncertainty
+# of [0.37, 74.6] kgCO2e per functional unit -- an interval wide enough on
+# its own to straddle the entire plausible chemical-route footprint,
+# regardless of solvent or reagent choice on the chemical side. The
+# verdict is not close; it is structurally undecidable at these bounds,
+# the same honest gap this project reports rather than closes with an
+# invented CoA factor.
+
+reaction_class:
+  id: coa-ligase
+  name: "ATP/GTP-dependent CoA thioester formation"
+  description: >
+    Enzymatic activation of a carboxylic acid by ATP or GTP, then
+    displacement by coenzyme A's thiol to form the acyl-CoA thioester,
+    releasing AMP or ADP plus (di)phosphate. Matched on free CoA together
+    with a required nucleotide triphosphate co-reactant this class does
+    not price; no ec_prefix is declared.
+  expected_mass_delta: 746.502
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:57287"
+  cofactor_role: reagent
+  required_co_cofactor_chebi: ["CHEBI:30616", "CHEBI:37565"]
+  unpriced_co_cofactor_chebi: ["CHEBI:30616", "CHEBI:37565"]
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Mixed-anhydride thioester formation at process concentration"
+  source: >
+    Not a paper. The mixed-anhydride method -- isobutyl chloroformate and
+    triethylamine base in an anhydrous solvent, activating the carboxylic
+    acid as a mixed carbonic anhydride, then displacement by the thiol --
+    is the textbook laboratory route to a CoA thioester, published for
+    exactly this transformation (e.g. Pattison et al. and related methods
+    for synthesising acyl-CoA standards from the free acid and CoASH via
+    isobutyl chloroformate / triethylamine / THF). Parameters stated on
+    the same terms the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.8
+  note: >
+    No protection stage is modelled, for the same conservative reason the
+    other process-model classes omit one -- it makes the chemical route
+    look better than it is for polyfunctional acids, not worse, so it is
+    not a thumb on the scale for "the enzyme wins".
+  stages:
+
+    - id: activate_and_couple
+      volumes: 1.0
+      solvent: {name: tetrahydrofuran, cas: "109-99-9", density_kg_per_L: 0.889}
+      reagents:
+        - name: isobutyl chloroformate
+          cas: "543-27-1"
+          kg_per_mol: 0.136577
+          equivalents: 1.2
+          note: >
+            1.2 equivalents of the chloroformate activator -- modest
+            excess, standard for mixed-anhydride activation, the same
+            order as the other process models' alkylating/sulfating agent
+            loadings.
+        - name: triethylamine
+          cas: "121-44-8"
+          kg_per_mol: 0.101191
+          equivalents: 1.3
+          note: >
+            Base to neutralise the HCl generated during mixed-anhydride
+            formation and keep the reaction mixture non-acidic -- same
+            role as the alkylation-type classes' potassium carbonate.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

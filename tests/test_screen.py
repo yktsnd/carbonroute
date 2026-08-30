@@ -2211,3 +2211,97 @@ def test_paps_class_is_decided_and_decisively_favours_the_enzyme(paps_screened):
     ]
     assert len(decided_with_verdict) == len(paps_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- an eighteenth class: ATP/GTP-dependent CoA thioester formation --------
+# CoA plus a nucleotide triphosphate, together, is specific to the acid-thiol
+# ligase mechanism -- but the same wide, unevidenced cofactor bound that
+# leaves NAD(P)+-oxidoreductase and acetyl-CoA-acyltransferase undecided
+# leaves this one undecided too, more starkly: CoA's own transferred mass is
+# the largest of any class this project has built.
+
+
+@pytest.fixture(scope="module")
+def coa_ligase_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "coa-ligase.yaml")
+    bounds = load_bounds(CLASSES / "coa-ligase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def coa_ligase_screened(coa_ligase_inputs):
+    return screen_all(*coa_ligase_inputs, use_process_model=True)
+
+
+def test_coa_ligase_class_declares_atp_and_gtp_required(coa_ligase_inputs):
+    """CoA alone is chemically mixed -- 1,649 Rhea reactions consume it,
+    covering acetylations, Claisen condensations and redox steps that share
+    nothing structurally. What makes this class coherent is CoA consumed
+    TOGETHER with a nucleotide triphosphate, the acid-thiol ligase
+    mechanism, gated by required_co_cofactor_chebi."""
+    template = coa_ligase_inputs[1]
+    assert template.required_co_cofactor_chebi == ("CHEBI:30616", "CHEBI:37565")
+    assert template.expected_mass_delta == pytest.approx(746.502, abs=1e-6)
+    assert template.ec_prefix is None
+
+
+def test_coa_ligase_class_matches_and_resolves_cleanly(coa_ligase_screened):
+    """156 Rhea reactions consume CoA alongside ATP or GTP. All 156 resolve
+    to a single acceptor/product pair within one proton of 746.502 -- zero
+    excluded by mass delta, the same clean signal-to-noise ratio the
+    PAPS-sulfotransferase class shows. Reactions loading a protein/carrier-
+    protein complex instead of forming a free acyl-CoA (e.g. mycocerosate
+    synthase, a peptidyl-carrier protein) never enter this pool at all,
+    because they never consume free CoA in the first place."""
+    assert coa_ligase_screened.matched == 156
+    by_id = {r.rhea_id: r for r in coa_ligase_screened.results}
+    for rhea_id, acceptor, product in (
+        ("RHEA:10132", "benzoate", "benzoyl-CoA"),
+        ("RHEA:10828", "anthranilate", "anthraniloyl-CoA"),
+        ("RHEA:14169", "glutarate", "glutaryl-CoA"),
+    ):
+        assert by_id[rhea_id].acceptor_name == acceptor
+        assert by_id[rhea_id].product_name == product
+        assert by_id[rhea_id].skipped_reason == ""
+
+
+def test_coa_ligase_class_verdicts_are_honestly_indeterminate_at_current_bounds(
+    coa_ligase_screened,
+):
+    """Real coverage, and a real limitation, both reported rather than one
+    papered over to force the other -- the same finding
+    nad-oxidoreductase's own test documents, here more extreme. CoA's
+    transferred mass, 746.502 g/mol, is the largest of any class this
+    project has built: applied to the same deliberately wide, unevidenced
+    [0.5, 100] kgCO2e/kg cofactor bound every other class with no public
+    factor uses, the enzymatic side's own uncertainty ([0.37, 74.6] kgCO2e
+    per functional unit) is wide enough on its own to straddle any
+    plausible chemical-route footprint. Padding the process model's reagent
+    equivalents to force a decision would be exactly the kind of thumb on
+    the scale this project refuses everywhere else."""
+    assert len(coa_ligase_screened.decided) == 0
+    verdicts = {r.rhea_id: r.verdict for r in coa_ligase_screened.results if r.skipped_reason == ""}
+    assert len(verdicts) == 156
+    assert all(v is not None and not v.decisive for v in verdicts.values())
+    assert all(v.verdict == "indeterminate" for v in verdicts.values())
+    r = next(x for x in coa_ligase_screened.results if x.rhea_id == "RHEA:10132")
+    assert r.verdict.delta_min_kgCO2e is not None and r.verdict.delta_min_kgCO2e < 0
+
+
+def test_coa_ligase_process_model_charges_mixed_anhydride_reagents(coa_ligase_inputs):
+    """The declared process, not a paper: isobutyl chloroformate activates
+    the acid as a mixed anhydride, triethylamine neutralises the HCl
+    released, then coenzyme A's thiol displaces it -- the published
+    laboratory route to acyl-CoA standards. Everything generalised by
+    construction."""
+    template = coa_ligase_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"isobutyl chloroformate", "triethylamine", "tetrahydrofuran", "ethyl acetate"} <= names
+    assert all(m.basis == "generalised" for m in materials)

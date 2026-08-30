@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Seventeen classes now built — 6,635 of 18,558 reactions matched (35.8%), 3,433 decided (18.5%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Eighteen classes now built — 6,639 of 18,558 reactions matched (35.8%), 3,433 decided (18.5%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -327,7 +327,30 @@ measures the same thing the threshold did.
    confounds found — the tightest signal-to-noise ratio of any class this
    project has built. Its process model is SO3-pyridine complex in
    pyridine solvent, the textbook mild sulfating agent. Updated total:
-   **6,635 of 18,558 reactions matched (35.8%), 3,433 decided (18.5%)**.
+   6,635 of 18,558 reactions matched (35.8%), 3,433 decided (18.5%).
+
+   **An eighteenth class, `coa-ligase.yaml`** (ATP/GTP-dependent CoA
+   thioester formation, the acid-thiol ligase mechanism — 156 matched, **0
+   decided**), is a second honest non-result, more extreme than the
+   NAD(P)+-oxidoreductase and acetyl-CoA-acyltransferase classes' own: CoA's
+   transferred mass (746.502 g/mol, forming the whole acyl-CoA thioester)
+   is the largest of any class this project has built, and applied to the
+   same wide, unevidenced `[0.5, 100]` cofactor bound every unpriced
+   cofactor here uses, the enzymatic side's own uncertainty span
+   (`[0.37, 74.6]` kg CO2e per functional unit) is wide enough alone to
+   straddle any plausible chemical-route footprint — not close, structurally
+   undecidable at these bounds. All 156 matches resolve cleanly (zero
+   excluded by mass delta), so the class is real, verified Q1 coverage even
+   though it decides nothing; its marginal contribution to *unique* matched
+   coverage is also small (+4, not +156), because most of its 156 already
+   fall inside `atp-kinase`'s own widened matched set once `ec_prefix` was
+   dropped from that class (both require ATP; they never double-decide,
+   since `atp-kinase`'s own mass-delta check correctly rejects a CoA
+   thioester's ~746 g/mol addition as nowhere near its 77.963 target). Final
+   total: **6,639 of 18,558 reactions matched (35.8%), 3,433 decided
+   (18.5%)** — unchanged from the seventeen-class figure at this precision,
+   an honest reflection of how little marginal coverage this particular
+   class adds once its overlap and its own undecidability are both counted.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them

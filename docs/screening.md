@@ -1404,8 +1404,28 @@ file header), added 130 matched / 128 decided, all decisive: the mass-
 delta check alone (net +79.056 g/mol, one proton's tolerance) separates
 128 of 130 PAPS-consuming reactions with zero confounds found, the
 tightest signal-to-noise ratio of any class this project has built.
-Updated unique-reaction total: **6,635 of 18,558 Rhea reactions matched
-(35.8%), 3,433 decided (18.5%)**.
+Updated unique-reaction total: 6,635 of 18,558 Rhea reactions matched
+(35.8%), 3,433 decided (18.5%).
+
+An eighteenth class, `coa-ligase.yaml` (ATP/GTP-dependent CoA thioester
+formation, the acid-thiol ligase mechanism), added 156 matched / **0
+decided** -- a second honest non-result alongside NAD(P)+-oxidoreductase
+and acetyl-CoA-acyltransferase, more extreme than either: CoA's own
+transferred mass (746.502 g/mol, forming the whole acyl-CoA thioester) is
+the largest of any class this project has built, and applied to the same
+wide, unevidenced `[0.5, 100]` cofactor bound every unpriced cofactor
+here uses, the enzymatic side's own uncertainty span alone (`[0.37,
+74.6]` kgCO2e per functional unit) is wide enough to straddle any
+plausible chemical-route footprint -- structurally undecidable at these
+bounds, not merely close. All 156 matches resolve cleanly (zero excluded
+by mass delta), and the class's marginal contribution to *unique* matched
+coverage is small (+4, not +156) because most of its matches already fall
+inside `atp-kinase`'s own widened matched set (both require ATP; they
+never double-decide, since `atp-kinase`'s own mass-delta check correctly
+rejects a ~746 g/mol addition as nowhere near its 77.963 target). Final
+unique-reaction total: **6,639 of 18,558 Rhea reactions matched (35.8%),
+3,433 decided (18.5%)** -- unchanged from the seventeen-class figure at
+this precision.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that
