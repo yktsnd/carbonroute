@@ -8,17 +8,27 @@ every commit (no PRs). Never fabricate a number; every material needs
 (baseline: 6 pre-existing). Keep README.md/README.ja.md/docs/screening.md in
 sync. Verify real reagent CAS/MW via WebSearch, never invent.
 
-## State as of this note (25 classes committed and pushed to origin/main
-## at commit `ef64618`; verify with `git log --oneline -1` when picking
+## State as of this note (26 classes committed and pushed to origin/main
+## at commit `f3ec257`; verify with `git log --oneline -1` when picking
 ## this up, in case a later session already moved past it)
 
-**25 classes shipped. 8,007/18,558 Rhea reactions matched (43.1%),
-3,876 decided (20.9%).** Structural ceiling (true reachable max): 88.6% —
+**26 classes shipped. 8,041/18,558 Rhea reactions matched (43.3%),
+3,906 decided (21.0%).** Structural ceiling (true reachable max): 88.6% —
 requires ~800 more class templates, a genuine multi-session undertaking.
-Five classes shipped this session (started at 21 classes / 6,902 matched
+Six classes shipped this session (started at 21 classes / 6,902 matched
 (37.2%) / 3,740 decided (20.2%)): `cmp-sialyltransferase`,
 `cdp-cholinetransferase`, `nadph-ketoreductase`, `nadh-ketoreductase`
-(the last two are honest non-results — see "Done this round" below).
+(the latter two are honest non-results), `hcn-cyanohydrin` — see "Done
+this round" below for each.
+
+**Time-pressure note**: the tail of this session ran under a hard time
+limit (user's Claude Code access was expiring). Every class below was
+still fully verified against the real `screen_all()` pipeline before its
+header was written and before it was committed -- speed was gained by
+skipping exploratory dead ends fast (see "Dead end investigated" and
+"architecture mismatch" notes below) and by reusing an already-solved
+pattern (`nadh-ketoreductase` reusing `nadph-ketoreductase`'s exact
+template), never by skipping verification.
 
 **IMPORTANT for whoever resumes this**: the previous session ran out of
 usable time (user said Claude Code access was about to expire) partway
@@ -103,7 +113,7 @@ documented in `docs/screening.md`, and totals are synced across
    + "an honestly verified X% is worth more" spots near lines 449/524/534)
    and `README.ja.md` (mirror spots — search for the current percentages
    quoted at the top of this note, or the class count in Japanese, e.g.
-   `25個`, to find them). **Gotcha**: when editing README.ja.md via
+   `26個`, to find them). **Gotcha**: when editing README.ja.md via
    `bash -c "python3 -c '...'"`, backticks inside the double-quoted outer
    string get eaten by bash as command substitution before Python even
    runs — this silently corrupted two identifier mentions
@@ -175,6 +185,23 @@ etc.) and the first class's structural-check logic was hard-won, check
 whether the mirror cofactor is cheap to cover with the identical
 template** before investing in a from-scratch survey of a new mechanism.
 
+## Done this round (3): `hcn-cyanohydrin`
+
+Found on a SECOND, wider pass of the discovery survey (the first pass
+used a `>= 20` reactions cutoff on the whole-corpus left-side count;
+lowering it caught hydrogen cyanide, CHEBI:18407, at only 34 total but
+93.75% purity). Hydroxynitrile lyase / cyanohydrin-formation chemistry:
+HCN adds across an aldehyde/ketone carbonyl, +27.026 g/mol (HCN's own
+mass) exactly, verified against real Rhea structures. 34 matched, 30
+decided, all decisive — a normal (not honest-non-result) class, because
+HCN itself is light (27 g/mol) unlike the NAD(P)(H) family. **Lesson for
+next time**: don't stop a discovery survey at an arbitrary reaction-count
+cutoff (this session's original survey used >=15 or >=20 in different
+passes) — a small, very pure cluster can still be a fast, clean,
+decisive-verdict win, and is worth more per unit of building effort than
+a large, impure, honest-non-result cluster. Re-run the survey with a
+LOWER cutoff (try >= 10) before assuming the well is dry.
+
 ## Dead end investigated, do not repeat: widening `nad-oxidoreductase`
 
 Idea considered: `nad-oxidoreductase` (the pre-existing EC 1.1.1-only
@@ -208,17 +235,31 @@ against a full sample of the amine-oxidation confound, and do not touch
 re-running its full existing test suite (`pytest -q -k nad_class`) to
 confirm nothing regresses.
 
-Also considered and rejected as a candidate this round:
-`2-(9Z-octadecenoyl)-glycerol` (CHEBI:73990) looked clean in the raw
-mass-delta survey (23 total, 90.9% purity) but turned out to be the
-FIXED ACCEPTOR in a monoacylglycerol acyltransferase family where the
-VARYING acyl-CoA donor is the real cofactor (see RHEA:37911, RHEA:38051,
-etc. — same acceptor, different acyl-CoA each time). This project's
-`ClassTemplate` architecture assumes the cofactor is the constant
-species and the acceptor varies, not the reverse — this candidate does
-not fit without redesigning the matching logic, and there are already
-several known separate-mass acyl-CoA-family candidates deprioritized for
-the same "each chain length needs its own class" reason (see below).
+Also considered and rejected as candidates this round -- both hit the
+SAME architecture mismatch, worth checking for on any future candidate
+whose left-side equations show a repeated species paired with a
+DIFFERENT acyl-CoA each time:
+- `2-(9Z-octadecenoyl)-glycerol` (CHEBI:73990, 23 total, 90.9% purity in
+  the raw survey) is the FIXED ACCEPTOR in a monoacylglycerol
+  acyltransferase family where the VARYING acyl-CoA donor is the real
+  reagent (RHEA:37911, RHEA:38051, etc. — same acceptor, different
+  acyl-CoA each time, different product mass each time).
+- `1-(9Z-octadecenoyl)-sn-glycero-3-phosphate` (CHEBI:74544, 20 total,
+  84.2% purity) is the same pattern one lipid class over (a
+  lysophosphatidate acyltransferase family — RHEA:37131, RHEA:37143,
+  etc.).
+This project's `ClassTemplate` architecture assumes the cofactor is the
+constant species and the acceptor varies, not the reverse — neither
+candidate fits without redesigning the matching logic (a per-reaction
+dynamic expected_mass_delta keyed to whichever acyl-CoA is actually
+present, which no shipped class does), and there are already several
+known separate-mass acyl-CoA-family candidates deprioritized for the
+same "each chain length needs its own class" reason (see below). A quick
+tell for this pattern: scan the left-side equations for a candidate
+cofactor with `grep`/eyeball before running the full survey machinery —
+if the SAME other species appears in reaction after reaction while the
+candidate cofactor's own name changes, the candidate is the acceptor,
+not the cofactor.
 
 ## Next steps in priority order
 
