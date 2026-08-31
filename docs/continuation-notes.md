@@ -261,6 +261,73 @@ if the SAME other species appears in reaction after reaction while the
 candidate cofactor's own name changes, the candidate is the acceptor,
 not the cofactor.
 
+## A lower-cutoff survey pass found more candidates (not yet built)
+
+Re-running the discovery survey with a lower reaction-count cutoff
+(8-19 reactions, vs. the original >=15/>=20 passes) found several
+100%-purity, small candidates, in descending order of promise:
+
+- **`CDP-ethanolamine` (CHEBI:57876), 14 total, 13 clean at delta
+  +123.0 g/mol (phosphoethanolamine group), 100% purity.** The direct
+  sibling of `cdp-cholinetransferase` (same Kennedy-pathway family,
+  same acceptor shapes: diacylglycerol -> phosphatidylethanolamine,
+  ceramide -> ceramide phosphoethanolamine, serine -> serine
+  phosphoethanolamine; the 1 excluded, RHEA:86791, is the same plain-
+  hydrolysis shape CDP-choline's own RHEA:32487 was). **Blocked on
+  chemistry, not architecture**: the real, published route (confirmed
+  via WebSearch: Aneja, Chadha, Davies & Rose, "The condensation of
+  aziridine with phosphatidic acid; synthesis of 0-(1,2-diacyl-sn-
+  glycero-3-phosphoryl)-ethanolamine") condenses N-tritylaziridine with
+  phosphatidic acid, then detritylates. N-tritylaziridine's own CAS/MW
+  could NOT be found via WebSearch (only substituted derivatives, e.g.
+  carboxylate variants, turned up) -- per this project's non-negotiable
+  rule (never invent a reagent's CAS/MW), this candidate is DEFERRED,
+  not built with a guessed number. Before building: either (a) find
+  N-tritylaziridine's real CAS via a more targeted search (try a
+  supplier catalog search directly, e.g. Sigma-Aldrich/TCI/Combi-Blocks
+  for "1-tritylaziridine" or "N-triphenylmethylaziridine"), or
+  (b) find a different, more clearly commercial real route for
+  installing a phosphoethanolamine headgroup (a Boc- or Cbz-protected
+  ethanolamine phosphoramidite coupling is plausible and those
+  protecting groups are certainly commercial, but the specific reagent
+  and its CAS have not been verified) -- do not assert an unverified
+  reaction mechanism (e.g. "aziridine ring-opens the COP-cyclic-
+  phosphotriester intermediate directly, the same way trimethylamine
+  does" was considered and NOT used this session because the mechanism
+  was not confirmed against a real source).
+- `di-trans,poly-cis-dolichyl beta-D-mannosyl phosphate` (CHEBI:58211),
+  14 total, 13 clean at +162.1 (a mannosyl group), 100% purity --
+  dolichyl-phosphate-mannose mannosyltransferase (dolichol pathway
+  glycosylation). Not investigated for a chemical counterpart this
+  session; dolichyl-phosphate donors are exotic, long-chain polyprenyl
+  lipids -- likely hard to find a simple commercial equivalent, but not
+  ruled out, just not checked.
+- `CMP-3-deoxy-beta-D-manno-octulosonate` (CMP-KDO, CHEBI:85987), 10
+  total, 10 clean at +219.2, 100% purity -- KDO transferase (Gram-
+  negative LPS core biosynthesis). Not investigated; KDO donors for
+  chemical synthesis exist in the literature (used in LPS/vaccine
+  synthesis) but likely require a less standard donor than the
+  peracetylated-halide pattern the other sugar classes use -- check
+  before assuming it is quick.
+- `ADP-L-glycero-beta-D-manno-heptose` (CHEBI:61506), 9 total, 9 clean
+  at +192.2, 100% purity -- heptosyltransferase (also LPS core
+  biosynthesis). Same caveat as KDO: not investigated, likely a
+  non-trivial exotic sugar donor.
+- Several fatty-acid/fatty-acyl candidates in the same lower-cutoff pass
+  (CHEBI:17855 triacylglycerol, CHEBI:32387/77016/71589 various
+  unsaturated fatty acid anions, CHEBI:58299/64124 sphinganine
+  derivatives, CHEBI:58340 O-acetyl-L-serine, CHEBI:11173, CHEBI:58319
+  coenzyme M, CHEBI:17180 3-hydroxypyruvate) were found but NOT
+  inspected for equation shape or chemical counterpart feasibility at
+  all -- purely from the mass-delta purity numbers. Check each for the
+  "fixed acceptor, varying donor" architecture mismatch (see above)
+  before investing further.
+- **General lesson reinforced**: an even lower cutoff (try < 8) likely
+  finds more candidates still; small, very pure clusters are worth
+  checking even at low counts, since a fast, clean win (like
+  `hcn-cyanohydrin`, 34 total) can be worth more than chasing a large,
+  impure, or architecturally-awkward cluster.
+
 ## Next steps in priority order
 
 1. Re-run the broader discovery survey (see step 1 of the workflow above)
