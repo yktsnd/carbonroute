@@ -8,17 +8,26 @@ every commit (no PRs). Never fabricate a number; every material needs
 (baseline: 6 pre-existing). Keep README.md/README.ja.md/docs/screening.md in
 sync. Verify real reagent CAS/MW via WebSearch, never invent.
 
-## State as of this note (24 classes committed; check `git log --oneline -1`
-## to confirm what's actually pushed when you pick this up)
+## State as of this note (25 classes committed and pushed to origin/main
+## at commit `ef64618`; verify with `git log --oneline -1` when picking
+## this up, in case a later session already moved past it)
 
-**24 classes shipped. 7,729/18,558 Rhea reactions matched (41.6%),
+**25 classes shipped. 8,007/18,558 Rhea reactions matched (43.1%),
 3,876 decided (20.9%).** Structural ceiling (true reachable max): 88.6% —
 requires ~800 more class templates, a genuine multi-session undertaking.
-`cdp-cholinetransferase` (CDP-choline-dependent phosphocholine transfer,
-18 matched/17 decided) and `nadph-ketoreductase` (NADPH-dependent carbonyl
-reduction, 687 matched/0 decided — an honest non-result, same pattern as
-`nad-oxidoreductase`) both shipped this round. See "Done this round" below
-for details, and skip straight to "Next steps" for what comes after.
+Five classes shipped this session (started at 21 classes / 6,902 matched
+(37.2%) / 3,740 decided (20.2%)): `cmp-sialyltransferase`,
+`cdp-cholinetransferase`, `nadph-ketoreductase`, `nadh-ketoreductase`
+(the last two are honest non-results — see "Done this round" below).
+
+**IMPORTANT for whoever resumes this**: the previous session ran out of
+usable time (user said Claude Code access was about to expire) partway
+through investigating further candidates. A promising-looking lead
+(removing `nad-oxidoreductase`'s `ec_prefix: "1.1.1"` restriction to
+catch ~587 more reactions via mass-delta alone) was investigated and
+REJECTED — see "Dead end investigated, do not repeat" below — do not
+redo this without reading that section first, it will waste time
+re-deriving the same conclusion.
 80% is far off; the honest path is steady, verified incremental progress,
 not fabricated numbers.
 
@@ -94,7 +103,7 @@ documented in `docs/screening.md`, and totals are synced across
    + "an honestly verified X% is worth more" spots near lines 449/524/534)
    and `README.ja.md` (mirror spots — search for the current percentages
    quoted at the top of this note, or the class count in Japanese, e.g.
-   `23個`, to find them). **Gotcha**: when editing README.ja.md via
+   `25個`, to find them). **Gotcha**: when editing README.ja.md via
    `bash -c "python3 -c '...'"`, backticks inside the double-quoted outer
    string get eaten by bash as command substitution before Python even
    runs — this silently corrupted two identifier mentions
@@ -153,6 +162,63 @@ across the whole cluster, as done for NADPH). A single mass value can be
 produced by multiple distinct mechanisms (SAM's C vs. heteroatom
 methylation; NADPH's carbonyl vs. alkene reduction) — assume this is
 possible until checked, don't assume purity from cluster size alone.
+
+## Done this round (2): `nadh-ketoreductase`
+
+Direct sibling of `nadph-ketoreductase`, built in ~10 minutes by reusing
+its exact pattern (same `transferred_bond_smarts`, same sodium
+borohydride process model) with CHEBI:57945 (NADH) instead of NADPH. 278
+matched, 18 structurally clean, 0 decided (honest non-result, confirmed
+against the real pipeline). This is a reusable pattern: **when a class's
+"mirror" cofactor exists (oxidised/reduced pair, alpha/beta anomer pair,
+etc.) and the first class's structural-check logic was hard-won, check
+whether the mirror cofactor is cheap to cover with the identical
+template** before investing in a from-scratch survey of a new mechanism.
+
+## Dead end investigated, do not repeat: widening `nad-oxidoreductase`
+
+Idea considered: `nad-oxidoreductase` (the pre-existing EC 1.1.1-only
+class matching NAD+/NADP+ oxidation) restricts via `ec_prefix: "1.1.1"`
+rather than a bond check (its own header explains why: hemiketal-drawn
+sugars would be wrongly excluded by a naive C-OH-loss check). Checking
+NAD+/NADP+ consumption WITHOUT any ec_prefix restriction, mass-delta
+alone (-2.016) matches **1,102 reactions**, vs. the 515 the shipped class
+currently matches with its EC restriction — a tempting +587 reactions
+for zero new process model or bounds work.
+
+**Rejected after sampling ~20 of the newly-included reactions**: the
+extra ~587 are NOT homogeneous. Alongside genuine alcohol/hemiketal
+oxidations, they include real EC 1.4.1 amine oxidations (oxidative
+deamination: `octylamine -> octanal`, `(3S,5S)-3,5-diaminohexanoate ->
+(5S)-5-amino-3-oxohexanoate` — a C-NH2 to C=O change, not C-OH to C=O)
+and at least one alkene-forming desaturation (`hexan-3-one -> (E)-4-
+hexen-3-one`) that also happens to lose 2H. This is the exact same
+same-mass-different-chemistry confound `nadph-ketoreductase` found and
+solved with a bond check this session — but `nad-oxidoreductase`'s own
+existing bond-check exemption (for the hemiketal-drawing reason) means a
+NEW bond check would need to positively match "new C=O forms AND the
+lost group was specifically a C-OH or masked hemiketal-OH, not a C-NH2"
+— genuinely harder to construct correctly than the carbonyl-reduction
+check was (that one only had to distinguish "new C-OH" from "no new
+C-OH"; this one has to distinguish two different bonds BOTH being lost,
+C-OH vs. C-NH2, from the SAME product-side signal, C=O appearing). Do
+not attempt this without designing and validating that check first
+against a full sample of the amine-oxidation confound, and do not touch
+`nad-oxidoreductase`'s already-shipped, already-tested behavior without
+re-running its full existing test suite (`pytest -q -k nad_class`) to
+confirm nothing regresses.
+
+Also considered and rejected as a candidate this round:
+`2-(9Z-octadecenoyl)-glycerol` (CHEBI:73990) looked clean in the raw
+mass-delta survey (23 total, 90.9% purity) but turned out to be the
+FIXED ACCEPTOR in a monoacylglycerol acyltransferase family where the
+VARYING acyl-CoA donor is the real cofactor (see RHEA:37911, RHEA:38051,
+etc. — same acceptor, different acyl-CoA each time). This project's
+`ClassTemplate` architecture assumes the cofactor is the constant
+species and the acceptor varies, not the reverse — this candidate does
+not fit without redesigning the matching logic, and there are already
+several known separate-mass acyl-CoA-family candidates deprioritized for
+the same "each chain length needs its own class" reason (see below).
 
 ## Next steps in priority order
 
