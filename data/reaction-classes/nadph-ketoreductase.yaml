@@ -1,0 +1,149 @@
+# Reaction class: NADPH-dependent carbonyl reduction
+#
+# Covers Rhea reactions consuming NADPH (CHEBI:57783) as a reactant,
+# restricted structurally (via `transferred_bond_smarts`, not `ec_prefix`)
+# to reactions that reduce a ketone or aldehyde to the corresponding
+# alcohol: the mirror image of the already-shipped `nad-oxidoreductase`
+# class (which matches the OXIDISED cofactor forms, NAD+/NADP+, and runs
+# in the opposite direction). Matching on the REDUCED cofactor form
+# (NADPH) picks out only the reduction direction, never oxidation.
+#
+# Found via the same mass-delta discovery survey as this session's other
+# new classes. NADPH is consumed by 687 Rhea reactions in total, far more
+# heterogeneous than the sugar-nucleotide donors: 348 resolve to a single
+# acceptor/product pair, and the dominant mass-delta cluster (268
+# reactions, +2.016 g/mol -- a plain 2-hydrogen addition) is itself a
+# MIXTURE of at least two genuinely different reductions that happen to
+# weigh the same: a carbonyl reduced to an alcohol (ketone/aldehyde ->
+# CH-OH, 139 of 268 by direct RDKit inspection) and an alkene reduced to
+# an alkane (C=C -> C-C, 117 of 268 -- enoyl-CoA/enoyl-ACP reductases,
+# steroid ring reduction), plus a handful of other 2H additions (imide
+# reduction, dihydropterin -> tetrahydropterin ring reduction, ~12).
+# These are NOT the same chemistry: a stoichiometric hydride donor
+# (sodium borohydride) reduces the first cleanly but does not reliably
+# reduce an isolated alkene at all (that needs catalytic hydrogenation,
+# H2 + a metal catalyst, a different process entirely) -- exactly the
+# kind of same-mass, different-chemistry confound `sam-methyltransferase`
+# already established the precedent for solving with
+# `transferred_bond_smarts` rather than folding both into one class.
+#
+# `transferred_bond_smarts: "[CX4][OX2H]"` (a new sp3 carbon-bound
+# hydroxyl) verified directly: it counts +1 from acceptor to product for
+# every carbonyl-reduction example checked (RHEA:41888, 3-oxotetradecanoyl-
+# [ACP] -> (3R)-hydroxytetradecanoyl-[ACP]; RHEA:35835, 2'-dehydrokanamycin
+# A -> kanamycin A; RHEA:69456, an androstane-dione -> a dihydroxy
+# androstanone) and 0 for the alkene-reduction and imide-reduction examples
+# checked (RHEA:44960, (2E)-decenoyl-CoA -> decanoyl-CoA; RHEA:35523,
+# N-ethylmaleimide -> N-ethylsuccinimide) -- correctly separating the two
+# mechanisms that share the identical +2.016 mass delta.
+#
+# No ec_prefix is declared: EC annotation is sparse for this cofactor (496
+# of 687 NADPH-consuming reactions, 72.2%, carry none at all -- even higher
+# than the ~59% gap elsewhere in this project), so the mass-delta-plus-
+# bond-check pair is doing all the real separating here, the same as the
+# most recently shipped classes.
+#
+# A KNOWN, EXPECTED "HONEST NON-RESULT" CAVEAT, STATED UP FRONT: NADPH
+# itself is heavy (~745 g/mol), the same weight class as NAD+/NADP+, whose
+# own class (`nad-oxidoreductase`) decides 0 of 515 matched reactions for
+# exactly this reason -- the standard [0.5, 100] kgCO2e/kg bound on an
+# unpriced heavy cofactor, at real turnover stoichiometry, produces a
+# cost ceiling wide enough that no chemical route this project has priced
+# clears it decisively. This class is very likely to land in the same
+# place; see docs/reaction-classes/nad-oxidoreductase.yaml and
+# docs/screening.md for the established precedent and the reasoning for
+# why that is a real data limitation, not a bug, and why the class still
+# ships (matched, structural coverage is real coverage even where the
+# economics cannot be decided).
+#
+# Structural verification (run through the actual screen, before writing
+# this paragraph, per this session's established discipline of never
+# trusting a hand-survey's numbers as final): 687 reactions match NADPH as
+# a reactant. 148 (21.5%) resolve to a single acceptor/product pair that
+# both adds the right mass (2.016 g/mol, +/- one proton) AND forms exactly
+# one new C-OH bond -- genuine carbonyl reductions, structurally verified.
+# ALL 148 are INDETERMINATE, not decided: this is the "honest non-result"
+# flagged above, materialising exactly as predicted. NADPH's own [0.5,
+# 100] kgCO2e/kg bound and sodium borohydride's own unbounded-above [0.5,
+# null] bound together leave every one of these 148 reactions' delta
+# changing sign somewhere inside the box -- the same structural finding as
+# nad-oxidoreductase (0/515), acetyl-coa-acyltransferase and coa-ligase
+# (both 0/156), not a defect in this class's own construction. The 687-148
+# gap breaks down as: 339 do not resolve to a single acceptor/product pair
+# (mostly multi-cofactor redox shapes this simple model does not attempt);
+# 137 add the right mass but form zero (not one) of the class's C-OH bond
+# -- the alkene- and imide-reduction confound flagged above, correctly
+# excluded; the rest (~64) add a mass nowhere near 2.016 or its double,
+# 4.03 (oxidative decarboxylation-shaped losses, whole-CoA-releasing
+# reductions to a fatty alcohol at -759.48, metal-centre and other
+# electron-transfer reductions with near-zero net mass change, and a
+# handful of other confounds), all correctly excluded by the mass-delta
+# check alone.
+
+reaction_class:
+  id: nadph-ketoreductase
+  name: "NADPH-dependent carbonyl reduction"
+  description: >
+    Enzymatic reduction of a ketone or aldehyde to the corresponding
+    secondary or primary alcohol, consuming NADPH and releasing NADP(+).
+    Matched on NADPH plus a structural bond check (a new sp3 C-OH must
+    appear) that separates this from the alkene- and imide-reduction
+    reactions the same mass delta cannot distinguish; no ec_prefix is
+    declared.
+  # A genuine 2H-gain reduction adds 2.016 g/mol (2 x 1.008) net -- H2, not
+  # a transferred group, so the sign is positive: the product is HEAVIER
+  # than the acceptor, the exact mirror of nad-oxidoreductase's -2.016.
+  expected_mass_delta: 2.016
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:57783"
+  cofactor_role: reagent
+  transferred_bond_smarts: "[CX4][OX2H]"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Sodium borohydride reduction, at process concentration"
+  source: >
+    Not a paper. Sodium borohydride is the standard, broadly applicable
+    stoichiometric hydride source for reducing a ketone or aldehyde to the
+    corresponding alcohol -- the textbook chemical counterpart to this
+    class's structural scope (carbonyl reduction only; this process model
+    is not claimed to cover the alkene- or imide-reduction reactions this
+    class's own bond check excludes). Parameters stated on the same terms
+    the other process models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.9
+  note: >
+    No protection stage is modelled, for the same reason the other
+    process-model classes omit one: conservative in the direction that
+    makes the chemical route look better, not worse.
+  stages:
+
+    - id: reduce
+      volumes: 1.0
+      solvent: {name: methanol, cas: "67-56-1", density_kg_per_L: 0.792}
+      reagents:
+        - name: sodium borohydride
+          cas: "16940-66-2"
+          kg_per_mol: 0.03783
+          equivalents: 1.2
+          note: >
+            1.2 equivalents of the stoichiometric hydride source -- a
+            modest excess in a protic solvent (methanol), where some of
+            NaBH4's four hydride equivalents are lost to solvolysis before
+            reacting with the substrate; standard textbook loading for a
+            reliable full reduction.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

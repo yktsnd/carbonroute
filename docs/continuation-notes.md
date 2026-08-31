@@ -8,17 +8,17 @@ every commit (no PRs). Never fabricate a number; every material needs
 (baseline: 6 pre-existing). Keep README.md/README.ja.md/docs/screening.md in
 sync. Verify real reagent CAS/MW via WebSearch, never invent.
 
-## State as of this note (23 classes committed; commit before push to be
-## confirmed by whoever reads this next — check `git log --oneline -1`)
+## State as of this note (24 classes committed; check `git log --oneline -1`
+## to confirm what's actually pushed when you pick this up)
 
-**23 classes shipped. 7,042/18,558 Rhea reactions matched (37.9%),
+**24 classes shipped. 7,729/18,558 Rhea reactions matched (41.6%),
 3,876 decided (20.9%).** Structural ceiling (true reachable max): 88.6% —
 requires ~800 more class templates, a genuine multi-session undertaking.
 `cdp-cholinetransferase` (CDP-choline-dependent phosphocholine transfer,
-18 matched/17 decided) shipped this round — the item that was "in-flight"
-in the previous version of this note is now DONE; see the workflow section
-below for how it was verified, and skip straight to "Next steps" for what
-comes after it.
+18 matched/17 decided) and `nadph-ketoreductase` (NADPH-dependent carbonyl
+reduction, 687 matched/0 decided — an honest non-result, same pattern as
+`nad-oxidoreductase`) both shipped this round. See "Done this round" below
+for details, and skip straight to "Next steps" for what comes after.
 80% is far off; the honest path is steady, verified incremental progress,
 not fabricated numbers.
 
@@ -116,73 +116,67 @@ documented in `docs/screening.md`, and totals are synced across
 10. **Push**: `git push -u origin main` (no PR — direct push per user's
     established instruction for this ongoing session).
 
-## `cdp-cholinetransferase` — DONE this round
+## Done this round: `cdp-cholinetransferase` and `nadph-ketoreductase`
 
-Shipped as `data/reaction-classes/cdp-cholinetransferase.yaml` (+
-`.bounds.yaml`), verified against the real `screen_all()` pipeline (18
+**`cdp-cholinetransferase`**: `data/reaction-classes/cdp-cholinetransferase.yaml`
+(+ `.bounds.yaml`), verified against the real `screen_all()` pipeline (18
 matched, 17 decided, all decisive, RHEA:32487 correctly excluded as plain
-hydrolysis — matches the hand-survey exactly), tested (4 new tests in
-`tests/test_screen.py`), and documented in README.md/README.ja.md/
-docs/screening.md. Reagent data confirmed via WebSearch this round:
-2-chloro-2-oxo-1,3,2-dioxaphospholane ("COP") CAS 6609-64-9, MW 142.48,
-formula C2H4ClO3P; trimethylamine CAS 75-50-3, MW 59.11 g/mol, density
-0.63 g/mL (liquid). The Aneja-method chemistry (COP phosphorylation +
-trimethylamine ring-opening onto a diacylglycerol/ceramide acceptor) was
-confirmed as real, established literature via WebSearch, not invented.
-Nothing left to do on this class — move to "Next steps" below.
+hydrolysis), tested (4 tests), documented. Reagent data confirmed via
+WebSearch: 2-chloro-2-oxo-1,3,2-dioxaphospholane ("COP") CAS 6609-64-9, MW
+142.48; trimethylamine CAS 75-50-3, MW 59.11. Aneja-method chemistry
+(COP phosphorylation + trimethylamine ring-opening) confirmed real via
+WebSearch.
+
+**`nadph-ketoreductase`**: `data/reaction-classes/nadph-ketoreductase.yaml`
+(+ `.bounds.yaml`), 687 matched, 148 (21.5%) structurally clean carbonyl
+reductions (mass delta +2.016 AND a new C-OH bond, via
+`transferred_bond_smarts: "[CX4][OX2H]"`), but **0 decided — confirmed
+honest non-result**, same as `nad-oxidoreductase`. The key finding: the
+naive mass-delta-only cluster (268 reactions at +2.02) was NOT
+homogeneous — RDKit substructure counting split it into carbonyl
+reduction (139, NaBH4-amenable) vs. alkene reduction (117, needs
+catalytic H2, NOT NaBH4-amenable) vs. other (12) BEFORE writing the YAML,
+avoiding a repeat of the SAM class's original C-vs-heteroatom-methylation
+mistake. Chemical route: sodium borohydride (CAS 16940-66-2, MW 37.83,
+verified via WebSearch) in methanol. Verified against the real pipeline
+(NOT just hand-survey) before finalizing the header — 148 structurally
+matched, all 148 indeterminate at current bounds, exactly as the
+heavy-cofactor caveat predicted. Tested (4 tests). Both classes fully
+documented in README.md/README.ja.md/docs/screening.md.
+
+**Methodological note for next time**: before building ANY class off a
+naive mass-delta survey cluster, check whether the cluster is chemically
+homogeneous by sampling ~20-25 real reaction pairs and inspecting
+acceptor→product structural changes (or, faster, running an RDKit
+substructure count for a candidate `transferred_bond_smarts` before/after
+across the whole cluster, as done for NADPH). A single mass value can be
+produced by multiple distinct mechanisms (SAM's C vs. heteroatom
+methylation; NADPH's carbonyl vs. alkene reduction) — assume this is
+possible until checked, don't assume purity from cluster size alone.
 
 ## Next steps in priority order
 
-1. **Bigger opportunity found but NOT yet built**: NADPH-dependent
-   reduction (CHEBI:57783). Hand-survey found **687 total reactions
-   consume NADPH; 348 resolve to a single acceptor/product pair; the
-   dominant cluster (268 reactions, 77% purity) lands at delta ≈ +2.00**
-   (a straightforward hydride reduction, mirroring the already-shipped
-   `nad-oxidoreductase` class's oxidative -2.00 in reverse). This is the
-   single largest remaining candidate by raw count found in this session's
-   survey — potentially worth ~268 more matched reactions (would push
-   matched% from 37.9% toward ~39.3% alone). Caveats before building:
-   - NADPH itself is heavy (~745 g/mol, same weight class as
-     `nad-oxidoreductase`'s NAD+/NADP+, which decided 0/515 — see the
-     heavy-cofactor caveat in step 5 above). This class will very likely
-     also be an "honest non-result" (0 or few decided) — expected and
-     fine per project convention, but set that expectation before
-     building, and say so plainly in the YAML header.
-   - The chemical counterpart is a stoichiometric hydride reducing agent
-     (NaBH4, CAS 16940-66-2, or similar — well-known, easy to verify) —
-     should be a quick, low-risk process_model to write.
-   - **Purity is only 77%**, not 90%+ like the cleanest classes — inspect
-     what the other ~23% of the top-cluster-eligible reactions actually
-     are before finalizing (some early example equations already pulled:
-     many are electron-transfer/quinone/cytochrome reductions, e.g.
-     `RHEA:11692 NAD(+) + NADPH = NADH + NADP(+)` — a transhydrogenase,
-     probably NOT a real "reduce an organic acceptor" class member and
-     needs excluding or handling; inspect the full delta distribution and
-     what's NOT in the +2.00 cluster before writing the header's
-     "structural verification" numbers).
-   - Also present in the same survey but not yet investigated: several
-     large families of chain-length-specific acyl-CoA thioesters
-     (palmitoyl-CoA CHEBI:57379, oleoyl-CoA CHEBI:57387, stearoyl-CoA
-     CHEBI:57394, linoleoyl-CoA CHEBI:57383, myristoyl-CoA CHEBI:57385,
-     malonyl-CoA CHEBI:57384, succinyl-CoA CHEBI:57292, generic "an
-     acyl-CoA" CHEBI:58342) — each transfers a DIFFERENT mass (chain-length
-     dependent), so each would need its own class (can't merge, unlike the
-     UDP-sugar donors which share identical masses). All are heavy
-     (700–1000+ g/mol) so likely also honest-non-results. Lower priority
-     than NADPH; only worth it if NADPH pans out and the goal is still
-     raw matched-count coverage.
+1. Re-run the broader discovery survey (see step 1 of the workflow above)
+   since only the top ~40 of 156 not-yet-covered candidates (≥15
+   reactions each) were inspected this session — there is more here.
+   Skip past ones already scoped and deprioritized:
+   - Chain-length-specific acyl-CoA thioesters (palmitoyl-CoA
+     CHEBI:57379, oleoyl-CoA CHEBI:57387, stearoyl-CoA CHEBI:57394,
+     linoleoyl-CoA CHEBI:57383, myristoyl-CoA CHEBI:57385, malonyl-CoA
+     CHEBI:57384, succinyl-CoA CHEBI:57292, generic "an acyl-CoA"
+     CHEBI:58342) — each transfers a DIFFERENT mass (chain-length
+     dependent), so each needs its own class (can't merge). All are heavy
+     (700-1000+ g/mol) so likely also honest-non-results like
+     `nadph-ketoreductase`. Only worth it if raw matched-count coverage is
+     still the priority (each is a smaller count than NADPH's 687 though,
+     since these are per-chain-length, not pooled).
    - A 2-oxoglutarate-based transaminase-family candidate (CHEBI:16810,
      387 total, 94 resolved to single-acceptor, dominant cluster only 81
-     count/86% purity) was also seen but NOT investigated — transamination
-     chemistry doesn't map cleanly onto this project's Koenigs-Knorr/
-     acylation-style process-model pattern (no simple stoichiometric
-     chemical counterpart), so this is a harder build; deprioritize unless
-     revisiting method design.
-2. After NADPH (or instead of, if it turns out low-value), re-run the
-   broader discovery survey (see step 1 of the workflow above) since only
-   the top ~40 of 156 not-yet-covered candidates (≥15 reactions each) were
-   inspected this session — there is more here.
-3. The standing goal (task tracker item #6, "Continue building reaction
+     count/86% purity) — transamination chemistry doesn't map cleanly
+     onto this project's Koenigs-Knorr/acylation-style process-model
+     pattern (no simple stoichiometric chemical counterpart), so this is
+     a harder build; deprioritize unless revisiting method design.
+2. The standing goal (task tracker item #6, "Continue building reaction
    classes toward 80% Rhea coverage") remains open-ended. Keep making real,
    verified, incremental progress; report honestly; never fabricate a
    number to satisfy a coverage threshold.

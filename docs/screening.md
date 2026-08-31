@@ -1623,8 +1623,55 @@ verified via web search) to install the choline headgroup directly --
 no separate deprotection stage is needed, unlike the sugar-donor classes'
 acetylated donors, because COP carries no protecting groups of its own.
 
-Final total, all twenty-three classes: **7,042 of 18,558 Rhea reactions
-matched (37.9%), 3,876 decided (20.9%)**.
+Total after this class, all twenty-three: 7,042 of 18,558 Rhea reactions
+matched (37.9%), 3,876 decided (20.9%).
+
+A twenty-fourth class, `nadph-ketoreductase.yaml` (NADPH-dependent
+carbonyl reduction), is the mirror image of `nad-oxidoreductase`: it
+matches the REDUCED cofactor form (NADPH, CHEBI:57783) instead of the
+oxidised one, picking out the reverse direction -- a ketone or aldehyde
+reduced to the corresponding alcohol. NADPH is consumed by 687 Rhea
+reactions in total, far more heterogeneous than the sugar-nucleotide
+donors: the dominant mass-delta cluster (a plain +2.016 g/mol, 2-hydrogen
+addition) turns out to be a MIXTURE of at least two genuinely different
+reductions that happen to weigh the same -- a carbonyl reduced to an
+alcohol, and an alkene reduced to an alkane (enoyl-CoA/enoyl-ACP
+reductases, steroid ring reduction) -- the same same-mass, different-
+chemistry confound `sam-methyltransferase` established the precedent for
+solving with `transferred_bond_smarts` rather than folding both into one
+class. `transferred_bond_smarts: "[CX4][OX2H]"` (a new sp3 carbon-bound
+hydroxyl) separates them: verified directly against real Rhea structures
+(RHEA:41888, a beta-ketoacyl-[ACP] reductase step from fatty acid
+synthesis, and RHEA:35835, 2'-dehydrokanamycin A -> kanamycin A, both
+correctly kept; RHEA:44960, (2E)-decenoyl-CoA -> decanoyl-CoA, an
+alkene reduction, and RHEA:35523, N-ethylmaleimide -> N-ethylsuccinimide,
+an imide reduction, both correctly excluded even though all four add the
+identical 2.016 g/mol). No ec_prefix is declared -- EC annotation is even
+sparser for NADPH (72.2% of NADPH-consuming reactions carry none) than
+elsewhere in this project.
+
+687 reactions match. 148 (21.5%) both add the right mass and form exactly
+one new C-OH bond -- genuine, structurally verified carbonyl reductions.
+**All 148 are indeterminate, not decided: a known, expected "honest
+non-result"**, the same finding as `nad-oxidoreductase` (0/515),
+`acetyl-coa-acyltransferase` and `coa-ligase` (both 0/156). NADPH is
+heavy (~745 g/mol), the same weight class as NAD+/NADP+, and its own
+[0.5, 100] kgCO2e/kg bound together with the chemical route's own
+unbounded-above sodium-borohydride bound leave every one of these 148
+reactions' delta changing sign somewhere inside the box -- a real data
+limitation (no public cradle-to-gate factor for this specific heavy
+cofactor), not a defect in this class's own construction, and not
+papered over by padding the process model to force a decision. The
+chemical route is sodium borohydride (CAS 16940-66-2, verified via web
+search) in methanol, the standard stoichiometric hydride source for a
+carbonyl reduction -- not claimed to cover the alkene-/imide-reduction
+reactions this class's own bond check excludes.
+
+Final total, all twenty-four classes: **7,729 of 18,558 Rhea reactions
+matched (41.6%), 3,876 decided (20.9%)** -- matched coverage grows
+substantially (this is the largest single-class matched-count addition
+this session), decided coverage does not, and both numbers are reported
+exactly as honestly measured.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that

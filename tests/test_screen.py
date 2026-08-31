@@ -2760,3 +2760,99 @@ def test_cdp_cholinetransferase_class_is_decided_and_decisively_favours_the_enzy
     ]
     assert len(decided_with_verdict) == len(cdpc_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a twenty-fourth class: NADPH-dependent carbonyl reduction, another --
+# honest non-result. The mirror image of nad-oxidoreductase (matching the
+# reduced cofactor form instead of the oxidised one), and structurally
+# mixed the way SAM's C- vs heteroatom-methylation was, so it needs a
+# transferred_bond_smarts check the same way.
+
+
+@pytest.fixture(scope="module")
+def nadph_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "nadph-ketoreductase.yaml")
+    bounds = load_bounds(CLASSES / "nadph-ketoreductase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def nadph_screened(nadph_inputs):
+    return screen_all(*nadph_inputs, use_process_model=True)
+
+
+def test_nadph_ketoreductase_class_declares_bond_check_not_ec_prefix(nadph_inputs):
+    """EC annotation is even sparser for NADPH (72.2% of NADPH-consuming
+    reactions carry none) than elsewhere in this project, so the mass-delta
+    check alone cannot separate this class's real members (carbonyl
+    reduction) from the same-mass alkene- and imide-reduction confound --
+    that is what transferred_bond_smarts is for, verified directly against
+    real Rhea structures before this template was finalised."""
+    template = nadph_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(2.016, abs=1e-6)
+    assert template.transferred_bond_smarts == "[CX4][OX2H]"
+
+
+def test_nadph_ketoreductase_class_bond_check_keeps_carbonyl_reduction_only(nadph_screened):
+    """687 Rhea reactions consume NADPH; 148 (21.5%) both add the right mass
+    (2.016 g/mol) and form exactly one new C-OH bond -- genuine carbonyl
+    (ketone/aldehyde) reductions, including a beta-ketoacyl-[ACP] reductase
+    step from fatty acid synthesis (RHEA:41888) and a sugar 2'-keto
+    reduction (RHEA:35835, 2'-dehydrokanamycin A -> kanamycin A). The same
+    +2.016 mass delta is also produced by two genuinely different
+    reductions the bond check correctly excludes: an alkene reduced to an
+    alkane (RHEA:44960, (2E)-decenoyl-CoA -> decanoyl-CoA, an enoyl-CoA
+    reductase step -- no new C-OH forms) and an imide reduced to a
+    succinimide (RHEA:35523, N-ethylmaleimide -> N-ethylsuccinimide)."""
+    assert nadph_screened.matched == 687
+    by_id = {r.rhea_id: r for r in nadph_screened.results}
+    assert by_id["RHEA:41888"].verdict is not None
+    assert by_id["RHEA:35835"].verdict is not None
+    assert by_id["RHEA:69456"].verdict is not None
+    assert by_id["RHEA:44960"].verdict is None
+    assert "forms 0 of this class's bond" in by_id["RHEA:44960"].skipped_reason
+    assert by_id["RHEA:35523"].verdict is None
+    assert "forms 0 of this class's bond" in by_id["RHEA:35523"].skipped_reason
+    structurally_matched = [r for r in nadph_screened.results if r.skipped_reason == ""]
+    assert len(structurally_matched) == 148
+
+
+def test_nadph_ketoreductase_process_model_charges_sodium_borohydride(nadph_inputs):
+    """The declared process, not a paper: sodium borohydride, the standard
+    stoichiometric hydride source for a carbonyl reduction, in methanol.
+    Not claimed to cover the alkene-/imide-reduction reactions this
+    class's own bond check excludes. Everything generalised by
+    construction."""
+    template = nadph_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"sodium borohydride", "methanol"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_nadph_ketoreductase_class_verdicts_are_honestly_indeterminate_at_current_bounds(
+    nadph_screened,
+):
+    """Real coverage, and a real limitation, both reported rather than one
+    papered over to force the other -- the same finding as
+    nad-oxidoreductase's own [0.5, 100] cofactor bound, its mirror-image
+    sibling. 148 reactions are structurally verified members of this
+    class -- genuine Q1 coverage. But at the bounds this template
+    currently declares, every one of them comes back indeterminate:
+    NADPH's own wide, unevidenced ceiling and sodium borohydride's own
+    unbounded-above low-only bound together leave the delta's sign
+    undetermined for all 148. That is not a bug in the screen; it is what
+    the bounds and the process model, honestly evaluated together,
+    actually say."""
+    assert len(nadph_screened.decided) == 0
+    verdicts = {r.rhea_id: r.verdict for r in nadph_screened.results if r.skipped_reason == ""}
+    assert len(verdicts) == 148
+    assert all(v is not None and not v.decisive for v in verdicts.values())
+    assert all(v.verdict == "indeterminate" for v in verdicts.values())

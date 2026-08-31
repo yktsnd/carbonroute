@@ -1,0 +1,37 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+
+bounds:
+
+  # ---- The enzymatic side -------------------------------------------------
+  "name:chebi:57783":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      NADPH. No public cradle-to-gate factor was found. Same interval and
+      same reasoning as the cofactors in the other shipped classes,
+      including this one's own mirror-image sibling nad-oxidoreductase's
+      NAD+/NADP+ bound: deliberately wide because it is not known,
+      spanning from below the cheapest bulk organic in the loaded tables
+      up to well above the highest specialty figure this project has
+      found cited. This is also the bound responsible for this class's
+      documented "honest non-result" expectation (see the template's own
+      header) -- widening it would not be honest, so it is not widened to
+      manufacture a decided result.
+    sources:
+      - "No public cradle-to-gate GWP for NADPH was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+
+  # ---- The chemical side ---------------------------------------------------
+  "cas:16940-66-2":
+    low: 0.5
+    high: null
+    rationale: >
+      Sodium borohydride. No public cradle-to-gate factor was found. Low
+      bound only, by the same convention every other unresolved
+      chemical-side reagent in this project uses.
+    sources:
+      - "No public cradle-to-gate GWP for sodium borohydride was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."
