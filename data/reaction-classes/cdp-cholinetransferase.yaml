@@ -1,0 +1,146 @@
+# Reaction class: CDP-choline-dependent phosphocholine transfer
+#
+# Covers Rhea reactions consuming CDP-choline (cytidine 5'-diphosphocholine,
+# CHEBI:58779) as a reactant: enzymatic transfer of the phosphocholine
+# group onto an acceptor hydroxyl -- most often the free 3-hydroxyl of a
+# 1,2-diacylglycerol, forming phosphatidylcholine (the CDP-choline pathway,
+# EC 2.7.8.2 and relatives), but also a ceramide's own hydroxyl (forming
+# sphingomyelin, EC 2.7.8.27) and, in one case, a protein serine residue
+# (Rab1 phosphocholination by the Legionella effector AnkX, RHEA:56080) --
+# releasing CMP in every case.
+#
+# Found via the same mass-delta discovery survey that found
+# gdp-fucosyltransferase, udp-acetylhexosaminyltransferase,
+# udp-xylosyltransferase and cmp-sialyltransferase: CDP-choline was flagged
+# early in that survey (94%+ purity) but deferred behind the larger sialic
+# acid candidate; this is the smaller, still-clean candidate documented for
+# later this session.
+#
+# Net mass added: the phosphocholine group, C5H13NO3P (as the cation) minus
+# the water lost forming the phosphodiester bond, 165.129 g/mol -- verified
+# directly against RHEA:32939 (a 1,2-diacyl-sn-glycerol -> a 1,2-diacyl-
+# sn-glycero-3-phosphocholine) and confirmed identical, exactly, across
+# every other acceptor shape this class matches: ceramide acceptors
+# (RHEA:16273, RHEA:21224), every alkyl/alkenyl-ether glycerolipid variant
+# (RHEA:36179, RHEA:36183, RHEA:36227), every specific diacylglycerol chain
+# length Rhea lists by name (RHEA:44288, RHEA:54232, RHEA:54236,
+# RHEA:54240, RHEA:54244, RHEA:54332, RHEA:54336, RHEA:54344, RHEA:54348,
+# RHEA:54352), and the protein-serine acceptor (RHEA:56080). No scaling or
+# multi-transfer cluster here -- every member reaction is a single transfer.
+#
+# No ec_prefix is declared: the mass-delta check alone already separates
+# this class cleanly (17 of 18 reactions land on the identical delta), and
+# restricting to one EC subclass would arbitrarily exclude the sphingomyelin
+# and protein-phosphocholination members, which are real, structurally
+# identical transfers under a different EC number.
+#
+# Structural verification (run through the actual screen): 18 reactions
+# match CDP-choline. 17 (94.4%) resolve to a single acceptor/product pair
+# within one proton of 165.129 and are decided, every one decisively
+# favouring the enzyme. The other 1 (RHEA:32487, CDP-choline + H2O =
+# phosphocholine + CMP + 2 H(+)) is plain hydrolysis of CDP-choline itself
+# -- there is no organic acceptor on the left once CDP-choline, H+ and H2O
+# are excluded, so `_identify` correctly returns no match rather than
+# guessing.
+#
+# Chemical counterpart: the Aneja route (Aneja & Chadha, Biochim. Biophys.
+# Acta 1970s; still the standard modern method for synthetic
+# phosphatidylcholines -- see e.g. the phospholipid-synthesis literature
+# citing "2-chloro-1,3,2-dioxaphospholane/trimethylamine" as the headgroup
+# step) elaborates the phosphocholine headgroup on a 1,2-diacylglycerol in
+# two stages: (1) phosphorylation of the free 3-hydroxyl with
+# 2-chloro-2-oxo-1,3,2-dioxaphospholane ("COP", CAS 6609-64-9, verified via
+# web search), a cyclic chlorophosphate, with triethylamine as the HCl
+# scavenger, giving a cyclic phosphotriester intermediate; (2) ring-opening
+# of that five-membered phosphorus heterocycle with trimethylamine (CAS
+# 75-50-3, verified via web search) installs the choline headgroup and
+# gives the phosphatidylcholine product directly -- no separate
+# deprotection stage is needed, unlike the sugar-donor classes' acetylated
+# donors, because COP carries no protecting groups of its own.
+
+reaction_class:
+  id: cdp-cholinetransferase
+  name: "CDP-choline-dependent phosphocholine transfer"
+  description: >
+    Enzymatic transfer of the phosphocholine group from CDP-choline onto an
+    acceptor hydroxyl (a diacylglycerol, a ceramide, or a protein serine),
+    releasing CMP. Matched on CDP-choline alone; no ec_prefix is declared.
+  expected_mass_delta: 165.129
+  mass_delta_tolerance: 1.1
+  cofactor_chebi: "CHEBI:58779"
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "2-chloro-1,3,2-dioxaphospholane / trimethylamine (Aneja route)"
+  source: >
+    Not a paper's exact stoichiometry, but a real, established synthetic
+    method: the Aneja route for synthetic phosphatidylcholines (Aneja &
+    Chadha), still cited as the standard modern approach for elaborating a
+    phosphocholine headgroup onto a diacylglycerol -- phosphorylation with
+    2-chloro-2-oxo-1,3,2-dioxaphospholane, then ring-opening with
+    trimethylamine. Parameters stated on the same terms the other process
+    models use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.8
+  note: >
+    No protection stage for the acceptor's own other reactive groups is
+    modelled, for the same conservative reason the other process-model
+    classes omit one. stage_yield is the same 0.8 the flagship
+    glycosylation classes use -- both steps of the Aneja route are
+    well-established, high-yielding transformations in the phospholipid
+    synthesis literature, so there is no documented reason to mark this
+    route as harder than the sugar-donor classes' own chemistry the way
+    cmp-sialyltransferase's genuinely harder ketosidic coupling was.
+  stages:
+
+    - id: phosphorylate
+      volumes: 1.0
+      solvent: {name: dichloromethane, cas: "75-09-2", density_kg_per_L: 1.325}
+      reagents:
+        - name: 2-chloro-2-oxo-1,3,2-dioxaphospholane
+          cas: "6609-64-9"
+          kg_per_mol: 0.14248
+          equivalents: 1.3
+          note: >
+            The cyclic chlorophosphate ("COP") that installs the cyclic
+            phosphotriester on the acceptor's free hydroxyl. 1.3
+            equivalents, the same modest excess the sugar-donor classes'
+            own halide donors use.
+        - name: triethylamine
+          cas: "121-44-8"
+          kg_per_mol: 0.10119
+          equivalents: 1.5
+          note: >
+            HCl scavenger for the phosphorylation step, the same base and
+            loading coa-ligase's own activation step uses.
+
+    - id: ring-open
+      volumes: 3.0
+      solvent: {name: toluene, cas: "108-88-3", density_kg_per_L: 0.867}
+      reagents:
+        - name: trimethylamine
+          cas: "75-50-3"
+          kg_per_mol: 0.05911
+          equivalents: 5.0
+          note: >
+            Ring-opens the cyclic phosphotriester and installs the choline
+            headgroup. A large excess, reflecting real practice: this
+            reagent is a low-boiling gas (bp 3-7 C) typically supplied
+            substantially in excess of the phosphotriester it must find
+            and react with in solution.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

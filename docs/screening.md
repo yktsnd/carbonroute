@@ -1592,8 +1592,39 @@ lower-yielding in real syntheses -- conservative in the direction that
 favours the chemical route, not the enzyme, the same discipline the
 other process-model classes' parameters follow.
 
-Final total, all twenty-two classes: **7,024 of 18,558 Rhea reactions
-matched (37.8%), 3,859 decided (20.8%)**.
+Total after this class, all twenty-two: 7,024 of 18,558 Rhea reactions
+matched (37.8%), 3,859 decided (20.8%).
+
+A twenty-third class, `cdp-cholinetransferase.yaml` (CDP-choline-dependent
+phosphocholine transfer), is the smaller, still-clean sibling candidate
+found alongside `cmp-sialyltransferase` in the same survey, deferred
+behind the larger sialic acid candidate earlier this session. It
+transfers the phosphocholine group, net mass 165.129 g/mol, verified
+against RHEA:32939 (a 1,2-diacyl-sn-glycerol -> a 1,2-diacyl-sn-glycero-
+3-phosphocholine) and confirmed identical across a ceramide acceptor
+(RHEA:16273, forming sphingomyelin) and a protein-serine acceptor
+(RHEA:56080, Rab1 phosphocholination by the Legionella effector AnkX) --
+genuinely different EC numbers (diacylglycerol cholinephosphotransferase,
+sphingomyelin synthase, and a bacterial effector respectively) unified by
+the identical mass-delta mechanism, which is why no ec_prefix is declared.
+18 reactions match, 17 (94.4%) decide, all decisive. The 1 excluded,
+RHEA:32487 (CDP-choline + H2O = phosphocholine + CMP + 2 H(+)), is plain
+hydrolysis of CDP-choline itself -- there is no organic acceptor left once
+CDP-choline, H+ and H2O are excluded, so `_identify` correctly returns no
+match rather than guessing.
+
+The chemical route is the Aneja method (Aneja & Chadha), the standard
+established synthesis for synthetic phosphatidylcholines: phosphorylation
+of the acceptor's free hydroxyl with 2-chloro-2-oxo-1,3,2-dioxaphospholane
+("COP", CAS 6609-64-9, verified via web search), a cyclic chlorophosphate,
+with triethylamine as the HCl scavenger, then ring-opening of the
+resulting cyclic phosphotriester with trimethylamine (CAS 75-50-3,
+verified via web search) to install the choline headgroup directly --
+no separate deprotection stage is needed, unlike the sugar-donor classes'
+acetylated donors, because COP carries no protecting groups of its own.
+
+Final total, all twenty-three classes: **7,042 of 18,558 Rhea reactions
+matched (37.9%), 3,876 decided (20.9%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that

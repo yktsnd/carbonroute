@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-two classes now built — 7,024 of 18,558 reactions matched (37.8%), 3,859 decided (20.8%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-three classes now built — 7,042 of 18,558 reactions matched (37.9%), 3,876 decided (20.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -470,9 +470,28 @@ measures the same thing the threshold did.
    acid's own side chain via acetyl-CoA, a different transformation the
    same cofactor also participates in; 1 (RHEA:16145) is hydroxylation to
    the N-glycoloyl form via O2/cytochrome b5, a three-reactant shape this
-   model does not attempt to handle. Final total for this session:
-   **7,024 of 18,558 reactions matched (37.8%), 3,859 decided
-   (20.8%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
+   model does not attempt to handle. Total after this class: 7,024 of
+   18,558 reactions matched (37.8%), 3,859 decided (20.8%).
+
+   **A twenty-third class, `cdp-cholinetransferase.yaml`** (CDP-choline-
+   dependent phosphocholine transfer — 18 matched, 17 decided, all
+   decisive), the smaller sibling candidate found alongside the sialic
+   acid class in the same survey, deferred behind it earlier this session.
+   Net mass 165.13 g/mol (the phosphocholine group), verified against
+   RHEA:32939 (diacylglycerol → phosphatidylcholine) and confirmed
+   identical across a ceramide acceptor (RHEA:16273, → sphingomyelin) and
+   a protein-serine acceptor (RHEA:56080, Rab1 phosphocholination by the
+   Legionella effector AnkX) — genuinely different EC numbers unified by
+   the same mass-delta mechanism, so no ec_prefix is declared. The
+   chemical route is the Aneja method, the established synthesis for
+   synthetic phosphatidylcholines: phosphorylation with a cyclic
+   chlorophosphate (2-chloro-2-oxo-1,3,2-dioxaphospholane, CAS 6609-64-9)
+   then ring-opening with trimethylamine (CAS 75-50-3), both verified via
+   web search. The 1 excluded, RHEA:32487, is plain hydrolysis of
+   CDP-choline itself — no organic acceptor remains once the cofactor,
+   H+ and H2O are excluded. Final total for this session:
+   **7,042 of 18,558 reactions matched (37.9%), 3,876 decided
+   (20.9%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -546,7 +565,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 37.8% matched / 20.8% decided and the 88.6% structural
+between today's 37.9% matched / 20.9% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at
@@ -556,7 +575,7 @@ own standard, corrected here rather than left standing. What remains true
 from the original argument: reporting 80% coverage *today* by loosening
 the cofactor-plus-structural-check methodology would be exactly the kind
 of shortcut this project exists to refuse. The number that matters is
-still **decided, not matched** — an honestly verified 20.8% is worth more
+still **decided, not matched** — an honestly verified 20.9% is worth more
 than a fabricated 80%, and closing the gap to 88.6% is a matter of
 building more classes the same rigorous way, not lowering the bar.
 

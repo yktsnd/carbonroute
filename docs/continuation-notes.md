@@ -8,11 +8,17 @@ every commit (no PRs). Never fabricate a number; every material needs
 (baseline: 6 pre-existing). Keep README.md/README.ja.md/docs/screening.md in
 sync. Verify real reagent CAS/MW via WebSearch, never invent.
 
-## State as of this note (commit 4ea6fa8, pushed to origin/main)
+## State as of this note (23 classes committed; commit before push to be
+## confirmed by whoever reads this next — check `git log --oneline -1`)
 
-**22 classes shipped. 7,024/18,558 Rhea reactions matched (37.8%),
-3,859 decided (20.8%).** Structural ceiling (true reachable max): 88.6% —
+**23 classes shipped. 7,042/18,558 Rhea reactions matched (37.9%),
+3,876 decided (20.9%).** Structural ceiling (true reachable max): 88.6% —
 requires ~800 more class templates, a genuine multi-session undertaking.
+`cdp-cholinetransferase` (CDP-choline-dependent phosphocholine transfer,
+18 matched/17 decided) shipped this round — the item that was "in-flight"
+in the previous version of this note is now DONE; see the workflow section
+below for how it was verified, and skip straight to "Next steps" for what
+comes after it.
 80% is far off; the honest path is steady, verified incremental progress,
 not fabricated numbers.
 
@@ -86,8 +92,9 @@ documented in `docs/screening.md`, and totals are synced across
    `README.md` (two spots: the Q1 table row near line 104, and the
    "Final total for this session" + "the remaining gap between today's X%"
    + "an honestly verified X% is worth more" spots near lines 449/524/534)
-   and `README.ja.md` (mirror spots — search for `37.8%` / `20.8%` /
-   `22個` to find them). **Gotcha**: when editing README.ja.md via
+   and `README.ja.md` (mirror spots — search for the current percentages
+   quoted at the top of this note, or the class count in Japanese, e.g.
+   `23個`, to find them). **Gotcha**: when editing README.ja.md via
    `bash -c "python3 -c '...'"`, backticks inside the double-quoted outer
    string get eaten by bash as command substitution before Python even
    runs — this silently corrupted two identifier mentions
@@ -109,46 +116,24 @@ documented in `docs/screening.md`, and totals are synced across
 10. **Push**: `git push -u origin main` (no PR — direct push per user's
     established instruction for this ongoing session).
 
-## In-flight when this note was written
+## `cdp-cholinetransferase` — DONE this round
 
-A background WebSearch agent was verifying real reagent data for the next
-candidate class, **`cdp-choline` / phosphocholine transferase**
-(CHEBI:58779, EC 2.7.8.2 family — CDP-choline-dependent phosphocholine
-transfer onto diacylglycerol/ceramide/protein-serine acceptors, forming
-phosphatidylcholine/sphingomyelin/protein phosphocholination). Already
-verified against the real pipeline logic (by hand, matching `_identify`
-exactly — NOT yet run through the actual `screen_all()`, do that first
-per step 2 above): **18 reactions consume CDP-choline; 17 resolve to a
-single acceptor/product pair, ALL 17 landing on an exact, clean
-165.129 g/mol delta (the phosphocholine group)** — RHEA:16273, RHEA:21224,
-RHEA:32939, RHEA:36179, RHEA:36183, RHEA:36227, RHEA:44288, RHEA:54232,
-RHEA:54236, RHEA:54240, RHEA:54244, RHEA:54332, RHEA:54336, RHEA:54344,
-RHEA:54348, RHEA:54352, RHEA:56080 (the last is protein Rab1 serine
-phosphocholination — a genuine class member, same clean delta, not an
-outlier). The only exclusion: RHEA:32487 (CDP-choline + H2O = phosphocholine
-+ CMP + 2H+ — plain hydrolysis, no organic acceptor, correctly excluded by
-the `_identify` logic since `others_left` is empty).
-
-The chemical-route research (in progress when interrupted): the real,
-published "Aneja's method" for synthetic phosphatidylcholine — react a
-1,2-diacylglycerol with 2-chloro-2-oxo-1,3,2-dioxaphospholane (a cyclic
-chlorophosphate) + a tertiary amine base (likely triethylamine, CAS
-121-44-8) to form a cyclic phosphotriester, then ring-open with
-trimethylamine to install the choline headgroup. **UNVERIFIED numbers
-from a prior session that MUST be re-confirmed via WebSearch before use**:
-2-chloro-2-oxo-1,3,2-dioxaphospholane CAS 6609-64-9 (MW/formula not yet
-confirmed); trimethylamine CAS 75-50-3, MW ~59.11 (not yet confirmed this
-session). **Do not write the YAML file until these are confirmed** — check
-if the background agent (if this session is still alive) already returned
-a result; if not, or if starting fresh, redo the WebSearch.
+Shipped as `data/reaction-classes/cdp-cholinetransferase.yaml` (+
+`.bounds.yaml`), verified against the real `screen_all()` pipeline (18
+matched, 17 decided, all decisive, RHEA:32487 correctly excluded as plain
+hydrolysis — matches the hand-survey exactly), tested (4 new tests in
+`tests/test_screen.py`), and documented in README.md/README.ja.md/
+docs/screening.md. Reagent data confirmed via WebSearch this round:
+2-chloro-2-oxo-1,3,2-dioxaphospholane ("COP") CAS 6609-64-9, MW 142.48,
+formula C2H4ClO3P; trimethylamine CAS 75-50-3, MW 59.11 g/mol, density
+0.63 g/mL (liquid). The Aneja-method chemistry (COP phosphorylation +
+trimethylamine ring-opening onto a diacylglycerol/ceramide acceptor) was
+confirmed as real, established literature via WebSearch, not invented.
+Nothing left to do on this class — move to "Next steps" below.
 
 ## Next steps in priority order
 
-1. Finish `cdp-choline` class (small, ~18 reactions, but clean and already
-   scoped — quick win). Steps: confirm reagent CAS/MW via WebSearch →
-   write YAML + bounds.yaml → verify against real `screen_all()` → write
-   tests → update docs/README → test+lint → commit → push.
-2. **Bigger opportunity found but NOT yet built**: NADPH-dependent
+1. **Bigger opportunity found but NOT yet built**: NADPH-dependent
    reduction (CHEBI:57783). Hand-survey found **687 total reactions
    consume NADPH; 348 resolve to a single acceptor/product pair; the
    dominant cluster (268 reactions, 77% purity) lands at delta ≈ +2.00**
@@ -156,7 +141,7 @@ a result; if not, or if starting fresh, redo the WebSearch.
    `nad-oxidoreductase` class's oxidative -2.00 in reverse). This is the
    single largest remaining candidate by raw count found in this session's
    survey — potentially worth ~268 more matched reactions (would push
-   matched% from 37.8% toward ~39.2% alone). Caveats before building:
+   matched% from 37.9% toward ~39.3% alone). Caveats before building:
    - NADPH itself is heavy (~745 g/mol, same weight class as
      `nad-oxidoreductase`'s NAD+/NADP+, which decided 0/515 — see the
      heavy-cofactor caveat in step 5 above). This class will very likely
@@ -193,11 +178,11 @@ a result; if not, or if starting fresh, redo the WebSearch.
      acylation-style process-model pattern (no simple stoichiometric
      chemical counterpart), so this is a harder build; deprioritize unless
      revisiting method design.
-3. After NADPH (or instead of, if it turns out low-value), re-run the
+2. After NADPH (or instead of, if it turns out low-value), re-run the
    broader discovery survey (see step 1 of the workflow above) since only
    the top ~40 of 156 not-yet-covered candidates (≥15 reactions each) were
    inspected this session — there is more here.
-4. The standing goal (task tracker item #6, "Continue building reaction
+3. The standing goal (task tracker item #6, "Continue building reaction
    classes toward 80% Rhea coverage") remains open-ended. Keep making real,
    verified, incremental progress; report honestly; never fabricate a
    number to satisfy a coverage threshold.

@@ -2677,3 +2677,86 @@ def test_sialyltransferase_class_is_decided_and_decisively_favours_the_enzyme(si
     ]
     assert len(decided_with_verdict) == len(sia_screened.decided)
     assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
+
+
+# --- a twenty-third class: CDP-choline-dependent phosphocholine transfer ---
+# The smaller, still-clean sibling candidate found alongside
+# cmp-sialyltransferase in the same mass-delta survey, deferred behind the
+# larger sialic acid candidate earlier this session.
+
+
+@pytest.fixture(scope="module")
+def cdpc_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "cdp-cholinetransferase.yaml")
+    bounds = load_bounds(CLASSES / "cdp-cholinetransferase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def cdpc_screened(cdpc_inputs):
+    return screen_all(*cdpc_inputs, use_process_model=True)
+
+
+def test_cdp_cholinetransferase_class_declares_no_ec_prefix(cdpc_inputs):
+    """The mass-delta check alone already separates this class cleanly (see
+    the template's own header), and restricting to one EC subclass would
+    arbitrarily exclude real members annotated under a different EC
+    number (sphingomyelin synthase, protein phosphocholination), so no
+    ec_prefix is declared."""
+    template = cdpc_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(165.129, abs=1e-6)
+
+
+def test_cdp_cholinetransferase_class_matches_and_decides_the_expected_number(cdpc_screened):
+    """18 Rhea reactions consume CDP-choline. 17 (94.4%) resolve to a single
+    acceptor/product pair within one proton of 165.129 (the phosphocholine
+    group) and are decided, every one decisively favouring the enzyme --
+    including a 1,2-diacylglycerol acceptor forming phosphatidylcholine
+    (RHEA:32939, the reaction that pinned down the constant), a ceramide
+    acceptor forming sphingomyelin (RHEA:16273), and a protein-serine
+    acceptor (RHEA:56080, Rab1 phosphocholination). The other 1
+    (RHEA:32487, CDP-choline + H2O = phosphocholine + CMP + 2 H(+)) is
+    plain hydrolysis of CDP-choline itself -- there is no organic acceptor
+    once CDP-choline, H+ and H2O are excluded, so it correctly fails to
+    identify rather than being guessed at."""
+    assert cdpc_screened.matched == 18
+    assert len(cdpc_screened.decided) == 17
+    by_id = {r.rhea_id: r for r in cdpc_screened.results}
+    assert by_id["RHEA:32939"].decided
+    assert by_id["RHEA:16273"].decided
+    assert by_id["RHEA:56080"].decided
+    assert not by_id["RHEA:32487"].decided
+    assert "could not identify" in by_id["RHEA:32487"].skipped_reason
+
+
+def test_cdp_cholinetransferase_process_model_charges_cop_and_trimethylamine(cdpc_inputs):
+    """The declared process, not a paper's exact stoichiometry, but a real
+    established route (the Aneja method): phosphorylation with a cyclic
+    chlorophosphate, then ring-opening with trimethylamine. Everything
+    generalised by construction."""
+    template = cdpc_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {
+        "2-chloro-2-oxo-1,3,2-dioxaphospholane",
+        "triethylamine",
+        "trimethylamine",
+    } <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_cdp_cholinetransferase_class_is_decided_and_decisively_favours_the_enzyme(cdpc_screened):
+    """Every one of this class's 17 decided reactions reaches a decisive
+    verdict favouring the enzyme."""
+    decided_with_verdict = [
+        r for r in cdpc_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(cdpc_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)
