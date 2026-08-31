@@ -1,0 +1,33 @@
+# Bounds for the materials this reaction class's screen cannot resolve to a
+# public factor. See docs/bounds.md for what a bound is and, more
+# importantly, what it is not: nothing here is a factor, none of it enters a
+# Monte Carlo or a total, and coverage is reported unchanged.
+
+bounds:
+
+  # ---- The enzymatic side -------------------------------------------------
+  "name:chebi:18407":
+    low: 0.5
+    high: 100.0
+    rationale: >
+      Hydrogen cyanide. No public cradle-to-gate factor was found. Same
+      interval and same reasoning as the cofactors in the other shipped
+      classes: deliberately wide because it is not known, spanning from
+      below the cheapest bulk organic in the loaded tables up to well
+      above the highest specialty figure this project has found cited.
+    sources:
+      - "No public cradle-to-gate GWP for hydrogen cyanide was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (the low anchor, by the same convention as the other classes)."
+
+  # ---- The chemical side ---------------------------------------------------
+  "cas:151-50-8":
+    low: 0.5
+    high: null
+    rationale: >
+      Potassium cyanide, the bench-stable HCN surrogate this process model
+      uses. No public cradle-to-gate factor was found. Low bound only, by
+      the same convention every other unresolved chemical-side reagent in
+      this project uses.
+    sources:
+      - "No public cradle-to-gate GWP for potassium cyanide was found."
+      - "data/factors/ademe_base_carbone.csv: Methanol, 0.521 kgCO2e/kg (context for the low anchor)."

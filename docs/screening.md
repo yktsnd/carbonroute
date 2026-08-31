@@ -1682,8 +1682,28 @@ D-sorbitol) and bile-acid epimer reductions. **All 18 are indeterminate,
 not decided** -- the same honest non-result as its NADPH sibling, for the
 same heavy-cofactor reason (NADH is ~665 g/mol).
 
-Final total, all twenty-five classes: **8,007 of 18,558 Rhea reactions
-matched (43.1%), 3,876 decided (20.9%)**.
+Total after this class, all twenty-five: 8,007 of 18,558 Rhea reactions
+matched (43.1%), 3,876 decided (20.9%).
+
+A twenty-sixth class, `hcn-cyanohydrin.yaml` (HCN-dependent cyanohydrin
+formation), is an unusually small, unusually clean candidate caught on a
+second, wider pass of the discovery survey -- hydrogen cyanide's own
+count (34) was below the original survey's informal cutoff. It covers
+hydroxynitrile lyase (oxynitrilase) chemistry: HCN adds across an
+aldehyde or ketone carbonyl to give the corresponding cyanohydrin, net
+mass 27.026 g/mol (HCN itself), verified against RHEA:77427 (benzaldehyde
+-> (S)-mandelonitrile). 34 reactions match, 30 (88.2%) decide, all
+decisive. The 2 excluded, RHEA:16881 (a sulfurtransferase where HCN is a
+cyanide acceptor, not added across a carbonyl) and RHEA:17821 (a
+beta-cyanoalanine synthase where HCN displaces a thiol), are correctly
+separated by mass delta alone. No ec_prefix is declared -- every real
+member carries no EC annotation at all in this Rhea release. The chemical
+route is potassium cyanide (CAS 151-50-8, verified via web search)
+buffered with acetic acid, the standard textbook cyanohydrin synthesis --
+a bench-stable HCN surrogate, not neat hydrogen cyanide gas.
+
+Final total, all twenty-six classes: **8,041 of 18,558 Rhea reactions
+matched (43.3%), 3,906 decided (21.0%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that

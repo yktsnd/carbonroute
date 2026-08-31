@@ -1,0 +1,110 @@
+# Reaction class: HCN-dependent cyanohydrin formation
+#
+# Covers Rhea reactions consuming hydrogen cyanide (CHEBI:18407) as a
+# reactant: enzymatic addition of HCN across an aldehyde or ketone
+# carbonyl to give the corresponding cyanohydrin (2-hydroxynitrile) --
+# the reaction hydroxynitrile lyases (oxynitrilases, EC 4.1.2.-) catalyse
+# stereoselectively, one of the oldest known biocatalytic reactions
+# (industrially used for chiral cyanohydrin synthesis, e.g. mandelonitrile
+# production) and one of the oldest named reactions in organic chemistry
+# generally (cyanohydrin formation, first studied by Wohler and Liebig).
+#
+# Found via the same mass-delta discovery survey as this session's other
+# new classes -- an unusually clean, small-count candidate that the
+# original top-40 pass missed because HCN's own total left-side count (34)
+# put it below the survey's earlier informal cutoff; caught on a second,
+# wider pass of the same survey script.
+#
+# Net mass added: HCN itself, H-C#N, 27.026 g/mol -- verified directly
+# against RHEA:77427 (benzaldehyde -> (S)-mandelonitrile: product 133.152
+# - acceptor 106.124 = 27.028, within rounding) and confirmed identical,
+# exactly, across every other member: aliphatic and aromatic aldehydes
+# (RHEA:77395 propanal, RHEA:77519 furfural, RHEA:77507 cinnamaldehyde)
+# and methyl ketones (RHEA:77467 butan-2-one, RHEA:77495 acetophenone).
+#
+# No ec_prefix is declared: every one of this class's 30 real members
+# carries no EC annotation at all in this Rhea release (a newer, smaller
+# reaction set than most classes' donors), so an ec_prefix restriction
+# would exclude the entire class; the mass-delta check alone already
+# separates it cleanly (30 of 32 candidates, 93.75%).
+#
+# Structural verification (run through the actual screen): 32 reactions
+# match HCN as a left-side reactant with exactly one other resolvable
+# left participant. 30 (93.75%) land within one proton of 27.026 and are
+# decided, every one decisively favouring the enzyme. The other 2:
+# RHEA:16881 (thiosulfate + hydrogen cyanide = thiocyanate + sulfite +
+# 2 H(+), EC 2.8.1.1, a sulfurtransferase -- a genuinely different
+# transformation, HCN acting as a cyanide-ACCEPTOR rather than being
+# added across a carbonyl, correctly excluded because its mass delta,
+# -55.05, is nowhere near 27.03) and RHEA:17821 (L-cysteine + hydrogen
+# cyanide = 3-cyano-L-alanine + hydrogen sulfide + H(+), EC 4.4.1.9, a
+# beta-cyanoalanine synthase -- HCN displaces the thiol of cysteine
+# rather than adding across a carbonyl, mass delta -7.06, also correctly
+# excluded).
+
+reaction_class:
+  id: hcn-cyanohydrin
+  name: "HCN-dependent cyanohydrin formation"
+  description: >
+    Enzymatic addition of hydrogen cyanide across an aldehyde or ketone
+    carbonyl, forming the corresponding cyanohydrin. Matched on HCN alone;
+    no ec_prefix is declared.
+  expected_mass_delta: 27.026
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:18407"
+  cofactor_role: reagent
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Potassium cyanide / acetic acid cyanohydrin synthesis"
+  source: >
+    Not a paper, but the standard textbook chemical route to a
+    cyanohydrin: potassium cyanide (a bench-stable, easily verified solid
+    HCN surrogate -- not neat hydrogen cyanide gas, which is far too
+    hazardous to model as a stoichiometric reagent) with a weak acid
+    (acetic acid) to buffer the reaction and liberate the active HCN
+    in situ, added to the aldehyde or ketone. Gives the racemic
+    cyanohydrin (this chemical route, unlike the enzymatic one, is not
+    stereoselective -- a real disadvantage of the chemical route this
+    process model does not need to overstate to make its point).
+    Parameters stated on the same terms the other process models use.
+  reaction_concentration_M: 0.5
+  stage_yield: 0.9
+  note: >
+    No protection stage is modelled, for the same reason the other
+    process-model classes omit one.
+  stages:
+
+    - id: cyanate
+      volumes: 1.0
+      solvent: {name: water, cas: "7732-18-5", density_kg_per_L: 1.0}
+      reagents:
+        - name: potassium cyanide
+          cas: "151-50-8"
+          kg_per_mol: 0.06512
+          equivalents: 1.1
+          note: >
+            1.1 equivalents of the cyanide source -- a modest excess,
+            standard for this reaction.
+        - name: acetic acid
+          cas: "64-19-7"
+          kg_per_mol: 0.06005
+          equivalents: 1.1
+          note: >
+            Buffers the reaction and liberates the active HCN from
+            cyanide in situ, matched to the cyanide's own loading.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

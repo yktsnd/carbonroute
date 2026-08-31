@@ -2921,3 +2921,82 @@ def test_nadh_ketoreductase_process_model_charges_sodium_borohydride(nadh_kr_inp
     names = {m.name for m in materials}
     assert {"sodium borohydride", "methanol"} <= names
     assert all(m.basis == "generalised" for m in materials)
+
+
+# --- a twenty-sixth class: HCN-dependent cyanohydrin formation -------------
+# An unusually small, unusually clean candidate caught on a second, wider
+# pass of the discovery survey (HCN's own count, 34, was below the
+# original survey's informal cutoff).
+
+
+@pytest.fixture(scope="module")
+def hcn_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "hcn-cyanohydrin.yaml")
+    bounds = load_bounds(CLASSES / "hcn-cyanohydrin.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def hcn_screened(hcn_inputs):
+    return screen_all(*hcn_inputs, use_process_model=True)
+
+
+def test_hcn_cyanohydrin_class_declares_no_ec_prefix(hcn_inputs):
+    """Every real member of this class carries no EC annotation at all in
+    this Rhea release, so no ec_prefix is declared -- the mass-delta check
+    alone already separates this class cleanly."""
+    template = hcn_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(27.026, abs=1e-6)
+
+
+def test_hcn_cyanohydrin_class_matches_and_decides_the_expected_number(hcn_screened):
+    """34 reactions match hydrogen cyanide as a left-side reactant with
+    exactly one other resolvable left participant. 30 (88.2%) land within
+    one proton of 27.026 (HCN's own mass) and are decided, every one
+    decisively favouring the enzyme -- including RHEA:77427 (benzaldehyde
+    -> (S)-mandelonitrile, the reaction that pinned down the constant) and
+    a methyl ketone (RHEA:77467, butan-2-one -> 2-hydroxy-2-
+    methylbutanenitrile). The other 2: RHEA:16881 (thiosulfate + hydrogen
+    cyanide = thiocyanate + sulfite + 2 H(+), a sulfurtransferase where
+    HCN is a cyanide ACCEPTOR, not added across a carbonyl -- mass delta
+    -55.05) and RHEA:17821 (L-cysteine + hydrogen cyanide =
+    3-cyano-L-alanine + hydrogen sulfide + H(+), where HCN displaces
+    cysteine's thiol rather than adding to a carbonyl -- mass delta
+    -7.06), both correctly excluded by mass delta."""
+    assert hcn_screened.matched == 34
+    assert len(hcn_screened.decided) == 30
+    by_id = {r.rhea_id: r for r in hcn_screened.results}
+    assert by_id["RHEA:77427"].decided
+    assert by_id["RHEA:77467"].decided
+    assert not by_id["RHEA:16881"].decided
+    assert "does not match" in by_id["RHEA:16881"].skipped_reason
+    assert not by_id["RHEA:17821"].decided
+    assert "does not match" in by_id["RHEA:17821"].skipped_reason
+
+
+def test_hcn_cyanohydrin_process_model_charges_kcn_and_acetic_acid(hcn_inputs):
+    """The declared process, not a paper: the standard textbook cyanohydrin
+    synthesis, potassium cyanide (a bench-stable HCN surrogate) buffered
+    with acetic acid. Everything generalised by construction."""
+    template = hcn_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"potassium cyanide", "acetic acid"} <= names
+    assert all(m.basis == "generalised" for m in materials)
+
+
+def test_hcn_cyanohydrin_class_is_decided_and_decisively_favours_the_enzyme(hcn_screened):
+    """Every one of this class's 30 decided reactions reaches a decisive
+    verdict favouring the enzyme."""
+    decided_with_verdict = [
+        r for r in hcn_screened.decided if r.verdict is not None and r.verdict.decisive
+    ]
+    assert len(decided_with_verdict) == len(hcn_screened.decided)
+    assert all(r.verdict.verdict == "b_lower" for r in decided_with_verdict)

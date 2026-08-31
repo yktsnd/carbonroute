@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-five classes now built — 8,007 of 18,558 reactions matched (43.1%), 3,876 decided (20.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-six classes now built — 8,041 of 18,558 reactions matched (43.3%), 3,906 decided (21.0%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -518,10 +518,23 @@ measures the same thing the threshold did.
    reasoning, same sodium borohydride process model, matching NADH
    instead. 278 matched (smaller than NADPH's 687), 18 structurally clean
    carbonyl reductions, **all 18 indeterminate** — the same honest
-   non-result, same heavy-cofactor reason (NADH ~665 g/mol). Final total
-   for this session:
-   **8,007 of 18,558 reactions matched (43.1%), 3,876 decided
-   (20.9%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
+   non-result, same heavy-cofactor reason (NADH ~665 g/mol). Total after
+   this class: 8,007 of 18,558 reactions matched (43.1%), 3,876 decided
+   (20.9%).
+
+   **A twenty-sixth class, `hcn-cyanohydrin.yaml`** (HCN-dependent
+   cyanohydrin formation — 34 matched, 30 decided, all decisive), an
+   unusually small, unusually clean candidate caught on a second, wider
+   discovery pass. Hydroxynitrile lyase chemistry: HCN adds across an
+   aldehyde or ketone to form the cyanohydrin, net mass 27.026 g/mol
+   (HCN itself), verified against RHEA:77427 (benzaldehyde →
+   (S)-mandelonitrile). No ec_prefix — every real member carries no EC
+   annotation at all in this Rhea release. Chemical route: potassium
+   cyanide (CAS 151-50-8) buffered with acetic acid, the standard
+   textbook synthesis — a bench-stable surrogate, not neat HCN gas. Final
+   total for this session:
+   **8,041 of 18,558 reactions matched (43.3%), 3,906 decided
+   (21.0%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
    enzymatic route's cofactor regeneration — and `--fair-fight` moves them
@@ -595,7 +608,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 43.1% matched / 20.9% decided and the 88.6% structural
+between today's 43.3% matched / 21.0% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at
@@ -605,7 +618,7 @@ own standard, corrected here rather than left standing. What remains true
 from the original argument: reporting 80% coverage *today* by loosening
 the cofactor-plus-structural-check methodology would be exactly the kind
 of shortcut this project exists to refuse. The number that matters is
-still **decided, not matched** — an honestly verified 20.9% is worth more
+still **decided, not matched** — an honestly verified 21.0% is worth more
 than a fabricated 80%, and closing the gap to 88.6% is a matter of
 building more classes the same rigorous way, not lowering the bar.
 
