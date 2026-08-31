@@ -101,7 +101,7 @@ Here is each question, what it needs, and where it stands.
 
 | Question | What it needs | Status |
 |---|---|---|
-| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-four classes now built — 7,729 of 18,558 reactions matched (41.6%), 3,876 decided (20.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
+| **Q1.** Which enzymatic reactions contribute most | A metric comparable *across* reaction classes, and a ranking | **Metric done, coverage growing.** Reactions rank on kg CO₂e saved per kg of product, which means the same thing in any class. Twenty-five classes now built — 8,007 of 18,558 reactions matched (43.1%), 3,876 decided (20.9%). See ["How far coverage can actually go"](#how-far-coverage-can-actually-go-and-why-not-further) for the honest ceiling on this number |
 | **Q2.** The advantage once yield and solvent recycling are accounted for | A 2-D break-even curve over (enzymatic yield × solvent recovery) | **Done.** Both axes are modelled; the frontier is below. The answer is not the one the enzymatic route wanted |
 | **Q3.** Where commercialised biomanufacturing ranks | A mapping from commercial processes to Rhea reactions, and percentiles | **Not started** |
 
@@ -509,9 +509,18 @@ measures the same thing the threshold did.
    for `nad-oxidoreductase`, `acetyl-coa-acyltransferase` and
    `coa-ligase`. Chemical route: sodium borohydride (CAS 16940-66-2) in
    methanol — the standard hydride source for a carbonyl reduction, not
-   claimed to cover the alkene reductions the bond check excludes. Final
-   total for this session:
-   **7,729 of 18,558 reactions matched (41.6%), 3,876 decided
+   claimed to cover the alkene reductions the bond check excludes. Total
+   after this class: 7,729 of 18,558 reactions matched (41.6%), 3,876
+   decided (20.9%).
+
+   **A twenty-fifth class, `nadh-ketoreductase.yaml`**, is the direct
+   sibling of the NADPH class above — same session, same bond-check
+   reasoning, same sodium borohydride process model, matching NADH
+   instead. 278 matched (smaller than NADPH's 687), 18 structurally clean
+   carbonyl reductions, **all 18 indeterminate** — the same honest
+   non-result, same heavy-cofactor reason (NADH ~665 g/mol). Final total
+   for this session:
+   **8,007 of 18,558 reactions matched (43.1%), 3,876 decided
    (20.9%)** — up from 2,815/1,724 (15.2%/9.3%) at the start.
 2. **Build a solvent-lean chemical template** (the fair fight). Both routes
    now have an effort dial — the chemical route's solvent recovery, and the
@@ -586,7 +595,7 @@ one mechanism from another via `required_co_cofactor_chebi` /
 than by EC prefix.
 
 None of this means 80–100% is reachable soon, or that the remaining gap
-between today's 41.6% matched / 20.9% decided and the 88.6% structural
+between today's 43.1% matched / 20.9% decided and the 88.6% structural
 ceiling is small or easy — it is a large, multi-year undertaking (roughly
 800 more class templates would be needed to reach the tier where a
 cofactor is common enough, at 5+ reactions, to be worth templating at

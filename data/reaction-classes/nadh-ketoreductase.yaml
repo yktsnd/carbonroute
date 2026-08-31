@@ -1,0 +1,103 @@
+# Reaction class: NADH-dependent carbonyl reduction
+#
+# The direct sibling of `nadph-ketoreductase.yaml`, same session, same
+# mass-delta discovery survey: matches NADH (CHEBI:57945), the reduced
+# cofactor form, restricted structurally (via `transferred_bond_smarts`,
+# not `ec_prefix`) to reactions that reduce a ketone or aldehyde to the
+# corresponding alcohol -- the mirror image of `nad-oxidoreductase` for
+# NADH specifically, the way `nadph-ketoreductase` already is for NADPH.
+#
+# NADH is consumed by 278 Rhea reactions in total (smaller than NADPH's
+# 687 -- most redox chemistry in Rhea evidently prefers the NADPH-linked
+# path). 54 resolve to a single acceptor/product pair within one proton of
+# +2.016 g/mol (2H addition); of those, 18 (33.3%) both add the right mass
+# AND form exactly one new C-OH bond via `transferred_bond_smarts:
+# "[CX4][OX2H]"` -- verified directly against real Rhea structures,
+# including sugar/sugar-alcohol interconversions (RHEA:28667, hydroxyacetone
+# -> (S)-propane-1,2-diol; RHEA:30027, D-glyceraldehyde -> glycerol;
+# RHEA:33031, keto-D-fructose -> D-sorbitol), bile-acid epimer reductions
+# (RHEA:47492, RHEA:47508, RHEA:47512, RHEA:47516), a UDP-sugar ketone
+# reduction identical in shape to nadph-ketoreductase's own RHEA:40159
+# example, and a fatty-acyl-CoA beta-ketoreductase step (RHEA:78635). The
+# same reasoning `nadph-ketoreductase`'s own header documents applies here
+# without repetition: the raw +2.016 cluster mixes carbonyl reduction with
+# other same-mass 2H additions (alkene reduction among them), and the
+# bond check is what separates them.
+#
+# No ec_prefix is declared, for the same reason as its NADPH sibling: EC
+# annotation is sparse for this cofactor and the structural checks already
+# do the separating.
+#
+# A KNOWN, EXPECTED "HONEST NON-RESULT" CAVEAT, STATED UP FRONT, THE SAME
+# AS ITS SIBLING: NADH is heavy (~665 g/mol), the same weight class as
+# NAD+/NADP+ and NADPH, whose own classes (`nad-oxidoreductase`,
+# `nadph-ketoreductase`) both decide 0 of their matched reactions for
+# exactly this reason. This class is expected to land in the same place;
+# shipped anyway because matched, structural coverage is real coverage
+# even where the economics cannot be decided (see docs/screening.md).
+#
+# Structural verification (run through the actual screen, before writing
+# this paragraph): 278 reactions match NADH as a reactant. 18 (6.5%)
+# resolve to a single acceptor/product pair that both adds the right mass
+# and forms exactly one new C-OH bond -- see the commit message /
+# docs/screening.md for confirmation these are indeterminate at current
+# bounds, exactly as predicted.
+
+reaction_class:
+  id: nadh-ketoreductase
+  name: "NADH-dependent carbonyl reduction"
+  description: >
+    Enzymatic reduction of a ketone or aldehyde to the corresponding
+    secondary or primary alcohol, consuming NADH and releasing NAD(+).
+    The NADH sibling of nadph-ketoreductase; matched on NADH plus the same
+    structural bond check, for the same reason. No ec_prefix is declared.
+  expected_mass_delta: 2.016
+  mass_delta_tolerance: 1.0
+  cofactor_chebi: "CHEBI:57945"
+  cofactor_role: reagent
+  transferred_bond_smarts: "[CX4][OX2H]"
+
+chemical_counterpart:
+  name: "Declared process model only -- see process_model below"
+  source: >
+    No chemical_counterpart.materials are declared for this class; it
+    ships with a process_model instead (see below) and must be screened
+    with --process-model. Same rationale as the other process-model-only
+    classes: see docs/screening.md's "A declared process, instead of one
+    paper's bench run".
+  materials: []
+
+# --- The chemical route as a declared process -------------------------------
+process_model:
+  name: "Sodium borohydride reduction, at process concentration"
+  source: >
+    Not a paper. Identical chemical counterpart to nadph-ketoreductase's
+    own process model, and for the same reason: sodium borohydride is the
+    standard, broadly applicable stoichiometric hydride source for a
+    carbonyl reduction, and this class's structural scope is the identical
+    transformation (carbonyl -> alcohol), just reached via a different
+    cofactor. Parameters stated on the same terms the other process models
+    use.
+  reaction_concentration_M: 0.2
+  stage_yield: 0.9
+  note: >
+    No protection stage is modelled, for the same reason the other
+    process-model classes omit one.
+  stages:
+
+    - id: reduce
+      volumes: 1.0
+      solvent: {name: methanol, cas: "67-56-1", density_kg_per_L: 0.792}
+      reagents:
+        - name: sodium borohydride
+          cas: "16940-66-2"
+          kg_per_mol: 0.03783
+          equivalents: 1.2
+          note: >
+            1.2 equivalents of the stoichiometric hydride source -- the
+            same loading nadph-ketoreductase's own process model uses.
+
+    - id: isolate
+      volumes: 5.0
+      solvent: {name: ethyl acetate, cas: "141-78-6", density_kg_per_L: 0.902}
+      reagents: []

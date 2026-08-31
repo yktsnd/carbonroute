@@ -1667,11 +1667,23 @@ search) in methanol, the standard stoichiometric hydride source for a
 carbonyl reduction -- not claimed to cover the alkene-/imide-reduction
 reactions this class's own bond check excludes.
 
-Final total, all twenty-four classes: **7,729 of 18,558 Rhea reactions
-matched (41.6%), 3,876 decided (20.9%)** -- matched coverage grows
-substantially (this is the largest single-class matched-count addition
-this session), decided coverage does not, and both numbers are reported
-exactly as honestly measured.
+Total after this class, all twenty-four: 7,729 of 18,558 Rhea reactions
+matched (41.6%), 3,876 decided (20.9%).
+
+A twenty-fifth class, `nadh-ketoreductase.yaml`, is the direct sibling of
+`nadph-ketoreductase`: same session, same `transferred_bond_smarts:
+"[CX4][OX2H]"` reasoning, same sodium borohydride process model, matching
+NADH (CHEBI:57945) instead of NADPH. NADH is consumed by 278 Rhea
+reactions, smaller than NADPH's 687. 18 (6.5%) both add the right mass
+and form exactly one new C-OH bond -- genuine carbonyl reductions,
+including sugar/sugar-alcohol interconversions (RHEA:28667,
+hydroxyacetone -> (S)-propane-1,2-diol; RHEA:33031, keto-D-fructose ->
+D-sorbitol) and bile-acid epimer reductions. **All 18 are indeterminate,
+not decided** -- the same honest non-result as its NADPH sibling, for the
+same heavy-cofactor reason (NADH is ~665 g/mol).
+
+Final total, all twenty-five classes: **8,007 of 18,558 Rhea reactions
+matched (43.1%), 3,876 decided (20.9%)**.
 
 See ["How far coverage can actually go"](../README.md#how-far-coverage-can-actually-go-and-why-not-further)
 in the README for a related correction: an earlier version of that

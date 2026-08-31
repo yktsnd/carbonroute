@@ -2856,3 +2856,68 @@ def test_nadph_ketoreductase_class_verdicts_are_honestly_indeterminate_at_curren
     assert len(verdicts) == 148
     assert all(v is not None and not v.decisive for v in verdicts.values())
     assert all(v.verdict == "indeterminate" for v in verdicts.values())
+
+
+# --- a twenty-fifth class: NADH-dependent carbonyl reduction, the direct --
+# sibling of nadph-ketoreductase (same session, same bond-check reasoning,
+# smaller cofactor pool).
+
+
+@pytest.fixture(scope="module")
+def nadh_kr_inputs():
+    reactions, _ = load_reactions(RHEA / "reactions.tsv")
+    structures = load_structures(RHEA / "participants.csv")
+    template = load_template(CLASSES / "nadh-ketoreductase.yaml")
+    bounds = load_bounds(CLASSES / "nadh-ketoreductase.bounds.yaml")
+    table = FactorTable.load(list(default_factor_paths(ROOT)))
+    for syn in default_synonym_paths(ROOT):
+        table.load_synonyms(syn)
+    assumptions = load_ledger(ARBUTIN / "ledger.yaml").assumptions
+    return reactions, template, structures, table, assumptions, bounds
+
+
+@pytest.fixture(scope="module")
+def nadh_kr_screened(nadh_kr_inputs):
+    return screen_all(*nadh_kr_inputs, use_process_model=True)
+
+
+def test_nadh_ketoreductase_class_declares_bond_check_not_ec_prefix(nadh_kr_inputs):
+    """The NADH sibling of nadph-ketoreductase's own declaration, for the
+    same reason."""
+    template = nadh_kr_inputs[1]
+    assert template.ec_prefix is None
+    assert template.expected_mass_delta == pytest.approx(2.016, abs=1e-6)
+    assert template.transferred_bond_smarts == "[CX4][OX2H]"
+
+
+def test_nadh_ketoreductase_class_matches_and_finds_honest_non_result(nadh_kr_screened):
+    """278 Rhea reactions consume NADH -- smaller than NADPH's 687. 18
+    (6.5%) both add the right mass (2.016 g/mol) and form exactly one new
+    C-OH bond -- genuine carbonyl reductions, including sugar/sugar-
+    alcohol interconversions (RHEA:28667, hydroxyacetone -> (S)-propane-
+    1,2-diol; RHEA:33031, keto-D-fructose -> D-sorbitol) and bile-acid
+    epimer reductions (RHEA:47508, 3-oxo-5beta-cholan-24-oate ->
+    isolithocholate). Every one of the 18 is indeterminate, not decided --
+    the same honest non-result as nad-oxidoreductase and
+    nadph-ketoreductase, for the same heavy-cofactor reason."""
+    assert nadh_kr_screened.matched == 278
+    assert len(nadh_kr_screened.decided) == 0
+    by_id = {r.rhea_id: r for r in nadh_kr_screened.results}
+    assert by_id["RHEA:28667"].verdict is not None
+    assert by_id["RHEA:33031"].verdict is not None
+    assert by_id["RHEA:47508"].verdict is not None
+    verdicts = {r.rhea_id: r.verdict for r in nadh_kr_screened.results if r.skipped_reason == ""}
+    assert len(verdicts) == 18
+    assert all(v is not None and not v.decisive for v in verdicts.values())
+    assert all(v.verdict == "indeterminate" for v in verdicts.values())
+
+
+def test_nadh_ketoreductase_process_model_charges_sodium_borohydride(nadh_kr_inputs):
+    """The declared process, not a paper: identical to nadph-ketoreductase's
+    own -- sodium borohydride in methanol. Everything generalised by
+    construction."""
+    template = nadh_kr_inputs[1]
+    materials = materials_from_process_model(template.process_model)
+    names = {m.name for m in materials}
+    assert {"sodium borohydride", "methanol"} <= names
+    assert all(m.basis == "generalised" for m in materials)
